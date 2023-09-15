@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">eClinic</string>
+    <string name="server">Server</string>
+    <string name="user">Utente</string>
+    <string name="password">Password</string>
+    <string name="remember_me">Ricorda i miei dati</string>
+    <string name="login">Login</string>
+    <string name="structure">Struttura</string>
+    <string name="first_login">Primo Login</string>
+    <string name="first_login_message">Hai effettuato il tuo primo accesso. Contatta l’Amministratore di Sistema per attivare la tua utenza.</string>
 </resources>
