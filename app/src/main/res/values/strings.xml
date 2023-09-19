@@ -8,4 +8,14 @@
     <string name="structure">Struttura</string>
     <string name="first_login">Primo Login</string>
     <string name="first_login_message">Hai effettuato il tuo primo accesso. Contatta l’Amministratore di Sistema per attivare la tua utenza.</string>
+    <string name="search">Cerca</string>
+    <string name="zones">Zone</string>
+    <string name="micro_zones">Micro zone</string>
+    <string name="online">Online</string>
+    <string name="syncing">Syncing...</string>
+    <string name="offline">Offline</string>
+    <string name="last_sync">Last sync</string>
+    <string name="sync_now">Sync now</string>
+    <string name="just_now">Just now</string>
+    <string name="sync_problem">There was a problem during the sync, please try again.</string>
 </resources>

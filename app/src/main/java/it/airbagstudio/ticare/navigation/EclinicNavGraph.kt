@@ -12,6 +12,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import it.airbagstudio.ticare.pages.SplashPage
 import it.airbagstudio.ticare.pages.login.LoginScreen
+import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
 import kotlinx.coroutines.CoroutineScope
 
 
@@ -39,6 +40,10 @@ fun EclinicNavGraph(
 
         composable(Destinations.LOGIN_ROUTE){
             LoginScreen()
+        }
+
+        composable(Destinations.PATIENTS_LIST_ROUTE){
+            PatientListScreen()
         }
     }
 }

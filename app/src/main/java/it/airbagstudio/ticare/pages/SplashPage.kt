@@ -48,9 +48,9 @@ fun SplashPage(nav: NavigationActions) {
         ) {
 
             Button(onClick = {
-                nav.navigateToLogin()
+                nav.navigateToPatientsList()
             }) {
-                Text(text = "Login")
+                Text(text = "Patients")
             }
 
             Image(
