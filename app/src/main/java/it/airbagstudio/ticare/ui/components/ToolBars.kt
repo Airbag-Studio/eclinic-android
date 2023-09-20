@@ -74,7 +74,8 @@ private fun SyncButton(state: SyncButtonState) {
             Image(painter = icon, contentDescription = message)
         }
         MaterialTheme(
-            shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(16.dp))) {
+            shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(16.dp))
+        ) {
 
             DropdownMenu(
                 expanded = expanded,
@@ -155,13 +156,14 @@ private fun SyncButton(state: SyncButtonState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ToolbarWithSyncAndSettings(title: String,onSettingsClick: () -> Unit) {
+fun ToolbarWithSyncAndSettings(title: String, onSettingsClick: () -> Unit) {
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
         title = {
-                Text(text = title,
+            Text(
+                text = title,
                 style = MaterialTheme.typography.titleMedium
-                )
+            )
         },
         navigationIcon = {
             IconButton(onClick = { onSettingsClick() }) {
@@ -179,10 +181,12 @@ fun ToolbarWithSyncAndSettings(title: String,onSettingsClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ToolbarWithBackAndSync(onBack: () -> Unit) {
+fun ToolbarWithBackAndSync(title: String, onBack: () -> Unit) {
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
-        title = {},
+        title = {
+            Text(text = title, style = MaterialTheme.typography.titleMedium)
+        },
         navigationIcon = {
             IconButton(
                 onClick = onBack

@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import it.airbagstudio.ticare.pages.SplashPage
 import it.airbagstudio.ticare.pages.login.LoginScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
+import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
 import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
 import kotlinx.coroutines.CoroutineScope
 
@@ -48,6 +49,11 @@ fun EclinicNavGraph(
         }
         composable(Destinations.PATIENT_DETAILS_ROUTE){
             PatientDetailsScreen(navActions = navActions){
+                navController.popBackStack()
+            }
+        }
+        composable(Destinations.PATIENT_INFO_ROUTE){
+            PatientInfoScreen(navigationActions = navActions) {
                 navController.popBackStack()
             }
         }

@@ -28,4 +28,6 @@
     <string name="care_planes">Piani di cura</string>
     <string name="wounds">Ferite</string>
     <string name="other_prescriptions">Altre prescrizioni</string>
+    <string name="bithday">Data di nascita</string>
+    <string name="address">Indirizzo</string>
 </resources>

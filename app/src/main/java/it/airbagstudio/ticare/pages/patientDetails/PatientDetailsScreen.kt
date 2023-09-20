@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.patientDetails
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -66,7 +67,7 @@ fun PatientDetailsScreen(
     val sheetState = rememberModalBottomSheetState()
     Scaffold(
         topBar = {
-            ToolbarWithBackAndSync {
+            ToolbarWithBackAndSync(title = "") {
                 onBack()
             }
         }
@@ -139,7 +140,9 @@ fun PatientDetailsScreen(
                             id = R.string.patient_info
                         ),
                         modifier = Modifier.weight(1f)
-                    ){}
+                    ){
+                        navActions.navigateToPatientInfo(Uri.encode("das/dad"))
+                    }
                     VerticalDivider()
                     GridButton(
                         image = painterResource(id = R.drawable.ic_pills), label = stringResource(
