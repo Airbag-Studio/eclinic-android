@@ -7,14 +7,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import it.airbagstudio.ticare.R
-import it.airbagstudio.ticare.ui.theme.md_theme_light_primaryContainer
 
 @Composable
 fun PatientImage(imageUrl: String?){
@@ -24,7 +25,7 @@ fun PatientImage(imageUrl: String?){
             .width(56.dp)
             .height(56.dp)
             .background(
-                md_theme_light_primaryContainer,
+                MaterialTheme.colorScheme.primaryContainer,
                 shape = RoundedCornerShape(4.dp)
             )
     ) {
@@ -40,7 +41,8 @@ fun PatientImage(imageUrl: String?){
                     .height(56.dp)
                     .clip(RoundedCornerShape(4.dp)),
                 model = imageUrl,
-                contentDescription = ""
+                contentDescription = "",
+                contentScale = ContentScale.Crop
             )
         }
     }

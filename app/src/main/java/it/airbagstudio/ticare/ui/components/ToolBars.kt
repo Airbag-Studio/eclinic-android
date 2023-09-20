@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,14 +39,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
-import it.airbagstudio.ticare.ui.theme.md_theme_light_error
-import it.airbagstudio.ticare.ui.theme.md_theme_light_onSurface
-import it.airbagstudio.ticare.ui.theme.md_theme_light_onSurfaceVariant
-import it.airbagstudio.ticare.ui.theme.md_theme_light_secondary
-import it.airbagstudio.ticare.ui.theme.md_theme_light_secondaryContainer
 import it.airbagstudio.ticare.ui.theme.seed
 
 enum class SyncButtonState {
@@ -73,7 +68,7 @@ private fun SyncButton(state: SyncButtonState) {
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (state == SyncButtonState.OFFLINE) md_theme_light_error else md_theme_light_onSurface
+                color = if (state == SyncButtonState.OFFLINE) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
             Image(painter = icon, contentDescription = message)
@@ -85,7 +80,7 @@ private fun SyncButton(state: SyncButtonState) {
                 expanded = expanded,
                 modifier = Modifier
                     .wrapContentSize(Alignment.TopEnd)
-                    .background(md_theme_light_secondaryContainer),
+                    .background(MaterialTheme.colorScheme.secondaryContainer),
                 onDismissRequest = { expanded = false },
             ) {
                 val dropdownIcon = when (state) {
@@ -112,17 +107,17 @@ private fun SyncButton(state: SyncButtonState) {
                                 Text(
                                     text = stringResource(id = R.string.last_sync),
                                     style = MaterialTheme.typography.labelMedium,
-                                    color = md_theme_light_onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
                                     text = stringResource(id = R.string.just_now),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = md_theme_light_onSurface
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
                                     text = stringResource(id = R.string.sync_problem),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = md_theme_light_secondary
+                                    color = MaterialTheme.colorScheme.secondary
                                 )
                             }
                         }

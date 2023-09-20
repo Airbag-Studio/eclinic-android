@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.patientsList
 
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,10 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
@@ -31,11 +30,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
 import it.airbagstudio.ticare.ui.components.PatientListItem
 import it.airbagstudio.ticare.ui.components.PatientListItemView
@@ -45,7 +47,8 @@ import it.airbagstudio.ticare.ui.theme.AppTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PatientListScreen(
-    viewModel: PatientListScreenViewModel = hiltViewModel()
+    viewModel: PatientListScreenViewModel = hiltViewModel(),
+    navActions: NavigationActions
 
 ) {
     var searchActive by rememberSaveable { mutableStateOf(false) }
@@ -134,10 +137,10 @@ fun PatientListScreen(
 
                         }
                     }
-                    LazyColumn {
+                    LazyColumn(modifier = Modifier.fillMaxHeight()) {
                         items(viewModel.patients) { patientListItem ->
                             PatientListItemView(patient = patientListItem) {
-
+                                navActions.navigateToPatientDetails(Uri.encode(patientListItem.cOD))
                             }
                         }
                     }
@@ -182,7 +185,7 @@ private fun PagePreview() {
         )
     )
     AppTheme() {
-        PatientListScreen(viewModel = vm)
+        PatientListScreen(viewModel = vm,navActions = NavigationActions(NavController(LocalContext.current)))
     }
 
 }

@@ -18,4 +18,14 @@
     <string name="sync_now">Sync now</string>
     <string name="just_now">Just now</string>
     <string name="sync_problem">There was a problem during the sync, please try again.</string>
+    <string name="alerts">Alerts</string>
+    <string name="patient_info">Info paziente</string>
+    <string name="drug_administration">Somm. farmaci</string>
+    <string name="vital_parameters">Parametri vitali</string>
+    <string name="allergies">Allergie</string>
+    <string name="diary">Diario</string>
+    <string name="nursing_courses">Piani di cura</string>
+    <string name="care_planes">Piani di cura</string>
+    <string name="wounds">Ferite</string>
+    <string name="other_prescriptions">Altre prescrizioni</string>
 </resources>
