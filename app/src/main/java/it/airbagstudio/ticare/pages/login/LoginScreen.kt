@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -38,7 +39,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.theme.AppTheme
@@ -47,7 +50,8 @@ import it.airbagstudio.ticare.ui.theme.seed
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: LoginViewModel = hiltViewModel(),
+    navigationActions: NavigationActions
 
 ) {
     val showStructuresDialog = remember { mutableStateOf(false) }
@@ -177,7 +181,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                enabled = false,
+                enabled = true,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = seed
                 ),
@@ -185,7 +189,9 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .padding(bottom = 64.dp),
-                onClick = { /*TODO*/ }) {
+                onClick = {
+                    navigationActions.navigateToPatientsList()
+                }) {
                 Text(text = stringResource(id = R.string.login))
             }
 
@@ -232,6 +238,6 @@ fun LoginScreen(
 )
 private fun LoginScreenPreview() {
     AppTheme {
-        LoginScreen()
+        LoginScreen(navigationActions = NavigationActions(navController = NavController(LocalContext.current)))
     }
 }

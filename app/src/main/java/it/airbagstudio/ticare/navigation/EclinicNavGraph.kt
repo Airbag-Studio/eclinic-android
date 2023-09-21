@@ -10,11 +10,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import it.airbagstudio.ticare.pages.SplashPage
 import it.airbagstudio.ticare.pages.login.LoginScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
 import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
+import it.airbagstudio.ticare.pages.splashPage.SplashPageScreen
 import kotlinx.coroutines.CoroutineScope
 
 
@@ -37,11 +37,11 @@ fun EclinicNavGraph(
         modifier = modifier
     ) {
         composable(Destinations.SPLASH_ROUTE) {
-            SplashPage(nav = navActions)
+            SplashPageScreen(nav = navActions)
         }
 
         composable(Destinations.LOGIN_ROUTE){
-            LoginScreen()
+            LoginScreen(navigationActions = navActions)
         }
 
         composable(Destinations.PATIENTS_LIST_ROUTE){
