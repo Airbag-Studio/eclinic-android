@@ -2,6 +2,8 @@ package it.airbagstudio.ticare.navigation
 
 import androidx.navigation.NavController
 import it.airbagstudio.ticare.navigation.DestinationsArgs.PATIENT_COD
+import it.airbagstudio.ticare.navigation.Screens.ALLERGIES_SCREEN
+import it.airbagstudio.ticare.navigation.Screens.DRUG_ADMINISTRATION_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.LOGIN_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.PATIENTS_LIST_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.PATIENT_DETAILS_SCREEN
@@ -14,10 +16,13 @@ private object Screens{
     const val PATIENTS_LIST_SCREEN = "patientsListScreen"
     const val PATIENT_DETAILS_SCREEN = "patientDetailsScreen"
     const val PATIENT_INFO_SCREEN = "patientInfoScreen"
+    const val DRUG_ADMINISTRATION_SCREEN = "drugAdministrationScreen"
+    const val ALLERGIES_SCREEN = "allergiesScreen"
 }
 
 object DestinationsArgs{
     const val PATIENT_COD = "patientCod"
+    const val NOTE_CONTENT = "noteContent"
 }
 
 object Destinations{
@@ -26,6 +31,8 @@ object Destinations{
     const val PATIENTS_LIST_ROUTE = PATIENTS_LIST_SCREEN
     const val PATIENT_DETAILS_ROUTE = "$PATIENT_DETAILS_SCREEN/{$PATIENT_COD}"
     const val PATIENT_INFO_ROUTE = "$PATIENT_INFO_SCREEN/{$PATIENT_COD}"
+    const val DRUG_ADMINISTRATION_ROUTE = "$DRUG_ADMINISTRATION_SCREEN/{$PATIENT_COD}"
+    const val ALLERGIES_ROUTE = "$ALLERGIES_SCREEN/{$PATIENT_COD}"
 }
 
 class NavigationActions(private val navController: NavController){
@@ -48,5 +55,13 @@ class NavigationActions(private val navController: NavController){
 
     fun navigateToPatientInfo(patientCod: String) {
         navController.navigate("$PATIENT_INFO_SCREEN/$patientCod")
+    }
+
+    fun navigateToDrugAdministration(patientCod: String){
+        navController.navigate("$DRUG_ADMINISTRATION_SCREEN/$patientCod")
+    }
+
+    fun navigateToAllergies(patientCod: String){
+        navController.navigate("$ALLERGIES_SCREEN/$patientCod")
     }
 }

@@ -20,7 +20,7 @@ class SplashPageScreenViewModel @Inject constructor(): ViewModel() {
 
     init {
         viewModelScope.launch {
-            delay(3000L)
+            delay(1000L)
             loginSuccess = true
         }
     }

@@ -200,6 +200,24 @@ fun ToolbarWithBackAndSync(title: String, onBack: () -> Unit) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ToolbarWithBack(title: String, onBack: () -> Unit) {
+    TopAppBar(
+        modifier = Modifier.fillMaxWidth(),
+        title = {
+            Text(text = title, style = MaterialTheme.typography.titleMedium)
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = onBack
+            ) {
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
+            }
+        }
+    )
+}
+
 @Composable
 @Preview
 private fun PreviewToolbar() {

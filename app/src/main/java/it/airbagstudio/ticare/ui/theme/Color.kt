@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import com.google.android.material.color.utilities.MaterialDynamicColors.tertiary
 
 
 val md_theme_light_primary = Color(0xFF00668A)
@@ -65,3 +66,4 @@ val md_theme_dark_scrim = Color(0xFF000000)
 
 
 val seed = Color(0xFF0099CE)
+val tertiary95 = Color(0xFFFFEFCC)

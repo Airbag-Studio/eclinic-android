@@ -30,4 +30,21 @@
     <string name="other_prescriptions">Altre prescrizioni</string>
     <string name="bithday">Data di nascita</string>
     <string name="address">Indirizzo</string>
+    <string name="today">Oggi</string>
+    <string name="prescriptions">Prescrizioni</string>
+    <string name="reserves">Riserve</string>
+    <string name="quantity">Quantità</string>
+    <string name="time">Orario</string>
+    <string name="execute_all">Esegui tutte le prescrizioni</string>
+    <string name="duration">Durata (min)</string>
+    <string name="prescribed">Prescritta</string>
+    <string name="actual_date_time">Data e ora effettive</string>
+    <string name="notes">Note</string>
+    <string name="show_in_diary">Mostra nel diario</string>
+    <string name="rejected_by_patient">Rifiutata dal paziente</string>
+    <string name="not_performed">Non eseguita</string>
+    <string name="patient_medication">Farmaco del paziente</string>
+    <string name="execute">Esegui</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">Ok</string>
 </resources>

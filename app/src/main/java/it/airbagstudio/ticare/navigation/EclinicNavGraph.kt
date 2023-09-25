@@ -10,6 +10,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import it.airbagstudio.ticare.pages.allergies.AllergiesScreen
+import it.airbagstudio.ticare.pages.drugsAdministration.DrugsAdministrationScreen
+import it.airbagstudio.ticare.pages.drugsAdministration.editDrugAdministration.EditNoteScreen
 import it.airbagstudio.ticare.pages.login.LoginScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
@@ -54,6 +57,16 @@ fun EclinicNavGraph(
         }
         composable(Destinations.PATIENT_INFO_ROUTE){
             PatientInfoScreen(navigationActions = navActions) {
+                navController.popBackStack()
+            }
+        }
+        composable(Destinations.DRUG_ADMINISTRATION_ROUTE){
+            DrugsAdministrationScreen(navigationActions = navActions) {
+                navController.popBackStack()
+            }
+        }
+        composable(Destinations.ALLERGIES_ROUTE){
+            AllergiesScreen(navigationActions = navActions) {
                 navController.popBackStack()
             }
         }

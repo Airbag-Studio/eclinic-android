@@ -1,6 +1,8 @@
 package it.airbagstudio.ticare.pages.patientDetails
 
 import android.net.Uri
+import android.text.format.DateFormat
+import android.text.format.DateUtils
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +21,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -26,9 +30,12 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.Key.Companion.U
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -55,6 +63,8 @@ import it.airbagstudio.ticare.ui.components.DropDownButton
 import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.ui.theme.AppTheme
+import java.util.Calendar
+import java.util.Date
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -63,8 +73,20 @@ fun PatientDetailsScreen(
     navActions: NavigationActions,
     onBack: () -> Unit
 ) {
+
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
+
+
+    var showDatePicker by remember {
+        mutableStateOf(false)
+    }
+    val calendar = Calendar.getInstance()
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = calendar.timeInMillis)
+    var selectedDate by remember {
+        mutableLongStateOf(calendar.timeInMillis)
+    }
+
     Scaffold(
         topBar = {
             ToolbarWithBackAndSync(title = "") {
@@ -117,8 +139,9 @@ fun PatientDetailsScreen(
             }
 
             Row(modifier = Modifier.padding(horizontal = 16.dp)) {
-                DropDownButton(modifier = Modifier.weight(1f), value = "Oggi") {
-
+               val dateButtonValue : String = if (DateUtils.isToday(selectedDate)) stringResource(id = R.string.today) else DateFormat.format("dd.MM.yyyy",Date(selectedDate)).toString()
+                DropDownButton(modifier = Modifier.weight(1f), value = dateButtonValue) {
+                    showDatePicker = true
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 DropDownButton(modifier = Modifier.weight(1f), value = "Colazione") {
@@ -149,7 +172,9 @@ fun PatientDetailsScreen(
                             id = R.string.drug_administration
                         ),
                         modifier = Modifier.weight(1f)
-                    ){}
+                    ){
+                        navActions.navigateToDrugAdministration(Uri.encode("das/dad"))
+                    }
                     VerticalDivider()
                     GridButton(
                         image = painterResource(id = R.drawable.ic_vital_parameters),
@@ -170,7 +195,9 @@ fun PatientDetailsScreen(
                             id = R.string.allergies
                         ),
                         modifier = Modifier.weight(1f)
-                    ){}
+                    ){
+                        navActions.navigateToAllergies(Uri.encode("das/dad"))
+                    }
                     VerticalDivider()
                     GridButton(
                         image = painterResource(id = R.drawable.ic_diary), label = stringResource(
@@ -224,6 +251,32 @@ fun PatientDetailsScreen(
             if (showBottomSheet) {
                 AlertsBottomSheet(state = sheetState, alerts = viewModel.alerts) {
                     showBottomSheet = false
+                }
+            }
+            if (showDatePicker) {
+                DatePickerDialog(
+                    onDismissRequest = {
+                        showDatePicker = false
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showDatePicker = false
+                            selectedDate = datePickerState.selectedDateMillis!!
+                        }) {
+                            Text(text = "Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            showDatePicker = false
+                        }) {
+                            Text(text = "Cancel")
+                        }
+                    }
+                ) {
+                    DatePicker(
+                        state = datePickerState
+                    )
                 }
             }
         }
