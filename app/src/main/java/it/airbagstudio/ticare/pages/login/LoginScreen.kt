@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,7 +21,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -181,7 +184,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                enabled = true,
+                enabled = viewModel.isValid.invoke() && !viewModel.isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = seed
                 ),
@@ -190,20 +193,26 @@ fun LoginScreen(
                     .padding(horizontal = 16.dp)
                     .padding(bottom = 64.dp),
                 onClick = {
-                    navigationActions.navigateToPatientsList()
+                    if (!viewModel.isLoading) {
+                        viewModel.loginUser()
+                    }
                 }) {
                 Text(text = stringResource(id = R.string.login))
+                if (viewModel.isLoading){
+                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                    CircularProgressIndicator(
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
 
         }
         if (showStructuresDialog.value) {
-            ListPopup(title = stringResource(id = R.string.structure), items = arrayOf(
-                ListPopupItem("Struttura 1", 1),
-                ListPopupItem("Struttura 2", 2),
-                ListPopupItem("Struttura 3", 3),
-            ), setShowDialog = {
+            ListPopup(title = stringResource(id = R.string.structure), items = viewModel.companies, setShowDialog = {
                 showStructuresDialog.value = false
             }, onItemSelected = {
+                viewModel.selectedCompany = it
                 showStructuresDialog.value = false
             })
         }
@@ -222,6 +231,10 @@ fun LoginScreen(
                         Text("Ok")
                     }
                 })
+        }
+        if (viewModel.successLogin){
+            viewModel.successLogin = false
+            navigationActions.navigateToPatientsList()
         }
     }
 }

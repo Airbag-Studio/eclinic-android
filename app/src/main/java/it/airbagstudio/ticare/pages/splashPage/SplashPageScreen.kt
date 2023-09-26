@@ -47,13 +47,6 @@ fun SplashPageScreen(
                 .fillMaxWidth()
                 .fillMaxHeight()
         ) {
-/*
-            Button(onClick = {
-                nav.navigateToPatientsList()
-            }) {
-                Text(text = "Patients")
-            }
-*/
             Image(
 
                 painter = painterResource(id = R.drawable.ti_care_logo),

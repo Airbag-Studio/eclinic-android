@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.patientDetails
 
+import android.icu.number.Scale
 import android.net.Uri
 import android.text.format.DateFormat
 import android.text.format.DateUtils
@@ -15,12 +16,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Divider
@@ -28,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -62,7 +66,9 @@ import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
 import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
+import okhttp3.internal.wait
 import java.util.Calendar
 import java.util.Date
 
@@ -94,189 +100,225 @@ fun PatientDetailsScreen(
             }
         }
     ) { values ->
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(values)
-        ) {
-            Row(
-                verticalAlignment = Alignment.Top,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth()
-            ) {
-                PatientImage(imageUrl = null)
-                Column(
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .fillMaxWidth()
-                        .clip(
-                            RoundedCornerShape(12.dp)
-                        )
-                        .background(MaterialTheme.colorScheme.inverseOnSurface)
-                        .padding(8.dp)
-                ) {
-                    Text(
-                        text = "Antonietti Raffaella",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = "28.12.1926 (97)",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "Via Calanchi 2, 6900 Lugano",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            AlertsChips(alerts = viewModel.alerts) {
-                showBottomSheet = true
-            }
-
-            Row(modifier = Modifier.padding(horizontal = 16.dp)) {
-               val dateButtonValue : String = if (DateUtils.isToday(selectedDate)) stringResource(id = R.string.today) else DateFormat.format("dd.MM.yyyy",Date(selectedDate)).toString()
-                DropDownButton(modifier = Modifier.weight(1f), value = dateButtonValue) {
-                    showDatePicker = true
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                DropDownButton(modifier = Modifier.weight(1f), value = "Colazione") {
-
-                }
-            }
-
+        if (viewModel.isLoading){
             Column(
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier
+                    .padding(values)
+                    .fillMaxHeight()
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Divider(color = MaterialTheme.colorScheme.primary)
                 Row(
                     horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.weight(1f)
+                    verticalAlignment = Alignment.CenterVertically
+
                 ) {
-                    GridButton(
-                        image = painterResource(id = R.drawable.ic_patient_info),
-                        label = stringResource(
-                            id = R.string.patient_info
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ){
-                        navActions.navigateToPatientInfo(Uri.encode("das/dad"))
-                    }
-                    VerticalDivider()
-                    GridButton(
-                        image = painterResource(id = R.drawable.ic_pills), label = stringResource(
-                            id = R.string.drug_administration
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ){
-                        navActions.navigateToDrugAdministration(Uri.encode("das/dad"))
-                    }
-                    VerticalDivider()
-                    GridButton(
-                        image = painterResource(id = R.drawable.ic_vital_parameters),
-                        label = stringResource(
-                            id = R.string.vital_parameters
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ){}
+                    CircularProgressIndicator()
                 }
-                Divider(color = MaterialTheme.colorScheme.primary)
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    GridButton(
-                        image = painterResource(id = R.drawable.ic_allergies),
-                        label = stringResource(
-                            id = R.string.allergies
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ){
-                        navActions.navigateToAllergies(Uri.encode("das/dad"))
-                    }
-                    VerticalDivider()
-                    GridButton(
-                        image = painterResource(id = R.drawable.ic_diary), label = stringResource(
-                            id = R.string.diary
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ){}
-                    VerticalDivider()
-                    GridButton(
-                        image = painterResource(id = R.drawable.ic_care_planes),
-                        label = stringResource(
-                            id = R.string.care_planes
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ){}
-                }
-                Divider(color = MaterialTheme.colorScheme.primary)
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    GridButton(
-                        image = painterResource(id = R.drawable.ic_nursing_courses),
-                        label = stringResource(
-                            id = R.string.nursing_courses
-                        ),
-                        modifier = Modifier.weight(1f),
-                        badgeCount = 34
-                    ){}
-                    VerticalDivider()
-                    GridButton(
-                        image = painterResource(id = R.drawable.ic_wounds), label = stringResource(
-                            id = R.string.wounds
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ){}
-                    VerticalDivider()
-                    GridButton(
-                        image = painterResource(id = R.drawable.ic_other_prescriptions),
-                        label = stringResource(
-                            id = R.string.other_prescriptions
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ){}
-                }
-                Divider(color = MaterialTheme.colorScheme.primary)
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-
-            if (showBottomSheet) {
-                AlertsBottomSheet(state = sheetState, alerts = viewModel.alerts) {
-                    showBottomSheet = false
-                }
-            }
-            if (showDatePicker) {
-                DatePickerDialog(
-                    onDismissRequest = {
-                        showDatePicker = false
-                    },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            showDatePicker = false
-                            selectedDate = datePickerState.selectedDateMillis!!
-                        }) {
-                            Text(text = "Confirm")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = {
-                            showDatePicker = false
-                        }) {
-                            Text(text = "Cancel")
-                        }
-                    }
+        }else {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(values)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
                 ) {
-                    DatePicker(
-                        state = datePickerState
-                    )
+                    PatientImage(imageUrl = null)
+                    Column(
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .fillMaxWidth()
+                            .clip(
+                                RoundedCornerShape(12.dp)
+                            )
+                            .background(MaterialTheme.colorScheme.inverseOnSurface)
+                            .padding(8.dp)
+                    ) {
+                        Text(
+                            text = "Antonietti Raffaella",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "28.12.1926 (97)",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "Via Calanchi 2, 6900 Lugano",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                AlertsChips(alerts = viewModel.alerts) {
+                    showBottomSheet = true
+                }
+
+                Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    val dateButtonValue: String =
+                        if (DateUtils.isToday(selectedDate)) stringResource(id = R.string.today) else DateFormat.format(
+                            "dd.MM.yyyy",
+                            Date(selectedDate)
+                        ).toString()
+                    DropDownButton(modifier = Modifier.weight(1f), value = dateButtonValue, isEnabled = !viewModel.isLoading) {
+                        showDatePicker = true
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    DropDownButton(modifier = Modifier.weight(1f), value = "Colazione Terapia", isEnabled = !viewModel.isLoading) {
+
+                    }
+                }
+
+                Column(
+                    modifier = Modifier.padding(top = 16.dp)
+                ) {
+                    Divider(color = MaterialTheme.colorScheme.primary)
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        GridButton(
+                            image = painterResource(id = R.drawable.ic_patient_info),
+                            label = stringResource(
+                                id = R.string.patient_info
+                            ),
+                            isLoading = viewModel.isLoadingActivities,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            navActions.navigateToPatientInfo(Uri.encode("das/dad"))
+                        }
+                        VerticalDivider()
+                        GridButton(
+                            image = painterResource(id = R.drawable.ic_pills),
+                            label = stringResource(
+                                id = R.string.drug_administration
+                            ),
+                            isLoading = viewModel.isLoadingActivities,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            navActions.navigateToDrugAdministration(Uri.encode("das/dad"))
+                        }
+                        VerticalDivider()
+                        GridButton(
+                            image = painterResource(id = R.drawable.ic_vital_parameters),
+                            label = stringResource(
+                                id = R.string.vital_parameters
+                            ),
+                            isLoading = viewModel.isLoadingActivities,
+                            modifier = Modifier.weight(1f)
+                        ) {}
+                    }
+                    Divider(color = MaterialTheme.colorScheme.primary)
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        GridButton(
+                            image = painterResource(id = R.drawable.ic_allergies),
+                            label = stringResource(
+                                id = R.string.allergies
+                            ),
+                            isLoading = viewModel.isLoadingActivities,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            navActions.navigateToAllergies(Uri.encode("das/dad"))
+                        }
+                        VerticalDivider()
+                        GridButton(
+                            image = painterResource(id = R.drawable.ic_diary),
+                            label = stringResource(
+                                id = R.string.diary
+                            ),
+                            isLoading = viewModel.isLoadingActivities,
+                            modifier = Modifier.weight(1f)
+                        ) {}
+                        VerticalDivider()
+                        GridButton(
+                            image = painterResource(id = R.drawable.ic_care_planes),
+                            label = stringResource(
+                                id = R.string.care_planes
+                            ),
+                            isLoading = viewModel.isLoadingActivities,
+                            modifier = Modifier.weight(1f)
+                        ) {}
+                    }
+                    Divider(color = MaterialTheme.colorScheme.primary)
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        GridButton(
+                            image = painterResource(id = R.drawable.ic_nursing_courses),
+                            label = stringResource(
+                                id = R.string.nursing_courses
+                            ),
+                            isLoading = viewModel.isLoadingActivities,
+                            modifier = Modifier.weight(1f),
+                            badgeCount = 34
+                        ) {}
+                        VerticalDivider()
+                        GridButton(
+                            image = painterResource(id = R.drawable.ic_wounds),
+                            label = stringResource(
+                                id = R.string.wounds
+                            ),
+                            isLoading = viewModel.isLoadingActivities,
+                            modifier = Modifier.weight(1f)
+                        ) {}
+                        VerticalDivider()
+                        GridButton(
+                            image = painterResource(id = R.drawable.ic_other_prescriptions),
+                            label = stringResource(
+                                id = R.string.other_prescriptions
+                            ),
+                            isLoading = viewModel.isLoadingActivities,
+                            modifier = Modifier.weight(1f)
+                        ) {}
+                    }
+                    Divider(color = MaterialTheme.colorScheme.primary)
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                if (showBottomSheet) {
+                    AlertsBottomSheet(state = sheetState, alerts = viewModel.alerts) {
+                        showBottomSheet = false
+                    }
+                }
+                if (showDatePicker) {
+                    DatePickerDialog(
+                        onDismissRequest = {
+                            showDatePicker = false
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showDatePicker = false
+                                selectedDate = datePickerState.selectedDateMillis!!
+                            }) {
+                                Text(text = "Confirm")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = {
+                                showDatePicker = false
+                            }) {
+                                Text(text = "Cancel")
+                            }
+                        }
+                    ) {
+                        DatePicker(
+                            state = datePickerState
+                        )
+                    }
                 }
             }
         }
@@ -299,23 +341,37 @@ private fun GridButton(
     label: String,
     modifier: Modifier = Modifier,
     badgeCount: Int = 0,
+    isLoading: Boolean,
     onClick: () -> Unit
 ) {
     Column(
         modifier = modifier
-            .clickable { onClick() }
+            .clickable {
+                if (!isLoading) {
+                    onClick()
+                }
+            }
             .fillMaxWidth()
             .fillMaxHeight()
             .padding(bottom = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Box(contentAlignment = Alignment.TopEnd) {
+        val boxModifier = if (isLoading){
+            Modifier.background(shimmerBrush())
+        }else{
+            Modifier
+        }
+        Box(
+            contentAlignment = Alignment.TopEnd,
+            modifier = boxModifier
+            ) {
             Image(
                 painter = image,
-                contentDescription = label
+                contentDescription = label,
+                alpha = if (isLoading) 0f else 1f
             )
-            if (badgeCount > 0) {
+            if (badgeCount > 0 && !isLoading) {
                 Text(
                     modifier = Modifier
                         .clip(CircleShape)
@@ -328,12 +384,28 @@ private fun GridButton(
                 )
             }
         }
-        Text(
-            text = label,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
+        if (isLoading){
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .padding(top = 4.dp)
+                    .height(20.dp)
+                    .background(
+                        shimmerBrush()
+                    )
+            ) {
+
+            }
+        }else{
+            Text(
+                text = label,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+
     }
 }
 
@@ -428,6 +500,8 @@ private fun AlertChip(alert: AlertItem, onClick: () -> Unit) {
 @Preview
 private fun PreviewPatientDetailsScreen() {
     val vm = PatientDetailsScreenViewModel(savedStateHandle = SavedStateHandle())
+    vm.isLoadingActivities = false
+    vm.isLoading = false
     vm.alerts = listOf(
         AlertItem(
             colorBg = "#c40a13",

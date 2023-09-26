@@ -6,14 +6,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.data.AlertItem
 import it.airbagstudio.ticare.navigation.DestinationsArgs
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PatientDetailsScreenViewModel @Inject constructor(savedStateHandle: SavedStateHandle): ViewModel() {
 
+
+    var isLoading by mutableStateOf(false)
+    var isLoadingActivities by mutableStateOf(false)
 
     private val patientCod: String? = savedStateHandle[DestinationsArgs.PATIENT_COD]
 
@@ -65,6 +71,14 @@ class PatientDetailsScreenViewModel @Inject constructor(savedStateHandle: SavedS
         )))
 
     init {
-        print(Uri.decode(patientCod))
+        viewModelScope.launch {
+            isLoading = true
+            delay(2000L)
+            isLoading = false
+            delay(1000L)
+            isLoadingActivities = true
+            delay(2000L)
+            isLoadingActivities = false
+        }
     }
 }

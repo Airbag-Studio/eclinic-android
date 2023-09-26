@@ -1,10 +1,15 @@
 package it.airbagstudio.ticare.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -59,6 +64,61 @@ fun PatientListItemView(patient: PatientListItem, onClick: () -> Unit) {
     }
 
 }
+
+
+@Composable
+@Preview
+fun PatientListItemViewLoading(){
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(vertical = 12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+
+                    .width(56.dp)
+                    .height(56.dp)
+                    .background(shimmerBrush())
+            ) {
+
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp)
+                    .weight(1f)
+            ) {
+                Text(
+                    text = "",
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(shimmerBrush())
+                )
+                Text(
+                    text = "",
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier
+                        .padding(vertical = 6.dp)
+                        .fillMaxWidth()
+                        .background(shimmerBrush())
+                )
+                Text(
+                    text = "",
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(shimmerBrush())
+                )
+            }
+        }
+        Divider(modifier = Modifier.padding(start = 24.dp))
+    }
+}
+
 
 @Composable
 @Preview

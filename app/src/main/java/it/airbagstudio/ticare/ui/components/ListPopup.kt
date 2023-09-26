@@ -23,7 +23,7 @@ import androidx.compose.ui.window.Dialog
 data class ListPopupItem(val label:String,val id:Int)
 
 @Composable
-fun ListPopup(title: String, items: Array<ListPopupItem>,setShowDialog: (Boolean) -> Unit, onItemSelected: (Int) -> Unit){
+fun <T> ListPopup(title: String, items: List<T>, setShowDialog: (Boolean) -> Unit, onItemSelected: (T) -> Unit){
     Dialog(onDismissRequest = { setShowDialog(false) }) {
         Surface(
             shape = RoundedCornerShape(16.dp)
@@ -45,12 +45,12 @@ fun ListPopup(title: String, items: Array<ListPopupItem>,setShowDialog: (Boolean
                         Box(
                             contentAlignment = Alignment.CenterStart,
                             modifier = Modifier.height(55.dp).clickable {
-                                onItemSelected(item.id)
+                                onItemSelected(item)
                             }
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-                                text = item.label,
+                                text = item.toString(),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
@@ -69,7 +69,7 @@ fun ListPopup(title: String, items: Array<ListPopupItem>,setShowDialog: (Boolean
 @Composable
 @Preview
 private fun ListPopupPreview(){
-    ListPopup(title = "Zone", items = arrayOf(
+    ListPopup(title = "Zone", items = listOf(
         ListPopupItem("Prova", id = 1),
         ListPopupItem("Prova 2", id = 2)
     ), setShowDialog = {

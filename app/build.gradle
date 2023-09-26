@@ -10,8 +10,8 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId "it.airbagstudio.ticare"
-        minSdk 24
+        applicationId "ch.ticare.eclinic"
+        minSdk 28
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -41,7 +41,15 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
-
+    flavorDimensions 'env'
+    productFlavors {
+        develop{
+            buildConfigField 'String', 'BASE_URL', '"https://194.182.160.249:3000/api/v1"'
+        }
+        preProd{
+            buildConfigField 'String', 'BASE_URL', '"https://194.182.160.249:3000/api/v1"'
+        }
+    }
 }
 
 dependencies {
@@ -50,8 +58,9 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.compose:compose-bom:2023.09.00'
     implementation 'androidx.compose.material3:material3:1.1.1'
-    implementation 'androidx.navigation:navigation-compose:2.7.2'
+    implementation 'androidx.navigation:navigation-compose:2.7.3'
     implementation "com.google.dagger:hilt-android:2.48"
+    implementation files('src/main/libs/shared-release.aar')
     kapt 'com.google.dagger:hilt-compiler:2.48'
     implementation 'androidx.compose.ui:ui-tooling-preview:1.5.1'
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
@@ -61,6 +70,13 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:1.5.1"
     implementation "io.coil-kt:coil:2.4.0"
     implementation "io.coil-kt:coil-compose:2.4.0"
+
+    /*
+    implementation("io.ktor:ktor-client-android:2.3.4")
+    implementation("io.ktor:ktor-client-logging:2.3.4")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
+    implementation("blue.starry:jsonkt:6.0.2")
+*/
 }
 kapt {
     correctErrorTypes true

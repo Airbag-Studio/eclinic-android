@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -34,6 +35,7 @@ import androidx.navigation.NavController
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.drugsAdministration.editDrugAdministration.EditDrugAdministrationSheet
+import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
@@ -106,7 +108,7 @@ fun DrugsAdministrationScreen(
                         modifier = Modifier
                             .tabIndicatorOffset(tabPositions[tabIndex])
                             .padding(horizontal = 50.dp)
-                            .clip(RoundedCornerShape(4.dp,4.dp,0.dp,0.dp))
+                            .clip(RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp))
                     )
                 }
                 //contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -129,19 +131,27 @@ fun DrugsAdministrationScreen(
                     )
                 }
             }
-          
-            when (tabIndex) {
-                0 -> {
-                    DrugAdministrationItemView(name = "Meto Zeroch cpr ret 25mg", quantity = 3, time = "10:30"){
-                        showBottomSheet = true
-                    }
+
+            if(viewModel.isLoading){
+                repeat(8) {
+                    DrugAdministrationItemViewLoading()
+                    Divider(modifier = Modifier.padding(start = 16.dp))
                 }
-                1 -> {
-                    DrugAdministrationItemView(name = "Meto Zeroch cpr ret 25mg", quantity = 3, time = "10:30", isReserve = true){
-                        showBottomSheet = true
+            }else{
+                when (tabIndex) {
+                    0 -> {
+                        DrugAdministrationItemView(name = "Meto Zeroch cpr ret 25mg", quantity = 3, time = "10:30", isCompleted = false){
+                            showBottomSheet = true
+                        }
+                    }
+                    1 -> {
+                        DrugAdministrationItemView(name = "Meto Zeroch cpr ret 25mg", quantity = 3, time = "10:30", isCompleted = false, isReserve = true){
+                            showBottomSheet = true
+                        }
                     }
                 }
             }
+
 
      
         }
@@ -157,9 +167,11 @@ fun DrugsAdministrationScreen(
 @Composable
 @Preview
 private fun PreviewDrugsAdministrationScreen() {
+    val viewModel = DrugsAdministrationScreenViewModel(SavedStateHandle.createHandle(null,null))
+    viewModel.isLoading = false
     AppTheme() {
         DrugsAdministrationScreen(
-            viewModel = DrugsAdministrationScreenViewModel(SavedStateHandle.createHandle(null,null)),
+            viewModel = viewModel,
 
             navigationActions = NavigationActions(NavController(LocalContext.current))) {
 
