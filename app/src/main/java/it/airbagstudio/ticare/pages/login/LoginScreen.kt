@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -23,17 +24,19 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,6 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
+import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.theme.AppTheme
@@ -82,13 +86,15 @@ fun LoginScreen(
                 .padding(values)
 
         ) {
-
             OutlinedTextField(
                 value = viewModel.server,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Done
                 ),
+                keyboardActions = KeyboardActions(onDone = {
+                    viewModel.downloadCompanies()
+                }),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -100,6 +106,12 @@ fun LoginScreen(
                 })
 
             OutlinedTextField(
+
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                    disabledLabelColor = MaterialTheme.colorScheme.onSurface,
+                    disabledBorderColor = MaterialTheme.colorScheme.onSurface,
+                ),
                 enabled = false,
                 trailingIcon = {
                     Image(
@@ -109,7 +121,7 @@ fun LoginScreen(
                         )
                     )
                 },
-                value = "",
+                value = viewModel.selectedCompany?.name ?: "",
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
@@ -118,8 +130,11 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .padding(top = 32.dp)
+                    .alpha(if(viewModel.companies.isEmpty()) 0.2f else 1f)
                     .clickable {
-                        showStructuresDialog.value = true
+                        if(viewModel.companies.isNotEmpty()) {
+                            showStructuresDialog.value = true
+                        }
                     },
                 label = {
                     Text(text = stringResource(id = R.string.structure))
@@ -129,6 +144,7 @@ fun LoginScreen(
 
 
             OutlinedTextField(
+                enabled = viewModel.isIpAddressValid.invoke(),
                 value = viewModel.username,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -144,6 +160,7 @@ fun LoginScreen(
                 })
 
             OutlinedTextField(
+                enabled = viewModel.isIpAddressValid.invoke(),
                 value = viewModel.password,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
@@ -209,10 +226,11 @@ fun LoginScreen(
 
         }
         if (showStructuresDialog.value) {
-            ListPopup(title = stringResource(id = R.string.structure), items = viewModel.companies, setShowDialog = {
+            val popupItems = viewModel.companies.map { ListPopupItem(label = it.name, item = it) }
+            ListPopup(title = stringResource(id = R.string.structure), items = popupItems, setShowDialog = {
                 showStructuresDialog.value = false
             }, onItemSelected = {
-                viewModel.selectedCompany = it
+                viewModel.selectedCompany = it.item
                 showStructuresDialog.value = false
             })
         }
@@ -235,6 +253,11 @@ fun LoginScreen(
         if (viewModel.successLogin){
             viewModel.successLogin = false
             navigationActions.navigateToPatientsList()
+        }
+        if (viewModel.errorMessage != null){
+            ErrorAlert(message = viewModel.errorMessage!!, onDismissRequest = { viewModel.errorMessage = null }, onRetry = {
+                viewModel.downloadCompanies()
+            })
         }
     }
 }

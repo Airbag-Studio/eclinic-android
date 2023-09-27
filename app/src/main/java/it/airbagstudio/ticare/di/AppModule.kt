@@ -3,6 +3,7 @@ package it.airbagstudio.ticare.di
 import android.content.Context
 import ch.ticare.eclinic.library.network.APIClient
 import ch.ticare.eclinic.library.network.AuthRepository
+import ch.ticare.eclinic.library.repository.UserListRepository
 import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.Module
 import dagger.Provides
@@ -24,7 +25,7 @@ class AppModule {
 
     @Provides
     fun provideApiService(@ApplicationContext context: Context): APIClient {
-        return APIClient(BuildConfig.BASE_URL,provideAuthRepository(context))
+        return APIClient(provideAuthRepository(context))
     }
 
     @Provides
@@ -32,4 +33,13 @@ class AppModule {
     fun provideUserRepository(apiClient: APIClient): UserRepository {
         return UserRepository(apiClient)
     }
+
+    @Provides
+    @Singleton
+    fun provideUserListRepository(apiClient: APIClient): UserListRepository {
+        return UserListRepository(apiClient)
+    }
+
+    //For Preview
+
 }

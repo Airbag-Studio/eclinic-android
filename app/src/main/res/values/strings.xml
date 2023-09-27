@@ -47,4 +47,6 @@
     <string name="execute">Esegui</string>
     <string name="cancel">Cancel</string>
     <string name="ok">Ok</string>
+    <string name="warning">Attenzione</string>
+    <string name="retry">Riprova</string>
 </resources>

@@ -44,10 +44,10 @@ android {
     flavorDimensions 'env'
     productFlavors {
         develop{
-            buildConfigField 'String', 'BASE_URL', '"https://194.182.160.249:3000/api/v1"'
+
         }
         preProd{
-            buildConfigField 'String', 'BASE_URL', '"https://194.182.160.249:3000/api/v1"'
+
         }
     }
 }
@@ -60,7 +60,7 @@ dependencies {
     implementation 'androidx.compose.material3:material3:1.1.1'
     implementation 'androidx.navigation:navigation-compose:2.7.3'
     implementation "com.google.dagger:hilt-android:2.48"
-    implementation files('src/main/libs/shared-release.aar')
+    implementation files('src/main/libs/shared-debug.aar')
     kapt 'com.google.dagger:hilt-compiler:2.48'
     implementation 'androidx.compose.ui:ui-tooling-preview:1.5.1'
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
@@ -71,12 +71,16 @@ dependencies {
     implementation "io.coil-kt:coil:2.4.0"
     implementation "io.coil-kt:coil-compose:2.4.0"
 
-    /*
-    implementation("io.ktor:ktor-client-android:2.3.4")
+
+    implementation("io.ktor:ktor-client-core:2.3.4")
     implementation("io.ktor:ktor-client-logging:2.3.4")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
-    implementation("blue.starry:jsonkt:6.0.2")
-*/
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
+    implementation 'org.slf4j:slf4j-api:1.7.30'
+    implementation 'com.github.tony19:logback-android:2.0.0'
+    implementation("io.ktor:ktor-client-okhttp:2.3.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+
 }
 kapt {
     correctErrorTypes true

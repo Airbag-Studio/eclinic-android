@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,10 +54,12 @@ fun SplashPageScreen(
                 )
             )
         }
-        if(viewModel.loginSuccess){
-            viewModel.loginSuccess = false
+        if(viewModel.isLoggedIn == true){
+            viewModel.isLoggedIn = null
+            nav.navigateToPatientsList()
+        } else if (viewModel.isLoggedIn == false){
+            viewModel.isLoggedIn = null
             nav.navigateToLogin()
         }
-
     }
 }

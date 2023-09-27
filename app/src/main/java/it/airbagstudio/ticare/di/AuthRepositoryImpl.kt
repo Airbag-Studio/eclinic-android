@@ -10,6 +10,11 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
     private val refreshTokenKey = "REFRESH_TOKEN_KEY"
     private val tokenKey = "TOKEN_KEY"
     private val uuidKey = "UUID_KEY"
+    private val baseUrlKey = "BASE_URL_KEY"
+
+    override fun getBaseURL(): String {
+        return sharedPreferences.getString(baseUrlKey,"") ?: ""
+    }
 
     override fun getCompanyGroup(): String? {
         return sharedPreferences.getString(companyGroupKey,null)
@@ -28,7 +33,12 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
     }
 
     override fun getUUID(): String? {
-        return sharedPreferences.getString(uuidKey,null)
+        return  "8b827876-f089-4153-a8b5-006e63bfc957"
+    //return sharedPreferences.getString(uuidKey,null)
+    }
+
+    override fun setBaseURL(url: String) {
+        sharedPreferences.edit().putString(baseUrlKey,url).apply()
     }
 
     override fun setCompanyGroup(group: String?) {

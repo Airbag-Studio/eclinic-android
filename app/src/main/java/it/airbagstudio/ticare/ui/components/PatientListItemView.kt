@@ -19,11 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ch.ticare.eclinic.library.entity.CaseInfo
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
-fun PatientListItemView(patient: PatientListItem, onClick: () -> Unit) {
+fun PatientListItemView(patient: CaseInfo, onClick: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth().clickable {
         onClick()
     }) {
@@ -50,7 +51,7 @@ fun PatientListItemView(patient: PatientListItem, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${patient.address}\n${patient.cAP} ${patient.locality}",
+                    text = "${patient.address}\n${patient.cap} ${patient.locality}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -125,12 +126,12 @@ fun PatientListItemViewLoading(){
 private fun PreviewPatientListItemView() {
     AppTheme() {
         PatientListItemView(
-            patient = PatientListItem(
+            patient = CaseInfo(
                 surname = "ABETE",
                 name = "Maria",
                 address = "Via la Montagna 16",
-                cAP = "6962",
-                cOD = "23/2172",
+                cap = "6962",
+                code = "23/2172",
                 locality = "Viganello",
                 birthday = "03.08.1936",
                 age = 87,

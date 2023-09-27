@@ -19,11 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import ch.ticare.eclinic.library.entity.CompanyInfo
+import java.util.Objects
 
-data class ListPopupItem(val label:String,val id:Int)
+data class ListPopupItem<T>(val label:String, val item: T)
 
 @Composable
-fun <T> ListPopup(title: String, items: List<T>, setShowDialog: (Boolean) -> Unit, onItemSelected: (T) -> Unit){
+fun <T> ListPopup(title: String, items: List<ListPopupItem<T>>, setShowDialog: (Boolean) -> Unit, onItemSelected: (ListPopupItem<T>) -> Unit){
     Dialog(onDismissRequest = { setShowDialog(false) }) {
         Surface(
             shape = RoundedCornerShape(16.dp)
@@ -50,7 +52,7 @@ fun <T> ListPopup(title: String, items: List<T>, setShowDialog: (Boolean) -> Uni
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-                                text = item.toString(),
+                                text = item.label,
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         }
@@ -70,8 +72,8 @@ fun <T> ListPopup(title: String, items: List<T>, setShowDialog: (Boolean) -> Uni
 @Preview
 private fun ListPopupPreview(){
     ListPopup(title = "Zone", items = listOf(
-        ListPopupItem("Prova", id = 1),
-        ListPopupItem("Prova 2", id = 2)
+        ListPopupItem("Prova", item = CompanyInfo("group1","name1")),
+        ListPopupItem("Prova 2", item = CompanyInfo("group1","name1"))
     ), setShowDialog = {
 
     }, onItemSelected = {
