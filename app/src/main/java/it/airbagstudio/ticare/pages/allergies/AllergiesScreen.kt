@@ -1,8 +1,14 @@
 package it.airbagstudio.ticare.pages.allergies
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
@@ -21,7 +27,10 @@ import androidx.navigation.NavController
 import it.airbagstudio.ticare.R
 
 import it.airbagstudio.ticare.navigation.NavigationActions
+import it.airbagstudio.ticare.ui.components.ErrorAlert
+import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
@@ -32,7 +41,7 @@ fun AllergiesScreen(
 ) {
     Scaffold(
         topBar = {
-            ToolbarWithBackAndSync(title = "Nome paziente") {
+            ToolbarWithBackAndSync(title = "${viewModel.caseInfo?.name ?: ""} ${viewModel.caseInfo?.surname ?: ""}") {
                 onBack()
             }
         }
@@ -43,21 +52,33 @@ fun AllergiesScreen(
                 text = stringResource(id = R.string.allergies),
                 style = MaterialTheme.typography.headlineSmall
             )
-            LazyColumn(modifier = Modifier.fillMaxHeight()) {
-                items(viewModel.allergies) {
-                    AllergiesItemView(allergiesItem = it)
-                    if (viewModel.allergies.last() != it){
-                        Divider()
+            if (viewModel.isLoading) {
+                repeat(8) {
+                    AllergiesItemViewLoading()
+                }
+            } else if (viewModel.allergies != null) {
+                LazyColumn(modifier = Modifier.fillMaxHeight()) {
+                    items(viewModel.allergies!!) {
+                        AllergiesItemView(allergiesItem = it)
+                        if (viewModel.allergies!!.last() != it) {
+                            Divider()
+                        }
                     }
                 }
             }
         }
-
-
+        if (viewModel.errorMessage != null) {
+            ErrorAlert(
+                message = viewModel.errorMessage!!,
+                onDismissRequest = { viewModel.errorMessage = null },
+                onRetry = {
+                    viewModel.downloadAllergies()
+                })
+        }
     }
 }
 
-@Composable
+/*@Composable
 @Preview
 private fun AllergiesScreenPreview() {
     val viewModel = AllergiesScreenViewModel(SavedStateHandle())
@@ -78,4 +99,4 @@ private fun AllergiesScreenPreview() {
 
         }
     }
-}
+}*/

@@ -26,7 +26,7 @@ fun PatientInfoScreen(
     onBack:() -> Unit
 ){
     Scaffold(topBar = {
-        ToolbarWithBackAndSync(title = "Patient Name") {
+        ToolbarWithBackAndSync(title = "${viewModel.caseInfo?.name ?: ""} ${viewModel.caseInfo?.surname ?: ""}") {
             onBack()
         }
     }) { values ->
@@ -38,10 +38,33 @@ fun PatientInfoScreen(
                 text = stringResource(id = R.string.patient_info),
                 style = MaterialTheme.typography.headlineSmall
             )
-            PatientInfoCard(tile = stringResource(id = R.string.bithday), text = "28.12.1926 (97)")
-            PatientInfoCard(tile = stringResource(id = R.string.address), address = "Via Calanchi 2, 6900 Lugano")
-            PatientInfoCard(tile = "Telefono 1", phones = listOf("091 993 30 72"))
-            PatientInfoCard(tile = "Dott.ssa Lyana Sorgesa", phones = listOf("091 993 30 72","091 923 75 61"))
+            viewModel.caseInfo?.let { caseInfo ->
+                PatientInfoCard(tile = stringResource(id = R.string.bithday), text = caseInfo.birthday)
+                PatientInfoCard(tile = stringResource(id = R.string.address), address = "${caseInfo.address}, ${caseInfo.cap}, ${caseInfo.locality}")
+                if (caseInfo.contacts.phoneNumbers.isNotEmpty()) {
+                    PatientInfoCard(tile = "Telefono", phones = caseInfo.contacts.phoneNumbers.split(" | "))
+                }
+                caseInfo.internalMedics.forEach { internalMedic ->
+                    if (internalMedic.phoneNumbers.isNotEmpty()) {
+                        PatientInfoCard(
+                            tile = internalMedic.label,
+                            phones = internalMedic.phoneNumbers.split(" | " )
+                        )
+                    }
+                }
+                caseInfo.externalMedics.forEach { externalMedic ->
+                    if (externalMedic.phoneNumbers.isNotEmpty()) {
+                        PatientInfoCard(
+                            tile = externalMedic.label,
+                            phones = externalMedic.phoneNumbers.split(" | " )
+                        )
+                    }
+                }
+                caseInfo.otherInfo.forEach { otherInfo ->
+                    PatientInfoCard(tile = otherInfo.name, text = otherInfo.value)
+                }
+            }
+
         }
     }
 }
