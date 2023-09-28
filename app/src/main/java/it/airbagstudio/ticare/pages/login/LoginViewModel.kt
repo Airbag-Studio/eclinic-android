@@ -2,11 +2,10 @@ package it.airbagstudio.ticare.pages.login
 
 import android.content.Context
 import android.util.Log
-import android.util.Patterns
+import android.webkit.URLUtil
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.CompanyInfo
@@ -16,13 +15,10 @@ import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import io.ktor.http.Url
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
-import java.net.InetAddress
-import java.net.InetSocketAddress
+import java.net.URL
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,12 +39,9 @@ class LoginViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
 
     var isValid = {
-        selectedCompany != null && isIpAddressValid.invoke() && username.isNotEmpty() && password.isNotEmpty()
+        selectedCompany != null && server.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty()
     }
 
-    private var isIpAddressValid = {
-        isValidIpAddress(server)
-    }
 
     var exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading = false
@@ -99,32 +92,32 @@ class LoginViewModel @Inject constructor(
     }
 
     fun downloadCompanies() {
-        if(isIpAddressValid.invoke()) {
-            viewModelScope.launch(exceptionHandler) {
-                authRepository.setBaseURL("https://$server/api/v1")
+        viewModelScope.launch(exceptionHandler) {
+            buildValidUrl(server)?.let { validUrl ->
+                Log.w("valid url",validUrl)
+                authRepository.setBaseURL("$validUrl/api/v1")
                 companies = userRepository.getCompaniesList().results ?: listOf()
             }
-        }else{
-            errorMessage = "Indirizzo ip non valido"
+
         }
+
     }
 
-    private fun isValidIpAddress(ipString: String): Boolean {
-        try {
-            val elements = ipString.split(":")
-            if (elements.count() == 2) {
-                val port = elements[1].toInt()
-                val addressWithHost = InetSocketAddress(
-                    elements.first(),port
-                )
-                return true
-            }else if (elements.count() == 1){
-                return Patterns.IP_ADDRESS.matcher(elements.first()).matches()
+    fun buildValidUrl(string: String): String? {
+        val url =
+            if (URLUtil.isNetworkUrl(string)) {
+                URL(string)
+            } else if (URLUtil.isNetworkUrl("https://$string")) {
+                URL("https://$string")
+            } else {
+                null
             }
 
-        } catch (e: Throwable) {
-            return false
+        url?.let { validUrl ->
+            return "${validUrl.protocol}://${validUrl.host}:${validUrl.port}"
         }
-        return false
+        return null
     }
+
+
 }

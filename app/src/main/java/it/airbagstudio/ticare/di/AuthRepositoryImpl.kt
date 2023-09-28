@@ -50,11 +50,11 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
     }
 
     override fun setRefreshToken(token: String?) {
-        sharedPreferences.edit().putString(refreshTokenKey,token).apply()
+        sharedPreferences.edit().putString(refreshTokenKey,token).commit()
     }
 
     override fun setToken(token: String?) {
-        sharedPreferences.edit().putString(tokenKey,token).apply()
+        sharedPreferences.edit().putString(tokenKey,token).commit()
     }
 
     override fun setUUID(uuid: String?) {

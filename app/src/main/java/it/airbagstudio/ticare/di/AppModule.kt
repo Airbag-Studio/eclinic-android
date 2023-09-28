@@ -4,6 +4,7 @@ import android.content.Context
 import ch.ticare.eclinic.library.network.APIClient
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.network.CredentialsListener
+import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.UserListRepository
 import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.Module
@@ -20,8 +21,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideCredentialListener(): CredentialsListener{
-        return CredentialListenerImpl()
+    fun provideCredentialListener(@ApplicationContext context: Context): CredentialListenerImpl{
+        return CredentialListenerImpl(context,provideAuthRepository(context))
     }
 
     @Provides
@@ -32,7 +33,7 @@ class AppModule {
 
     @Provides
     fun provideApiService(@ApplicationContext context: Context): APIClient {
-        return APIClient(provideAuthRepository(context),provideCredentialListener())
+        return APIClient(provideAuthRepository(context),provideCredentialListener(context))
     }
 
     @Provides
@@ -47,6 +48,10 @@ class AppModule {
         return UserListRepository(apiClient)
     }
 
-    //For Preview
+    @Provides
+    @Singleton
+    fun provideUserDetailsRepository(apiClient: APIClient): UserDetailRepository {
+        return UserDetailRepository(apiClient)
+    }
 
 }

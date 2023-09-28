@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare
 
+import android.webkit.URLUtil
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 
@@ -7,6 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 import org.junit.Assert.*
+import java.net.URL
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -15,10 +17,27 @@ import org.junit.Assert.*
  */
 @RunWith(AndroidJUnit4::class)
 class ExampleInstrumentedTest {
+
+    fun buildValidUrl(string: String): String? {
+        val url =
+            if (URLUtil.isNetworkUrl(string)) {
+                URL(string)
+            } else if (URLUtil.isNetworkUrl("https://$string")) {
+                URL("https://$string")
+            } else {
+                null
+            }
+
+        url?.let { validUrl ->
+            return "${validUrl.protocol}://${validUrl.host}:${validUrl.port}"
+        }
+        return null
+    }
+
     @Test
     fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("it.airbagstudio.ticare", appContext.packageName)
+        assertEquals("https://app.ti-care.ch:3000", buildValidUrl("https://app.ti-care.ch:3000/api/v1"))
+        assertEquals("https://app.ti-care.ch:3000", buildValidUrl("app.ti-care.ch:3000/api/v1"))
+        assertEquals("https://194.182.160.249:3000", buildValidUrl("194.182.160.249:3000/api/v1"))
     }
 }

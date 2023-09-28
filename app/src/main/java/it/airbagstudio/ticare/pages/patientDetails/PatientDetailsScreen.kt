@@ -1,14 +1,11 @@
 package it.airbagstudio.ticare.pages.patientDetails
 
-import android.icu.number.Scale
 import android.net.Uri
 import android.text.format.DateFormat
 import android.text.format.DateUtils
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -16,10 +13,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
@@ -31,7 +26,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,7 +33,6 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,28 +40,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.key.Key.Companion.U
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavController
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.data.AlertItem
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
+import it.airbagstudio.ticare.ui.components.ListPopup
+import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
-import it.airbagstudio.ticare.ui.components.shimmerBrush
-import it.airbagstudio.ticare.ui.theme.AppTheme
-import okhttp3.internal.wait
 import java.util.Calendar
 import java.util.Date
 
@@ -82,6 +66,7 @@ fun PatientDetailsScreen(
 
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
+    var showShiftsPopup by remember { mutableStateOf(false) }
 
 
     var showDatePicker by remember {
@@ -89,9 +74,7 @@ fun PatientDetailsScreen(
     }
     val calendar = Calendar.getInstance()
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = calendar.timeInMillis)
-    var selectedDate by remember {
-        mutableLongStateOf(calendar.timeInMillis)
-    }
+
 
     Scaffold(
         topBar = {
@@ -100,7 +83,7 @@ fun PatientDetailsScreen(
             }
         }
     ) { values ->
-        if (viewModel.isLoading){
+        if (viewModel.isLoading) {
             Column(
                 modifier = Modifier
                     .padding(values)
@@ -118,7 +101,8 @@ fun PatientDetailsScreen(
                 }
             }
 
-        }else {
+        } else {
+            val caseDetail = viewModel.caseDetails
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -142,17 +126,17 @@ fun PatientDetailsScreen(
                             .padding(8.dp)
                     ) {
                         Text(
-                            text = "Antonietti Raffaella",
+                            text = "${caseDetail?.name} ${caseDetail?.surname}",
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "28.12.1926 (97)",
+                            text = "${caseDetail?.birthday} (${caseDetail?.age})",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "Via Calanchi 2, 6900 Lugano",
+                            text = "${caseDetail?.address}, ${caseDetail?.cap} ${caseDetail?.locality}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -165,16 +149,24 @@ fun PatientDetailsScreen(
 
                 Row(modifier = Modifier.padding(horizontal = 16.dp)) {
                     val dateButtonValue: String =
-                        if (DateUtils.isToday(selectedDate)) stringResource(id = R.string.today) else DateFormat.format(
+                        if (DateUtils.isToday(viewModel.selectedDate)) stringResource(id = R.string.today) else DateFormat.format(
                             "dd.MM.yyyy",
-                            Date(selectedDate)
+                            Date(viewModel.selectedDate)
                         ).toString()
-                    DropDownButton(modifier = Modifier.weight(1f), value = dateButtonValue, isEnabled = !viewModel.isLoading) {
+                    DropDownButton(
+                        modifier = Modifier.weight(1f),
+                        value = dateButtonValue,
+                        isEnabled = !viewModel.isLoading
+                    ) {
                         showDatePicker = true
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    DropDownButton(modifier = Modifier.weight(1f), value = "Colazione Terapia", isEnabled = !viewModel.isLoading) {
-
+                    DropDownButton(
+                        modifier = Modifier.weight(1f),
+                        value = viewModel.selectedShift?.name ?: "",
+                        isEnabled = !viewModel.isLoading
+                    ) {
+                        showShiftsPopup = true
                     }
                 }
 
@@ -194,20 +186,19 @@ fun PatientDetailsScreen(
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f)
                         ) {
-                            navActions.navigateToPatientInfo(Uri.encode("das/dad"))
+                            navActions.navigateToPatientInfo(Uri.encode(viewModel.patientCod))
                         }
-                        VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_pills),
                             label = stringResource(
                                 id = R.string.drug_administration
                             ),
                             isLoading = viewModel.isLoadingActivities,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            badgeCount = viewModel.pharmacologicalTasks?.size ?: 0
                         ) {
-                            navActions.navigateToDrugAdministration(Uri.encode("das/dad"))
+                            navActions.navigateToDrugAdministration(Uri.encode(viewModel.patientCod))
                         }
-                        VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_vital_parameters),
                             label = stringResource(
@@ -230,9 +221,8 @@ fun PatientDetailsScreen(
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f)
                         ) {
-                            navActions.navigateToAllergies(Uri.encode("das/dad"))
+                            navActions.navigateToAllergies(Uri.encode(viewModel.patientCod))
                         }
-                        VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_diary),
                             label = stringResource(
@@ -241,7 +231,6 @@ fun PatientDetailsScreen(
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f)
                         ) {}
-                        VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_care_planes),
                             label = stringResource(
@@ -262,10 +251,8 @@ fun PatientDetailsScreen(
                                 id = R.string.nursing_courses
                             ),
                             isLoading = viewModel.isLoadingActivities,
-                            modifier = Modifier.weight(1f),
-                            badgeCount = 34
+                            modifier = Modifier.weight(1f)
                         ) {}
-                        VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_wounds),
                             label = stringResource(
@@ -274,7 +261,6 @@ fun PatientDetailsScreen(
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f)
                         ) {}
-                        VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_other_prescriptions),
                             label = stringResource(
@@ -284,7 +270,6 @@ fun PatientDetailsScreen(
                             modifier = Modifier.weight(1f)
                         ) {}
                     }
-                    Divider(color = MaterialTheme.colorScheme.primary)
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -302,7 +287,8 @@ fun PatientDetailsScreen(
                         confirmButton = {
                             TextButton(onClick = {
                                 showDatePicker = false
-                                selectedDate = datePickerState.selectedDateMillis!!
+                                viewModel.selectedDate = datePickerState.selectedDateMillis!!
+                                viewModel.downloadTasks()
                             }) {
                                 Text(text = "Confirm")
                             }
@@ -320,92 +306,23 @@ fun PatientDetailsScreen(
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun VerticalDivider() {
-    Divider(
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier
-            .fillMaxHeight()  //fill the max height
-            .width(1.dp)
-    )
-}
-
-@Composable
-private fun GridButton(
-    image: Painter,
-    label: String,
-    modifier: Modifier = Modifier,
-    badgeCount: Int = 0,
-    isLoading: Boolean,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = modifier
-            .clickable {
-                if (!isLoading) {
-                    onClick()
+                if (showShiftsPopup && (viewModel.shifts?.isNotEmpty() == true)) {
+                    val popupItems =
+                        viewModel.shifts!!.map { ListPopupItem(label = it.name, item = it) }
+                    ListPopup(
+                        title = stringResource(id = R.string.selectShift),
+                        items = popupItems,
+                        setShowDialog = {
+                            showShiftsPopup = false
+                        },
+                        onItemSelected = {
+                            showShiftsPopup = false
+                            viewModel.selectedShift = it.item
+                            viewModel.filterTasksByShift()
+                        })
                 }
             }
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(bottom = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        val boxModifier = if (isLoading){
-            Modifier.background(shimmerBrush())
-        }else{
-            Modifier
         }
-        Box(
-            contentAlignment = Alignment.TopEnd,
-            modifier = boxModifier
-            ) {
-            Image(
-                painter = image,
-                contentDescription = label,
-                alpha = if (isLoading) 0f else 1f
-            )
-            if (badgeCount > 0 && !isLoading) {
-                Text(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.error)
-                        .padding(horizontal = 5.dp),
-                    text = "$badgeCount",
-                    color = MaterialTheme.colorScheme.errorContainer,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 25.sp
-                )
-            }
-        }
-        if (isLoading){
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-                    .padding(top = 4.dp)
-                    .height(20.dp)
-                    .background(
-                        shimmerBrush()
-                    )
-            ) {
-
-            }
-        }else{
-            Text(
-                text = label,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
-            )
-        }
-
     }
 }
 
@@ -425,12 +342,20 @@ private fun AlertsChips(alerts: List<AlertItem>, onClick: () -> Unit) {
         maxItemsInEachRow = 2
     ) {
 
-        alerts.take(3).forEach { alert ->
-            AlertChip(alert = alert) {
-                onClick()
+        if (alerts.count() > 4) {
+            alerts.take(3).forEach { alert ->
+                AlertChip(alert = alert) {
+                    onClick()
+                }
+            }
+        } else {
+            alerts.forEach { alert ->
+                AlertChip(alert = alert) {
+                    onClick()
+                }
             }
         }
-        if (alerts.count() > 3) {
+        if (alerts.count() > 4) {
             AssistChip(
                 border = null,
                 colors = AssistChipDefaults.assistChipColors(
@@ -496,60 +421,3 @@ private fun AlertChip(alert: AlertItem, onClick: () -> Unit) {
     )
 }
 
-@Composable
-@Preview
-private fun PreviewPatientDetailsScreen() {
-    val vm = PatientDetailsScreenViewModel(savedStateHandle = SavedStateHandle())
-    vm.isLoadingActivities = false
-    vm.isLoading = false
-    vm.alerts = listOf(
-        AlertItem(
-            colorBg = "#c40a13",
-            colorFg = "#ffffff",
-            label = "Parametri Vitali"
-        ),
-        AlertItem(
-            colorBg = "#c40a13",
-            colorFg = "#ffffff",
-            label = "Parametri "
-        ),
-        AlertItem(
-            colorBg = "#c40a13",
-            colorFg = "#ffffff",
-            label = "Param"
-        ),
-        AlertItem(
-            colorBg = "#c40a13",
-            colorFg = "#ffffff",
-            label = "Parame"
-        ),
-        AlertItem(
-            colorBg = "#c40a13",
-            colorFg = "#ffffff",
-            label = "Parametri Vitali"
-        ),
-        AlertItem(
-            colorBg = "#c40a13",
-            colorFg = "#ffffff",
-            label = "Parametri Vitali"
-        ),
-        AlertItem(
-            colorBg = "#c40a13",
-            colorFg = "#ffffff",
-            label = "Parametri Vitali"
-        ),
-        AlertItem(
-            colorBg = "#c40a13",
-            colorFg = "#ffffff",
-            label = "Parametri Vitali"
-        ),
-        AlertItem(
-            colorBg = "#c40a13",
-            colorFg = "#ffffff",
-            label = "Parametri Vitali"
-        ),
-    )
-    AppTheme {
-        PatientDetailsScreen(viewModel = vm, navActions = NavigationActions(NavController(LocalContext.current))){}
-    }
-}
