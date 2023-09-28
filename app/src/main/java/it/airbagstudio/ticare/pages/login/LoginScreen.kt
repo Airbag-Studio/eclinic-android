@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -63,6 +64,7 @@ fun LoginScreen(
 ) {
     val showStructuresDialog = remember { mutableStateOf(false) }
     val showFirstLoginDialog = remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
     Scaffold(topBar = {
         CenterAlignedTopAppBar(
             title = {
@@ -94,6 +96,7 @@ fun LoginScreen(
                 ),
                 keyboardActions = KeyboardActions(onDone = {
                     viewModel.downloadCompanies()
+                    focusManager.clearFocus()
                 }),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -144,7 +147,7 @@ fun LoginScreen(
 
 
             OutlinedTextField(
-                enabled = viewModel.isIpAddressValid.invoke(),
+                enabled = viewModel.selectedCompany != null,
                 value = viewModel.username,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -160,7 +163,7 @@ fun LoginScreen(
                 })
 
             OutlinedTextField(
-                enabled = viewModel.isIpAddressValid.invoke(),
+                enabled = viewModel.selectedCompany != null,
                 value = viewModel.password,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,

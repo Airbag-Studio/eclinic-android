@@ -3,6 +3,7 @@ package it.airbagstudio.ticare.di
 import android.content.Context
 import ch.ticare.eclinic.library.network.APIClient
 import ch.ticare.eclinic.library.network.AuthRepository
+import ch.ticare.eclinic.library.network.CredentialsListener
 import ch.ticare.eclinic.library.repository.UserListRepository
 import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.Module
@@ -19,13 +20,19 @@ class AppModule {
 
     @Provides
     @Singleton
+    fun provideCredentialListener(): CredentialsListener{
+        return CredentialListenerImpl()
+    }
+
+    @Provides
+    @Singleton
     fun provideAuthRepository(@ApplicationContext context: Context): AuthRepository {
         return AuthRepositoryImpl(context)
     }
 
     @Provides
     fun provideApiService(@ApplicationContext context: Context): APIClient {
-        return APIClient(provideAuthRepository(context))
+        return APIClient(provideAuthRepository(context),provideCredentialListener())
     }
 
     @Provides

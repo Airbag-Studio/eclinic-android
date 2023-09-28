@@ -11,14 +11,18 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
@@ -37,6 +41,7 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
 import it.airbagstudio.ticare.ui.components.ErrorAlert
+import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.PatientListItemView
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithSyncAndSettings
@@ -65,17 +70,20 @@ fun PatientListScreen(
                 .padding(values)
 
         ) {
-            Box(modifier = Modifier
-                //.padding(horizontal = 16.dp)
+            Box(
+                modifier = Modifier
+                    //.padding(horizontal = 16.dp)
 
-                .fillMaxWidth()
+                    .fillMaxWidth()
 
             ) {
-                SearchBar(
+                DockedSearchBar(
+                    enabled = !viewModel.isLoading,
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
                         .clip(RoundedCornerShape(28.dp))
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
                     placeholder = {
                         Text(text = stringResource(id = R.string.search))
                     },
@@ -97,7 +105,7 @@ fun PatientListScreen(
                         )
                     },
                     trailingIcon = {
-                        if (searchActive){
+                        if (searchActive) {
                             Icon(
                                 imageVector = Icons.Default.Clear,
                                 contentDescription = stringResource(id = R.string.search),
@@ -109,38 +117,63 @@ fun PatientListScreen(
                         }
                     }
                 ) {
-                    /*
-                    repeat(4) { idx ->
-                        val resultText = "Suggestion $idx"
-                        ListItem(
-                            headlineContent = { Text(resultText) },
-                            supportingContent = { Text("Additional info") },
-                            leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
-                            modifier = Modifier
-
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
-                        )
+                    LazyColumn(
+                        modifier = Modifier.wrapContentHeight()
+                    ) {
+                        if (viewModel.query.count() > 3) {
+                            val filtered = viewModel.patients?.filter {
+                                it.name.contains(
+                                    viewModel.query,
+                                    ignoreCase = true
+                                ) or it.surname.contains(
+                                    viewModel.query,
+                                    ignoreCase = true
+                                )
+                            } ?: listOf()
+                            items(filtered) {
+                                ListItem(
+                                    headlineContent = { Text("${it.name} ${it.surname}") },
+                                    supportingContent = { Text("${it.birthday} (${it.age})") },
+                                    leadingContent = { PatientImage(imageUrl = it.photo) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        //.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        .clickable {
+                                            viewModel.query = ""
+                                            searchActive = false
+                                            navActions.navigateToPatientDetails(Uri.encode(it.code))
+                                        }
+                                )
+                            }
+                        }
                     }
-
-                     */
                 }
                 Column(modifier = Modifier.padding(top = 70.dp)) {
-                    Row(modifier = Modifier
-                        .padding(8.dp)) {
-                        DropDownButton(modifier = Modifier.weight(1f), value = stringResource(id = R.string.zones), isEnabled = !viewModel.isLoading) {
+                    Row(
+                        modifier = Modifier
+                            .padding(8.dp)
+                    ) {
+                        DropDownButton(
+                            modifier = Modifier.weight(1f),
+                            value = stringResource(id = R.string.zones),
+                            isEnabled = !viewModel.isLoading
+                        ) {
 
                         }
                         Spacer(modifier = Modifier.width(8.dp))
-                        DropDownButton(modifier = Modifier.weight(1f),value = stringResource(id = R.string.micro_zones), isEnabled = !viewModel.isLoading) {
+                        DropDownButton(
+                            modifier = Modifier.weight(1f),
+                            value = stringResource(id = R.string.micro_zones),
+                            isEnabled = !viewModel.isLoading
+                        ) {
 
                         }
                     }
-                    if(viewModel.isLoading){
+                    if (viewModel.isLoading) {
                         repeat(8) {
                             PatientListItemViewLoading()
                         }
-                    }else if(viewModel.patients != null){
+                    } else if (viewModel.patients != null) {
                         LazyColumn(modifier = Modifier.fillMaxHeight()) {
                             items(viewModel.patients!!) { patientListItem ->
                                 PatientListItemView(patient = patientListItem) {
@@ -154,10 +187,13 @@ fun PatientListScreen(
             }
             Spacer(modifier = Modifier.weight(1f))
         }
-        if (viewModel.errorMessage != null){
-        ErrorAlert(message = viewModel.errorMessage!!, onDismissRequest = { viewModel.errorMessage = null }, onRetry = {
-            viewModel.downloadCases()
-        })
-    }
+        if (viewModel.errorMessage != null) {
+            ErrorAlert(
+                message = viewModel.errorMessage!!,
+                onDismissRequest = { viewModel.errorMessage = null },
+                onRetry = {
+                    viewModel.downloadCases()
+                })
+        }
     }
 }
