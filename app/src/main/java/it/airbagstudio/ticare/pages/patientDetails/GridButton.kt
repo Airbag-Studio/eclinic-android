@@ -48,8 +48,7 @@ fun GridButton(
                 }
             }
             .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(bottom = 8.dp),
+            .fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -63,7 +62,9 @@ fun GridButton(
         Row(
 
             horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.Bottom,
             modifier = Modifier
+                .weight(0.3f)
                 .alpha(badgeOpacity)
                 .padding(end = 16.dp)
         ) {
@@ -83,9 +84,10 @@ fun GridButton(
 
         Box(
             contentAlignment = Alignment.TopEnd,
-            modifier = boxModifier
+            modifier = Modifier.weight(0.5f).then(boxModifier)
         ) {
             Image(
+
                 painter = image,
                 contentDescription = label,
                 alpha = if (isLoading) 0f else 1f
@@ -106,6 +108,7 @@ fun GridButton(
             }
         } else {
             Text(
+                modifier = Modifier.weight(0.2f),
                 text = label,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.labelMedium,
@@ -122,6 +125,7 @@ private fun GridButtonPreview() {
     AppTheme() {
         Row(
             horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.height(100.dp)
         ) {
             GridButton(
                 modifier = Modifier.weight(1f),
