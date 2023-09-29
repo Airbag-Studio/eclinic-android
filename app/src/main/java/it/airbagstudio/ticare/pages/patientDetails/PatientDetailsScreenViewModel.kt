@@ -94,7 +94,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
         selectedShift?.let {shift ->
             pharmacologicalTasks = allTasksForDay.filter { task ->
                 val taskTime = LocalTime.parse(task.expTime)
-                shift.includeTime(taskTime)
+                shift.includeTime(taskTime) && task.execDate == null
             }
         }
 
