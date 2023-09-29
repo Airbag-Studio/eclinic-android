@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import it.airbagstudio.ticare.navigation.DestinationsArgs.DATE_TIME
 import it.airbagstudio.ticare.navigation.DestinationsArgs.PATIENT_COD
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_END
+import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_NAME
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_START
 import it.airbagstudio.ticare.navigation.Screens.ALLERGIES_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.DRUG_ADMINISTRATION_SCREEN
@@ -26,9 +27,11 @@ private object Screens{
 object DestinationsArgs{
     const val PATIENT_COD = "patientCod"
     const val SHIFT_START = "shiftStart"
-    const val SHIFT_END = "shiftStart"
+    const val SHIFT_END = "shiftEnd"
+    const val SHIFT_NAME = "shiftName"
     const val DATE_TIME = "dateTime"
     const val NOTE_CONTENT = "noteContent"
+    const val TASK = "task"
 }
 
 object Destinations{
@@ -37,7 +40,7 @@ object Destinations{
     const val PATIENTS_LIST_ROUTE = PATIENTS_LIST_SCREEN
     const val PATIENT_DETAILS_ROUTE = "$PATIENT_DETAILS_SCREEN/{$PATIENT_COD}"
     const val PATIENT_INFO_ROUTE = "$PATIENT_INFO_SCREEN/{$PATIENT_COD}"
-    const val DRUG_ADMINISTRATION_ROUTE = "$DRUG_ADMINISTRATION_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{${SHIFT_START}}/{$SHIFT_END}"
+    const val DRUG_ADMINISTRATION_ROUTE = "$DRUG_ADMINISTRATION_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{${SHIFT_START}}/{$SHIFT_END}/{$SHIFT_NAME}"
     const val ALLERGIES_ROUTE = "$ALLERGIES_SCREEN/{$PATIENT_COD}"
 }
 
@@ -63,8 +66,8 @@ class NavigationActions(private val navController: NavController){
         navController.navigate("$PATIENT_INFO_SCREEN/$patientCod")
     }
 
-    fun navigateToDrugAdministration(patientCod: String,dateTime:Long,shiftStart:String,shiftEnd:String){
-        navController.navigate("$DRUG_ADMINISTRATION_SCREEN/$patientCod/$dateTime/$shiftStart/$shiftEnd")
+    fun navigateToDrugAdministration(patientCod: String,dateTime:Long,shiftStart:String,shiftEnd:String, shiftName:String){
+        navController.navigate("$DRUG_ADMINISTRATION_SCREEN/$patientCod/$dateTime/$shiftStart/$shiftEnd/$shiftName")
     }
 
     fun navigateToAllergies(patientCod: String){

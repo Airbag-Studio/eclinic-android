@@ -90,7 +90,7 @@ fun EditDrugAdministrationSheet(
     task: AgendaPharmacologicalTask?,
     onDismissRequest: () -> Unit
 ) {
-    viewModel.task.value = task?.copy()
+    viewModel.task.value = task?.copy(showInDiary = true)
     val navController = rememberNavController()
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -98,6 +98,10 @@ fun EditDrugAdministrationSheet(
         containerColor = if (task?.isReserve == true) tertiary95 else MaterialTheme.colorScheme.surface
     ) {
 
+        if (viewModel.isSucces) {
+            viewModel.isSucces = false
+            onDismissRequest()
+        }
         NavHost(navController = navController, startDestination = "editSheet") {
 
             composable("editSheet") { entry ->
@@ -154,7 +158,7 @@ private fun BuildContent(
                 .padding(16.dp)
         ) {
             Text(
-                text = task.entityName,
+                text = task.itemDescription,
                 style = MaterialTheme.typography.titleLarge
             )
             Row(
@@ -169,7 +173,7 @@ private fun BuildContent(
                     modifier = Modifier.weight(1f),
                     value = "${task.quantity}",
                     onValueChange = {
-                        viewModel.task.value?.quantity = it.toIntOrNull() ?: 0
+                        viewModel.setQuantity(it.toIntOrNull())
                     },
                     label = { Text(text = stringResource(id = R.string.quantity)) }
                 )
@@ -233,6 +237,10 @@ private fun BuildContent(
                 if (showDatePicker) {
                     Column() {
                         DatePicker(
+                            dateValidator = {
+                                val date = Date(it)
+                                date.before(Date())
+                            },
                             state = datePickerState,
                             headline = null,
                             title = null,
@@ -262,7 +270,6 @@ private fun BuildContent(
                                     showDatePicker = false
                                 }) {
                                 Text(
-
                                     text = stringResource(id = R.string.ok)
                                 )
                             }
@@ -306,12 +313,10 @@ private fun BuildContent(
                                         ) else Date()
                                     selectedDate.hours = timePickerState.hour
                                     selectedDate.minutes = timePickerState.minute
+                                    viewModel.setExecutedDate(selectedDate)
                                     showTimePicker = false
                                     showDatePicker = false
-                                    viewModel.task.value?.execDate =
-                                        DateFormat.format("yyyy-MM-dd", selectedDate).toString()
-                                    viewModel.task.value?.execTime =
-                                        DateFormat.format("HH:mm:ss.000", selectedDate).toString()
+
                                 }) {
                                 Text(text = stringResource(id = R.string.ok))
                             }
@@ -331,31 +336,31 @@ private fun BuildContent(
                             isReserve = isReserve,
                             value = task.showInDiary
                         ) {
-                            viewModel.task.value?.showInDiary = it
+                            viewModel.setShowInDiary(it)
                         }
                         SwitchItem(
                             label = stringResource(id = R.string.rejected_by_patient),
                             isReserve = isReserve,
                             value = task.rejected
                         ) {
-                            viewModel.task.value?.rejected = it
+                            viewModel.setRejected(it)
                         }
                         SwitchItem(
                             label = stringResource(id = R.string.not_performed),
                             isReserve = isReserve,
                             value = task.isSkipped
                         ) {
-                            viewModel.task.value?.isSkipped = it
+                            viewModel.setNotExecuted(it)
                         }
                         SwitchItem(
                             label = stringResource(id = R.string.patient_medication),
                             isReserve = isReserve,
                             value = task.patientOwnedDrug
                         ) {
-                            viewModel.task.value?.patientOwnedDrug = it
+                            viewModel.setPatientDrug(it)
                         }
                         Button(
-                            enabled = !viewModel.isLoading,
+                            enabled = !viewModel.isLoading && viewModel.isValid.invoke(),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 24.dp),

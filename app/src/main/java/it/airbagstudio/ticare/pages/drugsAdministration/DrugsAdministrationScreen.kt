@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.drugsAdministration
 
+import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,6 +42,7 @@ import it.airbagstudio.ticare.pages.drugsAdministration.editDrugAdministration.E
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.ui.theme.AppTheme
+import it.airbagstudio.ticare.utils.getCompleteName
 import it.airbagstudio.ticare.utils.getExpectedTime
 import it.airbagstudio.ticare.utils.printTime
 
@@ -59,10 +61,13 @@ fun DrugsAdministrationScreen(
     }
     Scaffold(
         floatingActionButton = {
-            if (tabIndex == 0) {
+            if (tabIndex == 0 && !viewModel.tasks.isEmpty()) {
                 ExtendedFloatingActionButton(
+
                     contentColor = MaterialTheme.colorScheme.primary,
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        viewModel.executeAll()
+                    },
                     icon = {
                         Icon(
                             imageVector = Icons.Default.Check, contentDescription = stringResource(
@@ -81,7 +86,7 @@ fun DrugsAdministrationScreen(
             }
         },
         topBar = {
-            ToolbarWithBackAndSync(title = "Nome paziente") {
+            ToolbarWithBackAndSync(title = viewModel.patient?.getCompleteName() ?: "") {
                 onBack()
             }
         }
@@ -95,7 +100,12 @@ fun DrugsAdministrationScreen(
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
             Text(
-                text = "21/08/2023 - Colazione",
+                text = "${
+                    DateFormat.format(
+                        "dd/MM/yyyy",
+                        viewModel.date
+                    )
+                } - ${viewModel.shiftName}",
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -189,12 +199,13 @@ fun DrugsAdministrationScreen(
 
     }
     if (showBottomSheet) {
-            EditDrugAdministrationSheet(
-                state = sheetState,
-                task = selectedTasks
-            ) {
-                showBottomSheet = false
-            }
+        EditDrugAdministrationSheet(
+            state = sheetState,
+            task = selectedTasks
+        ) {
+            showBottomSheet = false
+            viewModel.reloadTasks()
+        }
 
     }
 }

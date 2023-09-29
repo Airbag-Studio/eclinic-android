@@ -17,6 +17,7 @@ import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.data.AlertItem
 import it.airbagstudio.ticare.navigation.DestinationsArgs
+import it.airbagstudio.ticare.utils.includeTime
 import it.airbagstudio.ticare.utils.isCurrent
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.delay
@@ -91,12 +92,9 @@ class PatientDetailsScreenViewModel @Inject constructor(
 
     fun filterTasksByShift(){
         selectedShift?.let {shift ->
-            val start = LocalTime.parse(shift.startTime)
-            val end = LocalTime.parse(shift.stopTime)
-
             pharmacologicalTasks = allTasksForDay.filter { task ->
                 val taskTime = LocalTime.parse(task.expTime)
-                taskTime.isAfter(start) && taskTime.isAfter(end)
+                shift.includeTime(taskTime)
             }
         }
 

@@ -8,9 +8,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
+import ch.ticare.eclinic.library.entity.CaseDetail
+import ch.ticare.eclinic.library.entity.CaseInfo
+import ch.ticare.eclinic.library.entity.OperatingShift
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
+import it.airbagstudio.ticare.utils.includeTime
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -28,11 +32,15 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     private val dateTime: String = savedStateHandle[DestinationsArgs.DATE_TIME]!!
     private val shiftStart: String = savedStateHandle[DestinationsArgs.SHIFT_START]!!
     private val shiftEnd: String = savedStateHandle[DestinationsArgs.SHIFT_END]!!
+    val shiftName: String = savedStateHandle[DestinationsArgs.SHIFT_NAME]!!
 
     var isLoading by mutableStateOf(false)
     var tasks by mutableStateOf<List<AgendaPharmacologicalTask>>(listOf())
     var reserves by mutableStateOf<List<AgendaPharmacologicalTask>>(listOf())
     var errorMessage by mutableStateOf<String?>(null)
+    var patient by mutableStateOf<CaseDetail?>(null)
+
+    var date by mutableStateOf<Date?>(null)
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading = false
@@ -40,18 +48,47 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     }
 
     init {
-
+        date = Date(dateTime.toLong())
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading = true
-            val date =  DateFormat.format("yyyy.MM.dd", Date(dateTime.toLong())).toString()
-            val start = LocalTime.parse(shiftStart)
-            val end = LocalTime.parse(shiftEnd)
-            val filteredTask = userDetailRepository.getAgendaForPharmacologicalTask(date = date,patientCod,fromCache = true).results?.filter { task ->
-                val taskTime = LocalTime.parse(task.expTime)
-                taskTime.isAfter(start) && taskTime.isAfter(end)
-            } ?: listOf()
-            tasks = filteredTask.filter { !it.isReserve }
-            reserves = filteredTask.filter { it.isReserve }
+            patient = userDetailRepository.getCase(patientCod,true).results?.firstOrNull()
+            downloadTasks(true)
+            isLoading = false
+        }
+    }
+
+    private suspend fun downloadTasks(fromCache: Boolean){
+        val shift = OperatingShift(name = shiftName, publicName = shiftName, publicShortName = shiftName, shortName = shiftName, startTime = shiftStart, stopTime = shiftEnd)
+        val dateParam =  DateFormat.format("yyyy.MM.dd", date).toString()
+        val filteredTask = userDetailRepository.getAgendaForPharmacologicalTask(date = dateParam,patientCod,fromCache = fromCache).results?.filter { task ->
+            val taskTime = LocalTime.parse(task.expTime)
+            shift.includeTime(taskTime)
+        } ?: listOf()
+        tasks = filteredTask.filter { !it.isReserve }
+        reserves = filteredTask.filter { it.isReserve }
+    }
+
+    fun reloadTasks(){
+        viewModelScope.launch(coroutineExceptionHandler) {
+            isLoading = true
+            downloadTasks(false)
+            isLoading = false
+        }
+    }
+
+    fun executeAll(){
+        viewModelScope.launch(coroutineExceptionHandler) {
+            isLoading = true
+            tasks.forEach {task ->
+                val execDate = DateFormat.format("yyyy-MM-dd", Date()).toString()
+                val execTime = DateFormat.format("HH:mm:ss.000", Date()).toString()
+                val newTask = task.copy(quantity = task.expQuantity, execTime = execTime, execDate = execDate)
+                val res = userDetailRepository.updatePharmacologicalTask(newTask)
+                res.error?.let {
+                    errorMessage = it.desc
+                }
+            }
+            downloadTasks(false)
             isLoading = false
         }
     }

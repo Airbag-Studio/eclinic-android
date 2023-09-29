@@ -37,6 +37,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,11 +47,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.data.AlertItem
 import it.airbagstudio.ticare.navigation.NavigationActions
@@ -80,7 +85,22 @@ fun PatientDetailsScreen(
     }
     val calendar = Calendar.getInstance()
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = calendar.timeInMillis)
+    val lifecycleOwner = LocalLifecycleOwner.current
 
+
+
+
+    DisposableEffect(lifecycleOwner){
+        val observer = LifecycleEventObserver{ source, event ->
+            if (event == Lifecycle.Event.ON_RESUME){
+                viewModel.downloadTasks()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -205,7 +225,7 @@ fun PatientDetailsScreen(
                             badgeCount = viewModel.pharmacologicalTasks?.size ?: 0
                         ) {
                             viewModel.selectedShift?.let {shift ->
-                                navActions.navigateToDrugAdministration(Uri.encode(viewModel.patientCod),viewModel.selectedDate,shift.startTime,shift.stopTime)
+                                navActions.navigateToDrugAdministration(Uri.encode(viewModel.patientCod),viewModel.selectedDate,shift.startTime,shift.stopTime, shiftName = shift.name)
                             }
 
                         }
