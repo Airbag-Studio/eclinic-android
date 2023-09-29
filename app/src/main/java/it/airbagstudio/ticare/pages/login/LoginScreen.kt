@@ -92,7 +92,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = viewModel.server,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
+                    keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(onDone = {

@@ -64,7 +64,7 @@ fun DrugsAdministrationScreen(
     }
     Scaffold(
         floatingActionButton = {
-            if (tabIndex == 0 && !viewModel.tasks.isEmpty()) {
+            if (tabIndex == 0 && !viewModel.tasks.filter { it.execDate == null }.isEmpty()) {
                 ExtendedFloatingActionButton(
 
                     contentColor = MaterialTheme.colorScheme.primary,
@@ -165,12 +165,14 @@ fun DrugsAdministrationScreen(
                             items(viewModel.tasks) { task ->
                                 DrugAdministrationItemView(
                                     name = task.entityName,
-                                    quantity = task.quantity,
+                                    quantity = task.expQuantity,
                                     time = task.getExpectedTime().printTime(),
                                     isCompleted = task.execTime != null
                                 ) {
-                                    selectedTasks = task
-                                    showBottomSheet = true
+                                    if (task.execDate == null) {
+                                        selectedTasks = task
+                                        showBottomSheet = true
+                                    }
                                 }
                             }
                         })
@@ -183,13 +185,15 @@ fun DrugsAdministrationScreen(
                             items(viewModel.reserves) { task ->
                                 DrugAdministrationItemView(
                                     name = task.entityName,
-                                    quantity = task.quantity,
+                                    quantity = task.expQuantity,
                                     time = task.getExpectedTime().printTime(),
                                     isCompleted = task.execTime != null,
                                     isReserve = true
                                 ) {
-                                    selectedTasks = task
-                                    showBottomSheet = true
+                                    if (task.execDate == null) {
+                                        selectedTasks = task
+                                        showBottomSheet = true
+                                    }
                                 }
                             }
                         })

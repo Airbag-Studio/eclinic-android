@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -40,14 +41,23 @@ fun EclinicNavGraph(
         modifier = modifier
     ) {
         composable(Destinations.SPLASH_ROUTE) {
+            BackHandler(true) {
+
+            }
             SplashPageScreen(nav = navActions)
         }
 
         composable(Destinations.LOGIN_ROUTE){
+            BackHandler(true) {
+
+            }
             LoginScreen(navigationActions = navActions)
         }
 
         composable(Destinations.PATIENTS_LIST_ROUTE){
+            BackHandler(true) {
+
+            }
             PatientListScreen(navActions = navActions)
         }
         composable(Destinations.PATIENT_DETAILS_ROUTE){

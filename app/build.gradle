@@ -44,10 +44,10 @@ android {
     flavorDimensions 'env'
     productFlavors {
         develop{
-
+            applicationId "ch.ticare.eclinic.dev"
         }
         preProd{
-
+            applicationId "ch.ticare.eclinic"
         }
     }
 }
