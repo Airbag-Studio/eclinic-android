@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,6 +29,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
+import androidx.compose.material3.ScaffoldDefaults.contentWindowInsets
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -53,6 +58,7 @@ import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.utils.copy
 import java.util.Calendar
 import java.util.Date
 
@@ -81,7 +87,7 @@ fun PatientDetailsScreen(
             ToolbarWithBackAndSync(title = "") {
                 onBack()
             }
-        }
+        },
     ) { values ->
         if (viewModel.isLoading) {
             Column(
@@ -106,7 +112,7 @@ fun PatientDetailsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(values)
+                    .padding(values.copy(bottom = 0.dp))
             ) {
                 Row(
                     verticalAlignment = Alignment.Top,
@@ -114,7 +120,7 @@ fun PatientDetailsScreen(
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
                 ) {
-                    PatientImage(imageUrl = null)
+                    PatientImage(caseDetail?.photo)
                     Column(
                         modifier = Modifier
                             .padding(start = 8.dp)
@@ -188,6 +194,7 @@ fun PatientDetailsScreen(
                         ) {
                             navActions.navigateToPatientInfo(Uri.encode(viewModel.patientCod))
                         }
+                        VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_pills),
                             label = stringResource(
@@ -197,8 +204,12 @@ fun PatientDetailsScreen(
                             modifier = Modifier.weight(1f),
                             badgeCount = viewModel.pharmacologicalTasks?.size ?: 0
                         ) {
-                            navActions.navigateToDrugAdministration(Uri.encode(viewModel.patientCod))
+                            viewModel.selectedShift?.let {shift ->
+                                navActions.navigateToDrugAdministration(Uri.encode(viewModel.patientCod),viewModel.selectedDate,shift.startTime,shift.stopTime)
+                            }
+
                         }
+                        VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_vital_parameters),
                             label = stringResource(
@@ -223,6 +234,7 @@ fun PatientDetailsScreen(
                         ) {
                             navActions.navigateToAllergies(Uri.encode(viewModel.patientCod))
                         }
+                        VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_diary),
                             label = stringResource(
@@ -231,6 +243,7 @@ fun PatientDetailsScreen(
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f)
                         ) {}
+                        VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_care_planes),
                             label = stringResource(
@@ -253,6 +266,7 @@ fun PatientDetailsScreen(
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f)
                         ) {}
+                        VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_wounds),
                             label = stringResource(
@@ -261,6 +275,7 @@ fun PatientDetailsScreen(
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f)
                         ) {}
+                        VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_other_prescriptions),
                             label = stringResource(
@@ -271,8 +286,6 @@ fun PatientDetailsScreen(
                         ) {}
                     }
                 }
-
-                Spacer(modifier = Modifier.weight(1f))
 
                 if (showBottomSheet) {
                     AlertsBottomSheet(state = sheetState, alerts = viewModel.alerts) {
@@ -324,6 +337,16 @@ fun PatientDetailsScreen(
             }
         }
     }
+}
+
+@Composable
+fun VerticalDivider() {
+    Divider(
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxHeight()  //fill the max height
+            .width(1.dp)
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)

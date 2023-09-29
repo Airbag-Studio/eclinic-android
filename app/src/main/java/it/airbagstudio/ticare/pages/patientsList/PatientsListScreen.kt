@@ -134,7 +134,7 @@ fun PatientListScreen(
                                 ListItem(
                                     headlineContent = { Text("${it.name} ${it.surname}") },
                                     supportingContent = { Text("${it.birthday} (${it.age})") },
-                                    leadingContent = { PatientImage(imageUrl = it.photo) },
+                                    leadingContent = { PatientImage(it.photo) },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         //.padding(horizontal = 8.dp, vertical = 4.dp)

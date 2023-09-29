@@ -34,7 +34,7 @@ fun PatientListItemView(patient: CaseInfo, onClick: () -> Unit) {
                 .padding(horizontal = 24.dp)
                 .padding(vertical = 12.dp)
         ) {
-            PatientImage(imageUrl = patient.photo)
+            PatientImage(patient.photo)
             Column(
                 modifier = Modifier
                     .padding(start = 16.dp)

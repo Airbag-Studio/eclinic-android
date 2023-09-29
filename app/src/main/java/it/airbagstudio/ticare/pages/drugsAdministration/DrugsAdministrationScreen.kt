@@ -2,6 +2,8 @@ package it.airbagstudio.ticare.pages.drugsAdministration
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -32,12 +34,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavController
+import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.drugsAdministration.editDrugAdministration.EditDrugAdministrationSheet
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.ui.theme.AppTheme
+import it.airbagstudio.ticare.utils.getExpectedTime
+import it.airbagstudio.ticare.utils.printTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +54,9 @@ fun DrugsAdministrationScreen(
     var tabIndex by remember { mutableIntStateOf(0) }
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var selectedTasks by remember {
+        mutableStateOf<AgendaPharmacologicalTask?>(null)
+    }
     Scaffold(
         floatingActionButton = {
             if (tabIndex == 0) {
@@ -102,9 +110,9 @@ fun DrugsAdministrationScreen(
 
             TabRow(
                 selectedTabIndex = tabIndex,
-                indicator = {tabPositions ->
+                indicator = { tabPositions ->
                     TabRowDefaults.Indicator(
-                        color = if(tabIndex == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
+                        color = if (tabIndex == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier
                             .tabIndicatorOffset(tabPositions[tabIndex])
                             .padding(horizontal = 50.dp)
@@ -117,7 +125,7 @@ fun DrugsAdministrationScreen(
                     Tab(text = {
                         Text(
                             text = title,
-                            color = if (index == tabIndex && index == 1){
+                            color = if (index == tabIndex && index == 1) {
                                 MaterialTheme.colorScheme.tertiary
                             } else if (index == tabIndex && index == 0)
                                 MaterialTheme.colorScheme.primary
@@ -132,49 +140,61 @@ fun DrugsAdministrationScreen(
                 }
             }
 
-            if(viewModel.isLoading){
+            if (viewModel.isLoading) {
                 repeat(8) {
                     DrugAdministrationItemViewLoading()
                     Divider(modifier = Modifier.padding(start = 16.dp))
                 }
-            }else{
+            } else {
                 when (tabIndex) {
                     0 -> {
-                        DrugAdministrationItemView(name = "Meto Zeroch cpr ret 25mg", quantity = 3, time = "10:30", isCompleted = false){
-                            showBottomSheet = true
-                        }
+                        LazyColumn(content = {
+                            items(viewModel.tasks) { task ->
+                                DrugAdministrationItemView(
+                                    name = task.entityName,
+                                    quantity = task.quantity,
+                                    time = task.getExpectedTime().printTime(),
+                                    isCompleted = task.execTime != null
+                                ) {
+                                    selectedTasks = task
+                                    showBottomSheet = true
+                                }
+                            }
+                        })
+
+
                     }
+
                     1 -> {
-                        DrugAdministrationItemView(name = "Meto Zeroch cpr ret 25mg", quantity = 3, time = "10:30", isCompleted = false, isReserve = true){
-                            showBottomSheet = true
-                        }
+                        LazyColumn(content = {
+                            items(viewModel.reserves) { task ->
+                                DrugAdministrationItemView(
+                                    name = task.entityName,
+                                    quantity = task.quantity,
+                                    time = task.getExpectedTime().printTime(),
+                                    isCompleted = task.execTime != null,
+                                    isReserve = true
+                                ) {
+                                    selectedTasks = task
+                                    showBottomSheet = true
+                                }
+                            }
+                        })
                     }
                 }
             }
 
 
-     
         }
 
     }
-    if(showBottomSheet){
-        EditDrugAdministrationSheet(isReserve = tabIndex == 1, state = sheetState) {
-            showBottomSheet = false
-        }
-    }
-}
+    if (showBottomSheet) {
+            EditDrugAdministrationSheet(
+                state = sheetState,
+                task = selectedTasks
+            ) {
+                showBottomSheet = false
+            }
 
-@Composable
-@Preview
-private fun PreviewDrugsAdministrationScreen() {
-    val viewModel = DrugsAdministrationScreenViewModel(SavedStateHandle.createHandle(null,null))
-    viewModel.isLoading = false
-    AppTheme() {
-        DrugsAdministrationScreen(
-            viewModel = viewModel,
-
-            navigationActions = NavigationActions(NavController(LocalContext.current))) {
-
-        }
     }
 }

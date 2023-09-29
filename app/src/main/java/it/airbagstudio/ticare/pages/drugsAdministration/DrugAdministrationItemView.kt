@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,12 +46,12 @@ fun DrugAdministrationItemView(
             .clickable { onClick() }
             .background(if (isReserve) tertiary95 else MaterialTheme.colorScheme.surface)
             .fillMaxWidth()
-            .padding(start = 16.dp, top = 12.dp, end = 24.dp, bottom = 12.dp)
+            .padding(start = 16.dp, top = 12.dp, end = 0.dp, bottom = 0.dp)
     ) {
 
         val alpha = if (isCompleted) 0.5f else 1f
 
-        Row() {
+        Row(Modifier.padding(end = 24.dp)) {
             if (isCompleted) {
                 Icon(
                     modifier = Modifier.padding(end = 16.dp),
@@ -61,7 +62,9 @@ fun DrugAdministrationItemView(
             Text(
                 text = name,
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f).alpha(alpha)
+                modifier = Modifier
+                    .weight(1f)
+                    .alpha(alpha)
             )
             if (!isCompleted) {
                 Image(
@@ -71,7 +74,7 @@ fun DrugAdministrationItemView(
             }
 
         }
-        Row(modifier = Modifier.alpha(alpha)) {
+        Row(modifier = Modifier.alpha(alpha).padding(end = 24.dp)) {
             if (isCompleted) {
                 Spacer(modifier = Modifier.width(40.dp))
             }
@@ -89,7 +92,7 @@ fun DrugAdministrationItemView(
             }
             LabelValueRow(label = stringResource(id = R.string.time), value = time)
         }
-
+        Divider(Modifier.padding(top = 12.dp))
     }
 }
 

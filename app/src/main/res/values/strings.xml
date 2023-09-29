@@ -50,4 +50,5 @@
     <string name="warning">Attenzione</string>
     <string name="retry">Riprova</string>
     <string name="selectShift">Seleziona il turno</string>
+    <string name="generic_error_message">Si è verificato un errore</string>
 </resources>
