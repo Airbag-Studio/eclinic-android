@@ -62,8 +62,8 @@ class PatientDetailsScreenViewModel @Inject constructor(
 
                 val caseAlerts = userDetailRepository.getCaseAlerts(code).results
                 alerts = caseAlerts?.map { AlertItem(
-                    colorFg = it.background,
-                    colorBg = it.foreground,
+                    colorFg = it.foreground,
+                    colorBg = it.background,
                     label = it.label
                 ) } ?: listOf()
 
