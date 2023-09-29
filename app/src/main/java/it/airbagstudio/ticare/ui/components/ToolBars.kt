@@ -174,7 +174,7 @@ fun ToolbarWithSyncAndSettings(title: String, onSettingsClick: () -> Unit) {
             }
         },
         actions = {
-            SyncButton(state = SyncButtonState.SYNCING)
+            SyncButton(state = SyncButtonState.ONLINE)
         }
     )
 }
@@ -195,7 +195,7 @@ fun ToolbarWithBackAndSync(title: String, onBack: () -> Unit) {
             }
         },
         actions = {
-            SyncButton(state = SyncButtonState.SYNCING)
+            SyncButton(state = SyncButtonState.ONLINE)
         }
     )
 }
