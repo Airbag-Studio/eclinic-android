@@ -79,14 +79,14 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     fun executeAll(){
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading = true
-            tasks.forEach {task ->
+            val newTasks = tasks.map {task ->
                 val execDate = DateFormat.format("yyyy-MM-dd", Date()).toString()
                 val execTime = DateFormat.format("HH:mm:ss.000", Date()).toString()
-                val newTask = task.copy(quantity = task.expQuantity, execTime = execTime, execDate = execDate)
-                val res = userDetailRepository.updatePharmacologicalTask(newTask)
-                res.error?.let {
-                    errorMessage = it.desc
-                }
+                task.copy(quantity = task.expQuantity, execTime = execTime, execDate = execDate)
+            }
+            val res = userDetailRepository.updatePharmacologicalTasks(newTasks)
+            res.error?.let {
+                errorMessage = it.desc
             }
             downloadTasks(false)
             isLoading = false
