@@ -14,7 +14,7 @@ android {
         minSdk 28
         targetSdk 34
         versionCode 1
-        versionName "1.0"
+        versionName "0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -44,10 +44,10 @@ android {
     flavorDimensions 'env'
     productFlavors {
         develop{
-            applicationId "ch.ticare.eclinic.dev"
+            applicationId "ch.ticare.eclinic.app.dev"
         }
         preProd{
-            applicationId "ch.ticare.eclinic"
+            applicationId "ch.ticare.eclinic.app"
         }
     }
 }
