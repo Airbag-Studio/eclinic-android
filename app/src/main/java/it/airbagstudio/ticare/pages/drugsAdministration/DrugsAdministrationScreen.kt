@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -19,6 +20,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,6 +57,7 @@ fun DrugsAdministrationScreen(
 ) {
     var tabIndex by remember { mutableIntStateOf(0) }
     var showBottomSheet by remember { mutableStateOf(false) }
+    var showExecuteAllAlert by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var selectedTasks by remember {
         mutableStateOf<AgendaPharmacologicalTask?>(null)
@@ -66,7 +69,7 @@ fun DrugsAdministrationScreen(
 
                     contentColor = MaterialTheme.colorScheme.primary,
                     onClick = {
-                        viewModel.executeAll()
+                        showExecuteAllAlert = true
                     },
                     icon = {
                         Icon(
@@ -206,6 +209,34 @@ fun DrugsAdministrationScreen(
             showBottomSheet = false
             viewModel.reloadTasks()
         }
+    }
+
+    if (showExecuteAllAlert){
+        AlertDialog(
+            onDismissRequest = {
+                showExecuteAllAlert = false
+            },
+            title = { Text(text = stringResource(id = R.string.execute_all_confirm_dialog_title)) },
+            text = { Text(text = stringResource(id = R.string.execute_all_confirm_dialog_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExecuteAllAlert = false
+                        viewModel.executeAll()
+                    }) {
+                    Text("Ok")
+                }
+            },
+            dismissButton =
+            {
+                TextButton(
+                    onClick = {
+                        showExecuteAllAlert = false
+                    }) {
+                    Text(stringResource(id = R.string.cancel))
+                }
+
+            })
 
     }
 }
