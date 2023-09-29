@@ -56,8 +56,8 @@ fun PatientListScreen(
     var searchActive by rememberSaveable { mutableStateOf(false) }
     Scaffold(
         topBar = {
-            ToolbarWithSyncAndSettings(title = "Casa Delle Rose") {
-
+            ToolbarWithSyncAndSettings(title = viewModel.companyName ?: "") {
+                viewModel.downloadCases()
             }
         }
     ) { values ->
