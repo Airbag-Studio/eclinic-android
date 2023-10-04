@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun EclinicNavGraph(
     modifier: Modifier = Modifier,
+    viewModel: NavigationViewModel = hiltViewModel(),
     navController: NavHostController = rememberNavController(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     startDestination: String = Destinations.SPLASH_ROUTE,
@@ -34,7 +36,10 @@ fun EclinicNavGraph(
 ) {
     val currentNavBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentNavBackStackEntry?.destination?.route ?: startDestination
-
+    if (viewModel.backToLogin == true) {
+        viewModel.backToLogin = null
+        navActions.navigateToLogin()
+    }
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -47,35 +52,35 @@ fun EclinicNavGraph(
             SplashPageScreen(nav = navActions)
         }
 
-        composable(Destinations.LOGIN_ROUTE){
+        composable(Destinations.LOGIN_ROUTE) {
             BackHandler(true) {
 
             }
             LoginScreen(navigationActions = navActions)
         }
 
-        composable(Destinations.PATIENTS_LIST_ROUTE){
+        composable(Destinations.PATIENTS_LIST_ROUTE) {
             BackHandler(true) {
 
             }
             PatientListScreen(navActions = navActions)
         }
-        composable(Destinations.PATIENT_DETAILS_ROUTE){
-            PatientDetailsScreen(navActions = navActions){
+        composable(Destinations.PATIENT_DETAILS_ROUTE) {
+            PatientDetailsScreen(navActions = navActions) {
                 navController.popBackStack()
             }
         }
-        composable(Destinations.PATIENT_INFO_ROUTE){
+        composable(Destinations.PATIENT_INFO_ROUTE) {
             PatientInfoScreen(navigationActions = navActions) {
                 navController.popBackStack()
             }
         }
-        composable(Destinations.DRUG_ADMINISTRATION_ROUTE){
+        composable(Destinations.DRUG_ADMINISTRATION_ROUTE) {
             DrugsAdministrationScreen(navigationActions = navActions) {
                 navController.popBackStack()
             }
         }
-        composable(Destinations.ALLERGIES_ROUTE){
+        composable(Destinations.ALLERGIES_ROUTE) {
             AllergiesScreen(navigationActions = navActions) {
                 navController.popBackStack()
             }

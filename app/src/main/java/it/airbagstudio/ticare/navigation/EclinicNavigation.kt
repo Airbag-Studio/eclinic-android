@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.navigation
 
 import androidx.navigation.NavController
+import it.airbagstudio.ticare.navigation.Destinations.LOGIN_ROUTE
 import it.airbagstudio.ticare.navigation.DestinationsArgs.DATE_TIME
 import it.airbagstudio.ticare.navigation.DestinationsArgs.PATIENT_COD
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_END
@@ -45,10 +46,6 @@ object Destinations{
 }
 
 class NavigationActions(private val navController: NavController){
-
-    fun navigateToSplash(){
-        navController.navigate(SPLASH_SCREEN)
-    }
 
     fun navigateToLogin(){
         navController.navigate(LOGIN_SCREEN)
