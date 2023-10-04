@@ -82,7 +82,8 @@ class LoginViewModel @Inject constructor(
                             username = username,
                             password = password,
                             company = company.name,
-                            group = company.group
+                            group = company.group,
+                            uuid = ""
                         )
                     }
                 val loginResponse = userRepository.login(loginRequest, rememberMe)
