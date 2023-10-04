@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "165963429052",
+    "project_id": "eclinic-6e22f",
+    "storage_bucket": "eclinic-6e22f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:165963429052:android:c392076b6ac9602303ccb9",
+        "android_client_info": {
+          "package_name": "ch.ticare.eclinic.app.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKbTf38raoW1iLpN5Lvt4mPWn8hU99GpM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
