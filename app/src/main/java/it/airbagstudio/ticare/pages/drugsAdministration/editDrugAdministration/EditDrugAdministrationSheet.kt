@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
@@ -45,6 +46,7 @@ import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -90,7 +92,12 @@ fun EditDrugAdministrationSheet(
     task: AgendaPharmacologicalTask?,
     onDismissRequest: () -> Unit
 ) {
-    viewModel.task.value = task?.copy(showInDiary = true)
+    LaunchedEffect(Unit) {
+        viewModel.task.value = task?.copy(showInDiary = true)
+        if (task?.execDate == null && task?.isReserve == false) {
+            viewModel.task.value = viewModel.task.value?.copy(quantity = task?.expQuantity ?: 0)
+        }
+    }
     val navController = rememberNavController()
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -171,7 +178,7 @@ private fun BuildContent(
                     ),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     modifier = Modifier.weight(1f),
-                    value = "${task.quantity}",
+                    value = "${viewModel.task.value?.quantity ?: 0}",
                     onValueChange = {
                         viewModel.setQuantity(it.toIntOrNull())
                     },
@@ -185,7 +192,7 @@ private fun BuildContent(
                     ),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     modifier = Modifier.weight(1f),
-                    value = "${task.maxQuantity}",
+                    value = "${viewModel.task.value?.maxQuantity ?: 0}",
                     enabled = false,
                     onValueChange = {},
                     label = { Text(text = stringResource(id = R.string.prescribed)) }
@@ -216,14 +223,12 @@ private fun BuildContent(
                 value = selectedDate.format("dd MMMM yyyy, HH:mm "),
                 enabled = false,
                 singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     disabledTextColor = MaterialTheme.colorScheme.onSurface,
                     disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-
-
-                    ),
+                ),
                 onValueChange = {},
                 trailingIcon = {
                     Icon(
@@ -334,28 +339,28 @@ private fun BuildContent(
                         SwitchItem(
                             label = stringResource(id = R.string.show_in_diary),
                             isReserve = isReserve,
-                            value = task.showInDiary
+                            value = viewModel.task.value?.showInDiary ?: false
                         ) {
                             viewModel.setShowInDiary(it)
                         }
                         SwitchItem(
                             label = stringResource(id = R.string.rejected_by_patient),
                             isReserve = isReserve,
-                            value = task.rejected
+                            value = viewModel.task.value?.rejected ?: false
                         ) {
                             viewModel.setRejected(it)
                         }
                         SwitchItem(
                             label = stringResource(id = R.string.not_performed),
                             isReserve = isReserve,
-                            value = task.isSkipped
+                            value = viewModel.task.value?.isSkipped ?: false
                         ) {
                             viewModel.setNotExecuted(it)
                         }
                         SwitchItem(
                             label = stringResource(id = R.string.patient_medication),
                             isReserve = isReserve,
-                            value = task.patientOwnedDrug
+                            value = viewModel.task.value?.patientOwnedDrug ?: false
                         ) {
                             viewModel.setPatientDrug(it)
                         }
