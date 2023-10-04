@@ -40,7 +40,7 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
 
     override fun getUUID(): String? {
         return  "8b827876-f089-4153-a8b5-006e63bfc957"
-    //return sharedPreferences.getString(uuidKey,null)
+        // return sharedPreferences.getString(uuidKey,null)
     }
 
     override fun getUsername(): String? {
@@ -48,19 +48,19 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
     }
 
     override fun setBaseURL(url: String) {
-        sharedPreferences.edit().putString(baseUrlKey,url).apply()
+        sharedPreferences.edit().putString(baseUrlKey,url).commit()
     }
 
     override fun setCompanyGroup(group: String?) {
-        sharedPreferences.edit().putString(companyGroupKey,group).apply()
+        sharedPreferences.edit().putString(companyGroupKey,group).commit()
     }
 
     override fun setCompanyName(name: String?) {
-        sharedPreferences.edit().putString(companyNameKey,name).apply()
+        sharedPreferences.edit().putString(companyNameKey,name).commit()
     }
 
     override fun setPassword(password: String?) {
-        sharedPreferences.edit().putString(passwordKey,password).apply()
+        sharedPreferences.edit().putString(passwordKey,password).commit()
     }
 
     override fun setRefreshToken(token: String?) {
@@ -72,11 +72,11 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
     }
 
     override fun setUUID(uuid: String?) {
-        sharedPreferences.edit().putString(uuidKey,uuid).apply()
+        sharedPreferences.edit().putString(uuidKey,uuid).commit()
     }
 
     override fun setUsername(username: String?) {
-        sharedPreferences.edit().putString(usernameKey,username).apply()
+        sharedPreferences.edit().putString(usernameKey,username).commit()
     }
 
 }
