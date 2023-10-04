@@ -13,6 +13,7 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
     private val baseUrlKey = "BASE_URL_KEY"
     private val usernameKey = "USERNAME_KEY"
     private val passwordKey = "PASSWORD_KEY"
+    private val rememberKey = "REMEMBER_KEY"
 
     override fun getBaseURL(): String {
         return sharedPreferences.getString(baseUrlKey,"") ?: ""
@@ -47,6 +48,10 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
         return sharedPreferences.getString(usernameKey,null)
     }
 
+    override fun getRememberMe(): Boolean{
+        return sharedPreferences.getBoolean(rememberKey,false)
+    }
+
     override fun setBaseURL(url: String) {
         sharedPreferences.edit().putString(baseUrlKey,url).commit()
     }
@@ -79,4 +84,7 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
         sharedPreferences.edit().putString(usernameKey,username).commit()
     }
 
+    override fun setRememberMe(value:Boolean){
+        sharedPreferences.edit().putBoolean(rememberKey,value).commit()
+    }
 }

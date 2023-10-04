@@ -51,6 +51,18 @@ class LoginViewModel @Inject constructor(
 
     var successLogin by mutableStateOf(false)
 
+    init {
+        if (authRepository.getRememberMe()){
+            viewModelScope.launch(exceptionHandler) {
+                server = authRepository.getBaseURL().split("/api/").firstOrNull() ?: ""
+                companies = userRepository.getCompaniesList().results ?: listOf()
+                selectedCompany = companies.firstOrNull { it.name == authRepository.getCompanyName() && it.group == authRepository.getCompanyGroup() }
+                username = authRepository.getUsername() ?: ""
+                rememberMe = true
+            }
+        }
+    }
+
     fun loginUser() {
         selectedCompany?.let { company ->
             viewModelScope.launch(exceptionHandler) {
@@ -88,13 +100,10 @@ class LoginViewModel @Inject constructor(
     fun downloadCompanies() {
         viewModelScope.launch(exceptionHandler) {
             buildValidUrl(server)?.let { validUrl ->
-                Log.w("valid url",validUrl)
                 authRepository.setBaseURL("$validUrl/api/v1")
                 companies = userRepository.getCompaniesList().results ?: listOf()
             }
-
         }
-
     }
 
     fun buildValidUrl(string: String): String? {
