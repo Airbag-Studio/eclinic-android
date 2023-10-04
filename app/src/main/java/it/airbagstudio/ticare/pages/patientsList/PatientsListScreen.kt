@@ -57,7 +57,7 @@ fun PatientListScreen(
     Scaffold(
         topBar = {
             ToolbarWithSyncAndSettings(title = viewModel.companyName ?: "") {
-                viewModel.downloadCases()
+                // viewModel.downloadCases()
             }
         }
     ) { values ->
@@ -122,17 +122,14 @@ fun PatientListScreen(
                     ) {
                         if (viewModel.query.count() > 3) {
                             val filtered = viewModel.patients?.filter {
-                                it.name.contains(
-                                    viewModel.query,
-                                    ignoreCase = true
-                                ) or it.surname.contains(
+                                "${it.name} ${it.surname}".contains(
                                     viewModel.query,
                                     ignoreCase = true
                                 )
                             } ?: listOf()
                             items(filtered) {
                                 ListItem(
-                                    headlineContent = { Text("${it.name} ${it.surname}") },
+                                    headlineContent = { Text("${it.surname} ${it.name}") },
                                     supportingContent = { Text("${it.birthday} (${it.age})") },
                                     leadingContent = { PatientImage(it.photo) },
                                     modifier = Modifier

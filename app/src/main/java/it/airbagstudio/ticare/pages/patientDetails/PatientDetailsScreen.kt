@@ -152,7 +152,7 @@ fun PatientDetailsScreen(
                             .padding(8.dp)
                     ) {
                         Text(
-                            text = "${caseDetail?.name} ${caseDetail?.surname}",
+                            text = "${caseDetail?.surname} ${caseDetail?.name}",
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -323,14 +323,14 @@ fun PatientDetailsScreen(
                                 viewModel.selectedDate = datePickerState.selectedDateMillis!!
                                 viewModel.downloadTasks()
                             }) {
-                                Text(text = "Confirm")
+                                Text(text = "Conferma")
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = {
                                 showDatePicker = false
                             }) {
-                                Text(text = "Cancel")
+                                Text(text = "Annulla")
                             }
                         }
                     ) {

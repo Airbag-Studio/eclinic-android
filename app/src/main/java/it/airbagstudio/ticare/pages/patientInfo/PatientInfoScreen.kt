@@ -26,7 +26,7 @@ fun PatientInfoScreen(
     onBack:() -> Unit
 ){
     Scaffold(topBar = {
-        ToolbarWithBackAndSync(title = "${viewModel.caseInfo?.name ?: ""} ${viewModel.caseInfo?.surname ?: ""}") {
+        ToolbarWithBackAndSync(title = "${viewModel.caseInfo?.surname ?: ""} ${viewModel.caseInfo?.name ?: ""}") {
             onBack()
         }
     }) { values ->
