@@ -51,7 +51,6 @@ class LoginViewModel @Inject constructor(
 
     var successLogin by mutableStateOf(false)
 
-
     fun loginUser() {
         selectedCompany?.let { company ->
             viewModelScope.launch(exceptionHandler) {
@@ -78,12 +77,7 @@ class LoginViewModel @Inject constructor(
                 loginResponse.error?.let { errorResponse: ErrorResponse ->
                     errorMessage = errorResponse.desc
                 }
-                loginResponse.token?.let { tokenResponse ->
-                    authRepository.setCompanyGroup(company.group)
-                    authRepository.setCompanyName(company.name)
-                    authRepository.setUUID(tokenResponse.uuid)
-                    authRepository.setToken(tokenResponse.token)
-                    authRepository.setRefreshToken(tokenResponse.refreshToken)
+                loginResponse.token?.let { _ ->
                     successLogin = true
                 }
                 isLoading = false
