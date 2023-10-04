@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
@@ -67,6 +68,7 @@ fun GridButton(
                 .weight(0.3f)
                 .alpha(badgeOpacity)
                 .padding(end = 16.dp)
+                .zIndex(1f)
         ) {
             Spacer(modifier = Modifier.weight(1f))
             Text(
