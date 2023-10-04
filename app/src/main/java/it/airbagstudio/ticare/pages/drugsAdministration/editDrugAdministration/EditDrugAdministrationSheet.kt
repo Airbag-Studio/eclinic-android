@@ -339,6 +339,7 @@ private fun BuildContent(
                         SwitchItem(
                             label = stringResource(id = R.string.show_in_diary),
                             isReserve = isReserve,
+                            enabled = true,
                             value = viewModel.task.value?.showInDiary ?: false
                         ) {
                             viewModel.setShowInDiary(it)
@@ -346,6 +347,7 @@ private fun BuildContent(
                         SwitchItem(
                             label = stringResource(id = R.string.rejected_by_patient),
                             isReserve = isReserve,
+                            enabled = isReserve,
                             value = viewModel.task.value?.rejected ?: false
                         ) {
                             viewModel.setRejected(it)
@@ -353,6 +355,7 @@ private fun BuildContent(
                         SwitchItem(
                             label = stringResource(id = R.string.not_performed),
                             isReserve = isReserve,
+                            enabled = isReserve,
                             value = viewModel.task.value?.isSkipped ?: false
                         ) {
                             viewModel.setNotExecuted(it)
@@ -360,6 +363,7 @@ private fun BuildContent(
                         SwitchItem(
                             label = stringResource(id = R.string.patient_medication),
                             isReserve = isReserve,
+                            enabled = isReserve,
                             value = viewModel.task.value?.patientOwnedDrug ?: false
                         ) {
                             viewModel.setPatientDrug(it)
@@ -449,6 +453,7 @@ private fun SwitchItem(
     label: String,
     isReserve: Boolean,
     value: Boolean,
+    enabled: Boolean,
     onChange: (Boolean) -> Unit
 ) {
     Row(
@@ -466,6 +471,7 @@ private fun SwitchItem(
                 checkedTrackColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
             ),
             checked = value,
+            enabled = enabled,
             onCheckedChange = {
                 onChange(it)
             })
