@@ -164,15 +164,14 @@ fun DrugsAdministrationScreen(
                         LazyColumn(content = {
                             items(viewModel.tasks) { task ->
                                 DrugAdministrationItemView(
-                                    name = task.entityName,
+                                    name = task.itemDescription,
                                     quantity = task.expQuantity,
                                     time = task.getExpectedTime().printTime(),
                                     isCompleted = task.execTime != null
                                 ) {
-                                    if (task.execDate == null) {
-                                        selectedTasks = task
-                                        showBottomSheet = true
-                                    }
+                                    selectedTasks = task
+                                    showBottomSheet = true
+
                                 }
                             }
                         })
