@@ -45,7 +45,7 @@
     <string name="not_performed">Non eseguita</string>
     <string name="patient_medication">Farmaco del paziente</string>
     <string name="execute">Esegui</string>
-    <string name="cancel">Cancel</string>
+    <string name="cancel">Annulla</string>
     <string name="ok">Ok</string>
     <string name="warning">Attenzione</string>
     <string name="retry">Riprova</string>
