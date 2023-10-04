@@ -40,8 +40,8 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
     }
 
     override fun getUUID(): String? {
-        return  "8b827876-f089-4153-a8b5-006e63bfc957"
-        // return sharedPreferences.getString(uuidKey,null)
+        // return  "8b827876-f089-4153-a8b5-006e63bfc957"
+        return sharedPreferences.getString(uuidKey,null)
     }
 
     override fun getUsername(): String? {
