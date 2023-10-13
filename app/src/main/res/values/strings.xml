@@ -24,10 +24,10 @@
     <string name="vital_parameters">Parametri vitali</string>
     <string name="allergies">Allergie</string>
     <string name="diary">Diario</string>
-    <string name="nursing_courses">Piani di cura</string>
+    <string name="nursing_courses">Decorsi Inferm.</string>
     <string name="care_planes">Piani di cura</string>
     <string name="wounds">Ferite</string>
-    <string name="other_prescriptions">Altre prescrizioni</string>
+    <string name="other_prescriptions">Altre prestazioni</string>
     <string name="bithday">Data di nascita</string>
     <string name="address">Indirizzo</string>
     <string name="today">Oggi</string>
@@ -53,4 +53,9 @@
     <string name="generic_error_message">Si è verificato un errore</string>
     <string name="execute_all_confirm_dialog_title">Vuoi confermare la somministrazione di tutte le terapie in elenco?</string>
     <string name="execute_all_confirm_dialog_message">"Tappando su Ok applicherai come fatte tutte le prescrizioni. "</string>
+    <string name="save">Salva</string>
+    <string name="over_max_quantity_error">Superato il limite massimo di quantità</string>
+    <string name="therapy_not_validated">La terapia non è ancora stata validata</string>
+    <string name="notes_mandatory">Si prega di inserire una nota</string>
+    <string name="all">Tutti</string>
 </resources>

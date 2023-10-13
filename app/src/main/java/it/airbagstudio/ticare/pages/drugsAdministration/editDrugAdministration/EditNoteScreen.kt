@@ -8,6 +8,8 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,19 +31,27 @@ import it.airbagstudio.ticare.ui.theme.AppTheme
 fun EditNoteScreen(
     startingText: String,
     onBack: (String) -> Unit
-){
+) {
     var text by remember {
         mutableStateOf(startingText)
     }
     val focusRequester = remember { FocusRequester() }
     Scaffold(
         topBar = {
-            ToolbarWithBack(title = stringResource(id = R.string.notes)) {
+            ToolbarWithBack(title = stringResource(id = R.string.notes), actions = {
+                TextButton(onClick = {
+                    focusRequester.freeFocus()
+                    onBack(text)
+                }) {
+                    Text(text = stringResource(id = R.string.save))
+                }
+            }) {
                 focusRequester.freeFocus()
-                onBack(text)
+                onBack(startingText)
             }
-        }
-    ) { values ->
+        },
+
+        ) { values ->
         Column(modifier = Modifier.padding(values)) {
             OutlinedTextField(
                 modifier = Modifier
@@ -50,18 +60,18 @@ fun EditNoteScreen(
                     .padding(16.dp)
                     .focusRequester(focusRequester),
                 value = text, onValueChange = {
-                text = it
-            })
+                    text = it
+                })
         }
     }
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
 }
 
 @Composable
 @Preview
-fun EditNoteScreenPreview(){
+fun EditNoteScreenPreview() {
     AppTheme {
         EditNoteScreen(startingText = "", onBack = {})
     }

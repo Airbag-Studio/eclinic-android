@@ -79,11 +79,10 @@ fun DrugAdministrationItemView(
                 Spacer(modifier = Modifier.width(40.dp))
             }
             LabelValueRow(label = stringResource(id = R.string.quantity), value = "$quantity")
-            if (reserves != null) {
+            if (!isCompleted && reserves != null && reserves > 0) {
                 Spacer(modifier = Modifier.weight(1f))
                 LabelValueRow(label = stringResource(id = R.string.reserves), value = "$reserves")
                 Spacer(modifier = Modifier.width(40.dp))
-
             }
         }
         Row(modifier = Modifier.alpha(alpha)) {

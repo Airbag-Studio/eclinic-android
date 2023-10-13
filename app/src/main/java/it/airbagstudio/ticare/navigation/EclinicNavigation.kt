@@ -42,6 +42,7 @@ object Destinations{
     const val PATIENT_DETAILS_ROUTE = "$PATIENT_DETAILS_SCREEN/{$PATIENT_COD}"
     const val PATIENT_INFO_ROUTE = "$PATIENT_INFO_SCREEN/{$PATIENT_COD}"
     const val DRUG_ADMINISTRATION_ROUTE = "$DRUG_ADMINISTRATION_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{${SHIFT_START}}/{$SHIFT_END}/{$SHIFT_NAME}"
+    const val DRUG_ADMINISTRATION_ROUTE_NO_SHIFT = "$DRUG_ADMINISTRATION_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{$SHIFT_NAME}"
     const val ALLERGIES_ROUTE = "$ALLERGIES_SCREEN/{$PATIENT_COD}"
 }
 
@@ -65,6 +66,10 @@ class NavigationActions(private val navController: NavController){
 
     fun navigateToDrugAdministration(patientCod: String,dateTime:Long,shiftStart:String,shiftEnd:String, shiftName:String){
         navController.navigate("$DRUG_ADMINISTRATION_SCREEN/$patientCod/$dateTime/$shiftStart/$shiftEnd/$shiftName")
+    }
+
+    fun navigateToDrugAdministration(patientCod: String,dateTime:Long, shiftName:String){
+        navController.navigate("$DRUG_ADMINISTRATION_SCREEN/$patientCod/$dateTime/$shiftName")
     }
 
     fun navigateToAllergies(patientCod: String){

@@ -4,8 +4,8 @@ import android.content.Context
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.network.CredentialsListener
 
-
-class CredentialListenerImpl(private val context: Context,private val authRepository: AuthRepository): CredentialsListener {
+/*
+class CredentialListenerImpl(private val authRepository: AuthRepository): CredentialsListener {
 
      var onCredentialRefresh: (() -> Unit)? = null
 
@@ -15,3 +15,5 @@ class CredentialListenerImpl(private val context: Context,private val authReposi
         onCredentialRefresh?.invoke()
     }
 }
+
+ */

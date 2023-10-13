@@ -22,7 +22,7 @@ import androidx.compose.ui.window.Dialog
 import ch.ticare.eclinic.library.entity.CompanyInfo
 import java.util.Objects
 
-data class ListPopupItem<T>(val label:String, val item: T)
+data class ListPopupItem<T>(val label:String, val item: T?)
 
 @Composable
 fun <T> ListPopup(title: String, items: List<ListPopupItem<T>>, setShowDialog: (Boolean) -> Unit, onItemSelected: (ListPopupItem<T>) -> Unit){

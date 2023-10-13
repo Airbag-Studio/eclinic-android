@@ -69,7 +69,6 @@ class PatientDetailsScreenViewModel @Inject constructor(
                 ) } ?: listOf()
 
                 shifts = userDetailRepository.getOperatingShifts().results
-                selectedShift = shifts?.firstOrNull { it.isCurrent() }
                 downloadTasks()
                 isLoading = false
             }
@@ -91,12 +90,15 @@ class PatientDetailsScreenViewModel @Inject constructor(
     }
 
     fun filterTasksByShift(){
-        selectedShift?.let {shift ->
             pharmacologicalTasks = allTasksForDay.filter { task ->
-                val taskTime = LocalTime.parse(task.expTime)
-                shift.includeTime(taskTime) && task.execDate == null && !task.isReserve
+                val isInShift = if (selectedShift != null && task.expTime != null){
+                    val taskTime = LocalTime.parse(task.expTime)
+                    selectedShift!!.includeTime(taskTime)
+                } else{
+                    true
+                }
+                isInShift && task.execDate == null && !task.isReserve
             }
-        }
 
     }
 }

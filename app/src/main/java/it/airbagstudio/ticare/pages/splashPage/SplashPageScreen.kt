@@ -5,24 +5,51 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImagePainter.State.Empty.painter
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
+import it.airbagstudio.ticare.ui.theme.AppTheme
+import org.intellij.lang.annotations.PrintFormat
 
 @Composable
 fun SplashPageScreen(
     nav: NavigationActions,
     viewModel: SplashPageScreenViewModel = hiltViewModel()
     ) {
-    Box{
+    if(viewModel.isLoggedIn == true){
+        viewModel.isLoggedIn = null
+        nav.navigateToPatientsList()
+    } else if (viewModel.isLoggedIn == false){
+        viewModel.isLoggedIn = null
+        nav.navigateToLogin()
+    }
+
+        BuildContent()
+
+
+}
+
+@Composable
+private fun BuildContent(){
+    Box {
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(id = R.mipmap.bg_sdplash),
+            contentDescription = "",
+            contentScale = ContentScale.FillBounds
+        )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -54,12 +81,13 @@ fun SplashPageScreen(
                 )
             )
         }
-        if(viewModel.isLoggedIn == true){
-            viewModel.isLoggedIn = null
-            nav.navigateToPatientsList()
-        } else if (viewModel.isLoggedIn == false){
-            viewModel.isLoggedIn = null
-            nav.navigateToLogin()
-        }
+    }
+}
+
+@Composable
+@Preview
+private fun PreviewSplash(){
+    AppTheme {
+        BuildContent()
     }
 }

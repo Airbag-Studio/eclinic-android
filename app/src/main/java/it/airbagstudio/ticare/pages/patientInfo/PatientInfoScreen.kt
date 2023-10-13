@@ -55,7 +55,7 @@ fun PatientInfoScreen(
                 caseInfo.externalMedics.forEach { externalMedic ->
                     if (externalMedic.phoneNumbers.isNotEmpty()) {
                         PatientInfoCard(
-                            tile = externalMedic.label,
+                            tile = externalMedic.operator,
                             phones = externalMedic.phoneNumbers.split(" | " )
                         )
                     }

@@ -9,11 +9,11 @@ import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import it.airbagstudio.ticare.R
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
-import kotlin.math.min
 
 @HiltViewModel
 class EditDrugAdministrationSheetViewModel @Inject constructor(
@@ -25,10 +25,7 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
     var isSucces by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
-
-    var isValid = {
-        (task.value?.quantity ?: 0) > 0
-    }
+    var messagesStringIdentifiers by mutableStateOf<List<Int>?>(null)
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading = false
@@ -40,8 +37,11 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
     }
 
     fun setQuantity(value: Int?){
-        val newValue = min(value ?: 0,task.value?.expQuantity ?: 0)
+        val newValue = value ?: 0
         task.value = task.value?.copy(quantity = newValue)
+        if (newValue < (task.value?.maxQuantity ?: 0)){
+            task.value = task.value?.copy(showInDiary = true)
+        }
     }
 
     fun setExecutedDate(date: Date){
@@ -55,11 +55,11 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
     }
 
     fun setRejected(value: Boolean){
-        task.value = task.value?.copy(rejected = value)
+        task.value = task.value?.copy(rejected = value,quantity = 0, showInDiary = true, isSkipped = true)
     }
 
     fun setNotExecuted(value: Boolean){
-        task.value = task.value?.copy(isSkipped = value)
+        task.value = task.value?.copy(isSkipped = value, quantity = 0, showInDiary = true)
     }
 
     fun setPatientDrug(value: Boolean){
@@ -68,6 +68,18 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
 
     fun executeTask() {
         task.value?.let { updatedTask ->
+            if (updatedTask.quantity > updatedTask.maxQuantity){
+                messagesStringIdentifiers = listOf(R.string.over_max_quantity_error)
+                return
+            }
+            if (updatedTask.quantity < updatedTask.maxQuantity && updatedTask.notes.isEmpty() && !updatedTask.isReserve){
+                messagesStringIdentifiers = listOf(R.string.notes_mandatory)
+                return
+            }
+            if (updatedTask.isSkipped || updatedTask.rejected){
+                messagesStringIdentifiers = listOf(R.string.notes_mandatory)
+                return
+            }
             viewModelScope.launch(coroutineExceptionHandler) {
                 isLoading = true
                 val res = userDetailRepository.updatePharmacologicalTasks(listOf(updatedTask))

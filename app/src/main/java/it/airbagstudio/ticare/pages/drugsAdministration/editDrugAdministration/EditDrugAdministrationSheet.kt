@@ -1,8 +1,6 @@
 package it.airbagstudio.ticare.pages.drugsAdministration.editDrugAdministration
 
-import android.annotation.SuppressLint
 import android.net.Uri
-import android.text.format.DateFormat
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -34,20 +32,17 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,18 +50,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -74,15 +67,13 @@ import androidx.navigation.navArgument
 import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.DestinationsArgs.NOTE_CONTENT
-import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.ErrorAlert
-import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.seed
 import it.airbagstudio.ticare.ui.theme.tertiary95
+import it.airbagstudio.ticare.utils.PlaceholderTransformation
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getExpectedDate
 import java.util.Date
-import kotlin.reflect.KProperty
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,7 +84,7 @@ fun EditDrugAdministrationSheet(
     onDismissRequest: () -> Unit
 ) {
     LaunchedEffect(Unit) {
-        viewModel.task.value = task?.copy(showInDiary = true)
+        viewModel.task.value = task?.copy(showInDiary = task.isReserve)
         if (task?.execDate == null && task?.isReserve == false) {
             viewModel.task.value = viewModel.task.value?.copy(quantity = task?.expQuantity ?: 0)
         }
@@ -171,6 +162,7 @@ private fun BuildContent(
             Row(
                 modifier = Modifier.padding(top = 24.dp)
             ) {
+                val value = if ((viewModel.task.value?.quantity ?:0) > 0) "${viewModel.task.value?.quantity}" else ""
                 OutlinedTextField(
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
@@ -178,7 +170,8 @@ private fun BuildContent(
                     ),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     modifier = Modifier.weight(1f),
-                    value = "${viewModel.task.value?.quantity ?: 0}",
+                    value = value,
+                    visualTransformation = if (value.isEmpty()) PlaceholderTransformation("0") else VisualTransformation.None,
                     onValueChange = {
                         viewModel.setQuantity(it.toIntOrNull())
                     },
@@ -197,6 +190,7 @@ private fun BuildContent(
                     onValueChange = {},
                     label = { Text(text = stringResource(id = R.string.prescribed)) }
                 )
+                val duration = if ((viewModel.task.value?.duration ?: 0) > 0) "${viewModel.task.value?.duration}" else ""
                 Spacer(modifier = Modifier.width(24.dp))
                 OutlinedTextField(
                     keyboardOptions = KeyboardOptions(
@@ -205,7 +199,8 @@ private fun BuildContent(
                     ),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     modifier = Modifier.weight(1f),
-                    value = "${viewModel.task.value?.duration}",
+                    value = duration,
+                    visualTransformation = if (duration.isEmpty()) PlaceholderTransformation("0") else VisualTransformation.None,
                     onValueChange = {
                         viewModel.setDuration(it.toIntOrNull())
                     },
@@ -347,7 +342,7 @@ private fun BuildContent(
                         SwitchItem(
                             label = stringResource(id = R.string.rejected_by_patient),
                             isReserve = isReserve,
-                            enabled = isReserve,
+                            enabled = !isReserve,
                             value = viewModel.task.value?.rejected ?: false
                         ) {
                             viewModel.setRejected(it)
@@ -355,21 +350,23 @@ private fun BuildContent(
                         SwitchItem(
                             label = stringResource(id = R.string.not_performed),
                             isReserve = isReserve,
-                            enabled = isReserve,
+                            enabled = !isReserve,
                             value = viewModel.task.value?.isSkipped ?: false
                         ) {
                             viewModel.setNotExecuted(it)
                         }
+                        /*
                         SwitchItem(
                             label = stringResource(id = R.string.patient_medication),
                             isReserve = isReserve,
-                            enabled = isReserve,
+                            enabled = true,
                             value = viewModel.task.value?.patientOwnedDrug ?: false
                         ) {
                             viewModel.setPatientDrug(it)
                         }
+*/
                         Button(
-                            enabled = !viewModel.isLoading && viewModel.isValid.invoke(),
+                            enabled = !viewModel.isLoading,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 24.dp),
@@ -404,6 +401,13 @@ private fun BuildContent(
             message = viewModel.errorMessage ?: stringResource(id = R.string.generic_error_message),
             onDismissRequest = {
                 viewModel.errorMessage = null
+            })
+    }
+    if(viewModel.messagesStringIdentifiers?.isNotEmpty() == true){
+        ErrorAlert(
+            message = viewModel.messagesStringIdentifiers?.map { stringResource(id = it) }?.joinToString("\n") ?: "",
+            onDismissRequest = {
+                viewModel.messagesStringIdentifiers = null
             })
     }
 

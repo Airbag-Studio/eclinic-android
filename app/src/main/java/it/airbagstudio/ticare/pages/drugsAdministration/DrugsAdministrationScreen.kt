@@ -30,22 +30,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavController
 import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.drugsAdministration.editDrugAdministration.EditDrugAdministrationSheet
-import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
+import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
-import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.getCompleteName
 import it.airbagstudio.ticare.utils.getExpectedTime
+import it.airbagstudio.ticare.utils.validated
 import it.airbagstudio.ticare.utils.printTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,6 +58,10 @@ fun DrugsAdministrationScreen(
     var selectedTasks by remember {
         mutableStateOf<AgendaPharmacologicalTask?>(null)
     }
+    var errorMessages = remember {
+        mutableStateOf<List<Int>?>(null)
+    }
+
     Scaffold(
         floatingActionButton = {
             if (tabIndex == 0 && !viewModel.tasks.filter { it.execDate == null }.isEmpty()) {
@@ -166,11 +166,16 @@ fun DrugsAdministrationScreen(
                                 DrugAdministrationItemView(
                                     name = task.itemDescription,
                                     quantity = task.expQuantity,
-                                    time = task.getExpectedTime().printTime(),
+                                    time = task.getExpectedTime()?.printTime() ?: "",
+                                    reserves = task.reservesCount,
                                     isCompleted = task.execTime != null
                                 ) {
-                                    selectedTasks = task
-                                    showBottomSheet = true
+                                    if (task.validated()) {
+                                        selectedTasks = task
+                                        showBottomSheet = true
+                                    }else{
+                                        errorMessages.value = listOf(R.string.therapy_not_validated)
+                                    }
 
                                 }
                             }
@@ -183,15 +188,17 @@ fun DrugsAdministrationScreen(
                         LazyColumn(content = {
                             items(viewModel.reserves) { task ->
                                 DrugAdministrationItemView(
-                                    name = task.entityName,
+                                    name = task.itemDescription,
                                     quantity = task.expQuantity,
-                                    time = task.getExpectedTime().printTime(),
+                                    time = task.getExpectedTime()?.printTime() ?: "",
                                     isCompleted = task.execTime != null,
                                     isReserve = true
                                 ) {
-                                    if (task.execDate == null) {
+                                    if (task.validated()) {
                                         selectedTasks = task
                                         showBottomSheet = true
+                                    }else{
+                                        errorMessages.value = listOf(R.string.therapy_not_validated)
                                     }
                                 }
                             }
@@ -241,5 +248,8 @@ fun DrugsAdministrationScreen(
 
             })
 
+    }
+    if (errorMessages.value?.isNotEmpty() == true){
+        ErrorAlert(message = errorMessages.value?.map { stringResource(id = it) }?.joinToString("\n") ?: "", onDismissRequest = { errorMessages.value = null })
     }
 }

@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import it.airbagstudio.ticare.LoginRedirect
 import it.airbagstudio.ticare.pages.allergies.AllergiesScreen
 import it.airbagstudio.ticare.pages.drugsAdministration.DrugsAdministrationScreen
 import it.airbagstudio.ticare.pages.drugsAdministration.editDrugAdministration.EditNoteScreen
@@ -26,7 +27,6 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun EclinicNavGraph(
     modifier: Modifier = Modifier,
-    viewModel: NavigationViewModel = hiltViewModel(),
     navController: NavHostController = rememberNavController(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     startDestination: String = Destinations.SPLASH_ROUTE,
@@ -36,10 +36,11 @@ fun EclinicNavGraph(
 ) {
     val currentNavBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentNavBackStackEntry?.destination?.route ?: startDestination
-    if (viewModel.backToLogin == true) {
-        viewModel.backToLogin = null
+
+    LoginRedirect.onCredentialRefresh = {
         navActions.navigateToLogin()
     }
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -76,6 +77,11 @@ fun EclinicNavGraph(
             }
         }
         composable(Destinations.DRUG_ADMINISTRATION_ROUTE) {
+            DrugsAdministrationScreen(navigationActions = navActions) {
+                navController.popBackStack()
+            }
+        }
+        composable(Destinations.DRUG_ADMINISTRATION_ROUTE_NO_SHIFT) {
             DrugsAdministrationScreen(navigationActions = navActions) {
                 navController.popBackStack()
             }

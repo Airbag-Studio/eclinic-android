@@ -13,18 +13,19 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import it.airbagstudio.ticare.BuildConfig
+import it.airbagstudio.ticare.LoginRedirect
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 class AppModule {
-
+/*
     @Provides
     @Singleton
     fun provideCredentialListener(@ApplicationContext context: Context): CredentialListenerImpl{
-        return CredentialListenerImpl(context,provideAuthRepository(context))
+        return CredentialListenerImpl(provideAuthRepository(context))
     }
-
+*/
     @Provides
     @Singleton
     fun provideAuthRepository(@ApplicationContext context: Context): AuthRepository {
@@ -32,8 +33,9 @@ class AppModule {
     }
 
     @Provides
+    @Singleton
     fun provideApiService(@ApplicationContext context: Context): APIClient {
-        return APIClient(provideAuthRepository(context),provideCredentialListener(context))
+        return APIClient(provideAuthRepository(context),LoginRedirect)
     }
 
     @Provides

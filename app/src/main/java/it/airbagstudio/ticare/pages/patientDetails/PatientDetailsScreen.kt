@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -55,6 +56,7 @@ import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import ch.ticare.eclinic.library.entity.OperatingShift
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.data.AlertItem
 import it.airbagstudio.ticare.navigation.NavigationActions
@@ -86,7 +88,7 @@ fun PatientDetailsScreen(
     val calendar = Calendar.getInstance()
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = calendar.timeInMillis)
     val lifecycleOwner = LocalLifecycleOwner.current
-
+    val context = LocalContext.current
 
 
 
@@ -189,7 +191,7 @@ fun PatientDetailsScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     DropDownButton(
                         modifier = Modifier.weight(1f),
-                        value = viewModel.selectedShift?.name ?: "",
+                        value = viewModel.selectedShift?.name ?: stringResource(id = R.string.all),
                         isEnabled = !viewModel.isLoading
                     ) {
                         showShiftsPopup = true
@@ -224,8 +226,11 @@ fun PatientDetailsScreen(
                             modifier = Modifier.weight(1f),
                             badgeCount = viewModel.pharmacologicalTasks?.size ?: 0
                         ) {
+
                             viewModel.selectedShift?.let {shift ->
                                 navActions.navigateToDrugAdministration(Uri.encode(viewModel.patientCod),viewModel.selectedDate,shift.startTime,shift.stopTime, shiftName = shift.name)
+                            } ?: run {
+                                navActions.navigateToDrugAdministration(Uri.encode(viewModel.patientCod),viewModel.selectedDate,shiftName = context.getString(R.string.all))
                             }
 
                         }
@@ -340,8 +345,8 @@ fun PatientDetailsScreen(
                     }
                 }
                 if (showShiftsPopup && (viewModel.shifts?.isNotEmpty() == true)) {
-                    val popupItems =
-                        viewModel.shifts!!.map { ListPopupItem(label = it.name, item = it) }
+                    val popupItems = mutableListOf<ListPopupItem<OperatingShift>>(ListPopupItem(label = stringResource(id = R.string.all), item = null))
+                    popupItems.addAll(viewModel.shifts!!.map { ListPopupItem(label = it.name, item = it) })
                     ListPopup(
                         title = stringResource(id = R.string.selectShift),
                         items = popupItems,

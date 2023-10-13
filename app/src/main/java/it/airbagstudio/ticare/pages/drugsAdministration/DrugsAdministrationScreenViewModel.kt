@@ -15,6 +15,7 @@ import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
 import it.airbagstudio.ticare.utils.includeTime
+import it.airbagstudio.ticare.utils.validated
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,8 +31,8 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
 
     private val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
     private val dateTime: String = savedStateHandle[DestinationsArgs.DATE_TIME]!!
-    private val shiftStart: String = savedStateHandle[DestinationsArgs.SHIFT_START]!!
-    private val shiftEnd: String = savedStateHandle[DestinationsArgs.SHIFT_END]!!
+    private val shiftStart: String? = savedStateHandle[DestinationsArgs.SHIFT_START]
+    private val shiftEnd: String? = savedStateHandle[DestinationsArgs.SHIFT_END]
     val shiftName: String = savedStateHandle[DestinationsArgs.SHIFT_NAME]!!
 
     var isLoading by mutableStateOf(false)
@@ -58,14 +59,33 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     }
 
     private suspend fun downloadTasks(fromCache: Boolean){
-        val shift = OperatingShift(name = shiftName, publicName = shiftName, publicShortName = shiftName, shortName = shiftName, startTime = shiftStart, stopTime = shiftEnd)
+        var shift : OperatingShift? = null
+        if (shiftStart != null && shiftEnd != null){
+            shift = OperatingShift(name = shiftName, publicName = shiftName, publicShortName = shiftName, shortName = shiftName, startTime = shiftStart, stopTime = shiftEnd)
+        }
+
         val dateParam =  DateFormat.format("yyyy.MM.dd", date).toString()
-        val filteredTask = userDetailRepository.getAgendaForPharmacologicalTask(date = dateParam,patientCod,fromCache = fromCache).results?.filter { task ->
-            val taskTime = LocalTime.parse(task.expTime)
-            shift.includeTime(taskTime)
+        val expDate =  DateFormat.format("yyyy-MM-dd", date).toString()
+        val allTasks = userDetailRepository.getAgendaForPharmacologicalTask(date = dateParam,patientCod,fromCache = fromCache).results
+        tasks = allTasks?.filter { task ->
+            if(task.expTime != null){
+                val taskTime = LocalTime.parse(task.expTime)
+                (shift?.includeTime(taskTime) ?: true) && !task.isReserve
+            } else {
+                !task.isReserve
+            }
         } ?: listOf()
-        tasks = filteredTask.filter { !it.isReserve }
-        reserves = filteredTask.filter { it.isReserve }
+
+        reserves = allTasks?.filter { task ->
+            task.isReserve && if (task.expTime != null) {
+                val taskTime = LocalTime.parse(task.expTime)
+                (shift?.includeTime(taskTime) ?: true)
+            }  else {
+                task.expDate == expDate
+            }
+        } ?: listOf()
+
+        tasks = tasks.map { it.copy(reservesCount = reserves.filter { res -> res.itemPKey == it.itemPKey }.sumOf { it.expQuantity }) }
     }
 
     fun reloadTasks(){
@@ -79,7 +99,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     fun executeAll(){
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading = true
-            val newTasks = tasks.map {task ->
+            val newTasks = tasks.filter { it.validated() }.map {task ->
                 val execDate = DateFormat.format("yyyy-MM-dd", Date()).toString()
                 val execTime = DateFormat.format("HH:mm:ss.000", Date()).toString()
                 task.copy(quantity = task.expQuantity, execTime = execTime, execDate = execDate)

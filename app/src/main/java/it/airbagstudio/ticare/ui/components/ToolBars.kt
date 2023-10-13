@@ -1,11 +1,13 @@
 package it.airbagstudio.ticare.ui.components
 
+import android.widget.Button
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -202,7 +204,7 @@ fun ToolbarWithBackAndSync(title: String, onBack: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ToolbarWithBack(title: String, onBack: () -> Unit) {
+fun ToolbarWithBack(title: String,actions: @Composable() (RowScope.() -> Unit) = {}, onBack: () -> Unit, ) {
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
         title = {
@@ -214,7 +216,10 @@ fun ToolbarWithBack(title: String, onBack: () -> Unit) {
             ) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
             }
-        }
+        },
+        actions = actions
+
+
     )
 }
 

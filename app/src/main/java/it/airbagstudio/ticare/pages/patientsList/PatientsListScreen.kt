@@ -136,8 +136,8 @@ fun PatientListScreen(
                                         .fillMaxWidth()
                                         //.padding(horizontal = 8.dp, vertical = 4.dp)
                                         .clickable {
-                                            viewModel.query = ""
-                                            searchActive = false
+                                            //viewModel.query = ""
+                                            //searchActive = false
                                             navActions.navigateToPatientDetails(Uri.encode(it.code))
                                         }
                                 )
