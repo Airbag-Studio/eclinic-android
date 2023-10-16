@@ -10,6 +10,7 @@ import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.utils.validated
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -30,6 +31,10 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
     val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading = false
         errorMessage = throwable.localizedMessage
+    }
+
+    var isEditingEnable = {
+        task.value?.validated() ?: false
     }
 
     fun setDuration(value: Int?){
@@ -76,7 +81,7 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
                 messagesStringIdentifiers = listOf(R.string.notes_mandatory)
                 return
             }
-            if (updatedTask.isSkipped || updatedTask.rejected){
+            if ((updatedTask.isSkipped || updatedTask.rejected) && updatedTask.notes.isEmpty()){
                 messagesStringIdentifiers = listOf(R.string.notes_mandatory)
                 return
             }

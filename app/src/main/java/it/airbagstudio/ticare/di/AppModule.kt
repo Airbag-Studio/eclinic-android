@@ -3,7 +3,6 @@ package it.airbagstudio.ticare.di
 import android.content.Context
 import ch.ticare.eclinic.library.network.APIClient
 import ch.ticare.eclinic.library.network.AuthRepository
-import ch.ticare.eclinic.library.network.CredentialsListener
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.UserListRepository
 import ch.ticare.eclinic.library.repository.UserRepository
@@ -12,7 +11,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import it.airbagstudio.ticare.BuildConfig
 import it.airbagstudio.ticare.LoginRedirect
 import javax.inject.Singleton
 

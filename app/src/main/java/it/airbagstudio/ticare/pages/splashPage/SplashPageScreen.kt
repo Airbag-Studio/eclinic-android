@@ -17,11 +17,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImagePainter.State.Empty.painter
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.theme.AppTheme
-import org.intellij.lang.annotations.PrintFormat
 
 @Composable
 fun SplashPageScreen(

@@ -1,6 +1,5 @@
 package it.airbagstudio.ticare.pages.patientInfo
 
-import android.app.LocaleConfig
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme

@@ -1,7 +1,6 @@
 package it.airbagstudio.ticare.pages.login
 
 import android.content.Context
-import android.util.Log
 import android.webkit.URLUtil
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,7 +14,6 @@ import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.ktor.http.Url
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import java.net.URL

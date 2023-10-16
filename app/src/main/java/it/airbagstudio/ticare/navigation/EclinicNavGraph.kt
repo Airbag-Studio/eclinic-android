@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,7 +14,6 @@ import androidx.navigation.compose.rememberNavController
 import it.airbagstudio.ticare.LoginRedirect
 import it.airbagstudio.ticare.pages.allergies.AllergiesScreen
 import it.airbagstudio.ticare.pages.drugsAdministration.DrugsAdministrationScreen
-import it.airbagstudio.ticare.pages.drugsAdministration.editDrugAdministration.EditNoteScreen
 import it.airbagstudio.ticare.pages.login.LoginScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen

@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -40,9 +41,10 @@ import it.airbagstudio.ticare.pages.drugsAdministration.editDrugAdministration.E
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.utils.getCompleteName
+import it.airbagstudio.ticare.utils.getExecTime
 import it.airbagstudio.ticare.utils.getExpectedTime
-import it.airbagstudio.ticare.utils.validated
 import it.airbagstudio.ticare.utils.printTime
+import it.airbagstudio.ticare.utils.validated
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,12 +66,17 @@ fun DrugsAdministrationScreen(
 
     Scaffold(
         floatingActionButton = {
-            if (tabIndex == 0 && !viewModel.tasks.filter { it.execDate == null }.isEmpty()) {
-                ExtendedFloatingActionButton(
 
+            if (tabIndex == 0) {
+                val isFabEnabled =
+                    !viewModel.tasks.filter { it.execDate == null && it.validated() }.isEmpty()
+                ExtendedFloatingActionButton(
+                    modifier = Modifier.alpha(if (isFabEnabled) 1f else 0.5f),
                     contentColor = MaterialTheme.colorScheme.primary,
                     onClick = {
-                        showExecuteAllAlert = true
+                        if (isFabEnabled) {
+                            showExecuteAllAlert = true
+                        }
                     },
                     icon = {
                         Icon(
@@ -165,23 +172,20 @@ fun DrugsAdministrationScreen(
                             items(viewModel.tasks) { task ->
                                 DrugAdministrationItemView(
                                     name = task.itemDescription,
-                                    quantity = task.expQuantity,
-                                    time = task.getExpectedTime()?.printTime() ?: "",
+                                    quantity = if(task.getExecTime()?.printTime()!= null) task.quantity else task.expQuantity,
+                                    time = task.getExecTime()?.printTime() ?: task.getExpectedTime()
+                                        ?.printTime() ?: "",
                                     reserves = task.reservesCount,
+                                    notExecuted = task.isSkipped,
+                                    isConfirmed = task.validated(),
+                                    rejected = task.rejected,
                                     isCompleted = task.execTime != null
                                 ) {
-                                    if (task.validated()) {
-                                        selectedTasks = task
-                                        showBottomSheet = true
-                                    }else{
-                                        errorMessages.value = listOf(R.string.therapy_not_validated)
-                                    }
-
+                                    selectedTasks = task
+                                    showBottomSheet = true
                                 }
                             }
                         })
-
-
                     }
 
                     1 -> {
@@ -189,17 +193,17 @@ fun DrugsAdministrationScreen(
                             items(viewModel.reserves) { task ->
                                 DrugAdministrationItemView(
                                     name = task.itemDescription,
-                                    quantity = task.expQuantity,
-                                    time = task.getExpectedTime()?.printTime() ?: "",
+                                    quantity = if(task.getExecTime()?.printTime()!= null) task.quantity else task.expQuantity,
+                                    time = task.getExecTime()?.printTime() ?: task.getExpectedTime()
+                                        ?.printTime() ?: "",
                                     isCompleted = task.execTime != null,
-                                    isReserve = true
+                                    isReserve = true,
+                                    notExecuted = task.isSkipped,
+                                    isConfirmed = task.validated(),
+                                    rejected = task.rejected,
                                 ) {
-                                    if (task.validated()) {
-                                        selectedTasks = task
-                                        showBottomSheet = true
-                                    }else{
-                                        errorMessages.value = listOf(R.string.therapy_not_validated)
-                                    }
+                                    selectedTasks = task
+                                    showBottomSheet = true
                                 }
                             }
                         })
@@ -221,7 +225,7 @@ fun DrugsAdministrationScreen(
         }
     }
 
-    if (showExecuteAllAlert){
+    if (showExecuteAllAlert) {
         AlertDialog(
             onDismissRequest = {
                 showExecuteAllAlert = false
@@ -249,7 +253,8 @@ fun DrugsAdministrationScreen(
             })
 
     }
-    if (errorMessages.value?.isNotEmpty() == true){
-        ErrorAlert(message = errorMessages.value?.map { stringResource(id = it) }?.joinToString("\n") ?: "", onDismissRequest = { errorMessages.value = null })
+    if (errorMessages.value?.isNotEmpty() == true) {
+        ErrorAlert(message = errorMessages.value?.map { stringResource(id = it) }
+            ?.joinToString("\n") ?: "", onDismissRequest = { errorMessages.value = null })
     }
 }

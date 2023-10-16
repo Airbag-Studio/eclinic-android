@@ -1,11 +1,9 @@
 package it.airbagstudio.ticare.pages.patientDetails
 
-import android.net.Uri
 import android.text.format.DateFormat
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -18,14 +16,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.data.AlertItem
 import it.airbagstudio.ticare.navigation.DestinationsArgs
 import it.airbagstudio.ticare.utils.includeTime
-import it.airbagstudio.ticare.utils.isCurrent
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.util.Calendar
 import java.util.Date
-import java.util.logging.SimpleFormatter
 import javax.inject.Inject
 
 @HiltViewModel

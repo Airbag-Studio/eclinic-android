@@ -20,7 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import ch.ticare.eclinic.library.entity.CompanyInfo
-import java.util.Objects
 
 data class ListPopupItem<T>(val label:String, val item: T?)
 

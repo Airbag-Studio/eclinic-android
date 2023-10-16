@@ -72,7 +72,7 @@ import it.airbagstudio.ticare.ui.theme.seed
 import it.airbagstudio.ticare.ui.theme.tertiary95
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
 import it.airbagstudio.ticare.utils.format
-import it.airbagstudio.ticare.utils.getExpectedDate
+import it.airbagstudio.ticare.utils.getExecDateTime
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -124,6 +124,16 @@ fun EditDrugAdministrationSheet(
                     navController.popBackStack()
                 }
             }
+            composable(
+                "noteScreen?$NOTE_CONTENT={$NOTE_CONTENT}",
+                arguments = listOf(navArgument(NOTE_CONTENT) { nullable = true })
+            ) { entry ->
+                val note = entry.arguments?.getString(NOTE_CONTENT) ?: ""
+                Log.w("startingText", note)
+                NoteScreen(text = note) {
+                    navController.popBackStack()
+                }
+            }
         }
     }
 
@@ -139,7 +149,7 @@ private fun BuildContent(
         val isReserve = task.isReserve
         val focusManager = LocalFocusManager.current
         var selectedDate by remember {
-            mutableStateOf(task.getExpectedDate() ?: Date())
+            mutableStateOf(task.getExecDateTime() ?: Date())
         }
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = selectedDate.time
@@ -164,6 +174,7 @@ private fun BuildContent(
             ) {
                 val value = if ((viewModel.task.value?.quantity ?:0) > 0) "${viewModel.task.value?.quantity}" else ""
                 OutlinedTextField(
+                    enabled = viewModel.isEditingEnable.invoke(),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done
@@ -193,6 +204,7 @@ private fun BuildContent(
                 val duration = if ((viewModel.task.value?.duration ?: 0) > 0) "${viewModel.task.value?.duration}" else ""
                 Spacer(modifier = Modifier.width(24.dp))
                 OutlinedTextField(
+                    enabled = viewModel.isEditingEnable.invoke(),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done
@@ -211,19 +223,21 @@ private fun BuildContent(
             OutlinedTextField(
                 modifier = Modifier
                     .clickable {
-                        showDatePicker = true
+                        if (viewModel.isEditingEnable.invoke()) {
+                            showDatePicker = true
+                        }
                     }
                     .fillMaxWidth()
                     .padding(top = 24.dp),
                 value = selectedDate.format("dd MMMM yyyy, HH:mm "),
                 enabled = false,
                 singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
+                colors = if (viewModel.isEditingEnable.invoke()) OutlinedTextFieldDefaults.colors(
                     disabledTextColor = MaterialTheme.colorScheme.onSurface,
                     disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
+                ) else OutlinedTextFieldDefaults.colors(),
                 onValueChange = {},
                 trailingIcon = {
                     Icon(
@@ -325,8 +339,12 @@ private fun BuildContent(
 
                 } else {
                     Column(modifier = Modifier.padding(top = 16.dp)) {
+                        SchedulingNoteButton(text = task.sysSchedulingNotes) {
+                            navController.navigate("noteScreen?$NOTE_CONTENT=${Uri.encode(task.sysSchedulingNotes)}")
+                        }
                         NotesButton(
                             text = task.notes,
+                            enabled = viewModel.isEditingEnable.invoke()
                         ) {
                             navController.navigate("editNoteScreen?$NOTE_CONTENT=${Uri.encode(task.notes)}")
                         }
@@ -334,7 +352,7 @@ private fun BuildContent(
                         SwitchItem(
                             label = stringResource(id = R.string.show_in_diary),
                             isReserve = isReserve,
-                            enabled = true,
+                            enabled = viewModel.isEditingEnable.invoke(),
                             value = viewModel.task.value?.showInDiary ?: false
                         ) {
                             viewModel.setShowInDiary(it)
@@ -342,7 +360,7 @@ private fun BuildContent(
                         SwitchItem(
                             label = stringResource(id = R.string.rejected_by_patient),
                             isReserve = isReserve,
-                            enabled = !isReserve,
+                            enabled = !isReserve && viewModel.isEditingEnable.invoke(),
                             value = viewModel.task.value?.rejected ?: false
                         ) {
                             viewModel.setRejected(it)
@@ -350,7 +368,7 @@ private fun BuildContent(
                         SwitchItem(
                             label = stringResource(id = R.string.not_performed),
                             isReserve = isReserve,
-                            enabled = !isReserve,
+                            enabled = !isReserve && viewModel.isEditingEnable.invoke(),
                             value = viewModel.task.value?.isSkipped ?: false
                         ) {
                             viewModel.setNotExecuted(it)
@@ -366,7 +384,7 @@ private fun BuildContent(
                         }
 */
                         Button(
-                            enabled = !viewModel.isLoading,
+                            enabled = !viewModel.isLoading && viewModel.isEditingEnable.invoke(),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 24.dp),
@@ -414,8 +432,9 @@ private fun BuildContent(
 }
 
 @Composable
-private fun NotesButton(text: String, onClick: () -> Unit) {
+private fun NotesButton(text: String,enabled: Boolean, onClick: () -> Unit) {
     OutlinedButton(
+        enabled = enabled,
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
@@ -449,6 +468,32 @@ private fun NotesButton(text: String, onClick: () -> Unit) {
             )
         }
     }
+}
+
+@Composable
+private fun SchedulingNoteButton(text: String, onClick: () -> Unit){
+        Column(Modifier.clickable { onClick() }) {
+            Row() {
+                Text(
+                    text = stringResource(id = R.string.scheduling_notes),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_arrow_right),
+                    contentDescription = stringResource(
+                        id = R.string.notes
+                    )
+                )
+            }
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = text,
+                maxLines = 2,
+                style = MaterialTheme.typography.bodySmall,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
 }
 
 

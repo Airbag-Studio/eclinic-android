@@ -58,4 +58,6 @@
     <string name="therapy_not_validated">La terapia non è ancora stata validata</string>
     <string name="notes_mandatory">Si prega di inserire una nota</string>
     <string name="all">Tutti</string>
+    <string name="not_confirmed">Non Presa Visione</string>
+    <string name="scheduling_notes">Note di Scheduling</string>
 </resources>

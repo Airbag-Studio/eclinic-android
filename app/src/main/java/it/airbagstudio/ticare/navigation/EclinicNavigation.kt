@@ -1,7 +1,6 @@
 package it.airbagstudio.ticare.navigation
 
 import androidx.navigation.NavController
-import it.airbagstudio.ticare.navigation.Destinations.LOGIN_ROUTE
 import it.airbagstudio.ticare.navigation.DestinationsArgs.DATE_TIME
 import it.airbagstudio.ticare.navigation.DestinationsArgs.PATIENT_COD
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_END
@@ -32,6 +31,7 @@ object DestinationsArgs{
     const val SHIFT_NAME = "shiftName"
     const val DATE_TIME = "dateTime"
     const val NOTE_CONTENT = "noteContent"
+    const val EDITABLE = "editable"
     const val TASK = "task"
 }
 
