@@ -400,7 +400,7 @@ private fun BuildContent(
                                 contentDescription = stringResource(id = R.string.execute)
                             )
                             Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                            Text(text = if(task.getExecDateTime() != null) stringResource(id = R.string.save) else stringResource(id = R.string.execute))
+                            Text(text = stringResource(id = R.string.save))
                             if (viewModel.isLoading) {
                                 Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                                 CircularProgressIndicator(

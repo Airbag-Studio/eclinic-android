@@ -115,11 +115,14 @@ private fun SyncButton(state: SyncButtonState) {
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
+                                /*
                                 Text(
                                     text = stringResource(id = R.string.sync_problem),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.secondary
                                 )
+
+                                 */
                             }
                         }
 
