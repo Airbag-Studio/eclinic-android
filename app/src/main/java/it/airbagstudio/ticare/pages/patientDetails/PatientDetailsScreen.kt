@@ -128,7 +128,7 @@ fun PatientDetailsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(values.copy(bottom = 0.dp))
+                    .padding(values)
             ) {
                 Row(
                     verticalAlignment = Alignment.Top,
