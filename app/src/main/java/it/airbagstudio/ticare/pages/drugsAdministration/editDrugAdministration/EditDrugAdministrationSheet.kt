@@ -343,7 +343,7 @@ private fun BuildContent(
                             navController.navigate("noteScreen?$NOTE_CONTENT=${Uri.encode(task.sysSchedulingNotes)}")
                         }
                         NotesButton(
-                            text = task.notes,
+                            text = if (task.notes.isEmpty()) stringResource(id = R.string.no_notes) else task.notes,
                             enabled = viewModel.isEditingEnable.invoke()
                         ) {
                             navController.navigate("editNoteScreen?$NOTE_CONTENT=${Uri.encode(task.notes)}")
@@ -400,7 +400,7 @@ private fun BuildContent(
                                 contentDescription = stringResource(id = R.string.execute)
                             )
                             Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                            Text(text = stringResource(id = R.string.execute))
+                            Text(text = if(task.getExecDateTime() != null) stringResource(id = R.string.save) else stringResource(id = R.string.execute))
                             if (viewModel.isLoading) {
                                 Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                                 CircularProgressIndicator(

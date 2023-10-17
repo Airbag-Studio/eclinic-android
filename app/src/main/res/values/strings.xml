@@ -60,4 +60,5 @@
     <string name="all">Tutti</string>
     <string name="not_confirmed">Non Presa Visione</string>
     <string name="scheduling_notes">Note di Scheduling</string>
+    <string name="no_notes">Nessuna nota presente</string>
 </resources>
