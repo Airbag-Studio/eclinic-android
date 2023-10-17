@@ -27,7 +27,7 @@ fun NoteScreen(text: String, onBack: () -> Unit) {
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .padding(16.dp),
-                text = text
+                text = if(text.isEmpty()) stringResource(id = R.string.no_notes) else text
             )
         }
     }

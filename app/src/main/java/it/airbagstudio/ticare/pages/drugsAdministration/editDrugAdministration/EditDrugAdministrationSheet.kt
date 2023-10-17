@@ -339,7 +339,7 @@ private fun BuildContent(
 
                 } else {
                     Column(modifier = Modifier.padding(top = 16.dp)) {
-                        SchedulingNoteButton(text = task.sysSchedulingNotes) {
+                        SchedulingNoteButton(text = if(task.sysSchedulingNotes.isEmpty() ) stringResource(id = R.string.no_notes) else task.sysSchedulingNotes) {
                             navController.navigate("noteScreen?$NOTE_CONTENT=${Uri.encode(task.sysSchedulingNotes)}")
                         }
                         NotesButton(

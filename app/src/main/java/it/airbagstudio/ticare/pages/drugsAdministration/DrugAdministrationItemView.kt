@@ -18,9 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.ChipBorder
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +30,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColorInt
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
@@ -81,13 +77,10 @@ fun DrugAdministrationItemView(
                     .weight(1f)
                     .alpha(alpha)
             )
-            if (!isCompleted) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_arrow_right),
-                    contentDescription = name
-                )
-            }
-
+            Image(
+                painter = painterResource(id = R.drawable.ic_arrow_right),
+                contentDescription = name
+            )
         }
         Row(
             modifier = Modifier
@@ -98,9 +91,12 @@ fun DrugAdministrationItemView(
                 Spacer(modifier = Modifier.width(40.dp))
             }
             LabelValueRow(label = stringResource(id = R.string.quantity), value = "$quantity")
-            if (!isCompleted) {
+            if (!isCompleted && !isReserve) {
                 Spacer(modifier = Modifier.weight(1f))
-                LabelValueRow(label = stringResource(id = R.string.reserves), value = "${reserves ?: 0}")
+                LabelValueRow(
+                    label = stringResource(id = R.string.reserves),
+                    value = "${reserves ?: 0}"
+                )
                 Spacer(modifier = Modifier.width(40.dp))
             }
         }
@@ -120,10 +116,10 @@ fun DrugAdministrationItemView(
             if (!isConfirmed) {
                 DrugChip(label = stringResource(id = R.string.not_confirmed), textColor = redColor)
             }
-            if (notExecuted){
+            if (notExecuted) {
                 DrugChip(label = stringResource(id = R.string.not_performed))
             }
-            if (rejected){
+            if (rejected) {
                 DrugChip(label = stringResource(id = R.string.rejected_by_patient))
             }
         }
@@ -132,13 +128,16 @@ fun DrugAdministrationItemView(
 }
 
 @Composable
-private fun DrugChip(label: String,textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant){
+private fun DrugChip(label: String, textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant) {
     Text(
         modifier = Modifier
             .padding(horizontal = 4.dp, vertical = 2.dp)
-            .border(width = 0.5.dp, color = Color(0xFF41484D), shape = RoundedCornerShape(size = 99.dp))
-            .padding(vertical = 2.dp, horizontal = 8.dp)
-        ,
+            .border(
+                width = 0.5.dp,
+                color = Color(0xFF41484D),
+                shape = RoundedCornerShape(size = 99.dp)
+            )
+            .padding(vertical = 2.dp, horizontal = 8.dp),
         text = label,
         style = MaterialTheme.typography.labelMedium,
         color = textColor
