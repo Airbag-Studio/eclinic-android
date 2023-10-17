@@ -54,6 +54,9 @@ fun EditNoteScreen(
         ) { values ->
         Column(modifier = Modifier.padding(values)) {
             OutlinedTextField(
+                placeholder = {
+                    Text(text = stringResource(id = R.string.no_notes))
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
