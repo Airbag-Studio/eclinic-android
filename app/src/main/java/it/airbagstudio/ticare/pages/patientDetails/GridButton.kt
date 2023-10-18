@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
@@ -23,6 +24,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontVariation.weight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -65,7 +67,6 @@ fun GridButton(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
-                .weight(0.3f)
                 .alpha(badgeOpacity)
                 .padding(end = 16.dp)
                 .zIndex(1f)
@@ -86,10 +87,10 @@ fun GridButton(
 
         Box(
             contentAlignment = Alignment.TopEnd,
-            modifier = Modifier.weight(0.5f).then(boxModifier)
+            modifier = Modifier.then(boxModifier)
         ) {
             Image(
-
+                modifier = Modifier,
                 painter = image,
                 contentDescription = label,
                 alpha = if (isLoading) 0f else 1f
@@ -110,14 +111,13 @@ fun GridButton(
             }
         } else {
             Text(
-                modifier = Modifier.weight(0.2f),
                 text = label,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary,
             )
         }
-
+        Spacer(modifier = Modifier.height(25.dp))
     }
 }
 
@@ -127,7 +127,7 @@ private fun GridButtonPreview() {
     AppTheme() {
         Row(
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.height(100.dp)
+            modifier = Modifier.height(80.dp)
         ) {
             GridButton(
                 modifier = Modifier.weight(1f),
