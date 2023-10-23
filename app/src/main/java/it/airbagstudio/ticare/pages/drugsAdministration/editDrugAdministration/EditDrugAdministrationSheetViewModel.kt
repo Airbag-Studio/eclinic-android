@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
+import ch.ticare.eclinic.library.repository.CasePharmacologicalTaskRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.R
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EditDrugAdministrationSheetViewModel @Inject constructor(
-    private val userDetailRepository: UserDetailRepository
+    private val userDetailRepository: UserDetailRepository,
+    private val pharmacologicalTaskRepository: CasePharmacologicalTaskRepository
 ) : ViewModel() {
 
     var task = mutableStateOf<AgendaPharmacologicalTask?>(null)
@@ -87,7 +89,7 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
             }
             viewModelScope.launch(coroutineExceptionHandler) {
                 isLoading = true
-                val res = userDetailRepository.updatePharmacologicalTasks(listOf(updatedTask))
+                val res = pharmacologicalTaskRepository.updatePharmacologicalTasks(listOf(updatedTask))
                 res.error?.let {
                     errorMessage = it.desc
                 } ?: run {

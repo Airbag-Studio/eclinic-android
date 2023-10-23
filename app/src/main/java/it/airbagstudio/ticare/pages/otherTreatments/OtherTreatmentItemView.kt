@@ -2,6 +2,7 @@ package it.airbagstudio.ticare.pages.otherTreatments
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,11 +24,13 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import okhttp3.internal.threadName
 
-data class OtherTreatmentItem(val name:String,val description:String,val number:String)
+data class OtherTreatmentItem(val name:String,val description:String,val number:String,val id:Int = 0)
 
 @Composable
 fun OtherTreatmentItemView(item:OtherTreatmentItem,isSearch: Boolean = false,onClick:()-> Unit){
-    Column(modifier = Modifier.padding(start = 16.dp)) {
+    Column(modifier = Modifier.padding(start = 16.dp).clickable {
+        onClick()
+    }) {
         Row(
             modifier = Modifier.padding(end = 14.dp, top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically

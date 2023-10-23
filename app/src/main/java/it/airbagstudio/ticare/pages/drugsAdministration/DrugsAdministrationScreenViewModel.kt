@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.OperatingShift
+import ch.ticare.eclinic.library.repository.CasePharmacologicalTaskRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -24,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DrugsAdministrationScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
+    private val casePharmacologicalTaskRepository: CasePharmacologicalTaskRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -50,7 +52,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
         date = Date(dateTime.toLong())
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading = true
-            patient = userDetailRepository.getCase(patientCod,true).results?.firstOrNull()
+            patient = userDetailRepository.getCase(patientCod).results?.firstOrNull()
             downloadTasks(true)
             isLoading = false
         }
@@ -64,7 +66,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
 
         val dateParam =  DateFormat.format("yyyy.MM.dd", date).toString()
         val expDate =  DateFormat.format("yyyy-MM-dd", date).toString()
-        val allTasks = userDetailRepository.getAgendaForPharmacologicalTask(date = dateParam,patientCod,fromCache = fromCache).results
+        val allTasks = casePharmacologicalTaskRepository.getAgendaForPharmacologicalTask(date = dateParam,patientCod).results
         tasks = allTasks?.filter { task ->
             if(task.expTime != null){
                 val taskTime = LocalTime.parse(task.expTime)
@@ -98,11 +100,11 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading = true
             val newTasks = tasks.filter { it.validated() }.map {task ->
-                val execDate = DateFormat.format("yyyy-MM-dd", Date()).toString()
-                val execTime = DateFormat.format("HH:mm:ss.000", Date()).toString()
-                task.copy(quantity = task.expQuantity, execTime = execTime, execDate = execDate)
+                //val execDate = DateFormat.format("yyyy-MM-dd", Date()).toString()
+                //val execTime = DateFormat.format("HH:mm:ss.000", Date()).toString()
+                task.copy(quantity = task.expQuantity)
             }
-            val res = userDetailRepository.updatePharmacologicalTasks(newTasks)
+            val res = casePharmacologicalTaskRepository.updatePharmacologicalTasks(newTasks)
             res.error?.let {
                 errorMessage = it.desc
             }

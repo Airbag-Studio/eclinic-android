@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
@@ -31,6 +33,7 @@ import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,11 +41,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.text.HtmlCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.ErrorAlert
+import it.airbagstudio.ticare.ui.components.ListPopup
+import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getExecDateTime
@@ -51,6 +61,9 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateTreatmentScreen(
+    viewModel: CreateTreatmentScreenViewModel = hiltViewModel(),
+    articleId: Int,
+    patientCode: String,
     state: SheetState,
     onDismissRequest: () -> Unit
 ) {
@@ -58,18 +71,26 @@ fun CreateTreatmentScreen(
         onDismissRequest = onDismissRequest,
         sheetState = state,
     ) {
-        
+        LaunchedEffect(Unit) {
+            viewModel.selectedArticleId.value = articleId
+            viewModel.patientCode.value = patientCode
+        }
+        BuildSheetContent(viewModel = viewModel,onDismissRequest)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BuildSheetContent(date: Date?,duration: MutableState<Int>,isLoading:Boolean = false){
+private fun BuildSheetContent(viewModel: CreateTreatmentScreenViewModel, onDismissRequest: () -> Unit) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedDate by remember {
-        mutableStateOf(date ?: Date())
+        mutableStateOf(uiState.newTreatment.date)
     }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+    var showGuarantorPopup by remember {
+        mutableStateOf(false)
+    }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = selectedDate.time
     )
@@ -79,19 +100,22 @@ private fun BuildSheetContent(date: Date?,duration: MutableState<Int>,isLoading:
     )
     val column1Weight = 0.6f
     val column2Weight = 1 - column1Weight
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier
+        .verticalScroll(rememberScrollState())
+        .padding(16.dp)) {
         Text(
-            text = "Consigli e istruzioni CAT",
+            text = uiState.newTreatment.article?.desc ?: "",
             style = MaterialTheme.typography.titleLarge
         )
+        Spacer(modifier = Modifier.height(8.dp))
         Row() {
             Text(
-                text = "LAMal",
+                text = uiState.newTreatment.article?.group ?: "",
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.titleSmall
             )
             Text(
-                text = "5010",
+                text = uiState.newTreatment.article?.code ?: "",
                 style = MaterialTheme.typography.titleSmall
             )
         }
@@ -113,7 +137,7 @@ private fun BuildSheetContent(date: Date?,duration: MutableState<Int>,isLoading:
                     disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ) ,
+                ),
                 onValueChange = {},
                 trailingIcon = {
                     Icon(
@@ -123,6 +147,7 @@ private fun BuildSheetContent(date: Date?,duration: MutableState<Int>,isLoading:
                 },
                 label = { Text(text = stringResource(id = R.string.actual_date_time)) }
             )
+            /*
             Spacer(modifier = Modifier.width(24.dp))
             OutlinedTextField(
                 maxLines = 1,
@@ -130,9 +155,11 @@ private fun BuildSheetContent(date: Date?,duration: MutableState<Int>,isLoading:
                         Text(text = stringResource(id = R.string.duration))
                 },
                 modifier = Modifier.weight(column2Weight),
-                value = duration.toString(), onValueChange = {
+                value = uiState.duration.toString(), onValueChange = {
                 duration.value = it.toIntOrNull() ?: 0
             })
+
+             */
         }
         Spacer(modifier = Modifier.height(24.dp))
         Box(modifier = Modifier.height(500.dp)) {
@@ -148,7 +175,7 @@ private fun BuildSheetContent(date: Date?,duration: MutableState<Int>,isLoading:
                         title = null,
                         showModeToggle = false,
                         colors = DatePickerDefaults.colors(
-                            selectedDayContainerColor =MaterialTheme.colorScheme.primary,
+                            selectedDayContainerColor = MaterialTheme.colorScheme.primary,
                             selectedYearContainerColor = MaterialTheme.colorScheme.primary,
                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
                             currentYearContentColor = MaterialTheme.colorScheme.primary
@@ -215,7 +242,7 @@ private fun BuildSheetContent(date: Date?,duration: MutableState<Int>,isLoading:
                                     ) else Date()
                                 selectedDate.hours = timePickerState.hour
                                 selectedDate.minutes = timePickerState.minute
-
+                                viewModel.setDate(selectedDate)
                                 showTimePicker = false
                                 showDatePicker = false
 
@@ -230,26 +257,52 @@ private fun BuildSheetContent(date: Date?,duration: MutableState<Int>,isLoading:
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        OutlinedTextField(
-                            maxLines = 1,
-                            modifier = Modifier.weight(column1Weight),
-                            value = "",
-                            label = {
-                                Text(text = stringResource(id = R.string.guarantor))
-                            },
-                            onValueChange = {
+                        Box(modifier = Modifier.weight(column1Weight)) {
+                            OutlinedTextField(
+                                maxLines = 1,
+                                value = uiState.newTreatment.guarantorType?.name ?: stringResource(
+                                    id = R.string.no_guarantor
+                                ),
+                                label = {
+                                    Text(text = stringResource(id = R.string.guarantor))
+                                },
+                                onValueChange = {
 
-                            })
+                                },
+                                trailingIcon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.id_dropdown),
+                                        contentDescription = ""
+                                    )
+                                })
+
+                            Box(modifier = Modifier
+                                .matchParentSize()
+                                .alpha(0f)
+                                .clickable {
+                                    showGuarantorPopup = true
+                                })
+                        }
+
 
                         Spacer(modifier = Modifier.width(24.dp))
                         OutlinedTextField(
                             maxLines = 1,
                             modifier = Modifier.weight(column2Weight),
-                            value = "",
+                            value = if (uiState.newTreatment.quantity != null) String.format(
+                                "%.1f",
+                                uiState.newTreatment.quantity
+                            ) else "",
                             label = {
                                 Text(text = stringResource(id = R.string.quantity))
                             },
                             onValueChange = {
+                                val quantity = it.toDoubleOrNull()
+                                if (it.isEmpty()) {
+                                    viewModel.setQuantity(null)
+                                } else {
+                                    viewModel.setQuantity(quantity)
+                                }
 
                             })
                     }
@@ -259,22 +312,24 @@ private fun BuildSheetContent(date: Date?,duration: MutableState<Int>,isLoading:
                             .weight(1f)
                             .fillMaxWidth(),
                         label = {
-                                Text(text = stringResource(id = R.string.notes))
+                            Text(text = stringResource(id = R.string.notes))
                         },
-                        value = "", onValueChange = {
-
+                        value = uiState.newTreatment.description, onValueChange = {
+                            viewModel.setNotes(it)
                         })
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { /*TODO*/ }) {
+                        onClick = {
+                            viewModel.saveTreatment()
+                        }) {
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = stringResource(id = R.string.execute)
                         )
                         Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                         Text(text = stringResource(id = R.string.save))
-                        if (isLoading) {
+                        if (uiState.isLoading) {
                             Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                             CircularProgressIndicator(
                                 strokeWidth = 2.dp,
@@ -287,15 +342,35 @@ private fun BuildSheetContent(date: Date?,duration: MutableState<Int>,isLoading:
 
             }
         }
-    }
-}
-
-@Composable
-@Preview
-private fun ContentPreview(){
-    AppTheme {
-        BuildSheetContent(null, remember {
-            mutableStateOf(0)
-        })
+        if (uiState.error != null) {
+            ErrorAlert(
+                message = uiState.error!!,
+                onDismissRequest = {
+                    viewModel.clearState()
+                })
+        }
+        if (showGuarantorPopup) {
+            ListPopup(
+                title = stringResource(id = R.string.guarantor),
+                items = uiState.guarantorTypes.map {
+                    ListPopupItem(
+                        label = it.name,
+                        item = it
+                    )
+                } + ListPopupItem(
+                    stringResource(id = R.string.no_guarantor), item = null
+                ),
+                setShowDialog = {
+                    showGuarantorPopup = false
+                },
+                onItemSelected = {
+                    viewModel.setGuarantorId(it.item?.id)
+                    showGuarantorPopup = false
+                })
+        }
+        if (uiState.isSuccess){
+            viewModel.clearState()
+            onDismissRequest()
+        }
     }
 }

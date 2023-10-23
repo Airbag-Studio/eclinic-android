@@ -15,6 +15,7 @@ import it.airbagstudio.ticare.LoginRedirect
 import it.airbagstudio.ticare.pages.allergies.AllergiesScreen
 import it.airbagstudio.ticare.pages.drugsAdministration.DrugsAdministrationScreen
 import it.airbagstudio.ticare.pages.login.LoginScreen
+import it.airbagstudio.ticare.pages.otherTreatments.OtherTreatmentScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
 import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
@@ -86,6 +87,11 @@ fun EclinicNavGraph(
         }
         composable(Destinations.ALLERGIES_ROUTE) {
             AllergiesScreen(navigationActions = navActions) {
+                navController.popBackStack()
+            }
+        }
+        composable(Destinations.OTHER_SERVICE_ROUTE){
+            OtherTreatmentScreen {
                 navController.popBackStack()
             }
         }

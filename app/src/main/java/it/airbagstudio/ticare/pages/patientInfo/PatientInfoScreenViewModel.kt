@@ -36,7 +36,7 @@ class PatientInfoScreenViewModel @Inject constructor(
     fun downloadPatientInfo(){
         if (patientCod == null) return
         viewModelScope.launch(coroutineExceptionHandler) {
-            val caseResponse = userDetailRepository.getCase(patientCod, true)
+            val caseResponse = userDetailRepository.getCase(patientCod)
             caseResponse.error?.let { errorResponse ->
                 errorMessage = errorResponse.desc
             }

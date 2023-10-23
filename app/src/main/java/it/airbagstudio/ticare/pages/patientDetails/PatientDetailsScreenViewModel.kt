@@ -4,17 +4,22 @@ import android.text.format.DateFormat
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
+import ch.ticare.eclinic.library.entity.Badge
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.OperatingShift
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.data.AlertItem
 import it.airbagstudio.ticare.navigation.DestinationsArgs
+import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
+import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.includeTime
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
@@ -30,6 +35,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
 ): ViewModel() {
 
 
+    var badges by mutableStateOf<List<Badge>>(listOf())
     var isLoading by mutableStateOf(false)
     var isLoadingActivities by mutableStateOf(false)
 
@@ -38,10 +44,10 @@ class PatientDetailsScreenViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
     var shifts by mutableStateOf<List<OperatingShift>?>(null)
     var selectedShift by mutableStateOf<OperatingShift?>(null)
-    var pharmacologicalTasks by mutableStateOf<List<AgendaPharmacologicalTask>?>(null)
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading = false
+        throwable.printStackTrace()
         errorMessage = throwable.localizedMessage
     }
     var selectedDate by mutableLongStateOf(Calendar.getInstance().timeInMillis)
@@ -51,11 +57,14 @@ class PatientDetailsScreenViewModel @Inject constructor(
     private var allTasksForDay by mutableStateOf<List<AgendaPharmacologicalTask>>(listOf())
 
     init {
+
         patientCod?.let { code ->
+
             viewModelScope.launch(coroutineExceptionHandler) {
                 isLoading = true
                 caseDetails = userDetailRepository.getCase(code).results?.firstOrNull()
 
+                caseDetails?.let { userDetailRepository.setCurrentCase(it) }
                 val caseAlerts = userDetailRepository.getCaseAlerts(code).results
                 alerts = caseAlerts?.map { AlertItem(
                     colorFg = it.foreground,
@@ -64,36 +73,28 @@ class PatientDetailsScreenViewModel @Inject constructor(
                 ) } ?: listOf()
 
                 shifts = userDetailRepository.getOperatingShifts().results
-                downloadTasks()
+                downloadBadges()
                 isLoading = false
             }
         }
 
     }
 
-    fun downloadTasks(){
-        patientCod?.let { code ->
-            isLoadingActivities = true
-            viewModelScope.launch {
-                val date = DateFormat.format("yyyy.MM.dd", Date(selectedDate)).toString()
-                allTasksForDay =
-                    userDetailRepository.getAgendaForPharmacologicalTask(date, code).results ?: listOf()
-                filterTasksByShift()
+    fun downloadBadges(){
+        userDetailRepository.setSelectDate(Date(selectedDate).format(SERVER_DATE_FORMAT))
+        userDetailRepository.setCurrentShift(selectedShift)
+        if (patientCod != null) {
+            viewModelScope.launch(coroutineExceptionHandler) {
+                val shiftIndex: Int? =
+                    if (selectedShift != null && !shifts.isNullOrEmpty()) {
+                        shifts!!.indexOf(selectedShift)
+                    } else {
+                        null
+                    }
+                val res = userDetailRepository.getBadges(Date(selectedDate).format("yyyy.MM.dd HH:mm"),patientCod,shiftIndex)
+                badges = res.results ?: listOf()
             }
-            isLoadingActivities = false
+
         }
-    }
-
-    fun filterTasksByShift(){
-            pharmacologicalTasks = allTasksForDay.filter { task ->
-                val isInShift = if (selectedShift != null && task.expTime != null){
-                    val taskTime = LocalTime.parse(task.expTime)
-                    selectedShift!!.includeTime(taskTime)
-                } else{
-                    true
-                }
-                isInShift && task.execDate == null && !task.isReserve
-            }
-
     }
 }

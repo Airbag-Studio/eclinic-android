@@ -89,7 +89,7 @@ fun PatientDetailsScreen(
     DisposableEffect(lifecycleOwner){
         val observer = LifecycleEventObserver{ source, event ->
             if (event == Lifecycle.Event.ON_RESUME){
-                viewModel.downloadTasks()
+                viewModel.downloadBadges()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -218,7 +218,7 @@ fun PatientDetailsScreen(
                             ),
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f),
-                            badgeCount = viewModel.pharmacologicalTasks?.size ?: 0
+                            badgeCount = viewModel.badges.firstOrNull { it.pharmacological.badgeNumber > 0 }?.pharmacological?.badgeNumber ?: 0
                         ) {
 
                             viewModel.selectedShift?.let {shift ->
@@ -301,8 +301,11 @@ fun PatientDetailsScreen(
                                 id = R.string.other_prescriptions
                             ),
                             isLoading = viewModel.isLoadingActivities,
-                            modifier = Modifier.weight(1f)
-                        ) {}
+                            modifier = Modifier.weight(1f),
+                            badgeCount = viewModel.badges.firstOrNull { it.otherServices.badgeNumber > 0 }?.otherServices?.badgeNumber ?: 0
+                        ) {
+                            navActions.navigateToOtherServices(Uri.encode(viewModel.patientCod))
+                        }
                     }
                 }
 
@@ -320,7 +323,7 @@ fun PatientDetailsScreen(
                             TextButton(onClick = {
                                 showDatePicker = false
                                 viewModel.selectedDate = datePickerState.selectedDateMillis!!
-                                viewModel.downloadTasks()
+                                viewModel.downloadBadges()
                             }) {
                                 Text(text = "Conferma")
                             }
@@ -350,7 +353,7 @@ fun PatientDetailsScreen(
                         onItemSelected = {
                             showShiftsPopup = false
                             viewModel.selectedShift = it.item
-                            viewModel.filterTasksByShift()
+                            viewModel.downloadBadges()
                         })
                 }
             }
