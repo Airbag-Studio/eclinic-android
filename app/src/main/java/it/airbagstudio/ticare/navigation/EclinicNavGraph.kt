@@ -20,6 +20,7 @@ import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
 import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
 import it.airbagstudio.ticare.pages.splashPage.SplashPageScreen
+import it.airbagstudio.ticare.pages.vitalParameters.list.VitalParametersScreen
 import kotlinx.coroutines.CoroutineScope
 
 
@@ -92,6 +93,11 @@ fun EclinicNavGraph(
         }
         composable(Destinations.OTHER_SERVICE_ROUTE){
             OtherTreatmentScreen {
+                navController.popBackStack()
+            }
+        }
+        composable(Destinations.VITAL_PARAMETERS_ROUTE){
+            VitalParametersScreen {
                 navController.popBackStack()
             }
         }

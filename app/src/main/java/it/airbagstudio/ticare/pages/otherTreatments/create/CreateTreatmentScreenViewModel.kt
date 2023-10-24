@@ -7,24 +7,36 @@ import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AddOtherService
 import ch.ticare.eclinic.library.entity.Article
 import ch.ticare.eclinic.library.entity.GuarantorType
+import ch.ticare.eclinic.library.entity.OtherService
 import ch.ticare.eclinic.library.repository.OtherServiceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.getItemDesc
+import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.Date
 import javax.inject.Inject
 
 data class CreateTreatmentScreenUiState(
-    val newTreatment: NewTreatment = NewTreatment(null,Date(),"",null,1.0),
+    val newTreatment: NewTreatment = NewTreatment(null, Date(), "", null, 1.0),
     val guarantorTypes: List<GuarantorType> = listOf(),
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val error: String? = null
-){
+) {
     data class NewTreatment(
         val article: Article?,
         val date: Date,
@@ -35,11 +47,10 @@ data class CreateTreatmentScreenUiState(
 }
 
 
-
 @HiltViewModel
 class CreateTreatmentScreenViewModel @Inject constructor(
     private val otherServiceRepository: OtherServiceRepository,
-): ViewModel() {
+) : ViewModel() {
 
     val selectedArticleId = MutableStateFlow<Int?>(null)
     val patientCode = MutableStateFlow<String?>(null)
@@ -54,19 +65,31 @@ class CreateTreatmentScreenViewModel @Inject constructor(
     private val isSuccess = MutableStateFlow(false)
     private val errorMessage = MutableStateFlow<String?>(null)
 
-    private val selectedArticle = combine(articles,selectedArticleId){ _articles,_id ->
+    private val selectedArticle = combine(articles, selectedArticleId) { _articles, _id ->
         _articles.firstOrNull { it.id == _id }
     }
 
-    private val selectedGuarantorType = combine(guarantorTypes,guarantorType) { _guarantors, _id ->
+    private val selectedGuarantorType = combine(guarantorTypes, guarantorType) { _guarantors, _id ->
         _guarantors.firstOrNull { it.id == _id }
     }
 
-    private val newService = combine(selectedArticle,selectedGuarantorType,selectedDate,notes,quantity) { _article,_guarantor,_date,_notes,_quantity ->
+    private val newService = combine(
+        selectedArticle,
+        selectedGuarantorType,
+        selectedDate,
+        notes,
+        quantity
+    ) { _article, _guarantor, _date, _notes, _quantity ->
         CreateTreatmentScreenUiState.NewTreatment(_article, _date, _notes, _guarantor, _quantity)
     }
 
-    val uiState = combine(newService,guarantorTypes,isLoading,isSuccess,errorMessage){ _newService, _guarantorTypes,_isLoading,_isSuccess,_errorMessage ->
+    val uiState = combine(
+        newService,
+        guarantorTypes,
+        isLoading,
+        isSuccess,
+        errorMessage
+    ) { _newService, _guarantorTypes, _isLoading, _isSuccess, _errorMessage ->
         CreateTreatmentScreenUiState(
             _newService,
             _guarantorTypes,
@@ -77,34 +100,34 @@ class CreateTreatmentScreenViewModel @Inject constructor(
 
     }.stateIn(
         scope = viewModelScope,
-        started =  SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.WhileSubscribed(5000),
         initialValue = CreateTreatmentScreenUiState(
             newTreatment = CreateTreatmentScreenUiState.NewTreatment(null, Date(), "", null, 1.0)
         )
     )
 
-    fun setDate(date: Date){
+    fun setDate(date: Date) {
         selectedDate.value = date
     }
 
-    fun setNotes(value:String){
+    fun setNotes(value: String) {
         notes.value = value
     }
 
-    fun setQuantity(value: Double?){
+    fun setQuantity(value: Double?) {
         quantity.value = value
     }
 
-    fun setGuarantorId(id: Int?){
+    fun setGuarantorId(id: Int?) {
         guarantorType.value = id
     }
 
-    fun clearState(){
+    fun clearState() {
         errorMessage.value = null
         isSuccess.value = false
     }
 
-    fun saveTreatment(){
+    fun saveTreatment() {
         isLoading.value = true
         viewModelScope.launch() {
             val newService = AddOtherService(
@@ -118,13 +141,37 @@ class CreateTreatmentScreenViewModel @Inject constructor(
             )
 
             val res = otherServiceRepository.addOtherServices(listOf(newService))
-            if (res.status == "success"){
+            if (res.status == "success") {
                 isSuccess.value = true
-            }else if(res.status == "error"){
+            } else if (res.status == "error") {
                 errorMessage.value = res.error?.desc ?: ""
             }
             isLoading.value = false
 
         }
     }
+
+    fun setService(otherService: OtherService) {
+        viewModelScope.launch {
+            combine(guarantorTypes,articles){ guarantors, _articles ->
+                guarantorType.value =
+                    guarantors.firstOrNull { it.name.equals(otherService.requiredGType, true) }?.id
+                selectedArticleId.value = _articles.firstOrNull {
+                    it.desc.equals(
+                        otherService.getItemDesc(),
+                        true
+                    ) && it.group.equals(otherService.itemGroup, true)
+                }?.id
+            }.collect()
+        }
+        viewModelScope.launch {
+            quantity.value = otherService.quantity
+
+            otherService.dateTime.toDate("yyyy-MM-dd'T'HH:mm:00.000")?.let { date ->
+                setDate(date)
+            }
+            notes.value = otherService.desc
+        }
+    }
+
 }

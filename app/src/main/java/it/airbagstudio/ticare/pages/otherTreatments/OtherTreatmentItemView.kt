@@ -1,6 +1,5 @@
 package it.airbagstudio.ticare.pages.otherTreatments
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -22,7 +21,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
-import okhttp3.internal.threadName
 
 data class OtherTreatmentItem(val name:String,val description:String,val number:String,val id:Int = 0)
 

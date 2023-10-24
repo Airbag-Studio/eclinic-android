@@ -235,8 +235,11 @@ fun PatientDetailsScreen(
                                 id = R.string.vital_parameters
                             ),
                             isLoading = viewModel.isLoadingActivities,
-                            modifier = Modifier.weight(1f)
-                        ) {}
+                            modifier = Modifier.weight(1f),
+                            badgeCount = viewModel.badges.firstOrNull { it.vitalSign.badgeNumber > 0 }?.vitalSign?.badgeNumber ?: 0
+                        ) {
+                            navActions.navigateToVitalParameters(Uri.encode(viewModel.patientCod))
+                        }
                     }
                     Divider(color = MaterialTheme.colorScheme.primary)
                     Row(

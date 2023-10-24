@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -44,11 +45,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.OtherService
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopup
@@ -56,6 +59,7 @@ import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getExecDateTime
+import it.airbagstudio.ticare.utils.toDate
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,6 +68,7 @@ fun CreateTreatmentScreen(
     viewModel: CreateTreatmentScreenViewModel = hiltViewModel(),
     articleId: Int,
     patientCode: String,
+    service: OtherService? = null,
     state: SheetState,
     onDismissRequest: () -> Unit
 ) {
@@ -72,8 +77,16 @@ fun CreateTreatmentScreen(
         sheetState = state,
     ) {
         LaunchedEffect(Unit) {
-            viewModel.selectedArticleId.value = articleId
             viewModel.patientCode.value = patientCode
+            service?.let {_service ->
+               viewModel.setService(_service)
+            } ?: run{
+                viewModel.selectedArticleId.value = articleId
+                viewModel.setGuarantorId(null)
+                viewModel.setNotes("")
+                viewModel.setQuantity(1.0)
+                viewModel.setDate(Date())
+            }
         }
         BuildSheetContent(viewModel = viewModel,onDismissRequest)
     }
@@ -129,7 +142,7 @@ private fun BuildSheetContent(viewModel: CreateTreatmentScreenViewModel, onDismi
                         showDatePicker = true
                     }
                     .weight(column1Weight),
-                value = selectedDate.format("dd MMMM yyyy, HH:mm "),
+                value = uiState.newTreatment.date.format("dd MMMM yyyy, HH:mm "),
                 enabled = false,
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
@@ -287,6 +300,7 @@ private fun BuildSheetContent(viewModel: CreateTreatmentScreenViewModel, onDismi
 
                         Spacer(modifier = Modifier.width(24.dp))
                         OutlinedTextField(
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             maxLines = 1,
                             modifier = Modifier.weight(column2Weight),
                             value = if (uiState.newTreatment.quantity != null) String.format(

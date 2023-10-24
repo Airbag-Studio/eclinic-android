@@ -1,5 +1,8 @@
 package it.airbagstudio.ticare.pages.otherTreatments
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -56,6 +59,7 @@ class OtherTreatmentScreenViewModel @Inject constructor(
         isLoading.value = false
     }
 
+    var selectedService by mutableStateOf<OtherService?>(null)
 
 
     val uiState: StateFlow<OtherServicesUIState> = combine(_selectedDate,services,throwable,isLoading){date,services,throwable,isLoading ->
@@ -64,7 +68,8 @@ class OtherTreatmentScreenViewModel @Inject constructor(
             services = services.map { OtherTreatmentItem(
                 name = it.itemGroup,
                 description = it.getItemDesc(),
-                number = it.getNumber()
+                number = it.getNumber(),
+                id = it.id
 
             ) },
             errorMessage = throwable?.localizedMessage,
@@ -120,5 +125,9 @@ class OtherTreatmentScreenViewModel @Inject constructor(
                 SERVER_PARAMETER_DATE_TIME_FORMAT),endCalendar.time.format(SERVER_PARAMETER_DATE_TIME_FORMAT)).results ?: listOf()
             isLoading.value = false
         }
+    }
+
+    fun setSelectedServiceId(id: Int){
+        selectedService = services.value.firstOrNull { it.id == id }
     }
 }
