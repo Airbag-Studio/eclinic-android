@@ -64,7 +64,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
+import ch.ticare.eclinic.library.entity.AgendaTask
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.DestinationsArgs.NOTE_CONTENT
 import it.airbagstudio.ticare.ui.components.ErrorAlert
@@ -80,7 +80,7 @@ import java.util.Date
 fun EditDrugAdministrationSheet(
     viewModel: EditDrugAdministrationSheetViewModel = hiltViewModel(),
     state: SheetState,
-    task: AgendaPharmacologicalTask?,
+    task: AgendaTask?,
     onDismissRequest: () -> Unit
 ) {
     LaunchedEffect(Unit) {

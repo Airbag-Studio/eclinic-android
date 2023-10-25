@@ -7,10 +7,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
+import ch.ticare.eclinic.library.entity.AgendaTask
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.OperatingShift
-import ch.ticare.eclinic.library.repository.CasePharmacologicalTaskRepository
+import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -25,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DrugsAdministrationScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
-    private val casePharmacologicalTaskRepository: CasePharmacologicalTaskRepository,
+    private val agendaTaskRepository: AgendaTaskRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -36,8 +36,8 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     val shiftName: String = savedStateHandle[DestinationsArgs.SHIFT_NAME]!!
 
     var isLoading by mutableStateOf(false)
-    var tasks by mutableStateOf<List<AgendaPharmacologicalTask>>(listOf())
-    var reserves by mutableStateOf<List<AgendaPharmacologicalTask>>(listOf())
+    var tasks by mutableStateOf<List<AgendaTask>>(listOf())
+    var reserves by mutableStateOf<List<AgendaTask>>(listOf())
     var errorMessage by mutableStateOf<String?>(null)
     var patient by mutableStateOf<CaseDetail?>(null)
 
@@ -66,7 +66,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
 
         val dateParam =  DateFormat.format("yyyy.MM.dd", date).toString()
         val expDate =  DateFormat.format("yyyy-MM-dd", date).toString()
-        val allTasks = casePharmacologicalTaskRepository.getAgendaForPharmacologicalTask(date = dateParam,patientCod).results
+        val allTasks = agendaTaskRepository.getAgendaTasks(AgendaTaskRepository.PHARMACOLOGICAL_TYPE, date = dateParam,patientCod).results
         tasks = allTasks?.filter { task ->
             if(task.expTime != null){
                 val taskTime = LocalTime.parse(task.expTime)
@@ -104,7 +104,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
                 //val execTime = DateFormat.format("HH:mm:ss.000", Date()).toString()
                 task.copy(quantity = task.expQuantity)
             }
-            val res = casePharmacologicalTaskRepository.updatePharmacologicalTasks(newTasks)
+            val res = agendaTaskRepository.updateAgendaTasks(newTasks)
             res.error?.let {
                 errorMessage = it.desc
             }

@@ -7,7 +7,7 @@ import ch.ticare.eclinic.library.db.Database
 import ch.ticare.eclinic.library.network.APIClient
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.CaseAllergiesRepository
-import ch.ticare.eclinic.library.repository.CasePharmacologicalTaskRepository
+import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.OtherServiceRepository
 import ch.ticare.eclinic.library.repository.SyncDataRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
@@ -75,8 +75,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providesCasePharmacologicalTaskRepository(apiClient: APIClient): CasePharmacologicalTaskRepository{
-        return CasePharmacologicalTaskRepository(apiClient)
+    fun providesAgendaTaskRepository(apiClient: APIClient, @ApplicationContext context: Context): AgendaTaskRepository {
+        return AgendaTaskRepository(apiClient, provideDatabase(context))
     }
 
     @Provides

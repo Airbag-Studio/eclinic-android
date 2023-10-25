@@ -10,7 +10,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
+import ch.ticare.eclinic.library.entity.AgendaTask
 import ch.ticare.eclinic.library.entity.Badge
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.OperatingShift
@@ -54,7 +54,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
 
     var alerts by mutableStateOf<List<AlertItem>>(listOf())
 
-    private var allTasksForDay by mutableStateOf<List<AgendaPharmacologicalTask>>(listOf())
+    private var allTasksForDay by mutableStateOf<List<AgendaTask>>(listOf())
 
     init {
 
