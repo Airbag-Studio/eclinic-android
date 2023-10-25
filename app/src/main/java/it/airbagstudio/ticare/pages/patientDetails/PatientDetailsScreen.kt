@@ -287,7 +287,13 @@ fun PatientDetailsScreen(
                             ),
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f)
-                        ) {}
+                        ) {
+                            viewModel.selectedShift?.let {shift ->
+                                navActions.navigateToNursingCourses(Uri.encode(viewModel.patientCod),viewModel.selectedDate,shift.startTime,shift.stopTime, shiftName = shift.name)
+                            } ?: run {
+                                navActions.navigateToNursingCourses(Uri.encode(viewModel.patientCod),viewModel.selectedDate, shiftName = context.getString(R.string.all))
+                            }
+                        }
                         VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_wounds),

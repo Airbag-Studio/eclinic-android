@@ -9,6 +9,7 @@ import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_START
 import it.airbagstudio.ticare.navigation.Screens.ALLERGIES_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.DRUG_ADMINISTRATION_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.LOGIN_SCREEN
+import it.airbagstudio.ticare.navigation.Screens.NURSING_COURSES_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.OTHER_SERVICE_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.PATIENTS_LIST_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.PATIENT_DETAILS_SCREEN
@@ -26,6 +27,7 @@ private object Screens{
     const val ALLERGIES_SCREEN = "allergiesScreen"
     const val OTHER_SERVICE_SCREEN = "otherServiceScreen"
     const val VITAL_PARAMETERS_SCREEN = "vitalSignsScreen"
+    const val NURSING_COURSES_SCREEN = "nursingCoursesScreen"
 }
 
 object DestinationsArgs{
@@ -50,6 +52,9 @@ object Destinations{
     const val ALLERGIES_ROUTE = "$ALLERGIES_SCREEN/{$PATIENT_COD}"
     const val OTHER_SERVICE_ROUTE = "$OTHER_SERVICE_SCREEN/{$PATIENT_COD}"
     const val VITAL_PARAMETERS_ROUTE = "$VITAL_PARAMETERS_SCREEN/{$PATIENT_COD}"
+    const val NURSING_COURSES_ROUTE = "$NURSING_COURSES_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{${SHIFT_START}}/{$SHIFT_END}/{$SHIFT_NAME}"
+    const val NURSING_COURSES_ROUTE_NO_SHIFT = "$NURSING_COURSES_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{$SHIFT_NAME}"
+
 }
 
 class NavigationActions(private val navController: NavController){
@@ -89,4 +94,14 @@ class NavigationActions(private val navController: NavController){
     fun navigateToVitalParameters(patientCod: String){
         navController.navigate("$VITAL_PARAMETERS_SCREEN/$patientCod")
     }
+
+    fun navigateToNursingCourses(patientCod: String,dateTime:Long,shiftStart:String,shiftEnd:String, shiftName:String){
+        navController.navigate("$NURSING_COURSES_SCREEN/$patientCod/$dateTime/$shiftStart/$shiftEnd/$shiftName")
+    }
+
+    fun navigateToNursingCourses(patientCod: String,dateTime:Long, shiftName:String){
+        navController.navigate("$NURSING_COURSES_SCREEN/$patientCod/$dateTime/$shiftName")
+    }
+
+
 }

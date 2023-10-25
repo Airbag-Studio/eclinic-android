@@ -25,6 +25,7 @@
     <string name="allergies">Allergie</string>
     <string name="diary">Diario</string>
     <string name="nursing_courses">Decorsi Inferm.</string>
+    <string name="nursing_courses_title">Decorsi Infermieristici</string>
     <string name="care_planes">Piani di cura</string>
     <string name="wounds">Ferite</string>
     <string name="other_prescriptions">Altre prestazioni</string>
@@ -64,4 +65,6 @@
     <string name="guarantor">Garante</string>
     <string name="new_treatment">Nuova prestazione</string>
     <string name="no_guarantor">Nessun garante</string>
+    <string name="add_nursing_course">Nuovo decorso infermieristico</string>
+
 </resources>
