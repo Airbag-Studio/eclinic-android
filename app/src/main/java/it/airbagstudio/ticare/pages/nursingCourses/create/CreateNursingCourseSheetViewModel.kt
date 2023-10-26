@@ -1,6 +1,5 @@
 package it.airbagstudio.ticare.pages.nursingCourses.create
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AddHomeCareCourse
@@ -23,8 +22,8 @@ class CreateNursingCourseSheetViewModel @Inject constructor(
     private val nursingCourseRepository: NursingCourseRepository,
 ) : ViewModel() {
 
-    val selectedCategoryId = MutableStateFlow<Int?>(null)
-    var listOfCategories: MutableStateFlow<List<HomeCareCourseCategory>?> = MutableStateFlow<List<HomeCareCourseCategory>?>(emptyList())
+    private val selectedCategoryId = MutableStateFlow<Int?>(null)
+    private var listOfCategories: MutableStateFlow<List<HomeCareCourseCategory>?> = MutableStateFlow<List<HomeCareCourseCategory>?>(emptyList())
     private val selectedDate = MutableStateFlow<Date>(Date())
     private val description = MutableStateFlow("")
     private val duration = MutableStateFlow<Int?>(null)
@@ -85,7 +84,6 @@ class CreateNursingCourseSheetViewModel @Inject constructor(
     private fun loadCategory() {
         viewModelScope.launch {
             listOfCategories.value = nursingCourseRepository.getNursingCourseCategory().results.also {
-                Log.i("TEST_CHIARA", "TEST_CHIARA: categoryList $it")
                 selectedCategoryId.value = it?.find { cat -> cat.useAsDefault}?.id
             }
         }
@@ -123,7 +121,7 @@ class CreateNursingCourseSheetViewModel @Inject constructor(
                 idCourseCategoryType = selectedCategoryId.value ?: 0,
                 desc = description.value,
                 duration = duration.value ?: 0,
-                showInDiary = if(showInDiary.value) 1 else 0
+                showInDiary = showInDiary.value
             )
 
             val res = nursingCourseRepository.addNursingCourse(newCourse)
