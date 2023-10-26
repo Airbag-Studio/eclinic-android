@@ -7,6 +7,7 @@ import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_END
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_NAME
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_START
 import it.airbagstudio.ticare.navigation.Screens.ALLERGIES_SCREEN
+import it.airbagstudio.ticare.navigation.Screens.DIARY_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.DRUG_ADMINISTRATION_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.LOGIN_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.OTHER_SERVICE_SCREEN
@@ -26,6 +27,7 @@ private object Screens{
     const val ALLERGIES_SCREEN = "allergiesScreen"
     const val OTHER_SERVICE_SCREEN = "otherServiceScreen"
     const val VITAL_PARAMETERS_SCREEN = "vitalSignsScreen"
+    const val DIARY_SCREEN = "diaryScreen"
 }
 
 object DestinationsArgs{
@@ -50,6 +52,7 @@ object Destinations{
     const val ALLERGIES_ROUTE = "$ALLERGIES_SCREEN/{$PATIENT_COD}"
     const val OTHER_SERVICE_ROUTE = "$OTHER_SERVICE_SCREEN/{$PATIENT_COD}"
     const val VITAL_PARAMETERS_ROUTE = "$VITAL_PARAMETERS_SCREEN/{$PATIENT_COD}"
+    const val DIARY_ROUTE = "$DIARY_SCREEN/{$PATIENT_COD}"
 }
 
 class NavigationActions(private val navController: NavController){
@@ -88,5 +91,9 @@ class NavigationActions(private val navController: NavController){
 
     fun navigateToVitalParameters(patientCod: String){
         navController.navigate("$VITAL_PARAMETERS_SCREEN/$patientCod")
+    }
+
+    fun navigateToDiary(patientCod: String){
+        navController.navigate("$DIARY_SCREEN/$patientCod")
     }
 }

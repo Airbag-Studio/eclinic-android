@@ -41,7 +41,7 @@ class PatientListScreenViewModel @Inject constructor(
 
     private var isLoading by mutableStateOf(true)
     var query by mutableStateOf("")
-    private var patients = MutableStateFlow<List<CaseInfo>>(listOf())
+    private var patients = userListRepository.getCaseList()
     private var companyName = MutableStateFlow("")
     private var errorMessage by mutableStateOf<String?>(null)
     private var zones = MutableStateFlow<List<Zone>>(listOf())
@@ -83,12 +83,6 @@ class PatientListScreenViewModel @Inject constructor(
     fun downloadCases(){
         viewModelScope.launch(coroutineExceptionHandler) {
             companyName.value = authRepository.getCompanyName() ?: ""
-            isLoading = true
-            userListRepository.getCaseList().collect {
-                patients.value = it
-                isLoading = false
-            }
-
         }
     }
 

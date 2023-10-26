@@ -3,8 +3,11 @@ package it.airbagstudio.ticare.pages.diary
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,9 +24,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
+import it.airbagstudio.ticare.ui.theme.redColor
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DiaryDrugAdministrationItemView() {
+fun DiaryDrugAdministrationItemView(
+    title: String,
+    quantity: String,
+    expectedQuantity: String,
+    time: String,
+    isConfirmed: Boolean,
+    isReserve: Boolean,
+    notExecuted: Boolean,
+    rejected: Boolean
+) {
     Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
         Image(
             painter = painterResource(id = R.drawable.ic_diary_drug_administration),
@@ -33,14 +47,39 @@ fun DiaryDrugAdministrationItemView() {
         Column {
             BuildHeader(
                 category = stringResource(id = R.string.drug_administration),
-                title = "Meto Zeroch cpr ret 25mg"
+                title = title
             )
             Row {
-                LabelValueRow(label = stringResource(id = R.string.quantity), value = "0")
-                Spacer(modifier = Modifier.weight(1f))
-                LabelValueRow(label = stringResource(id = R.string.prescribed), value = "0")
+                LabelValueRow(label = stringResource(id = R.string.quantity), value = quantity)
+                if (!isReserve) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    LabelValueRow(
+                        label = stringResource(id = R.string.prescribed),
+                        value = expectedQuantity
+                    )
+                }
             }
-            LabelValueRow(label = stringResource(id = R.string.time), value = "10:30")
+            LabelValueRow(label = stringResource(id = R.string.time), value = time)
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                if (!isConfirmed) {
+                    DrugChip(
+                        label = stringResource(id = R.string.not_confirmed),
+                        textColor = redColor
+                    )
+                }
+                if (notExecuted) {
+                    DrugChip(label = stringResource(id = R.string.not_performed))
+                }
+                if (isReserve) {
+                    DrugChip(label = stringResource(id = R.string.reserves))
+                }
+                if (rejected) {
+                    DrugChip(label = stringResource(id = R.string.rejected_by_patient))
+                }
+            }
         }
     }
 }
@@ -71,7 +110,7 @@ fun DiaryOtherServiceItemView() {
 }
 
 @Composable
-fun DiaryVitaLParameterItemView() {
+fun DiaryVitaLParameterItemView(title: String, value: String, time: String) {
     Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
         Image(
             painter = painterResource(id = R.drawable.ic_diary_vital_parameter),
@@ -81,14 +120,14 @@ fun DiaryVitaLParameterItemView() {
         Column {
             BuildHeader(
                 category = stringResource(id = R.string.vital_parameters),
-                title = "Peso"
+                title = title
             )
-            LabelValueRow(label = "Kg", value = "70")
-            LabelValueRow(label = stringResource(id = R.string.time), value = "10:30")
+            LabelValueRow(label = stringResource(id = R.string.value), value = value)
+            LabelValueRow(label = stringResource(id = R.string.time), value = time)
         }
     }
 }
-
+/*
 @Composable
 @Preview
 private fun PreviewDiaryItemView() {
@@ -103,6 +142,8 @@ private fun PreviewDiaryItemView() {
 
     }
 }
+
+ */
 
 
 @Composable

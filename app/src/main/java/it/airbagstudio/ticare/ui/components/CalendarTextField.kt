@@ -81,7 +81,7 @@ fun CalendarTextField(modifier: Modifier = Modifier,date:Date?,label: @Composabl
                 fieldSize = it.size
                 fieldPosition = it.positionInRoot()
             },
-            value = selectedDate.format("dd MMMM yyyy, HH:mm "),
+            value = date?.format("dd MMMM yyyy, HH:mm ") ?: selectedDate.format("dd MMMM yyyy, HH:mm "),
             onValueChange = {},
             trailingIcon = {
                 Icon(
@@ -114,7 +114,7 @@ fun CalendarTextField(modifier: Modifier = Modifier,date:Date?,label: @Composabl
             Box(
                 modifier = Modifier
                     .padding(top = 30.dp)
-                    .background(Color.White),
+                    .background(MaterialTheme.colorScheme.onPrimary),
                 contentAlignment = Alignment.Center,
                 content = {
                     Column {
@@ -152,10 +152,11 @@ fun CalendarTextField(modifier: Modifier = Modifier,date:Date?,label: @Composabl
             Box(
                 modifier = Modifier
                     .padding(top = 30.dp)
-                    .background(Color.White),
+                    .background(MaterialTheme.colorScheme.onPrimary),
                 contentAlignment = Alignment.Center,
                 content = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Spacer(modifier = Modifier.height(16.dp))
                         TimePicker(
                             state = timePickerState)
                         BuildButtonsStack(onDiscard = {

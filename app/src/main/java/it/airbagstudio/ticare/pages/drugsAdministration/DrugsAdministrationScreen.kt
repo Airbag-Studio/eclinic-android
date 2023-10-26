@@ -171,14 +171,14 @@ fun DrugsAdministrationScreen(
                         LazyColumn(content = {
                             items(viewModel.tasks) { task ->
                                 DrugAdministrationItemView(
-                                    name = task.itemDescription,
+                                    name = task.itemDescription ?: "",
                                     quantity = if(task.getExecTime()?.printTime()!= null) task.quantity else task.expQuantity,
                                     time = task.getExecTime()?.printTime() ?: task.getExpectedTime()
                                         ?.printTime() ?: "",
                                     reserves = task.reservesCount,
                                     notExecuted = task.isSkipped,
                                     isConfirmed = task.validated(),
-                                    rejected = task.rejected,
+                                    rejected = task.rejected ?: false,
                                     isCompleted = task.execTime != null
                                 ) {
                                     selectedTasks = task
@@ -192,7 +192,7 @@ fun DrugsAdministrationScreen(
                         LazyColumn(content = {
                             items(viewModel.reserves) { task ->
                                 DrugAdministrationItemView(
-                                    name = task.itemDescription,
+                                    name = task.itemDescription ?: "",
                                     quantity = if(task.getExecTime()?.printTime()!= null) task.quantity else task.expQuantity,
                                     time = task.getExecTime()?.printTime() ?: task.getExpectedTime()
                                         ?.printTime() ?: "",
@@ -200,7 +200,7 @@ fun DrugsAdministrationScreen(
                                     isReserve = true,
                                     notExecuted = task.isSkipped,
                                     isConfirmed = task.validated(),
-                                    rejected = task.rejected,
+                                    rejected = task.rejected ?: false,
                                 ) {
                                     selectedTasks = task
                                     showBottomSheet = true

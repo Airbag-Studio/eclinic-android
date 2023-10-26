@@ -6,8 +6,9 @@ import ch.ticare.eclinic.library.database.createDatabase
 import ch.ticare.eclinic.library.db.Database
 import ch.ticare.eclinic.library.network.APIClient
 import ch.ticare.eclinic.library.network.AuthRepository
-import ch.ticare.eclinic.library.repository.CaseAllergiesRepository
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
+import ch.ticare.eclinic.library.repository.CaseAllergiesRepository
+import ch.ticare.eclinic.library.repository.DiaryRepository
 import ch.ticare.eclinic.library.repository.NursingCourseRepository
 import ch.ticare.eclinic.library.repository.OtherServiceRepository
 import ch.ticare.eclinic.library.repository.SyncDataRepository
@@ -20,6 +21,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import it.airbagstudio.ticare.LoginRedirect
+import it.airbagstudio.ticare.pages.diary.DiaryUIState
 import javax.inject.Singleton
 
 @Module
@@ -46,8 +48,14 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(apiClient: APIClient): UserRepository {
-        return UserRepository(apiClient)
+    fun provideUserRepository(apiClient: APIClient,@ApplicationContext context: Context): UserRepository {
+        return UserRepository(apiClient, provideDatabase(context))
+    }
+
+    @Provides
+    @Singleton
+    fun provideDiaryRepository(apiClient: APIClient): DiaryRepository {
+        return DiaryRepository(apiClient)
     }
 
     @Provides
@@ -76,8 +84,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providesAgendaTaskRepository(apiClient: APIClient, @ApplicationContext context: Context): AgendaTaskRepository {
-        return AgendaTaskRepository(apiClient, provideDatabase(context))
+    fun providesAgendaTaskRepositoryRepository(apiClient: APIClient,@ApplicationContext context: Context): AgendaTaskRepository{
+        return AgendaTaskRepository(apiClient,provideDatabase(context))
     }
 
     @Provides

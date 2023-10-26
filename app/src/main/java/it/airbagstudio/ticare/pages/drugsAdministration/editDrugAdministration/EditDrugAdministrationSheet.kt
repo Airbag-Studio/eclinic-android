@@ -85,8 +85,13 @@ fun EditDrugAdministrationSheet(
 ) {
     LaunchedEffect(Unit) {
         viewModel.task.value = task?.copy(showInDiary = task.isReserve)
+        viewModel.quantity.value = task?.quantity.toString()
         if (task?.execDate == null && task?.isReserve == false) {
-            viewModel.task.value = viewModel.task.value?.copy(quantity = task?.expQuantity ?: 0)
+            //viewModel.task.value = viewModel.task.value?.copy(quantity = task?.expQuantity ?: 0.0)
+            viewModel.quantity.value = task.expQuantity.toString()
+        }
+        if (task?.execDate != null){
+            viewModel.task.value = viewModel.task.value?.copy(showInDiary = task.showInDiary, isSkipped = task.isSkipped, rejected = task.rejected)
         }
     }
     val navController = rememberNavController()
@@ -166,13 +171,12 @@ private fun BuildContent(
                 .padding(16.dp)
         ) {
             Text(
-                text = task.itemDescription,
+                text = task.itemDescription ?: "",
                 style = MaterialTheme.typography.titleLarge
             )
             Row(
                 modifier = Modifier.padding(top = 24.dp)
             ) {
-                val value = if ((viewModel.task.value?.quantity ?:0) > 0) "${viewModel.task.value?.quantity}" else ""
                 OutlinedTextField(
                     enabled = viewModel.isEditingEnable.invoke(),
                     keyboardOptions = KeyboardOptions(
@@ -181,10 +185,10 @@ private fun BuildContent(
                     ),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     modifier = Modifier.weight(1f),
-                    value = value,
-                    visualTransformation = if (value.isEmpty()) PlaceholderTransformation("0") else VisualTransformation.None,
+                    value = viewModel.quantity.value ?: "",
+                    visualTransformation = if (viewModel.quantity.value.isNullOrEmpty()) PlaceholderTransformation("0") else VisualTransformation.None,
                     onValueChange = {
-                        viewModel.setQuantity(it.toIntOrNull())
+                        viewModel.setQuantity(it)
                     },
                     label = { Text(text = stringResource(id = R.string.quantity)) }
                 )

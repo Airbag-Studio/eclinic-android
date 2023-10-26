@@ -64,4 +64,5 @@
     <string name="guarantor">Garante</string>
     <string name="new_treatment">Nuova prestazione</string>
     <string name="no_guarantor">Nessun garante</string>
+    <string name="value">Misuarazione</string>
 </resources>
