@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,14 +36,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
 import it.airbagstudio.ticare.ui.components.ErrorAlert
+import it.airbagstudio.ticare.ui.components.ListPopup
+import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.PatientListItemView
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithSyncAndSettings
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,10 +57,17 @@ fun PatientListScreen(
     navActions: NavigationActions
 
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var searchActive by rememberSaveable { mutableStateOf(false) }
+    var showZonesPopup by remember {
+        mutableStateOf(false)
+    }
+    var showMicrozonesPopup by remember {
+        mutableStateOf(false)
+    }
     Scaffold(
         topBar = {
-            ToolbarWithSyncAndSettings(title = viewModel.companyName ?: "") {
+            ToolbarWithSyncAndSettings(title = uiState.companyName ?: "") {
                 // viewModel.downloadCases()
             }
         }
@@ -76,7 +89,7 @@ fun PatientListScreen(
 
             ) {
                 DockedSearchBar(
-                    enabled = !viewModel.isLoading,
+                    enabled = !uiState.isLoading,
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
                         .clip(RoundedCornerShape(28.dp))
@@ -119,7 +132,7 @@ fun PatientListScreen(
                         modifier = Modifier.wrapContentHeight()
                     ) {
                         if (viewModel.query.count() > 3) {
-                            val filtered = viewModel.patients?.filter {
+                            val filtered = uiState.caseList?.filter {
                                 "${it.name} ${it.surname}".contains(
                                     viewModel.query,
                                     ignoreCase = true
@@ -150,38 +163,56 @@ fun PatientListScreen(
                     ) {
                         DropDownButton(
                             modifier = Modifier.weight(1f),
-                            value = stringResource(id = R.string.zones),
-                            isEnabled = !viewModel.isLoading
+                            value = uiState.selectedZone?.name ?: stringResource(id = R.string.zones),
+                            isEnabled = !uiState.isLoading
                         ) {
+                           // showZonesPopup = true
 
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         DropDownButton(
                             modifier = Modifier.weight(1f),
-                            value = stringResource(id = R.string.micro_zones),
-                            isEnabled = !viewModel.isLoading
+                            value = uiState.selectedMicrozone?.name ?: stringResource(id = R.string.micro_zones),
+                            isEnabled = !uiState.isLoading
                         ) {
-
+                            showMicrozonesPopup = true
                         }
                     }
-                    if (viewModel.isLoading) {
+                    if (uiState.isLoading) {
                         repeat(8) {
                             PatientListItemViewLoading()
                         }
-                    } else if (viewModel.patients != null) {
+                    } else {
                         LazyColumn(modifier = Modifier.fillMaxHeight()) {
-                            items(viewModel.patients!!) { patientListItem ->
+                            items(uiState.caseList) { patientListItem ->
                                 PatientListItemView(patient = patientListItem) {
                                     navActions.navigateToPatientDetails(Uri.encode(patientListItem.code))
                                 }
                             }
                         }
                     }
+                    if(showZonesPopup){
+                        ListPopup(title = stringResource(id = R.string.zones), items = uiState.zones.map { ListPopupItem(label = it.name, it) }, setShowDialog = {
+                            showZonesPopup = it
+                        }, onItemSelected = {
+                            viewModel.setSelectedZone(it.item)
+                            showZonesPopup = false
+                        })
+                    }
+                    if(showMicrozonesPopup){
+                        ListPopup(title = stringResource(id = R.string.zones), items = uiState.microZones.map { ListPopupItem(label = it.name, it) }, setShowDialog = {
+                            showMicrozonesPopup = it
+                        }, onItemSelected = {
+                            viewModel.setSelectedMicrozone(it.item)
+                            showMicrozonesPopup = false
+                        })
+                    }
                 }
 
             }
             Spacer(modifier = Modifier.weight(1f))
         }
+        /*
         if (viewModel.errorMessage != null) {
             ErrorAlert(
                 message = viewModel.errorMessage!!,
@@ -190,5 +221,7 @@ fun PatientListScreen(
                     viewModel.downloadCases()
                 })
         }
+
+         */
     }
 }

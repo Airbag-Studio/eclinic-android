@@ -14,3 +14,4 @@ fun OperatingShift.includeTime(time: LocalTime): Boolean{
     val end = LocalTime.parse(this.stopTime)
     return if (start.isAfter(end)) time.isAfter(start) || time.isBefore(end) else time.isAfter(start) && time.isBefore(end)
 }
+

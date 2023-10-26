@@ -16,7 +16,7 @@ android {
         minSdk 28
         targetSdk 34
         versionCode 10
-        versionName "0.4"
+        versionName "0.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -83,6 +83,10 @@ dependencies {
     implementation 'com.github.tony19:logback-android:2.0.0'
     implementation("io.ktor:ktor-client-okhttp:2.3.4")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+    implementation("app.cash.sqldelight:android-driver:2.0.0")
+    implementation("app.cash.sqldelight:sqlite-driver:2.0.0")
+    implementation("app.cash.sqldelight:primitive-adapters:2.0.0")
+    implementation("app.cash.sqldelight:coroutines-extensions:2.0.0")
 
     implementation platform('com.google.firebase:firebase-bom:32.3.1')
 

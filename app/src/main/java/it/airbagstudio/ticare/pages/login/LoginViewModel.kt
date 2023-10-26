@@ -11,6 +11,7 @@ import ch.ticare.eclinic.library.entity.CompanyInfo
 import ch.ticare.eclinic.library.entity.ErrorResponse
 import ch.ticare.eclinic.library.entity.LoginRequest
 import ch.ticare.eclinic.library.network.AuthRepository
+import ch.ticare.eclinic.library.repository.SyncDataRepository
 import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -23,7 +24,8 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val userRepository: UserRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val syncDataRepository: SyncDataRepository
 ) : ViewModel() {
 
     var companies by mutableStateOf<List<CompanyInfo>>(listOf())
@@ -89,7 +91,12 @@ class LoginViewModel @Inject constructor(
                     errorMessage = errorResponse.desc
                 }
                 loginResponse.token?.let { _ ->
-                    successLogin = true
+                    authRepository.getCompanyName()?.let { company ->
+                        val res = syncDataRepository.syncData(company)
+                        if (res.isSuccess) {
+                            successLogin = true
+                        }
+                    }
                 }
                 isLoading = false
             }

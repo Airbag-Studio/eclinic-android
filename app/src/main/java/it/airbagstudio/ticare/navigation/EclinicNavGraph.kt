@@ -13,12 +13,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import it.airbagstudio.ticare.LoginRedirect
 import it.airbagstudio.ticare.pages.allergies.AllergiesScreen
+import it.airbagstudio.ticare.pages.diary.DiaryScreen
 import it.airbagstudio.ticare.pages.drugsAdministration.DrugsAdministrationScreen
 import it.airbagstudio.ticare.pages.login.LoginScreen
+import it.airbagstudio.ticare.pages.otherTreatments.OtherTreatmentScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
 import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
 import it.airbagstudio.ticare.pages.splashPage.SplashPageScreen
+import it.airbagstudio.ticare.pages.vitalParameters.list.VitalParametersScreen
 import kotlinx.coroutines.CoroutineScope
 
 
@@ -86,6 +89,21 @@ fun EclinicNavGraph(
         }
         composable(Destinations.ALLERGIES_ROUTE) {
             AllergiesScreen(navigationActions = navActions) {
+                navController.popBackStack()
+            }
+        }
+        composable(Destinations.OTHER_SERVICE_ROUTE){
+            OtherTreatmentScreen {
+                navController.popBackStack()
+            }
+        }
+        composable(Destinations.VITAL_PARAMETERS_ROUTE){
+            VitalParametersScreen {
+                navController.popBackStack()
+            }
+        }
+        composable(Destinations.DIARY_ROUTE){
+            DiaryScreen {
                 navController.popBackStack()
             }
         }

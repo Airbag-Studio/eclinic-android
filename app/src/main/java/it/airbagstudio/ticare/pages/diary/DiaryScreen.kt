@@ -1,0 +1,107 @@
+package it.airbagstudio.ticare.pages.diary
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.pages.otherTreatments.OtherTreatmentItemView
+import it.airbagstudio.ticare.ui.components.BuildPageHeader
+import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
+import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.utils.format
+
+@Composable
+fun DiaryScreen(
+    viewModel: DiaryViewModel = hiltViewModel(),
+    onBack: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    Scaffold(
+        topBar = {
+            ToolbarWithBackAndSync(title = uiState.patientName) {
+                onBack()
+            }
+        }
+    ) { values ->
+
+        Column(
+            Modifier
+                .padding(values)
+        ) {
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                text = stringResource(id = R.string.diary),
+                style = MaterialTheme.typography.headlineSmall
+
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            if (uiState.isLoading) {
+                repeat(8) {
+                    PatientListItemViewLoading()
+                }
+            } else {
+                LazyColumn(content = {
+
+                    items(uiState.items.keys.toList()) {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .padding(horizontal = 16.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.titleMedium,
+                            text = it
+                        )
+                        val items = uiState.items.get(it)
+                        items?.forEach { item ->
+                            if (item.entityName == "VitalSignTask") {
+                                DiaryVitaLParameterItemView(
+                                    title = item.typeLbl ?: "",
+                                    value = item.value ?: "",
+                                    time = item.time
+                                )
+                            } else if (item.entityName == "PharmacologicalTask") {
+                                DiaryDrugAdministrationItemView(
+                                    title = item.typeLbl ?: "",
+                                    quantity = item.actualQuantity ?: "",
+                                    expectedQuantity = item.expQuantity ?: "",
+                                    time = item.time,
+                                    isConfirmed = true,
+                                    isReserve = item.isReserve ?: false,
+                                    notExecuted = item.isSkipped ?: false,
+                                    rejected = item.isRejected ?: false
+                                )
+                            }
+
+                            Divider(modifier = Modifier.padding(start = if (items.lastOrNull() == item) 0.dp else 16.dp))
+                        }
+                    }
+                })
+            }
+
+
+        }
+    }
+}

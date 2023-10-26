@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.CaseDetail
+import ch.ticare.eclinic.library.repository.CaseAllergiesRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class AllergiesScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val userDetailRepository: UserDetailRepository,
+    private val allergiesRepository: CaseAllergiesRepository
 ) : ViewModel() {
 
     private val patientCod: String? = savedStateHandle[DestinationsArgs.PATIENT_COD]
@@ -43,13 +45,13 @@ class AllergiesScreenViewModel @Inject constructor(
         if (patientCod == null) return
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading = true
-            caseInfo = userDetailRepository.getCase(patientCod, true).results?.firstOrNull()
-            val allergiesResponse = userDetailRepository.getCaseAllergies(patientCod)
+            caseInfo = userDetailRepository.getCase(patientCod).results?.firstOrNull()
+            val allergiesResponse = allergiesRepository.getCaseAllergies(patientCod)
             allergiesResponse.error?.let { errorResponse ->
                 errorMessage = errorResponse.desc
             }
-            allergiesResponse.results?.let { allergiesResponse ->
-                allergies = allergiesResponse.map { AllergiesItem(it.desc, it.isDrug) }
+            allergiesResponse.results?.let { res ->
+                allergies = res.map { AllergiesItem(it.desc, it.isDrug) }
             }
             isLoading = false
         }
