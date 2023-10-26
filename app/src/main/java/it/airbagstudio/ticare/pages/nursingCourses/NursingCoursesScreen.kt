@@ -31,6 +31,7 @@ import ch.ticare.eclinic.library.entity.HomeCareCourse
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.nursingCourses.create.CreateNursingCourseScreen
+import it.airbagstudio.ticare.pages.nursingCourses.create.EditNursingCourseScreen
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.utils.getCompleteName
@@ -50,6 +51,7 @@ fun NursingCoursesScreen(
     }
 
     var showCreateBottomSheet by remember { mutableStateOf(false) }
+    var showEditBottomSheet by remember { mutableStateOf<HomeCareCourse?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
@@ -118,11 +120,10 @@ fun NursingCoursesScreen(
                     NursingAdministrationItemView(
                         name = task.userValue,
                         time = task.dateTime,
-                        duration = null,
+                        duration = task.duration,
                         description = task.desc,
                     ) {
                         selectedTasks = task
-                        //TODO
                     }
                 }
             })
@@ -143,6 +144,16 @@ fun NursingCoursesScreen(
             state = sheetState
         ) {
             showCreateBottomSheet = false
+            viewModel.reloadTasks()
+        }
+    }
+    if(selectedTasks != null) {
+        EditNursingCourseScreen(
+            patientCode = viewModel.patientCode,
+            state = sheetState,
+            homeCareCourse = selectedTasks
+        ) {
+            selectedTasks = null
             viewModel.reloadTasks()
         }
     }

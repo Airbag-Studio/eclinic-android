@@ -1,24 +1,30 @@
 package it.airbagstudio.ticare.pages.nursingCourses.create
 
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AddHomeCareCourse
+import ch.ticare.eclinic.library.entity.EditHomeCareCourse
+import ch.ticare.eclinic.library.entity.HomeCareCourse
 import ch.ticare.eclinic.library.entity.HomeCareCourseCategory
 import ch.ticare.eclinic.library.repository.NursingCourseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT_ITA
 import it.airbagstudio.ticare.utils.format
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.launch
+import it.airbagstudio.ticare.utils.toDate
 import java.util.Date
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 @HiltViewModel
-class CreateNursingCourseSheetViewModel @Inject constructor(
+class EditNursingCourseSheetViewModel @Inject constructor(
     private val nursingCourseRepository: NursingCourseRepository,
 ) : ViewModel() {
 
@@ -31,8 +37,10 @@ class CreateNursingCourseSheetViewModel @Inject constructor(
     private val isLoading = MutableStateFlow(false)
     private val isSuccess = MutableStateFlow(false)
     private val errorMessage = MutableStateFlow<String?>(null)
+    private var screenType = mutableStateOf<ScreenType>(ScreenType.Add)
+    private var editNursingCourseId: Int = 0
 
-    val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading.value = false
         errorMessage.value = throwable.localizedMessage
     }
@@ -77,15 +85,21 @@ class CreateNursingCourseSheetViewModel @Inject constructor(
         )
     )
 
-    init {
-        loadCategory()
+    fun loadCategory() {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            listOfCategories.value = nursingCourseRepository.getNursingCourseCategory().results.also {
+                if(screenType.value == ScreenType.Add) {
+                selectedCategoryId.value = it?.find { cat -> cat.useAsDefault }?.id
+                }
+            }
+        }
     }
 
-    private fun loadCategory() {
-        viewModelScope.launch {
-            listOfCategories.value = nursingCourseRepository.getNursingCourseCategory().results.also {
-                selectedCategoryId.value = it?.find { cat -> cat.useAsDefault}?.id
-            }
+    fun setScreenType(type: ScreenType) {
+        screenType.value = type
+        when(type) {
+            ScreenType.Add -> setDefaultParams()
+            is ScreenType.Edit -> setPreviousCategory(type.homeCareCourse)
         }
     }
 
@@ -112,9 +126,33 @@ class CreateNursingCourseSheetViewModel @Inject constructor(
     }
 
 
-    fun saveNursingCourse(patientCode: String) {
+    fun saveButtonClick(patientCode: String) {
+        when (screenType.value) {
+            is ScreenType.Edit -> editNursingCourse(patientCode)
+            ScreenType.Add -> addNursingCourse(patientCode)
+        }
+    }
+
+    private fun setPreviousCategory(actualCourse: HomeCareCourse) {
+        editNursingCourseId = actualCourse.id
+        selectedCategoryId.value = actualCourse.categoryID
+        duration.value = actualCourse.duration
+        selectedDate.value = actualCourse.dateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA) ?: Date()
+        description.value = actualCourse.desc
+        showInDiary.value = actualCourse.showInDiary
+    }
+
+    private fun setDefaultParams() {
+        editNursingCourseId = 0
+        selectedCategoryId.value = null
+        duration.value = null
+        selectedDate.value =  Date()
+        description.value = ""
+    }
+
+    private fun addNursingCourse(patientCode: String) {
         isLoading.value = true
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             val newCourse = AddHomeCareCourse(
                 caseCode = patientCode,
                 dateTime = selectedDate.value.format("yyyy-MM-dd HH:mm:00"),
@@ -125,13 +163,48 @@ class CreateNursingCourseSheetViewModel @Inject constructor(
             )
 
             val res = nursingCourseRepository.addNursingCourse(newCourse)
+            Log.i("TEST_CHIARA","TEST_CHIARA: ADD res : ${res.status}}")
+
             if (res.status == "success") {
                 isSuccess.value = true
             } else if (res.status == "error") {
+                Log.i("TEST_CHIARA","TEST_CHIARA: ADD error : ${res.error?.desc}}")
+
                 errorMessage.value = res.error?.desc ?: ""
             }
             isLoading.value = false
 
         }
     }
+
+    private fun editNursingCourse(patientCode: String) {
+        isLoading.value = true
+        viewModelScope.launch {
+            val newCourse = EditHomeCareCourse(
+                id = editNursingCourseId,
+                caseCode = patientCode,
+                dateTime = selectedDate.value.format("yyyy-MM-dd HH:mm:00"),
+                idCourseCategoryType = selectedCategoryId.value ?: 0,
+                desc = description.value,
+                duration = duration.value ?: 0,
+                showInDiary = showInDiary.value
+            )
+
+            val res = nursingCourseRepository.updateNursingCourse(newCourse)
+            Log.i("TEST_CHIARA","TEST_CHIARA: edit res : ${res.status}}")
+            if (res.status == "success") {
+                isSuccess.value = true
+            } else if (res.status == "error") {
+                Log.i("TEST_CHIARA","TEST_CHIARA: error : ${res.error?.desc}}")
+                errorMessage.value = res.error?.desc ?: ""
+            }
+            isLoading.value = false
+
+        }
+    }
+}
+
+sealed class ScreenType {
+    data class Edit(val homeCareCourse: HomeCareCourse): ScreenType()
+    object Add: ScreenType()
 }

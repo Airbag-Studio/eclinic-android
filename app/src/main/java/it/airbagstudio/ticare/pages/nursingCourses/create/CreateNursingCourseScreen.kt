@@ -41,13 +41,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.HomeCareCourse
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopup
@@ -58,7 +58,7 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateNursingCourseScreen(
-    viewModel: CreateNursingCourseSheetViewModel = hiltViewModel(),
+    viewModel: EditNursingCourseSheetViewModel = hiltViewModel(),
     patientCode: String,
     state: SheetState,
     onDismissRequest: () -> Unit
@@ -69,7 +69,35 @@ fun CreateNursingCourseScreen(
     ) {
         LaunchedEffect(Unit) {
             run {
-                viewModel.setDate(Date())
+                viewModel.setScreenType(ScreenType.Add)
+                viewModel.loadCategory()
+            }
+        }
+        BuildSheetContent(viewModel = viewModel, patientCode, onDismissRequest)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditNursingCourseScreen(
+    viewModel: EditNursingCourseSheetViewModel = hiltViewModel(),
+    patientCode: String,
+    state: SheetState,
+    homeCareCourse: HomeCareCourse?,
+    onDismissRequest: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = state,
+    ) {
+        LaunchedEffect(Unit) {
+            run {
+                if(homeCareCourse != null) {
+                    viewModel.setScreenType(ScreenType.Edit(homeCareCourse))
+                } else {
+                    viewModel.setScreenType(ScreenType.Add)
+                }
+                viewModel.loadCategory()
             }
         }
         BuildSheetContent(viewModel = viewModel, patientCode, onDismissRequest)
@@ -79,7 +107,7 @@ fun CreateNursingCourseScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BuildSheetContent(
-    viewModel: CreateNursingCourseSheetViewModel,
+    viewModel: EditNursingCourseSheetViewModel,
     patientCode: String,
     onDismissRequest: () -> Unit
 ) {
@@ -302,7 +330,7 @@ private fun BuildSheetContent(
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            viewModel.saveNursingCourse(patientCode = patientCode)
+                            viewModel.saveButtonClick(patientCode = patientCode)
                         }) {
                         Icon(
                             imageVector = Icons.Default.Check,

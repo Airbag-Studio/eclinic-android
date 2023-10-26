@@ -6,6 +6,8 @@ import java.util.Locale
 
 public const val SERVER_DATE_FORMAT = "dd.MM.yyyy"
 public const val SERVER_PARAMETER_DATE_TIME_FORMAT = "yyyy.MM.dd HH:mm"
+public const val SERVER_PARAMETER_DATE_TIME_FORMAT_ITA = "dd.MM.yyyy HH:mm"
+
 
 fun Date.format(pattern: String) : String{
     val simpleDateFormat = SimpleDateFormat(pattern, Locale.getDefault())
