@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +28,6 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun NursingAdministrationItemView(
     name: String,
@@ -164,7 +162,7 @@ fun NursingCoursesItemViewLoading() {
 @Composable
 @Preview
 private fun PreviewNursingAdministrationItemView() {
-    AppTheme() {
+    AppTheme {
         NursingAdministrationItemView(
             name = "Giovanna Verdi",
             duration = 4,

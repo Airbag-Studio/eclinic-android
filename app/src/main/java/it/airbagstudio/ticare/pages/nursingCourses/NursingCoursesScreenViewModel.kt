@@ -1,7 +1,6 @@
 package it.airbagstudio.ticare.pages.nursingCourses
 
 import android.text.format.DateFormat
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,10 +13,10 @@ import ch.ticare.eclinic.library.repository.NursingCourseRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class NursingCoursesScreenViewModel @Inject constructor(
@@ -55,7 +54,6 @@ class NursingCoursesScreenViewModel @Inject constructor(
     private suspend fun downloadTasks(){
         val dateParam =  DateFormat.format("yyyy.MM.dd", date).toString()
         tasks = nursingCourseRepository.getNursingCourses(patientCode, date = dateParam).results ?: emptyList()
-        Log.i("TEST_CHIARA","TEST_CHIARA: list size =  ${tasks.size}")
     }
 
     fun reloadTasks(){

@@ -110,13 +110,13 @@ fun EclinicNavGraph(
         }
 
         composable(Destinations.NURSING_COURSES_ROUTE) {
-            NursingCoursesScreen(navigationActions = navActions) {
+            NursingCoursesScreen {
                 navController.popBackStack()
             }
         }
 
         composable(Destinations.NURSING_COURSES_ROUTE_NO_SHIFT) {
-            NursingCoursesScreen(navigationActions = navActions) {
+            NursingCoursesScreen {
                 navController.popBackStack()
             }
         }

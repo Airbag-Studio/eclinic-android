@@ -1,6 +1,5 @@
 package it.airbagstudio.ticare.pages.nursingCourses.create
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,8 +28,8 @@ class EditNursingCourseSheetViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val selectedCategoryId = MutableStateFlow<Int?>(null)
-    private var listOfCategories: MutableStateFlow<List<HomeCareCourseCategory>?> = MutableStateFlow<List<HomeCareCourseCategory>?>(emptyList())
-    private val selectedDate = MutableStateFlow<Date>(Date())
+    private var listOfCategories: MutableStateFlow<List<HomeCareCourseCategory>?> = MutableStateFlow(emptyList())
+    private val selectedDate = MutableStateFlow(Date())
     private val description = MutableStateFlow("")
     private val duration = MutableStateFlow<Int?>(null)
     private val showInDiary = MutableStateFlow(false)
@@ -40,13 +39,13 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     private var screenType = mutableStateOf<ScreenType>(ScreenType.Add)
     private var editNursingCourseId: Int = 0
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading.value = false
         errorMessage.value = throwable.localizedMessage
     }
 
-    private val selectedCategory = combine(listOfCategories, selectedCategoryId) { categories, _id ->
-        categories?.firstOrNull { it.id == _id } ?: categories?.firstOrNull { it.useAsDefault }
+    private val selectedCategory = combine(listOfCategories, selectedCategoryId) { categories, id ->
+        categories?.firstOrNull { it.id == id } ?: categories?.firstOrNull { it.useAsDefault }
     }.map {
         duration.value = it?.duration
         it
@@ -169,13 +168,10 @@ class EditNursingCourseSheetViewModel @Inject constructor(
             )
 
             val res = nursingCourseRepository.addNursingCourse(newCourse)
-            Log.i("TEST_CHIARA","TEST_CHIARA: ADD res : ${res.status}}")
 
             if (res.status == "success") {
                 isSuccess.value = true
             } else if (res.status == "error") {
-                Log.i("TEST_CHIARA","TEST_CHIARA: ADD error : ${res.error?.desc}}")
-
                 errorMessage.value = res.error?.desc ?: ""
             }
             isLoading.value = false
@@ -197,11 +193,9 @@ class EditNursingCourseSheetViewModel @Inject constructor(
             )
 
             val res = nursingCourseRepository.updateNursingCourse(newCourse)
-            Log.i("TEST_CHIARA","TEST_CHIARA: edit res : ${res.status}}")
             if (res.status == "success") {
                 isSuccess.value = true
             } else if (res.status == "error") {
-                Log.i("TEST_CHIARA","TEST_CHIARA: error : ${res.error?.desc}}")
                 errorMessage.value = res.error?.desc ?: ""
             }
             isLoading.value = false

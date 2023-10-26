@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ch.ticare.eclinic.library.entity.HomeCareCourse
 import it.airbagstudio.ticare.R
-import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.nursingCourses.create.CreateNursingCourseScreen
 import it.airbagstudio.ticare.pages.nursingCourses.create.EditNursingCourseScreen
 import it.airbagstudio.ticare.ui.components.ErrorAlert
@@ -40,18 +39,16 @@ import it.airbagstudio.ticare.utils.getCompleteName
 @Composable
 fun NursingCoursesScreen(
     viewModel: NursingCoursesScreenViewModel = hiltViewModel(),
-    navigationActions: NavigationActions,
     onBack: () -> Unit
 ) {
     var selectedTasks by remember {
         mutableStateOf<HomeCareCourse?>(null)
     }
-    var errorMessages = remember {
+    val errorMessages = remember {
         mutableStateOf<List<Int>?>(null)
     }
 
     var showCreateBottomSheet by remember { mutableStateOf(false) }
-    var showEditBottomSheet by remember { mutableStateOf<HomeCareCourse?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
@@ -94,6 +91,7 @@ fun NursingCoursesScreen(
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "${
                     DateFormat.format(
