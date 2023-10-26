@@ -1,4 +1,4 @@
-package it.airbagstudio.ticare.pages.nursingCourses.create
+package it.airbagstudio.ticare.pages.nursingCourses.details
 
 import ch.ticare.eclinic.library.entity.HomeCareCourseCategory
 import java.util.Date

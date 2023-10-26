@@ -29,7 +29,7 @@ import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
-fun NursingAdministrationItemView(
+fun NursingCourseItemView(
     name: String,
     time: String,
     duration: Int?,
@@ -161,9 +161,9 @@ fun NursingCoursesItemViewLoading() {
 
 @Composable
 @Preview
-private fun PreviewNursingAdministrationItemView() {
+private fun PreviewNursingCourseItemView() {
     AppTheme {
-        NursingAdministrationItemView(
+        NursingCourseItemView(
             name = "Giovanna Verdi",
             duration = 4,
             time = "10:30",

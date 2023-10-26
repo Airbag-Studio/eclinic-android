@@ -1,4 +1,4 @@
-package it.airbagstudio.ticare.pages.nursingCourses.create
+package it.airbagstudio.ticare.pages.nursingCourses.details
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box

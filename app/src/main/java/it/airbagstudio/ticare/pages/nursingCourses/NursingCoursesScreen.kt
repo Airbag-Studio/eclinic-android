@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ch.ticare.eclinic.library.entity.HomeCareCourse
 import it.airbagstudio.ticare.R
-import it.airbagstudio.ticare.pages.nursingCourses.create.CreateNursingCourseScreen
-import it.airbagstudio.ticare.pages.nursingCourses.create.EditNursingCourseScreen
+import it.airbagstudio.ticare.pages.nursingCourses.details.CreateNursingCourseScreen
+import it.airbagstudio.ticare.pages.nursingCourses.details.EditNursingCourseScreen
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.utils.DATE_ONLY_TIME_FORMAT
@@ -120,7 +120,7 @@ fun NursingCoursesScreen(
             LazyColumn(content = {
                 items(viewModel.tasks) { task ->
                     val date = task.dateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA)?.format(DATE_ONLY_TIME_FORMAT) ?: "-"
-                    NursingAdministrationItemView(
+                    NursingCourseItemView(
                         name = task.userValue,
                         time = date,
                         duration = task.duration,

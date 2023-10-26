@@ -1,4 +1,4 @@
-package it.airbagstudio.ticare.pages.nursingCourses.create
+package it.airbagstudio.ticare.pages.nursingCourses.details
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
