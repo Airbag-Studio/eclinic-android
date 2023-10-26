@@ -33,7 +33,11 @@ import it.airbagstudio.ticare.pages.nursingCourses.create.CreateNursingCourseScr
 import it.airbagstudio.ticare.pages.nursingCourses.create.EditNursingCourseScreen
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.utils.DATE_ONLY_TIME_FORMAT
+import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT_ITA
+import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getCompleteName
+import it.airbagstudio.ticare.utils.toDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,9 +119,10 @@ fun NursingCoursesScreen(
             Divider()
             LazyColumn(content = {
                 items(viewModel.tasks) { task ->
+                    val date = task.dateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA)?.format(DATE_ONLY_TIME_FORMAT) ?: "-"
                     NursingAdministrationItemView(
                         name = task.userValue,
-                        time = task.dateTime,
+                        time = date,
                         duration = task.duration,
                         description = task.desc,
                     ) {

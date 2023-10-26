@@ -27,6 +27,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     private val nursingCourseRepository: NursingCourseRepository,
 ) : ViewModel() {
 
+    private val selectedCategoryStateFlow = MutableStateFlow<HomeCareCourseCategory?>(null)
     private val selectedCategoryId = MutableStateFlow<Int?>(null)
     private var listOfCategories: MutableStateFlow<List<HomeCareCourseCategory>?> = MutableStateFlow(emptyList())
     private val selectedDate = MutableStateFlow(Date())
@@ -47,6 +48,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     private val selectedCategory = combine(listOfCategories, selectedCategoryId) { categories, id ->
         categories?.firstOrNull { it.id == id } ?: categories?.firstOrNull { it.useAsDefault }
     }.map {
+        selectedCategoryStateFlow.value = it
         duration.value = it?.duration
         it
     }
@@ -80,7 +82,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = DetailsNursingCourseScreenUiState(
-            newNursingCourse = DetailsNursingCourseScreenUiState.NewNursingCourse(null, Date(), null, null, false)
+            newNursingCourse = DetailsNursingCourseScreenUiState.NewNursingCourse(selectedCategoryStateFlow.value, selectedDate.value, duration.value, description.value, showInDiary.value)
         )
     )
 
@@ -153,6 +155,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         duration.value = null
         selectedDate.value =  Date()
         description.value = ""
+        showInDiary.value = false
     }
 
     private fun addNursingCourse(patientCode: String) {
@@ -160,7 +163,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             val newCourse = AddHomeCareCourse(
                 caseCode = patientCode,
-                dateTime = selectedDate.value.format("yyyy-MM-dd HH:mm:00"),
+                dateTime = selectedDate.value.format(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA),
                 idCourseCategoryType = selectedCategoryId.value ?: 0,
                 desc = description.value,
                 duration = duration.value ?: 0,
@@ -185,7 +188,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
             val newCourse = EditHomeCareCourse(
                 id = editNursingCourseId,
                 caseCode = patientCode,
-                dateTime = selectedDate.value.format("yyyy-MM-dd HH:mm:00"),
+                dateTime = selectedDate.value.format(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA),
                 idCourseCategoryType = selectedCategoryId.value ?: 0,
                 desc = description.value,
                 duration = duration.value ?: 0,
