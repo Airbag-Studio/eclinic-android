@@ -59,7 +59,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         duration,
         showInDiary
     ) { category, date, description, duration, showInDiary ->
-        CreateNursingCourseScreenUiState.NewNursingCourse(category, date, duration, description, showInDiary)
+        DetailsNursingCourseScreenUiState.NewNursingCourse(category, date, duration, description, showInDiary)
     }
 
     val uiState = combine(
@@ -69,7 +69,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         isSuccess,
         errorMessage
     ) { newService, categories, isLoading, isSuccess, errorMessage ->
-        CreateNursingCourseScreenUiState(
+        DetailsNursingCourseScreenUiState(
             newService,
             categories ?: emptyList(),
             isLoading,
@@ -80,8 +80,8 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = CreateNursingCourseScreenUiState(
-            newNursingCourse = CreateNursingCourseScreenUiState.NewNursingCourse(null, Date(), null, null, false)
+        initialValue = DetailsNursingCourseScreenUiState(
+            newNursingCourse = DetailsNursingCourseScreenUiState.NewNursingCourse(null, Date(), null, null, false)
         )
     )
 
@@ -119,6 +119,12 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     fun setCategoryId(categoryId: Int?) {
         selectedCategoryId.value =  categoryId
     }
+
+    fun setShowInDiary(show: Boolean) {
+        showInDiary.value = show
+    }
+
+    fun getShowInDiary(): Boolean = showInDiary.value
 
     fun clearState() {
         errorMessage.value = null

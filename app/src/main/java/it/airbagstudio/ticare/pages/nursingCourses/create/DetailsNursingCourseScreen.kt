@@ -27,6 +27,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -327,6 +329,15 @@ private fun BuildSheetContent(
                             viewModel.setDescription(it)
                         })
                     Spacer(modifier = Modifier.height(24.dp))
+
+                    SwitchItem(
+                        label = stringResource(id = R.string.show_in_diary),
+                        enabled = true,
+                        value = viewModel.getShowInDiary()
+                    ) {
+                        viewModel.setShowInDiary(it)
+                    }
+
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
@@ -381,5 +392,34 @@ private fun BuildSheetContent(
             viewModel.clearState()
             onDismissRequest()
         }
+    }
+}
+
+@Composable
+private fun SwitchItem(
+    label: String,
+    value: Boolean,
+    enabled: Boolean,
+    onChange: (Boolean) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .padding(top = 24.dp)
+    ) {
+        Text(
+            modifier = Modifier.weight(1f),
+            text = label
+        )
+        Switch(
+            colors = SwitchDefaults.colors(
+                checkedTrackColor = MaterialTheme.colorScheme.primary
+            ),
+            checked = value,
+            enabled = enabled,
+            onCheckedChange = {
+                onChange(it)
+            })
     }
 }

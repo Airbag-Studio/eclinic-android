@@ -3,7 +3,7 @@ package it.airbagstudio.ticare.pages.nursingCourses.create
 import ch.ticare.eclinic.library.entity.HomeCareCourseCategory
 import java.util.Date
 
-data class CreateNursingCourseScreenUiState(
+data class DetailsNursingCourseScreenUiState(
 
     val newNursingCourse: NewNursingCourse = NewNursingCourse(null, Date(), null, null, false),
     val categoriesTypes: List<HomeCareCourseCategory> = listOf(),
