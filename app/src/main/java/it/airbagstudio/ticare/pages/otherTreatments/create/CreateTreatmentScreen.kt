@@ -81,6 +81,7 @@ fun CreateTreatmentScreen(
             service?.let {_service ->
                viewModel.setService(_service)
             } ?: run{
+                viewModel.setService(null)
                 viewModel.selectedArticleId.value = articleId
                 viewModel.setGuarantorId(null)
                 viewModel.setNotes("")

@@ -24,10 +24,12 @@ class SplashPageScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     var isLoggedIn by mutableStateOf<Boolean?>(null)
+    var errorMessage by mutableStateOf<String?>(null)
 
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         throwable.printStackTrace()
+        errorMessage = throwable.localizedMessage
         isLoggedIn = false
     }
 
@@ -44,11 +46,15 @@ class SplashPageScreenViewModel @Inject constructor(
                     val res = syncDataRepository.syncData(company)
                     if (isLoggedIn == null && res.isSuccess) {
                         isLoggedIn = _isLoggedIn
+                    }else if (res.isFailure){
+                        errorMessage = res.exceptionOrNull()?.localizedMessage
                     }
                 }
 
+            }else{
+                isLoggedIn = false
             }
-            isLoggedIn = _isLoggedIn
+
         }
     }
 }

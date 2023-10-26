@@ -263,8 +263,11 @@ fun PatientDetailsScreen(
                                 id = R.string.diary
                             ),
                             isLoading = viewModel.isLoadingActivities,
-                            modifier = Modifier.weight(1f)
-                        ) {}
+                            modifier = Modifier.weight(1f),
+                            badgeCount = viewModel.badges.firstOrNull { it.diary.badgeNumber > 0 }?.diary?.badgeNumber ?: 0
+                        ) {
+                            navActions.navigateToDiary(Uri.encode(viewModel.patientCod))
+                        }
                         VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_care_planes),

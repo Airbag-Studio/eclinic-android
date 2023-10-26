@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
+import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
@@ -33,7 +34,11 @@ fun SplashPageScreen(
         viewModel.isLoggedIn = null
         nav.navigateToLogin()
     }
-
+    if (viewModel.errorMessage != null){
+        ErrorAlert(message = viewModel.errorMessage!!, onDismissRequest = {
+            viewModel.errorMessage = null
+        })
+    }
         BuildContent()
 
 
@@ -80,6 +85,7 @@ private fun BuildContent(){
             )
         }
     }
+
 }
 
 @Composable

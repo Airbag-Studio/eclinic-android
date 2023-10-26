@@ -21,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ch.ticare.eclinic.library.entity.AgendaTask
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.checkGreen
@@ -29,7 +30,9 @@ data class VitalParameterItem(
     val name: String,
     val typeMsmUnit: String,
     val quantity: String,
-    val time: String
+    val time: String,
+    val executed:Boolean,
+    val item: AgendaTask?,
 )
 
 @Composable
@@ -41,11 +44,13 @@ fun VitalParameterItemView(item: VitalParameterItem, onClick: () -> Unit) {
             .padding(start = 16.dp, top = 12.dp, end = 0.dp, bottom = 0.dp)
     ) {
         Row(Modifier.padding(end = 24.dp)) {
-            Icon(
-                modifier = Modifier.padding(end = 16.dp),
-                tint = checkGreen,
-                imageVector = Icons.Default.Check, contentDescription = ""
-            )
+            if (item.executed) {
+                Icon(
+                    modifier = Modifier.padding(end = 16.dp),
+                    tint = checkGreen,
+                    imageVector = Icons.Default.Check, contentDescription = ""
+                )
+            }
             Text(
                 text = item.name,
                 style = MaterialTheme.typography.bodyLarge,
@@ -61,16 +66,18 @@ fun VitalParameterItemView(item: VitalParameterItem, onClick: () -> Unit) {
             modifier = Modifier
                 .padding(end = 24.dp)
         ) {
-
+            if (item.executed) {
                 Spacer(modifier = Modifier.width(40.dp))
-
+            }
             LabelValueRow(
                 label = item.typeMsmUnit,
                 value = item.quantity
             )
         }
         Row() {
+            if (item.executed) {
                 Spacer(modifier = Modifier.width(40.dp))
+            }
             LabelValueRow(
                 label = stringResource(id = R.string.time),
                 value = item.time
@@ -84,12 +91,14 @@ fun VitalParameterItemView(item: VitalParameterItem, onClick: () -> Unit) {
 @Composable
 private fun LabelValueRow(label: String, value: String) {
     Row() {
-        Text(
-            modifier = Modifier.padding(end = 8.dp),
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (label.isNotEmpty()) {
+            Text(
+                modifier = Modifier.padding(end = 8.dp),
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
@@ -102,7 +111,7 @@ private fun LabelValueRow(label: String, value: String) {
 @Preview
 private fun PreviewVitalParameterItem(){
     AppTheme {
-        VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30")) {
+        VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = false,null)) {
 
         }
     }

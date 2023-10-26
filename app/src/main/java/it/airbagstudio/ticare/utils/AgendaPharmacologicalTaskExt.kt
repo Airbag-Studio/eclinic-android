@@ -1,13 +1,12 @@
 package it.airbagstudio.ticare.utils
 
-import androidx.compose.ui.text.rememberTextMeasurer
-import ch.ticare.eclinic.library.entity.AgendaPharmacologicalTask
+import ch.ticare.eclinic.library.entity.AgendaTask
 import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.util.Date
 import java.util.Locale
 
-fun AgendaPharmacologicalTask.getExpectedTime(): LocalTime? {
+fun AgendaTask.getExpectedTime(): LocalTime? {
     return try {
         LocalTime.parse(this.expTime)
     } catch (e: Throwable) {
@@ -16,7 +15,7 @@ fun AgendaPharmacologicalTask.getExpectedTime(): LocalTime? {
 
 }
 
-fun AgendaPharmacologicalTask.getExecTime(): LocalTime? {
+fun AgendaTask.getExecTime(): LocalTime? {
     return try {
         LocalTime.parse(this.execTime)
     } catch (e: Throwable) {
@@ -25,7 +24,7 @@ fun AgendaPharmacologicalTask.getExecTime(): LocalTime? {
 
 }
 
-fun AgendaPharmacologicalTask.getExecDateTime(): Date? {
+fun AgendaTask.getExecDateTime(): Date? {
     try {
         val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         val value = "$execDate $execTime"
@@ -35,6 +34,6 @@ fun AgendaPharmacologicalTask.getExecDateTime(): Date? {
     }
     return null
 }
-fun AgendaPharmacologicalTask.validated(): Boolean {
+fun AgendaTask.validated(): Boolean {
     return !this.colorStatus.equals("rosso", true)
 }
