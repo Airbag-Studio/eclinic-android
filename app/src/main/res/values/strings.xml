@@ -65,6 +65,7 @@
     <string name="guarantor">Garante</string>
     <string name="new_treatment">Nuova prestazione</string>
     <string name="no_guarantor">Nessun garante</string>
+    <string name="value">Misuarazione</string>
     <string name="add_nursing_course">Nuovo decorso infermieristico</string>
     <string name="no_category">Nessuna categoria</string>
     <string name="category">Categoria</string>

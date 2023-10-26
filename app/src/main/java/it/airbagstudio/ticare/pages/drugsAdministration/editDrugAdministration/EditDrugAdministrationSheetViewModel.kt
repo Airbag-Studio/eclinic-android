@@ -20,10 +20,12 @@ import javax.inject.Inject
 @HiltViewModel
 class EditDrugAdministrationSheetViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
-    private val pharmacologicalTaskRepository: AgendaTaskRepository
+    private val agendaTaskRepository: AgendaTaskRepository
 ) : ViewModel() {
 
     var task = mutableStateOf<AgendaTask?>(null)
+
+    var quantity = mutableStateOf<String?>("")
 
     var isLoading by mutableStateOf(false)
     var isSucces by mutableStateOf(false)
@@ -43,10 +45,11 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
         task.value = task.value?.copy(duration = value ?: 0)
     }
 
-    fun setQuantity(value: Int?){
-        val newValue = value ?: 0
+    fun setQuantity(value: String){
+        quantity.value = value
+        val newValue = value.toDoubleOrNull() ?: 0.0
         task.value = task.value?.copy(quantity = newValue)
-        if (newValue < (task.value?.maxQuantity ?: 0)){
+        if (newValue < (task.value?.maxQuantity ?: 0.0)){
             task.value = task.value?.copy(showInDiary = true)
         }
     }
@@ -62,11 +65,11 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
     }
 
     fun setRejected(value: Boolean){
-        task.value = task.value?.copy(rejected = value,quantity = 0, showInDiary = true, isSkipped = true)
+        task.value = task.value?.copy(rejected = value,quantity = 0.0, showInDiary = true, isSkipped = true)
     }
 
     fun setNotExecuted(value: Boolean){
-        task.value = task.value?.copy(isSkipped = value, quantity = 0, showInDiary = true)
+        task.value = task.value?.copy(isSkipped = value, quantity = 0.0, showInDiary = true)
     }
 
     fun setPatientDrug(value: Boolean){
@@ -83,13 +86,13 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
                 messagesStringIdentifiers = listOf(R.string.notes_mandatory)
                 return
             }
-            if ((updatedTask.isSkipped || updatedTask.rejected) && updatedTask.notes.isEmpty()){
+            if ((updatedTask.isSkipped || (updatedTask.rejected == true)) && updatedTask.notes.isEmpty()){
                 messagesStringIdentifiers = listOf(R.string.notes_mandatory)
                 return
             }
             viewModelScope.launch(coroutineExceptionHandler) {
                 isLoading = true
-                val res = pharmacologicalTaskRepository.updateAgendaTasks(listOf(updatedTask))
+                val res = agendaTaskRepository.updateAgendaTasks(listOf(updatedTask))
                 res.error?.let {
                     errorMessage = it.desc
                 } ?: run {

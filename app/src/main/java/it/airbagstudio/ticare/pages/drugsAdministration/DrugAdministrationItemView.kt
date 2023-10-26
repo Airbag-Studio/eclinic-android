@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.DrugChip
 import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.checkGreen
@@ -41,12 +42,12 @@ import it.airbagstudio.ticare.ui.theme.tertiary95
 @Composable
 fun DrugAdministrationItemView(
     name: String,
-    quantity: Int,
+    quantity: Double,
     time: String,
     isConfirmed: Boolean,
     notExecuted: Boolean,
     rejected: Boolean,
-    reserves: Int? = null,
+    reserves: Double? = null,
     isCompleted: Boolean,
     isReserve: Boolean = false,
 
@@ -127,22 +128,7 @@ fun DrugAdministrationItemView(
     }
 }
 
-@Composable
-private fun DrugChip(label: String, textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant) {
-    Text(
-        modifier = Modifier
-            .padding(horizontal = 4.dp, vertical = 2.dp)
-            .border(
-                width = 0.5.dp,
-                color = Color(0xFF41484D),
-                shape = RoundedCornerShape(size = 99.dp)
-            )
-            .padding(vertical = 2.dp, horizontal = 8.dp),
-        text = label,
-        style = MaterialTheme.typography.labelMedium,
-        color = textColor
-    )
-}
+
 
 @Composable
 private fun LabelValueRow(label: String, value: String) {
@@ -201,13 +187,13 @@ private fun PreviewDrugAdministrationItem() {
     AppTheme() {
         DrugAdministrationItemView(
             name = "Meto Zeroch cpr ret 25mg",
-            quantity = 4,
+            quantity = 4.8,
             time = "10:30",
             isCompleted = false,
             rejected = true,
             isConfirmed = false,
             notExecuted = true,
-            reserves = 2
+            reserves = 2.0
         ) {}
     }
 }
@@ -218,13 +204,13 @@ private fun PreviewDrugAdministrationItemCompleted() {
     AppTheme() {
         DrugAdministrationItemView(
             name = "Meto Zeroch cpr ret 25mg",
-            quantity = 4,
+            quantity = 4.0,
             time = "10:30",
             isCompleted = true,
             rejected = true,
             isConfirmed = false,
             notExecuted = true,
-            reserves = 2
+            reserves = 2.2
         ) {}
     }
 }
@@ -238,7 +224,7 @@ private fun PreviewDrugAdministrationReserveItem() {
     AppTheme() {
         DrugAdministrationItemView(
             name = "Meto Zeroch cpr ret 25mg",
-            quantity = 4,
+            quantity = 4.4,
             time = "10:30",
             isCompleted = false,
             rejected = true,

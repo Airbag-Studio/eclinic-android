@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ButtonDefaults
@@ -28,8 +29,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.otherTreatments.search.TreatmentSearch
+import it.airbagstudio.ticare.pages.vitalParameters.create.CreateNewVitalParameterSheet
 import it.airbagstudio.ticare.pages.vitalParameters.search.VitalParameterSearchScreen
 import it.airbagstudio.ticare.ui.components.BuildPageHeader
+import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.utils.format
 
@@ -52,7 +55,7 @@ fun VitalParametersScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 modifier = Modifier
-                    .padding(start = 24.dp, bottom = 24.dp)
+                    .padding(start = 32.dp, bottom = 24.dp)
                     .fillMaxWidth(),
                 contentColor = MaterialTheme.colorScheme.primary,
                 content = {
@@ -84,13 +87,41 @@ fun VitalParametersScreen(
                 shiftName = uiState.shift?.name ?: stringResource(id = R.string.all)
             )
             LazyColumn(content = {
-
+                items(uiState.items){
+                    VitalParameterItemView(item = it) {
+                        viewModel.selectedTask = it.item
+                    }
+                }
             })
         }
     }
     if (showSearchBottomSheet) {
         VitalParameterSearchScreen(state = sheetState, onDismissRequest = {
             showSearchBottomSheet = false
+            viewModel.selectedVitalSignCode = it
         })
     }
+    if (uiState.error != null){
+        ErrorAlert(message = uiState.error!!, onDismissRequest = {
+            viewModel.clearError()
+        })
+    }
+    if (viewModel.selectedTask != null){
+        CreateNewVitalParameterSheet(sheetState = sheetState, task = viewModel.selectedTask, onDismissRequest = { success ->
+            viewModel.selectedVitalSignCode = null
+            viewModel.selectedTask = null
+            if (success) {
+                viewModel.downloadData()
+            }
+        })
+    }
+    if (viewModel.selectedVitalSignCode != null){
+        CreateNewVitalParameterSheet(sheetState = sheetState,vitalSignCode = viewModel.selectedVitalSignCode, caseCode = viewModel.patientCod, onDismissRequest = { success ->
+            viewModel.selectedVitalSignCode = null
+            if (success) {
+                viewModel.downloadData()
+            }
+        })
+    }
+
 }

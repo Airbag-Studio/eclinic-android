@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AddOtherService
 import ch.ticare.eclinic.library.entity.Article
+import ch.ticare.eclinic.library.entity.EditOtherService
 import ch.ticare.eclinic.library.entity.GuarantorType
 import ch.ticare.eclinic.library.entity.OtherService
 import ch.ticare.eclinic.library.repository.OtherServiceRepository
@@ -54,6 +55,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
 
     val selectedArticleId = MutableStateFlow<Int?>(null)
     val patientCode = MutableStateFlow<String?>(null)
+    var otherService:OtherService? = null
 
     private val articles = otherServiceRepository.getArticles()
     private val guarantorTypes = otherServiceRepository.getGuarantors()
@@ -128,6 +130,36 @@ class CreateTreatmentScreenViewModel @Inject constructor(
     }
 
     fun saveTreatment() {
+        if (otherService != null){
+            patchService(otherService!!)
+        }else{
+            createNewService()
+        }
+    }
+
+    private fun patchService(otherService: OtherService){
+        isLoading.value = true
+        viewModelScope.launch() {
+            val editService = EditOtherService(
+                id = otherService.id,
+                cod = patientCode.value ?: "",
+                dateTime = selectedDate.value.format("yyyy-MM-dd HH:mm:00"),
+                item = selectedArticleId.value ?: 0,
+                guarantorType = guarantorType.value,
+                desc = notes.value,
+                quantity = quantity.value ?: 0.0
+            )
+            val res = otherServiceRepository.updateOtherService(listOf(editService))
+            if (res.status == "success") {
+                isSuccess.value = true
+            } else if (res.status == "error") {
+                errorMessage.value = res.error?.desc ?: ""
+            }
+            isLoading.value = false
+        }
+    }
+
+    private fun createNewService(){
         isLoading.value = true
         viewModelScope.launch() {
             val newService = AddOtherService(
@@ -151,26 +183,18 @@ class CreateTreatmentScreenViewModel @Inject constructor(
         }
     }
 
-    fun setService(otherService: OtherService) {
-        viewModelScope.launch {
-            combine(guarantorTypes,articles){ guarantors, _articles ->
-                guarantorType.value =
-                    guarantors.firstOrNull { it.name.equals(otherService.requiredGType, true) }?.id
-                selectedArticleId.value = _articles.firstOrNull {
-                    it.desc.equals(
-                        otherService.getItemDesc(),
-                        true
-                    ) && it.group.equals(otherService.itemGroup, true)
-                }?.id
-            }.collect()
-        }
-        viewModelScope.launch {
-            quantity.value = otherService.quantity
-
-            otherService.dateTime.toDate("yyyy-MM-dd'T'HH:mm:00.000")?.let { date ->
-                setDate(date)
+    fun setService(otherService: OtherService?) {
+        this.otherService = otherService
+        if (otherService != null) {
+            viewModelScope.launch {
+                quantity.value = otherService.quantity
+                guarantorType.value = otherService.guarantorID
+                selectedArticleId.value = otherService.itemID
+                otherService.dateTime.toDate("yyyy-MM-dd'T'HH:mm:00.000")?.let { date ->
+                    setDate(date)
+                }
+                notes.value = otherService.desc
             }
-            notes.value = otherService.desc
         }
     }
 
