@@ -55,6 +55,7 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.data.AlertItem
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
+import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.PatientImage
@@ -365,6 +366,14 @@ fun PatientDetailsScreen(
                             viewModel.selectedShift = it.item
                             viewModel.downloadBadges()
                         })
+                }
+                if (viewModel.errorMessage != null){
+                    ErrorAlert(message = viewModel.errorMessage!!, onDismissRequest = {
+                        viewModel.errorMessage = null
+                    }, onRetry = {
+                        viewModel.errorMessage = null
+                        viewModel.downloadData()
+                    })
                 }
             }
         }

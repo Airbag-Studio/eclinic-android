@@ -62,7 +62,9 @@ class PatientDetailsScreenViewModel @Inject constructor(
     private var allTasksForDay by mutableStateOf<List<AgendaTask>>(listOf())
 
     init {
-
+        downloadData()
+    }
+    fun downloadData(){
         patientCod?.let { code ->
 
             viewModelScope.launch(coroutineExceptionHandler) {

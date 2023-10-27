@@ -65,4 +65,5 @@
     <string name="new_treatment">Nuova prestazione</string>
     <string name="no_guarantor">Nessun garante</string>
     <string name="value">Misuarazione</string>
+    <string name="add_vital_parameter">Registra parametro vitale</string>
 </resources>

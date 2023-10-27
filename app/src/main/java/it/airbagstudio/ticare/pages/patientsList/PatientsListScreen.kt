@@ -37,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.Microzone
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
@@ -200,7 +201,8 @@ fun PatientListScreen(
                         })
                     }
                     if(showMicrozonesPopup){
-                        ListPopup(title = stringResource(id = R.string.zones), items = uiState.microZones.map { ListPopupItem(label = it.name, it) }, setShowDialog = {
+                        ListPopup(title = stringResource(id = R.string.zones), items = listOf(ListPopupItem<Microzone>(
+                            stringResource(id = R.string.all),null)) + uiState.microZones.map { ListPopupItem(label = it.name, it) }, setShowDialog = {
                             showMicrozonesPopup = it
                         }, onItemSelected = {
                             viewModel.setSelectedMicrozone(it.item)

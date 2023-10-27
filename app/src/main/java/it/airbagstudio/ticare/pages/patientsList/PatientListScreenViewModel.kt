@@ -42,7 +42,7 @@ class PatientListScreenViewModel @Inject constructor(
 
     private var isLoading by mutableStateOf(true)
     var query by mutableStateOf("")
-    private var patients = userListRepository.getCaseList()
+    //private var patients = userListRepository.getCaseList()
     private var companyName = MutableStateFlow("")
     private var errorMessage by mutableStateOf<String?>(null)
     private var zones = MutableStateFlow<List<Zone>>(listOf())
@@ -57,20 +57,28 @@ class PatientListScreenViewModel @Inject constructor(
         errorMessage = throwable.localizedMessage
     }
 
-    val uiState: StateFlow<PatientListUiState> = combine(zones,microzones,selectedZone,selectedMicroZone,patients){ _zones : List<Zone>,_microzones: List<Microzone>,_selectedZone : Zone?,_selectedMicrozones: Microzone?,_cases ->
+    val uiState: StateFlow<PatientListUiState> = combine(zones,microzones,selectedZone,selectedMicroZone){ _zones : List<Zone>,_microzones: List<Microzone>,_selectedZone : Zone?,_selectedMicrozone: Microzone? ->
         val filteredMicrozones = if (_selectedZone != null){
             _microzones.filter { it.idZone == _selectedZone.id }
         }else{
             _microzones
         }
+        var caseList = listOf<CaseInfo>()
+        try {
+            caseList = userListRepository.getRemoteCaseList(_selectedZone?.id,_selectedMicrozone?.id).results ?: listOf<CaseInfo>()
+        }catch (e: Throwable){
+            isLoading = false
+            errorMessage = e.localizedMessage
+        }
+
         PatientListUiState(
             companyName = companyName.value,
             isLoading = false,
             zones = _zones,
             microZones = filteredMicrozones,
-            selectedMicrozone = _selectedMicrozones,
+            selectedMicrozone = _selectedMicrozone,
             selectedZone = _selectedZone,
-            caseList = _cases
+            caseList = caseList
         )
     }.stateIn(
         scope = viewModelScope,

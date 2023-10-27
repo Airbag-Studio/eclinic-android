@@ -61,13 +61,13 @@ fun VitalParametersScreen(
                 content = {
                     Icon(
                         imageVector = Icons.Default.Add, contentDescription = stringResource(
-                            id = R.string.new_treatment
+                            id = R.string.add_vital_parameter
                         )
                     )
                     Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                     Text(
                         text = stringResource(
-                            id = R.string.new_treatment
+                            id = R.string.add_vital_parameter
                         )
                     )
                 },
