@@ -65,11 +65,21 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
     }
 
     fun setRejected(value: Boolean){
-        task.value = task.value?.copy(rejected = value,quantity = 0.0, showInDiary = true, isSkipped = true)
+        if (value){
+            task.value = task.value?.copy(rejected = value,quantity = 0.0, showInDiary = true, isSkipped = true)
+        }else{
+            task.value = task.value?.copy(rejected = value)
+        }
+
     }
 
     fun setNotExecuted(value: Boolean){
-        task.value = task.value?.copy(isSkipped = value, quantity = 0.0, showInDiary = true)
+        if(value){
+            task.value = task.value?.copy(isSkipped = value, quantity = 0.0, showInDiary = true)
+        }else{
+            task.value = task.value?.copy(isSkipped = value)
+        }
+
     }
 
     fun setPatientDrug(value: Boolean){

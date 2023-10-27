@@ -37,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.Microzone
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
@@ -142,7 +143,7 @@ fun PatientListScreen(
                                 ListItem(
                                     headlineContent = { Text("${it.surname} ${it.name}") },
                                     supportingContent = { Text("${it.birthday} (${it.age})") },
-                                    leadingContent = { PatientImage(it.photo) },
+                                    leadingContent = { PatientImage(it.code, it.photo ?: "", viewModel.requestImageRequestData) },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         //.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -185,7 +186,7 @@ fun PatientListScreen(
                     } else {
                         LazyColumn(modifier = Modifier.fillMaxHeight()) {
                             items(uiState.caseList) { patientListItem ->
-                                PatientListItemView(patient = patientListItem) {
+                                PatientListItemView(patient = patientListItem, viewModel.requestImageRequestData) {
                                     navActions.navigateToPatientDetails(Uri.encode(patientListItem.code))
                                 }
                             }
@@ -200,7 +201,8 @@ fun PatientListScreen(
                         })
                     }
                     if(showMicrozonesPopup){
-                        ListPopup(title = stringResource(id = R.string.zones), items = uiState.microZones.map { ListPopupItem(label = it.name, it) }, setShowDialog = {
+                        ListPopup(title = stringResource(id = R.string.zones), items = listOf(ListPopupItem<Microzone>(
+                            stringResource(id = R.string.all),null)) + uiState.microZones.map { ListPopupItem(label = it.name, it) }, setShowDialog = {
                             showMicrozonesPopup = it
                         }, onItemSelected = {
                             viewModel.setSelectedMicrozone(it.item)

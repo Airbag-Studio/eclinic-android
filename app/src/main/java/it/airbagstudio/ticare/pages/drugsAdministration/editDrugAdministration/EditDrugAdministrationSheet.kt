@@ -88,7 +88,7 @@ fun EditDrugAdministrationSheet(
         viewModel.quantity.value = task?.quantity.toString()
         if (task?.execDate == null && task?.isReserve == false) {
             //viewModel.task.value = viewModel.task.value?.copy(quantity = task?.expQuantity ?: 0.0)
-            viewModel.quantity.value = task.expQuantity.toString()
+            viewModel.setQuantity(task.expQuantity.toString())
         }
         if (task?.execDate != null){
             viewModel.task.value = viewModel.task.value?.copy(showInDiary = task.showInDiary, isSkipped = task.isSkipped, rejected = task.rejected)

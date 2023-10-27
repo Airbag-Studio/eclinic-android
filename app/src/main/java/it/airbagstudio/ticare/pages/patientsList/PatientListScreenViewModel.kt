@@ -11,6 +11,7 @@ import ch.ticare.eclinic.library.entity.Zone
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.UserListRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import it.airbagstudio.ticare.ui.components.PatientImageRequestData
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -41,7 +42,7 @@ class PatientListScreenViewModel @Inject constructor(
 
     private var isLoading by mutableStateOf(true)
     var query by mutableStateOf("")
-    private var patients = userListRepository.getCaseList()
+    //private var patients = userListRepository.getCaseList()
     private var companyName = MutableStateFlow("")
     private var errorMessage by mutableStateOf<String?>(null)
     private var zones = MutableStateFlow<List<Zone>>(listOf())
@@ -49,25 +50,35 @@ class PatientListScreenViewModel @Inject constructor(
     private var selectedZone = MutableStateFlow<Zone?>(null)
     private var selectedMicroZone  = MutableStateFlow<Microzone?>(null)
 
+    lateinit var requestImageRequestData: PatientImageRequestData
+
     var coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading = false
         errorMessage = throwable.localizedMessage
     }
 
-    val uiState: StateFlow<PatientListUiState> = combine(zones,microzones,selectedZone,selectedMicroZone,patients){ _zones : List<Zone>,_microzones: List<Microzone>,_selectedZone : Zone?,_selectedMicrozones: Microzone?,_cases ->
+    val uiState: StateFlow<PatientListUiState> = combine(zones,microzones,selectedZone,selectedMicroZone){ _zones : List<Zone>,_microzones: List<Microzone>,_selectedZone : Zone?,_selectedMicrozone: Microzone? ->
         val filteredMicrozones = if (_selectedZone != null){
             _microzones.filter { it.idZone == _selectedZone.id }
         }else{
             _microzones
         }
+        var caseList = listOf<CaseInfo>()
+        try {
+            caseList = userListRepository.getRemoteCaseList(_selectedZone?.id,_selectedMicrozone?.id).results ?: listOf<CaseInfo>()
+        }catch (e: Throwable){
+            isLoading = false
+            errorMessage = e.localizedMessage
+        }
+
         PatientListUiState(
             companyName = companyName.value,
             isLoading = false,
             zones = _zones,
             microZones = filteredMicrozones,
-            selectedMicrozone = _selectedMicrozones,
+            selectedMicrozone = _selectedMicrozone,
             selectedZone = _selectedZone,
-            caseList = _cases
+            caseList = caseList
         )
     }.stateIn(
         scope = viewModelScope,
@@ -78,6 +89,10 @@ class PatientListScreenViewModel @Inject constructor(
     init {
         downloadCases()
         downloadZones()
+        requestImageRequestData = PatientImageRequestData(
+            authRepository.getBaseURL(),
+            authRepository.getToken() ?: ""
+        )
     }
 
     fun downloadCases(){
