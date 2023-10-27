@@ -17,6 +17,7 @@ import it.airbagstudio.ticare.pages.carePlans.list.CarePlanesListScreen
 import it.airbagstudio.ticare.pages.diary.DiaryScreen
 import it.airbagstudio.ticare.pages.drugsAdministration.DrugsAdministrationScreen
 import it.airbagstudio.ticare.pages.login.LoginScreen
+import it.airbagstudio.ticare.pages.nursingCourses.NursingCoursesScreen
 import it.airbagstudio.ticare.pages.otherTreatments.OtherTreatmentScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
@@ -110,6 +111,18 @@ fun EclinicNavGraph(
         }
         composable(Destinations.CARE_PLANS_ROUTE){
             CarePlanesListScreen {
+                navController.popBackStack()
+            }
+        }
+
+        composable(Destinations.NURSING_COURSES_ROUTE) {
+            NursingCoursesScreen {
+                navController.popBackStack()
+            }
+        }
+
+        composable(Destinations.NURSING_COURSES_ROUTE_NO_SHIFT) {
+            NursingCoursesScreen {
                 navController.popBackStack()
             }
         }

@@ -11,6 +11,7 @@ import it.airbagstudio.ticare.navigation.Screens.CARE_PLANS_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.DIARY_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.DRUG_ADMINISTRATION_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.LOGIN_SCREEN
+import it.airbagstudio.ticare.navigation.Screens.NURSING_COURSES_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.OTHER_SERVICE_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.PATIENTS_LIST_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.PATIENT_DETAILS_SCREEN
@@ -30,6 +31,7 @@ private object Screens{
     const val VITAL_PARAMETERS_SCREEN = "vitalSignsScreen"
     const val DIARY_SCREEN = "diaryScreen"
     const val CARE_PLANS_SCREEN = "carePlansScreen"
+    const val NURSING_COURSES_SCREEN = "nursingCoursesScreen"
 }
 
 object DestinationsArgs{
@@ -54,6 +56,9 @@ object Destinations{
     const val VITAL_PARAMETERS_ROUTE = "$VITAL_PARAMETERS_SCREEN/{$PATIENT_COD}"
     const val DIARY_ROUTE = "$DIARY_SCREEN/{$PATIENT_COD}"
     const val CARE_PLANS_ROUTE = "$CARE_PLANS_SCREEN/{$PATIENT_COD}"
+    const val NURSING_COURSES_ROUTE = "$NURSING_COURSES_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{${SHIFT_START}}/{$SHIFT_END}/{$SHIFT_NAME}"
+    const val NURSING_COURSES_ROUTE_NO_SHIFT = "$NURSING_COURSES_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{$SHIFT_NAME}"
+
 }
 
 class NavigationActions(private val navController: NavController){
@@ -101,4 +106,14 @@ class NavigationActions(private val navController: NavController){
     fun navigateToCarePlans(patientCod: String){
         navController.navigate("$CARE_PLANS_SCREEN/$patientCod")
     }
+
+    fun navigateToNursingCourses(patientCod: String,dateTime:Long,shiftStart:String,shiftEnd:String, shiftName:String){
+        navController.navigate("$NURSING_COURSES_SCREEN/$patientCod/$dateTime/$shiftStart/$shiftEnd/$shiftName")
+    }
+
+    fun navigateToNursingCourses(patientCod: String,dateTime:Long, shiftName:String){
+        navController.navigate("$NURSING_COURSES_SCREEN/$patientCod/$dateTime/$shiftName")
+    }
+
+
 }

@@ -95,6 +95,10 @@ class LoginViewModel @Inject constructor(
                         val res = syncDataRepository.syncData(company)
                         if (res.isSuccess) {
                             successLogin = true
+                        } else if (res.isFailure){
+                            authRepository.setToken(null)
+                            authRepository.setRefreshToken(null)
+                            errorMessage = res.exceptionOrNull()?.localizedMessage
                         }
                     }
                 }

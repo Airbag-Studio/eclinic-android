@@ -25,6 +25,7 @@
     <string name="allergies">Allergie</string>
     <string name="diary">Diario</string>
     <string name="nursing_courses">Decorsi Inferm.</string>
+    <string name="nursing_courses_title">Decorsi Infermieristici</string>
     <string name="care_planes">Piani di cura</string>
     <string name="wounds">Ferite</string>
     <string name="other_prescriptions">Altre prestazioni</string>
@@ -71,4 +72,10 @@
     <string name="not_planned">Non pianificato</string>
     <string name="cares">Prestazioni</string>
     <string name="new_care">Nuova Prestazione</string>
+    <string name="add_nursing_course">Nuovo decorso infermieristico</string>
+    <string name="no_category">Nessuna categoria</string>
+    <string name="category">Categoria</string>
+    <string name="description">Descrizione</string>
+
+
 </resources>
