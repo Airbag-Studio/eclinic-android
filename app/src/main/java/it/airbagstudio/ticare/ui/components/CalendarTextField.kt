@@ -75,12 +75,13 @@ fun CalendarTextField(modifier: Modifier = Modifier,date:Date?,label: @Composabl
     var selectedDate by remember {
         mutableStateOf(date ?: Date())
     }
-    Box {
+    Box(modifier = modifier) {
         OutlinedTextField(
-            modifier = modifier.onGloballyPositioned {
+            modifier = Modifier.onGloballyPositioned {
                 fieldSize = it.size
                 fieldPosition = it.positionInRoot()
             },
+            singleLine = true,
             value = date?.format("dd MMMM yyyy, HH:mm ") ?: selectedDate.format("dd MMMM yyyy, HH:mm "),
             onValueChange = {},
             trailingIcon = {

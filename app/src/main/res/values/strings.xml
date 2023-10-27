@@ -66,4 +66,9 @@
     <string name="no_guarantor">Nessun garante</string>
     <string name="value">Misuarazione</string>
     <string name="add_vital_parameter">Registra parametro vitale</string>
+    <string name="title">Titolo</string>
+    <string name="opening">Apertura</string>
+    <string name="not_planned">Non pianificato</string>
+    <string name="cares">Prestazioni</string>
+    <string name="new_care">Nuova Prestazione</string>
 </resources>

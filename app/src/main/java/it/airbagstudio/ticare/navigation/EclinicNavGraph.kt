@@ -13,6 +13,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import it.airbagstudio.ticare.LoginRedirect
 import it.airbagstudio.ticare.pages.allergies.AllergiesScreen
+import it.airbagstudio.ticare.pages.carePlans.list.CarePlanesListScreen
 import it.airbagstudio.ticare.pages.diary.DiaryScreen
 import it.airbagstudio.ticare.pages.drugsAdministration.DrugsAdministrationScreen
 import it.airbagstudio.ticare.pages.login.LoginScreen
@@ -104,6 +105,11 @@ fun EclinicNavGraph(
         }
         composable(Destinations.DIARY_ROUTE){
             DiaryScreen {
+                navController.popBackStack()
+            }
+        }
+        composable(Destinations.CARE_PLANS_ROUTE){
+            CarePlanesListScreen {
                 navController.popBackStack()
             }
         }
