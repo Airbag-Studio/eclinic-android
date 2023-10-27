@@ -46,22 +46,18 @@ fun PatientImage(code: String, photo: String, requestData: PatientImageRequestDa
             modifier = Modifier.padding(4.dp)
         )
         if (photo.isNotBlank()) {
+            val url = "${requestData.url}/cases/case/image?cod=${Uri.encode(code)}&photo=${Uri.encode(photo)}"
+            val authTimestampHeader = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
             Image(
                 modifier = Modifier
                     .width(56.dp)
                     .height(56.dp)
                     .clip(RoundedCornerShape(4.dp)),
                 painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current).data(
-                        "${requestData.url}/cases/case/image?cod=${Uri.encode(code)}&photo=${Uri.encode(photo)}"
-                    )
-                        .addHeader("Authorization", "Bearer ${requestData.token}")
-                        .addHeader("auth-timestamp", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)).listener(
-                        onError = { request, error ->
-                            Log.d("PatientImage", request.data.toString())
-                            Log.d("PatientImage", "Error loading image: ${error.throwable.printStackTrace()}")
-                        }
-                    ).build()),
+                    ImageRequest.Builder(LocalContext.current).data(url)
+                    .addHeader("Authorization", "Bearer ${requestData.token}")
+                    .addHeader("auth-timestamp", authTimestampHeader)
+                    .build()),
                 contentDescription = "",
                 contentScale = ContentScale.Crop
             )
