@@ -142,7 +142,7 @@ fun PatientListScreen(
                                 ListItem(
                                     headlineContent = { Text("${it.surname} ${it.name}") },
                                     supportingContent = { Text("${it.birthday} (${it.age})") },
-                                    leadingContent = { PatientImage(it.photo) },
+                                    leadingContent = { PatientImage(it.code, it.photo ?: "", viewModel.requestImageRequestData) },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         //.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -185,7 +185,7 @@ fun PatientListScreen(
                     } else {
                         LazyColumn(modifier = Modifier.fillMaxHeight()) {
                             items(uiState.caseList) { patientListItem ->
-                                PatientListItemView(patient = patientListItem) {
+                                PatientListItemView(patient = patientListItem, viewModel.requestImageRequestData) {
                                     navActions.navigateToPatientDetails(Uri.encode(patientListItem.code))
                                 }
                             }

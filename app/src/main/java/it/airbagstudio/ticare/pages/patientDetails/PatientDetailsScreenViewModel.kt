@@ -15,10 +15,12 @@ import ch.ticare.eclinic.library.entity.AgendaTask
 import ch.ticare.eclinic.library.entity.Badge
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.OperatingShift
+import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.data.AlertItem
 import it.airbagstudio.ticare.navigation.DestinationsArgs
+import it.airbagstudio.ticare.ui.components.PatientImageRequestData
 import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.includeTime
@@ -32,7 +34,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PatientDetailsScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val userDetailRepository: UserDetailRepository
+    private val userDetailRepository: UserDetailRepository,
+    private val authRepository: AuthRepository
 ): ViewModel() {
 
 
@@ -45,6 +48,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
     var shifts by mutableStateOf<List<OperatingShift>?>(null)
     var selectedShift by mutableStateOf<OperatingShift?>(null)
+    lateinit var requestImageRequestData: PatientImageRequestData
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading = false
@@ -79,6 +83,10 @@ class PatientDetailsScreenViewModel @Inject constructor(
             }
         }
 
+        requestImageRequestData = PatientImageRequestData(
+            authRepository.getBaseURL(),
+            authRepository.getToken() ?: ""
+        )
     }
 
     fun downloadBadges(){

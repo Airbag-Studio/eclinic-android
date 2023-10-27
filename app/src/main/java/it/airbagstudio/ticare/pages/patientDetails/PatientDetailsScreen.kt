@@ -136,7 +136,11 @@ fun PatientDetailsScreen(
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
                 ) {
-                    PatientImage(caseDetail?.photo)
+                    PatientImage(
+                        viewModel.patientCod ?: "",
+                        caseDetail?.photo ?: "",
+                        viewModel.requestImageRequestData
+                    )
                     Column(
                         modifier = Modifier
                             .padding(start = 8.dp)
