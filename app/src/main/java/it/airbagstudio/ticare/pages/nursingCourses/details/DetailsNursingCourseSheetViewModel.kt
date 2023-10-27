@@ -163,7 +163,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             val newCourse = AddHomeCareCourse(
                 caseCode = patientCode,
-                dateTime = selectedDate.value.format(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA),
+                dateTime = selectedDate.value.format("yyyy.MM.dd HH.mm"),
                 idCourseCategoryType = selectedCategoryId.value ?: 0,
                 desc = description.value,
                 duration = duration.value ?: 0,
@@ -188,7 +188,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
             val newCourse = EditHomeCareCourse(
                 id = editNursingCourseId,
                 caseCode = patientCode,
-                dateTime = selectedDate.value.format(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA),
+                dateTime = selectedDate.value.format("yyyy.MM.dd HH.mm"),
                 idCourseCategoryType = selectedCategoryId.value ?: 0,
                 desc = description.value,
                 duration = duration.value ?: 0,

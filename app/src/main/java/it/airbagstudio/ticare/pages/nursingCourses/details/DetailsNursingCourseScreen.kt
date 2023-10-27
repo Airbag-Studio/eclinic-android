@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -51,6 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.HomeCareCourse
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
@@ -88,13 +90,14 @@ fun EditNursingCourseScreen(
     homeCareCourse: HomeCareCourse?,
     onDismissRequest: () -> Unit,
 ) {
+
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = state,
     ) {
         LaunchedEffect(Unit) {
             run {
-                if(homeCareCourse != null) {
+                if (homeCareCourse != null) {
                     viewModel.setScreenType(ScreenType.Edit(homeCareCourse))
                 } else {
                     viewModel.setScreenType(ScreenType.Add)
@@ -113,6 +116,9 @@ private fun BuildSheetContent(
     patientCode: String,
     onDismissRequest: () -> Unit
 ) {
+    val configuration = LocalConfiguration.current
+
+    val screenHeight = configuration.screenHeightDp - 130
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedDate by remember {
         mutableStateOf(uiState.newNursingCourse.dateTime)
@@ -133,6 +139,7 @@ private fun BuildSheetContent(
     val column2Weight = 1 - column1Weight
     Column(
         modifier = Modifier
+            .height(screenHeight.dp)
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
@@ -142,258 +149,144 @@ private fun BuildSheetContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-                OutlinedTextField(
-                    modifier = Modifier
-                        .clickable {
-                            showCategoryPopup = true
-                        }
-                        .fillMaxWidth(),
-                    maxLines = 1,
-                    enabled = false,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                        disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            OutlinedTextField(
+                modifier = Modifier
+                    .clickable {
+                        showCategoryPopup = true
+                    }
+                    .fillMaxWidth(),
+                maxLines = 1,
+                enabled = false,
+                colors = OutlinedTextFieldDefaults.colors(
+                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                    disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
+                value = uiState.newNursingCourse.courseCategoryType?.name
+                    ?: stringResource(
+                        id = R.string.no_category
                     ),
-                    value = uiState.newNursingCourse.courseCategoryType?.name
-                        ?: stringResource(
-                            id = R.string.no_category
-                        ),
-                    label = {
-                        Text(text = stringResource(id = R.string.category))
-                    },
-                    onValueChange = {
+                label = {
+                    Text(text = stringResource(id = R.string.category))
+                },
+                onValueChange = {
 
-                    },
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.id_dropdown),
-                            contentDescription = ""
-                        )
-                    },
+                },
+                trailingIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.id_dropdown),
+                        contentDescription = ""
                     )
+                },
+            )
 
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-        Box(modifier = Modifier.height(500.dp)) {
-            if (showDatePicker) {
-                Column() {
-                    DatePicker(
-                        dateValidator = {
-                            val date = Date(it)
-                            date.before(Date())
-                        },
-                        state = datePickerState,
-                        headline = null,
-                        title = null,
-                        showModeToggle = false,
-                        colors = DatePickerDefaults.colors(
-                            selectedDayContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedYearContainerColor = MaterialTheme.colorScheme.primary,
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            currentYearContentColor = MaterialTheme.colorScheme.primary
-                        )
-                    )
-                    Row() {
-                        Spacer(modifier = Modifier.weight(1f))
-                        TextButton(
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary
-                            ),
-                            onClick = { showDatePicker = false }) {
-                            Text(text = stringResource(id = R.string.cancel))
-                        }
-                        TextButton(
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary
-                            ),
-                            onClick = {
-                                showTimePicker = true
-                                showDatePicker = false
-                            }) {
-                            Text(
-                                text = stringResource(id = R.string.ok)
-                            )
-                        }
-                    }
+        Row {
+            CalendarTextField(
+                modifier = Modifier.weight(column2Weight),
+                date = uiState.newNursingCourse.dateTime,
+                label = { stringResource(id = R.string.actual_date_time) },
+                onDateChanged = {
+                    viewModel.setDate(it)
                 }
-
-            } else if (showTimePicker) {
-                Column(
-                    modifier = Modifier.padding(top = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    TimePicker(
-                        state = timePickerState,
-                        colors = TimePickerDefaults.colors(
-                            periodSelectorSelectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            selectorColor = MaterialTheme.colorScheme.primary,
-                            timeSelectorSelectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        )
-                    )
-                    Row() {
-                        Spacer(modifier = Modifier.weight(1f))
-                        TextButton(
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary
-                            ),
-                            onClick = {
-                                showTimePicker = false
-                                showDatePicker = false
-                            }
-                        ) {
-                            Text(text = stringResource(id = R.string.cancel))
-                        }
-                        TextButton(
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary
-                            ),
-                            onClick = {
-                                selectedDate =
-                                    if (datePickerState.selectedDateMillis != null) Date(
-                                        datePickerState.selectedDateMillis!!
-                                    ) else Date()
-                                selectedDate.hours = timePickerState.hour
-                                selectedDate.minutes = timePickerState.minute
-                                viewModel.setDate(selectedDate)
-                                showTimePicker = false
-                                showDatePicker = false
-
-                            }) {
-                            Text(text = stringResource(id = R.string.ok))
-                        }
-                    }
-                }
-
-            } else {
-                Column {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedTextField(
-                            modifier = Modifier
-                                .clickable {
-                                    showDatePicker = true
-                                }
-                                .weight(column1Weight),
-                            textStyle = MaterialTheme.typography.labelSmall,
-                            value = uiState.newNursingCourse.dateTime.format("dd MMMM yyyy, HH:mm "),
-                            enabled = false,
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                                disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            ),
-                            onValueChange = {},
-                            trailingIcon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_field_calendar),
-                                    stringResource(id = R.string.actual_date_time)
-                                )
-                            },
-                            label = { Text(text = stringResource(id = R.string.actual_date_time)) }
-                        )
-
-                        Spacer(modifier = Modifier.width(24.dp))
-                        OutlinedTextField(
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            maxLines = 1,
-                            modifier = Modifier.weight(column2Weight),
-                            value = uiState.newNursingCourse.duration?.toString() ?: "",
-                            label = {
-                                Text(text = stringResource(id = R.string.duration))
-                            },
-                            onValueChange = {
-                                val duration = it.toIntOrNull()
-                                if (it.isEmpty()) {
-                                    viewModel.setDuration(null)
-                                } else {
-                                    viewModel.setDuration(duration)
-                                }
-
-                            })
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        label = {
-                            Text(text = stringResource(id = R.string.description))
-                        },
-                        value = uiState.newNursingCourse.description ?: "", onValueChange = {
-                            viewModel.setDescription(it)
-                        })
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    SwitchItem(
-                        label = stringResource(id = R.string.show_in_diary),
-                        enabled = true,
-                        value = viewModel.getShowInDiary()
-                    ) {
-                        viewModel.setShowInDiary(it)
+            )
+            Spacer(modifier = Modifier.width(24.dp))
+            OutlinedTextField(
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                maxLines = 1,
+                modifier = Modifier.weight(column2Weight),
+                value = uiState.newNursingCourse.duration?.toString() ?: "",
+                label = {
+                    Text(text = stringResource(id = R.string.duration))
+                },
+                onValueChange = {
+                    val duration = it.toIntOrNull()
+                    if (it.isEmpty()) {
+                        viewModel.setDuration(null)
+                    } else {
+                        viewModel.setDuration(duration)
                     }
 
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            viewModel.saveButtonClick(patientCode = patientCode)
-                        }) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = stringResource(id = R.string.execute)
-                        )
-                        Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                        Text(text = stringResource(id = R.string.save))
-                        if (uiState.isLoading) {
-                            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                            CircularProgressIndicator(
-                                strokeWidth = 2.dp,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-
+                })
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        OutlinedTextField(
+            modifier = Modifier
+                .height((screenHeight/3).toInt().dp)
+                .fillMaxWidth(),
+            label = {
+                Text(text = stringResource(id = R.string.description))
+            },
+            value = uiState.newNursingCourse.description ?: "", onValueChange = {
+                viewModel.setDescription(it)
+            })
+        SwitchItem(
+            label = stringResource(id = R.string.show_in_diary),
+            enabled = true,
+            value = viewModel.getShowInDiary()
+        ) {
+            viewModel.setShowInDiary(it)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !uiState.isLoading,
+            onClick = {
+                viewModel.saveButtonClick(patientCode = patientCode)
+            }) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = stringResource(id = R.string.execute)
+            )
+            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+            Text(text = stringResource(id = R.string.save))
+            if (uiState.isLoading) {
+                Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                CircularProgressIndicator(
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
-        if (uiState.error != null) {
-            ErrorAlert(
-                message = uiState.error!!,
-                onDismissRequest = {
-                    viewModel.clearState()
-                })
-        }
-        if (showCategoryPopup) {
-            ListPopup(
-                title = stringResource(id = R.string.category),
-                items = uiState.categoriesTypes.map {
-                    ListPopupItem(
-                        label = it.name,
-                        item = it
-                    )
-                } + ListPopupItem(
-                    stringResource(id = R.string.no_category), item = null
-                ),
-                setShowDialog = {
-                    showCategoryPopup = false
-                },
-                onItemSelected = {
-                    viewModel.setCategoryId(it.item?.id)
-                    showCategoryPopup = false
-                })
-        }
-        if (uiState.isSuccess) {
-            viewModel.clearState()
-            onDismissRequest()
-        }
+
+
+    }
+
+    if (uiState.error != null) {
+        ErrorAlert(
+            message = uiState.error!!,
+            onDismissRequest = {
+                viewModel.clearState()
+            })
+    }
+    if (showCategoryPopup) {
+        ListPopup(
+            title = stringResource(id = R.string.category),
+            items = uiState.categoriesTypes.map {
+                ListPopupItem(
+                    label = it.name,
+                    item = it
+                )
+            } + ListPopupItem(
+                stringResource(id = R.string.no_category), item = null
+            ),
+            setShowDialog = {
+                showCategoryPopup = false
+            },
+            onItemSelected = {
+                viewModel.setCategoryId(it.item?.id)
+                showCategoryPopup = false
+            })
+    }
+    if (uiState.isSuccess) {
+        viewModel.clearState()
+        onDismissRequest()
     }
 }
+
 
 @Composable
 private fun SwitchItem(

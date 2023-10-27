@@ -35,6 +35,8 @@ class SplashPageScreenViewModel @Inject constructor(
 
     init {
         LoginRedirect.onCredentialRefresh = {
+            authRepository.setRefreshToken(null)
+            authRepository.setToken(null)
             isLoggedIn = false
         }
         viewModelScope.launch(coroutineExceptionHandler) {
@@ -52,6 +54,7 @@ class SplashPageScreenViewModel @Inject constructor(
                 }
 
             }else{
+                delay(500)
                 isLoggedIn = false
             }
 
