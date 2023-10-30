@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -61,9 +62,8 @@ fun GridButton(
             Modifier
         }
         val badgeOpacity = if (badgeCount > 0 && !isLoading) 1f else 0f
-
+        Spacer(modifier = Modifier.weight(0.2f))
         Row(
-
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
@@ -85,9 +85,28 @@ fun GridButton(
             )
         }
 
+
+        BoxWithConstraints {
+            val boxWithConstraintsScope = this
+            //You can use this scope to get the minWidth, maxWidth, minHeight, maxHeight in dp and constraints
+            val height = if(boxWithConstraintsScope.maxHeight > 120.dp ) 80.dp else boxWithConstraintsScope.maxHeight - 40.dp
+            Column {
+                Image(
+                    modifier = Modifier.height(height = height),
+                    painter = image,
+                    contentDescription = label,
+                    alpha = if (isLoading) 0f else 1f
+                )
+            }
+        }
+/*
         Box(
-            contentAlignment = Alignment.TopEnd,
-            modifier = Modifier.then(boxModifier)
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+
+                .heightIn(0.dp, 25.dp)
+                .weight(0.7f)
+                .then(boxModifier)
         ) {
             Image(
                 modifier = Modifier,
@@ -96,6 +115,8 @@ fun GridButton(
                 alpha = if (isLoading) 0f else 1f
             )
         }
+
+ */
         if (isLoading) {
             Box(
                 modifier = Modifier
@@ -110,14 +131,18 @@ fun GridButton(
 
             }
         } else {
-            Text(
-                text = label,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
-            )
+            Column(modifier = Modifier.weight(0.3f)) {
+                Text(
+                    text = label,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+            }
+
         }
-        Spacer(modifier = Modifier.height(25.dp))
+        //Spacer(modifier = Modifier.weight(1f))
     }
 }
 
@@ -127,7 +152,7 @@ private fun GridButtonPreview() {
     AppTheme() {
         Row(
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.height(80.dp)
+            modifier = Modifier.height(280.dp)
         ) {
             GridButton(
                 modifier = Modifier.weight(1f),

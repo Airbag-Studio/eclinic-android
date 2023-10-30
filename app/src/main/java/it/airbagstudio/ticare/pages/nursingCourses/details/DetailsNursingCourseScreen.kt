@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,17 +16,21 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -47,7 +52,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.HomeCareCourse
@@ -56,6 +64,7 @@ import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
+import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.format
 import java.util.Date
 
@@ -64,13 +73,9 @@ import java.util.Date
 fun CreateNursingCourseScreen(
     viewModel: EditNursingCourseSheetViewModel = hiltViewModel(),
     patientCode: String,
-    state: SheetState,
     onDismissRequest: () -> Unit
 ) {
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        sheetState = state,
-    ) {
+
         LaunchedEffect(Unit) {
             run {
                 viewModel.setScreenType(ScreenType.Add)
@@ -78,7 +83,7 @@ fun CreateNursingCourseScreen(
             }
         }
         BuildSheetContent(viewModel = viewModel, patientCode, onDismissRequest)
-    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,14 +91,13 @@ fun CreateNursingCourseScreen(
 fun EditNursingCourseScreen(
     viewModel: EditNursingCourseSheetViewModel = hiltViewModel(),
     patientCode: String,
-    state: SheetState,
     homeCareCourse: HomeCareCourse?,
     onDismissRequest: () -> Unit,
 ) {
 
-    ModalBottomSheet(
+    Dialog(
+        properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = onDismissRequest,
-        sheetState = state,
     ) {
         LaunchedEffect(Unit) {
             run {
@@ -120,170 +124,179 @@ private fun BuildSheetContent(
 
     val screenHeight = configuration.screenHeightDp - 130
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var selectedDate by remember {
-        mutableStateOf(uiState.newNursingCourse.dateTime)
-    }
-    var showDatePicker by remember { mutableStateOf(false) }
-    var showTimePicker by remember { mutableStateOf(false) }
     var showCategoryPopup by remember {
         mutableStateOf(false)
     }
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = selectedDate.time
-    )
-    val timePickerState = rememberTimePickerState(
-        initialHour = selectedDate.hours,
-        initialMinute = selectedDate.minutes
-    )
+
     val column1Weight = 0.6f
     val column2Weight = 1 - column1Weight
-    Column(
-        modifier = Modifier
-            .height(screenHeight.dp)
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
-
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            OutlinedTextField(
-                modifier = Modifier
-                    .clickable {
-                        showCategoryPopup = true
+    Scaffold(modifier = Modifier.fillMaxSize(),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Column {
+                        Text(text = stringResource(id = R.string.new_nursing_course))
                     }
-                    .fillMaxWidth(),
-                maxLines = 1,
-                enabled = false,
-                colors = OutlinedTextFieldDefaults.colors(
-                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                    disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-                value = uiState.newNursingCourse.courseCategoryType?.name
-                    ?: stringResource(
-                        id = R.string.no_category
-                    ),
-                label = {
-                    Text(text = stringResource(id = R.string.category))
-                },
-                onValueChange = {
 
                 },
-                trailingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.id_dropdown),
-                        contentDescription = ""
-                    )
-                },
-            )
-
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-        Row {
-            CalendarTextField(
-                modifier = Modifier.weight(column2Weight),
-                date = uiState.newNursingCourse.dateTime,
-                label = { stringResource(id = R.string.actual_date_time) },
-                onDateChanged = {
-                    viewModel.setDate(it)
+                actions = {
+                    IconButton(onClick = { onDismissRequest() }) {
+                        Icon(imageVector = Icons.Default.Close, contentDescription = "")
+                    }
                 }
             )
-            Spacer(modifier = Modifier.width(24.dp))
-            OutlinedTextField(
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                maxLines = 1,
-                modifier = Modifier.weight(column2Weight),
-                value = uiState.newNursingCourse.duration?.toString() ?: "",
-                label = {
-                    Text(text = stringResource(id = R.string.duration))
-                },
-                onValueChange = {
-                    val duration = it.toIntOrNull()
-                    if (it.isEmpty()) {
-                        viewModel.setDuration(null)
-                    } else {
-                        viewModel.setDuration(duration)
-                    }
+        }) { values ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(values)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
 
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                OutlinedTextField(
+                    modifier = Modifier
+                        .clickable {
+                            showCategoryPopup = true
+                        }
+                        .fillMaxWidth(),
+                    maxLines = 1,
+                    enabled = false,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                    value = uiState.newNursingCourse.courseCategoryType?.name
+                        ?: stringResource(
+                            id = R.string.no_category
+                        ),
+                    label = {
+                        Text(text = stringResource(id = R.string.category))
+                    },
+                    onValueChange = {
+
+                    },
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.id_dropdown),
+                            contentDescription = ""
+                        )
+                    },
+                )
+
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+            Row {
+                CalendarTextField(
+                    modifier = Modifier.weight(column1Weight),
+                    date = uiState.newNursingCourse.dateTime,
+                    label = { Text(text = stringResource(id = R.string.actual_date_time)) },
+                    onDateChanged = {
+                        viewModel.setDate(it)
+                    }
+                )
+                Spacer(modifier = Modifier.width(24.dp))
+                OutlinedTextField(
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    maxLines = 1,
+                    modifier = Modifier.weight(column2Weight),
+                    value = uiState.newNursingCourse.duration?.toString() ?: "",
+                    label = {
+                        Text(text = stringResource(id = R.string.duration))
+                    },
+                    onValueChange = {
+                        val duration = it.toIntOrNull()
+                        if (it.isEmpty()) {
+                            viewModel.setDuration(null)
+                        } else {
+                            viewModel.setDuration(duration)
+                        }
+
+                    })
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            OutlinedTextField(
+                modifier = Modifier
+                    .height((screenHeight / 3).toInt().dp)
+                    .fillMaxWidth(),
+                label = {
+                    Text(text = stringResource(id = R.string.description))
+                },
+                value = uiState.newNursingCourse.description ?: "", onValueChange = {
+                    viewModel.setDescription(it)
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            )
+            SwitchItem(
+                label = stringResource(id = R.string.show_in_diary),
+                enabled = true,
+                value = uiState.newNursingCourse.showInDiary
+            ) {
+                viewModel.setShowInDiary(it)
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+                onClick = {
+                    viewModel.saveButtonClick(patientCode = patientCode)
+                }) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = stringResource(id = R.string.execute)
+                )
+                Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                Text(text = stringResource(id = R.string.save))
+                if (uiState.isLoading) {
+                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                    CircularProgressIndicator(
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+
+        }
+
+        if (uiState.error != null) {
+            ErrorAlert(
+                message = uiState.error!!,
+                onDismissRequest = {
+                    viewModel.clearState()
                 })
         }
-        Spacer(modifier = Modifier.height(24.dp))
-        OutlinedTextField(
-            modifier = Modifier
-                .height((screenHeight/3).toInt().dp)
-                .fillMaxWidth(),
-            label = {
-                Text(text = stringResource(id = R.string.description))
-            },
-            value = uiState.newNursingCourse.description ?: "", onValueChange = {
-                viewModel.setDescription(it)
-            })
-        SwitchItem(
-            label = stringResource(id = R.string.show_in_diary),
-            enabled = true,
-            value = viewModel.getShowInDiary()
-        ) {
-            viewModel.setShowInDiary(it)
+        if (showCategoryPopup) {
+            ListPopup(
+                title = stringResource(id = R.string.category),
+                items = uiState.categoriesTypes.map {
+                    ListPopupItem(
+                        label = it.name,
+                        item = it
+                    )
+                } + ListPopupItem(
+                    stringResource(id = R.string.no_category), item = null
+                ),
+                setShowDialog = {
+                    showCategoryPopup = false
+                },
+                onItemSelected = {
+                    viewModel.setCategoryId(it.item?.id)
+                    showCategoryPopup = false
+                })
         }
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isLoading,
-            onClick = {
-                viewModel.saveButtonClick(patientCode = patientCode)
-            }) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = stringResource(id = R.string.execute)
-            )
-            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-            Text(text = stringResource(id = R.string.save))
-            if (uiState.isLoading) {
-                Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                CircularProgressIndicator(
-                    strokeWidth = 2.dp,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+        if (uiState.isSuccess) {
+            viewModel.clearState()
+            onDismissRequest()
         }
-
-
-    }
-
-    if (uiState.error != null) {
-        ErrorAlert(
-            message = uiState.error!!,
-            onDismissRequest = {
-                viewModel.clearState()
-            })
-    }
-    if (showCategoryPopup) {
-        ListPopup(
-            title = stringResource(id = R.string.category),
-            items = uiState.categoriesTypes.map {
-                ListPopupItem(
-                    label = it.name,
-                    item = it
-                )
-            } + ListPopupItem(
-                stringResource(id = R.string.no_category), item = null
-            ),
-            setShowDialog = {
-                showCategoryPopup = false
-            },
-            onItemSelected = {
-                viewModel.setCategoryId(it.item?.id)
-                showCategoryPopup = false
-            })
-    }
-    if (uiState.isSuccess) {
-        viewModel.clearState()
-        onDismissRequest()
     }
 }
 
