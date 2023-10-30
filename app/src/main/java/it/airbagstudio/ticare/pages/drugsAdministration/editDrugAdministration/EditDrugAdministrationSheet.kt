@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,18 +21,22 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -58,6 +63,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -73,16 +80,19 @@ import it.airbagstudio.ticare.ui.theme.tertiary95
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getExecDateTime
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditDrugAdministrationSheet(
     viewModel: EditDrugAdministrationSheetViewModel = hiltViewModel(),
-    state: SheetState,
     task: AgendaTask?,
     onDismissRequest: () -> Unit
 ) {
+
     LaunchedEffect(Unit) {
         viewModel.task.value = task?.copy(showInDiary = task.isReserve)
         viewModel.quantity.value = task?.quantity.toString()
@@ -90,29 +100,39 @@ fun EditDrugAdministrationSheet(
             //viewModel.task.value = viewModel.task.value?.copy(quantity = task?.expQuantity ?: 0.0)
             viewModel.setQuantity(task.expQuantity.toString())
         }
-        if (task?.execDate != null){
-            viewModel.task.value = viewModel.task.value?.copy(showInDiary = task.showInDiary, isSkipped = task.isSkipped, rejected = task.rejected)
+        if (task?.execDate != null) {
+            viewModel.task.value = viewModel.task.value?.copy(
+                showInDiary = task.showInDiary,
+                isSkipped = task.isSkipped,
+                rejected = task.rejected
+            )
         }
     }
+
+
     val navController = rememberNavController()
-    ModalBottomSheet(
+    Dialog(
+        properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = onDismissRequest,
-        sheetState = state,
-        containerColor = if (task?.isReserve == true) tertiary95 else MaterialTheme.colorScheme.surface
+        //sheetState = state,
+        //containerColor = if (task?.isReserve == true) tertiary95 else MaterialTheme.colorScheme.surface
     ) {
 
         if (viewModel.isSucces) {
             viewModel.isSucces = false
             onDismissRequest()
         }
-        NavHost(navController = navController, startDestination = "editSheet") {
+        NavHost(
+            modifier = Modifier
+                .fillMaxSize(), navController = navController, startDestination = "editSheet"
+        ) {
 
             composable("editSheet") { entry ->
                 entry.savedStateHandle.get<String>(NOTE_CONTENT)?.let { newNote ->
                     viewModel.task.value?.notes = newNote
                 }
 
-                BuildContent(viewModel, navController)
+                BuildContent(viewModel, navController, onDismissRequest)
             }
             composable(
                 "editNoteScreen?$NOTE_CONTENT={$NOTE_CONTENT}",
@@ -120,6 +140,7 @@ fun EditDrugAdministrationSheet(
             ) { entry ->
                 val note = entry.arguments?.getString(NOTE_CONTENT) ?: ""
                 Log.w("startingText", note)
+
                 EditNoteScreen(startingText = note) { newText ->
                     navController.previousBackStackEntry?.savedStateHandle?.set(
                         NOTE_CONTENT,
@@ -128,6 +149,8 @@ fun EditDrugAdministrationSheet(
 
                     navController.popBackStack()
                 }
+
+
             }
             composable(
                 "noteScreen?$NOTE_CONTENT={$NOTE_CONTENT}",
@@ -148,7 +171,8 @@ fun EditDrugAdministrationSheet(
 @Composable
 private fun BuildContent(
     viewModel: EditDrugAdministrationSheetViewModel,
-    navController: NavController
+    navController: NavController,
+    onDismissRequest: () -> Unit
 ) {
     viewModel.task.value?.let { task ->
         val isReserve = task.isReserve
@@ -165,258 +189,291 @@ private fun BuildContent(
         )
         var showDatePicker by remember { mutableStateOf(false) }
         var showTimePicker by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-        ) {
-            Text(
-                text = task.itemDescription ?: "",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Row(
-                modifier = Modifier.padding(top = 24.dp)
-            ) {
-                OutlinedTextField(
-                    enabled = viewModel.isEditingEnable.invoke(),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                    modifier = Modifier.weight(1f),
-                    value = viewModel.quantity.value ?: "",
-                    visualTransformation = if (viewModel.quantity.value.isNullOrEmpty()) PlaceholderTransformation("0") else VisualTransformation.None,
-                    onValueChange = {
-                        viewModel.setQuantity(it)
+        Scaffold(
+            containerColor = if (task?.isReserve == true) tertiary95 else MaterialTheme.colorScheme.surface,
+
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Column {
+                            Text(text = task.itemDescription ?: "")
+                        }
+
                     },
-                    label = { Text(text = stringResource(id = R.string.quantity)) }
-                )
-                Spacer(modifier = Modifier.width(24.dp))
-                OutlinedTextField(
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                    modifier = Modifier.weight(1f),
-                    value = "${viewModel.task.value?.maxQuantity ?: 0}",
-                    enabled = false,
-                    onValueChange = {},
-                    label = { Text(text = stringResource(id = R.string.prescribed)) }
-                )
-                val duration = if ((viewModel.task.value?.duration ?: 0) > 0) "${viewModel.task.value?.duration}" else ""
-                Spacer(modifier = Modifier.width(24.dp))
-                OutlinedTextField(
-                    enabled = viewModel.isEditingEnable.invoke(),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                    modifier = Modifier.weight(1f),
-                    value = duration,
-                    visualTransformation = if (duration.isEmpty()) PlaceholderTransformation("0") else VisualTransformation.None,
-                    onValueChange = {
-                        viewModel.setDuration(it.toIntOrNull())
-                    },
-                    label = { Text(text = stringResource(id = R.string.duration)) }
+                    actions = {
+                        IconButton(onClick = { onDismissRequest() }) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = "")
+                        }
+                    }
                 )
             }
-
-            OutlinedTextField(
+        ) { values ->
+            Column(
                 modifier = Modifier
-                    .clickable {
-                        if (viewModel.isEditingEnable.invoke()) {
-                            showDatePicker = true
-                        }
-                    }
-                    .fillMaxWidth()
-                    .padding(top = 24.dp),
-                value = selectedDate.format("dd MMMM yyyy, HH:mm "),
-                enabled = false,
-                singleLine = true,
-                colors = if (viewModel.isEditingEnable.invoke()) OutlinedTextFieldDefaults.colors(
-                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                    disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ) else OutlinedTextFieldDefaults.colors(),
-                onValueChange = {},
-                trailingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_field_calendar),
-                        stringResource(id = R.string.actual_date_time)
+                    .fillMaxSize()
+                    .padding(values)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(top = 24.dp)
+                ) {
+                    OutlinedTextField(
+                        enabled = viewModel.isEditingEnable.invoke(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                        modifier = Modifier.weight(1f),
+                        value = viewModel.quantity.value ?: "",
+                        visualTransformation = if (viewModel.quantity.value.isNullOrEmpty()) PlaceholderTransformation(
+                            "0"
+                        ) else VisualTransformation.None,
+                        onValueChange = {
+                            viewModel.setQuantity(it)
+                        },
+                        label = { Text(text = stringResource(id = R.string.quantity)) }
                     )
-                },
-                label = { Text(text = stringResource(id = R.string.actual_date_time)) }
-            )
-            Box(modifier = Modifier.height(500.dp)) {
-                if (showDatePicker) {
-                    Column() {
-                        DatePicker(
-                            dateValidator = {
-                                val date = Date(it)
-                                date.before(Date())
-                            },
-                            state = datePickerState,
-                            headline = null,
-                            title = null,
-                            showModeToggle = false,
-                            colors = DatePickerDefaults.colors(
-                                selectedDayContainerColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-                                selectedYearContainerColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-                                containerColor = if (isReserve) tertiary95 else MaterialTheme.colorScheme.surfaceVariant,
-                                currentYearContentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                            )
-                        )
-                        Row() {
-                            Spacer(modifier = Modifier.weight(1f))
-                            TextButton(
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                                ),
-                                onClick = { showDatePicker = false }) {
-                                Text(text = stringResource(id = R.string.cancel))
+                    Spacer(modifier = Modifier.width(24.dp))
+                    OutlinedTextField(
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                        modifier = Modifier.weight(1f),
+                        value = "${viewModel.task.value?.maxQuantity ?: 0}",
+                        enabled = false,
+                        onValueChange = {},
+                        label = { Text(text = stringResource(id = R.string.prescribed)) }
+                    )
+                    val duration = if ((viewModel.task.value?.duration
+                            ?: 0) > 0
+                    ) "${viewModel.task.value?.duration}" else ""
+                    Spacer(modifier = Modifier.width(24.dp))
+                    OutlinedTextField(
+                        enabled = viewModel.isEditingEnable.invoke(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                        modifier = Modifier.weight(1f),
+                        value = duration,
+                        visualTransformation = if (duration.isEmpty()) PlaceholderTransformation("0") else VisualTransformation.None,
+                        onValueChange = {
+                            viewModel.setDuration(it.toIntOrNull())
+                        },
+                        label = { Text(text = stringResource(id = R.string.duration)) }
+                    )
+                }
+
+                OutlinedTextField(
+                    modifier = Modifier
+                        .clickable {
+                            if (viewModel.isEditingEnable.invoke()) {
+                                showDatePicker = true
                             }
-                            TextButton(
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                                ),
-                                onClick = {
-                                    showTimePicker = true
-                                    showDatePicker = false
-                                }) {
-                                Text(
-                                    text = stringResource(id = R.string.ok)
+                        }
+                        .fillMaxWidth()
+                        .padding(top = 24.dp),
+                    value = selectedDate.format("dd MMMM yyyy, HH:mm "),
+                    enabled = false,
+                    singleLine = true,
+                    colors = if (viewModel.isEditingEnable.invoke()) OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ) else OutlinedTextFieldDefaults.colors(),
+                    onValueChange = {},
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_field_calendar),
+                            stringResource(id = R.string.actual_date_time)
+                        )
+                    },
+                    label = { Text(text = stringResource(id = R.string.actual_date_time)) }
+                )
+                Box(modifier = Modifier.height(500.dp)) {
+                    if (showDatePicker) {
+                        Column() {
+                            DatePicker(
+                                dateValidator = {
+                                    val date = Date(it)
+                                    date.before(Date())
+                                },
+                                state = datePickerState,
+                                headline = null,
+                                title = null,
+                                showModeToggle = false,
+                                colors = DatePickerDefaults.colors(
+                                    selectedDayContainerColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+                                    selectedYearContainerColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+                                    containerColor = if (isReserve) tertiary95 else MaterialTheme.colorScheme.surfaceVariant,
+                                    currentYearContentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                                )
+                            )
+                            Row() {
+                                Spacer(modifier = Modifier.weight(1f))
+                                TextButton(
+                                    colors = ButtonDefaults.textButtonColors(
+                                        contentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                                    ),
+                                    onClick = { showDatePicker = false }) {
+                                    Text(text = stringResource(id = R.string.cancel))
+                                }
+                                TextButton(
+                                    colors = ButtonDefaults.textButtonColors(
+                                        contentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                                    ),
+                                    onClick = {
+                                        showTimePicker = true
+                                        showDatePicker = false
+                                    }) {
+                                    Text(
+                                        text = stringResource(id = R.string.ok)
+                                    )
+                                }
+                            }
+                        }
+
+                    } else if (showTimePicker) {
+                        Column(
+                            modifier = Modifier.padding(top = 24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            TimePicker(
+                                state = timePickerState,
+                                colors = TimePickerDefaults.colors(
+                                    periodSelectorSelectedContainerColor = if (isReserve) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer,
+                                    selectorColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+                                    timeSelectorSelectedContainerColor = if (isReserve) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer,
+                                )
+                            )
+                            Row() {
+                                Spacer(modifier = Modifier.weight(1f))
+                                TextButton(
+                                    colors = ButtonDefaults.textButtonColors(
+                                        contentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                                    ),
+                                    onClick = {
+                                        showTimePicker = false
+                                        showDatePicker = false
+                                    }
+                                ) {
+                                    Text(text = stringResource(id = R.string.cancel))
+                                }
+                                TextButton(
+                                    colors = ButtonDefaults.textButtonColors(
+                                        contentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                                    ),
+                                    onClick = {
+                                        selectedDate =
+                                            if (datePickerState.selectedDateMillis != null) Date(
+                                                datePickerState.selectedDateMillis!!
+                                            ) else Date()
+                                        selectedDate.hours = timePickerState.hour
+                                        selectedDate.minutes = timePickerState.minute
+                                        viewModel.setExecutedDate(selectedDate)
+                                        showTimePicker = false
+                                        showDatePicker = false
+
+                                    }) {
+                                    Text(text = stringResource(id = R.string.ok))
+                                }
+                            }
+                        }
+
+                    } else {
+                        Column(modifier = Modifier.padding(top = 16.dp)) {
+                            SchedulingNoteButton(
+                                text = if (task.sysSchedulingNotes.isEmpty()) stringResource(
+                                    id = R.string.no_notes
+                                ) else task.sysSchedulingNotes
+                            ) {
+                                navController.navigate("noteScreen?$NOTE_CONTENT=${Uri.encode(task.sysSchedulingNotes)}")
+                            }
+                            NotesButton(
+                                text = if (task.notes.isEmpty()) stringResource(id = R.string.no_notes) else task.notes,
+                                enabled = viewModel.isEditingEnable.invoke()
+                            ) {
+                                navController.navigate(
+                                    "editNoteScreen?$NOTE_CONTENT=${
+                                        Uri.encode(
+                                            task.notes
+                                        )
+                                    }"
                                 )
                             }
-                        }
-                    }
 
-                } else if (showTimePicker) {
-                    Column(
-                        modifier = Modifier.padding(top = 24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        TimePicker(
-                            state = timePickerState,
-                            colors = TimePickerDefaults.colors(
-                                periodSelectorSelectedContainerColor = if (isReserve) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer,
-                                selectorColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-                                timeSelectorSelectedContainerColor = if (isReserve) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer,
-                            )
-                        )
-                        Row() {
-                            Spacer(modifier = Modifier.weight(1f))
-                            TextButton(
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                            SwitchItem(
+                                label = stringResource(id = R.string.show_in_diary),
+                                isReserve = isReserve,
+                                enabled = viewModel.isEditingEnable.invoke(),
+                                value = viewModel.task.value?.showInDiary ?: false
+                            ) {
+                                viewModel.setShowInDiary(it)
+                            }
+                            SwitchItem(
+                                label = stringResource(id = R.string.rejected_by_patient),
+                                isReserve = isReserve,
+                                enabled = !isReserve && viewModel.isEditingEnable.invoke(),
+                                value = viewModel.task.value?.rejected ?: false
+                            ) {
+                                viewModel.setRejected(it)
+                            }
+                            SwitchItem(
+                                label = stringResource(id = R.string.not_performed),
+                                isReserve = isReserve,
+                                enabled = !isReserve && viewModel.isEditingEnable.invoke(),
+                                value = viewModel.task.value?.isSkipped ?: false
+                            ) {
+                                viewModel.setNotExecuted(it)
+                            }
+                            /*
+                            SwitchItem(
+                                label = stringResource(id = R.string.patient_medication),
+                                isReserve = isReserve,
+                                enabled = true,
+                                value = viewModel.task.value?.patientOwnedDrug ?: false
+                            ) {
+                                viewModel.setPatientDrug(it)
+                            }
+    */
+                            Button(
+                                enabled = !viewModel.isLoading && viewModel.isEditingEnable.invoke(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 24.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (isReserve) MaterialTheme.colorScheme.tertiary else seed
                                 ),
                                 onClick = {
-                                    showTimePicker = false
-                                    showDatePicker = false
+                                    viewModel.executeTask()
                                 }
                             ) {
-                                Text(text = stringResource(id = R.string.cancel))
-                            }
-                            TextButton(
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                                ),
-                                onClick = {
-                                    selectedDate =
-                                        if (datePickerState.selectedDateMillis != null) Date(
-                                            datePickerState.selectedDateMillis!!
-                                        ) else Date()
-                                    selectedDate.hours = timePickerState.hour
-                                    selectedDate.minutes = timePickerState.minute
-                                    viewModel.setExecutedDate(selectedDate)
-                                    showTimePicker = false
-                                    showDatePicker = false
-
-                                }) {
-                                Text(text = stringResource(id = R.string.ok))
-                            }
-                        }
-                    }
-
-                } else {
-                    Column(modifier = Modifier.padding(top = 16.dp)) {
-                        SchedulingNoteButton(text = if(task.sysSchedulingNotes.isEmpty() ) stringResource(id = R.string.no_notes) else task.sysSchedulingNotes) {
-                            navController.navigate("noteScreen?$NOTE_CONTENT=${Uri.encode(task.sysSchedulingNotes)}")
-                        }
-                        NotesButton(
-                            text = if (task.notes.isEmpty()) stringResource(id = R.string.no_notes) else task.notes,
-                            enabled = viewModel.isEditingEnable.invoke()
-                        ) {
-                            navController.navigate("editNoteScreen?$NOTE_CONTENT=${Uri.encode(task.notes)}")
-                        }
-
-                        SwitchItem(
-                            label = stringResource(id = R.string.show_in_diary),
-                            isReserve = isReserve,
-                            enabled = viewModel.isEditingEnable.invoke(),
-                            value = viewModel.task.value?.showInDiary ?: false
-                        ) {
-                            viewModel.setShowInDiary(it)
-                        }
-                        SwitchItem(
-                            label = stringResource(id = R.string.rejected_by_patient),
-                            isReserve = isReserve,
-                            enabled = !isReserve && viewModel.isEditingEnable.invoke(),
-                            value = viewModel.task.value?.rejected ?: false
-                        ) {
-                            viewModel.setRejected(it)
-                        }
-                        SwitchItem(
-                            label = stringResource(id = R.string.not_performed),
-                            isReserve = isReserve,
-                            enabled = !isReserve && viewModel.isEditingEnable.invoke(),
-                            value = viewModel.task.value?.isSkipped ?: false
-                        ) {
-                            viewModel.setNotExecuted(it)
-                        }
-                        /*
-                        SwitchItem(
-                            label = stringResource(id = R.string.patient_medication),
-                            isReserve = isReserve,
-                            enabled = true,
-                            value = viewModel.task.value?.patientOwnedDrug ?: false
-                        ) {
-                            viewModel.setPatientDrug(it)
-                        }
-*/
-                        Button(
-                            enabled = !viewModel.isLoading && viewModel.isEditingEnable.invoke(),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 24.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isReserve) MaterialTheme.colorScheme.tertiary else seed
-                            ),
-                            onClick = {
-                                viewModel.executeTask()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = stringResource(id = R.string.execute)
-                            )
-                            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                            Text(text = stringResource(id = R.string.save))
-                            if (viewModel.isLoading) {
-                                Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                                CircularProgressIndicator(
-                                    strokeWidth = 2.dp,
-                                    modifier = Modifier.size(20.dp)
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = stringResource(id = R.string.execute)
                                 )
+                                Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                                Text(text = stringResource(id = R.string.save))
+                                if (viewModel.isLoading) {
+                                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                                    CircularProgressIndicator(
+                                        strokeWidth = 2.dp,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
         }
+
     }
     if (viewModel.errorMessage != null) {
         ErrorAlert(
@@ -425,9 +482,10 @@ private fun BuildContent(
                 viewModel.errorMessage = null
             })
     }
-    if(viewModel.messagesStringIdentifiers?.isNotEmpty() == true){
+    if (viewModel.messagesStringIdentifiers?.isNotEmpty() == true) {
         ErrorAlert(
-            message = viewModel.messagesStringIdentifiers?.map { stringResource(id = it) }?.joinToString("\n") ?: "",
+            message = viewModel.messagesStringIdentifiers?.map { stringResource(id = it) }
+                ?.joinToString("\n") ?: "",
             onDismissRequest = {
                 viewModel.messagesStringIdentifiers = null
             })
@@ -436,7 +494,7 @@ private fun BuildContent(
 }
 
 @Composable
-private fun NotesButton(text: String,enabled: Boolean, onClick: () -> Unit) {
+private fun NotesButton(text: String, enabled: Boolean, onClick: () -> Unit) {
     OutlinedButton(
         enabled = enabled,
         shape = RoundedCornerShape(12.dp),
@@ -475,29 +533,29 @@ private fun NotesButton(text: String,enabled: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun SchedulingNoteButton(text: String, onClick: () -> Unit){
-        Column(Modifier.clickable { onClick() }) {
-            Row() {
-                Text(
-                    text = stringResource(id = R.string.scheduling_notes),
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.weight(1f)
-                )
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_right),
-                    contentDescription = stringResource(
-                        id = R.string.notes
-                    )
-                )
-            }
+private fun SchedulingNoteButton(text: String, onClick: () -> Unit) {
+    Column(Modifier.clickable { onClick() }) {
+        Row() {
             Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = text,
-                maxLines = 2,
-                style = MaterialTheme.typography.bodySmall,
-                overflow = TextOverflow.Ellipsis
+                text = stringResource(id = R.string.scheduling_notes),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_right),
+                contentDescription = stringResource(
+                    id = R.string.notes
+                )
             )
         }
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = text,
+            maxLines = 2,
+            style = MaterialTheme.typography.bodySmall,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }
 
 

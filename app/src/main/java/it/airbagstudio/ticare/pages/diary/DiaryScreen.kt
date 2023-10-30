@@ -93,8 +93,14 @@ fun DiaryScreen(
                                     notExecuted = item.isSkipped ?: false,
                                     rejected = item.isRejected ?: false
                                 )
+                            } else if (item.entityName == "HomeCareServiceTask"){
+                                DiaryNursingCourseItemView(
+                                    title = item.typeLbl ?: "",
+                                    description = item.schedulerLbl ?: "",
+                                    isPlanned = item.isScheduledTask ?: false
+                                )
                             }
-
+                            
                             Divider(modifier = Modifier.padding(start = if (items.lastOrNull() == item) 0.dp else 16.dp))
                         }
                     }

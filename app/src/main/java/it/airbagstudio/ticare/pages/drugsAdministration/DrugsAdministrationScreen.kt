@@ -45,6 +45,12 @@ import it.airbagstudio.ticare.utils.getExecTime
 import it.airbagstudio.ticare.utils.getExpectedTime
 import it.airbagstudio.ticare.utils.printTime
 import it.airbagstudio.ticare.utils.validated
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.coroutines.suspendCoroutine
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +62,6 @@ fun DrugsAdministrationScreen(
     var tabIndex by remember { mutableIntStateOf(0) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var showExecuteAllAlert by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var selectedTasks by remember {
         mutableStateOf<AgendaTask?>(null)
     }
@@ -182,7 +187,10 @@ fun DrugsAdministrationScreen(
                                     isCompleted = task.execTime != null
                                 ) {
                                     selectedTasks = task
-                                    showBottomSheet = true
+                                    CoroutineScope(Dispatchers.Default).launch {
+                                        delay(500)
+                                        showBottomSheet = true
+                                    }
                                 }
                             }
                         })
@@ -203,7 +211,11 @@ fun DrugsAdministrationScreen(
                                     rejected = task.rejected ?: false,
                                 ) {
                                     selectedTasks = task
-                                    showBottomSheet = true
+                                    CoroutineScope(Dispatchers.Default).launch {
+                                        delay(500)
+                                        showBottomSheet = true
+                                    }
+
                                 }
                             }
                         })
@@ -217,7 +229,6 @@ fun DrugsAdministrationScreen(
     }
     if (showBottomSheet) {
         EditDrugAdministrationSheet(
-            state = sheetState,
             task = selectedTasks
         ) {
             showBottomSheet = false

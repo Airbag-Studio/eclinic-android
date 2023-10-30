@@ -54,7 +54,12 @@ import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarTextField(modifier: Modifier = Modifier,date:Date?,label: @Composable() (() -> Unit)?,onDateChanged:(Date) -> Unit){
+fun CalendarTextField(
+    modifier: Modifier = Modifier,
+    date: Date?,
+    label: @Composable() (() -> Unit)?,
+    onDateChanged: (Date) -> Unit
+) {
 
     val focusManager = LocalFocusManager.current
     val datePickerState = rememberDatePickerState(
@@ -75,13 +80,15 @@ fun CalendarTextField(modifier: Modifier = Modifier,date:Date?,label: @Composabl
     var selectedDate by remember {
         mutableStateOf(date ?: Date())
     }
-    Box {
+    Box(modifier = modifier) {
         OutlinedTextField(
-            modifier = modifier.onGloballyPositioned {
+            singleLine = true,
+            modifier = Modifier.onGloballyPositioned {
                 fieldSize = it.size
                 fieldPosition = it.positionInRoot()
             },
-            value = date?.format("dd MMMM yyyy, HH:mm ") ?: selectedDate.format("dd MMMM yyyy, HH:mm "),
+            value = date?.format("dd MMMM yyyy, HH:mm ")
+                ?: selectedDate.format("dd MMMM yyyy, HH:mm "),
             onValueChange = {},
             trailingIcon = {
                 Icon(
@@ -100,17 +107,23 @@ fun CalendarTextField(modifier: Modifier = Modifier,date:Date?,label: @Composabl
         }
     }
     if (showDatePicker) {
-        Popup(popupPositionProvider = object : PopupPositionProvider {
-            override fun calculatePosition(
-                anchorBounds: IntRect,
-                windowSize: IntSize,
-                layoutDirection: LayoutDirection,
-                popupContentSize: IntSize
-            ): IntOffset {
-                return IntOffset(fieldPosition.x.toInt(),fieldPosition.y.toInt() + fieldSize.height)
-            }
+        Popup(
+            popupPositionProvider = object : PopupPositionProvider {
+                override fun calculatePosition(
+                    anchorBounds: IntRect,
+                    windowSize: IntSize,
+                    layoutDirection: LayoutDirection,
+                    popupContentSize: IntSize
+                ): IntOffset {
+                    return IntOffset(
+                        fieldPosition.x.toInt(),
+                        fieldPosition.y.toInt() + fieldSize.height
+                    )
+                }
 
-        }) {
+            }
+        ) {
+
             Box(
                 modifier = Modifier
                     .padding(top = 30.dp)
@@ -145,7 +158,10 @@ fun CalendarTextField(modifier: Modifier = Modifier,date:Date?,label: @Composabl
                 layoutDirection: LayoutDirection,
                 popupContentSize: IntSize
             ): IntOffset {
-                return IntOffset(fieldPosition.x.toInt(),fieldPosition.y.toInt() + fieldSize.height)
+                return IntOffset(
+                    fieldPosition.x.toInt(),
+                    fieldPosition.y.toInt() + fieldSize.height
+                )
             }
 
         }) {
@@ -158,7 +174,8 @@ fun CalendarTextField(modifier: Modifier = Modifier,date:Date?,label: @Composabl
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Spacer(modifier = Modifier.height(16.dp))
                         TimePicker(
-                            state = timePickerState)
+                            state = timePickerState
+                        )
                         BuildButtonsStack(onDiscard = {
                             showTimePicker = false
                             showDatePicker = false
@@ -182,7 +199,7 @@ fun CalendarTextField(modifier: Modifier = Modifier,date:Date?,label: @Composabl
 }
 
 @Composable
-private fun BuildButtonsStack(onDiscard:() -> Unit,onConfirm:() -> Unit){
+private fun BuildButtonsStack(onDiscard: () -> Unit, onConfirm: () -> Unit) {
     Row() {
         Spacer(modifier = Modifier.weight(1f))
         TextButton(
@@ -204,7 +221,7 @@ private fun BuildButtonsStack(onDiscard:() -> Unit,onConfirm:() -> Unit){
 
 @Composable
 @Preview
-private fun PreviewContent(){
+private fun PreviewContent() {
     AppTheme {
         Column(modifier = Modifier.fillMaxSize()) {
             Text(text = "TEst")
@@ -213,7 +230,7 @@ private fun PreviewContent(){
             Text(text = "TEst")
             Text(text = "TEst")
             Spacer(modifier = Modifier.height(50.dp))
-            CalendarTextField(date = null, label = { Text(text = "Data e ora")}){}
+            CalendarTextField(date = null, label = { Text(text = "Data e ora") }) {}
             Text(text = "TEst")
         }
     }

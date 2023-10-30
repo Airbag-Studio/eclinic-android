@@ -110,7 +110,7 @@ fun OtherTreatmentScreen(
         }
     }
     if (showCreateBottomSheet){
-        CreateTreatmentScreen(articleId = selectedArticleId.intValue, patientCode = viewModel.patientCod, state = sheetState) {
+        CreateTreatmentScreen(articleId = selectedArticleId.intValue, patientCode = viewModel.patientCod) {
             selectedArticleId.value = 0
             showCreateBottomSheet = false
             viewModel.downloadData()
@@ -118,7 +118,7 @@ fun OtherTreatmentScreen(
     }
     if (viewModel.selectedService != null){
 
-        CreateTreatmentScreen(articleId = 0, patientCode = viewModel.patientCod, state = sheetState, service = viewModel.selectedService) {
+        CreateTreatmentScreen(articleId = 0, patientCode = viewModel.patientCod, service = viewModel.selectedService) {
             viewModel.selectedService = null
             showCreateBottomSheet = false
             viewModel.downloadData()
