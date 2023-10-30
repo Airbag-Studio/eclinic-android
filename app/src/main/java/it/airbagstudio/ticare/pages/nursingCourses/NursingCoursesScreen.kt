@@ -143,8 +143,7 @@ fun NursingCoursesScreen(
 
     if(showCreateBottomSheet) {
         CreateNursingCourseScreen(
-            patientCode = viewModel.patientCode,
-            state = sheetState
+            patientCode = viewModel.patientCode
         ) {
             showCreateBottomSheet = false
             viewModel.reloadTasks()
@@ -153,7 +152,6 @@ fun NursingCoursesScreen(
     if(selectedTasks != null) {
         EditNursingCourseScreen(
             patientCode = viewModel.patientCode,
-            state = sheetState,
             homeCareCourse = selectedTasks
         ) {
             selectedTasks = null

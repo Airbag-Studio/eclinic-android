@@ -71,6 +71,8 @@
     <string name="no_category">Nessuna categoria</string>
     <string name="category">Categoria</string>
     <string name="description">Descrizione</string>
+    <string name="new_nursing_course">Nuovo decorso</string>
+    <string name="not_planned">Non pianificata</string>
 
 
 </resources>

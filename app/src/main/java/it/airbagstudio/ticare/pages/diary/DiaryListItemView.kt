@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.DrugChip
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.redColor
 
@@ -84,27 +85,38 @@ fun DiaryDrugAdministrationItemView(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DiaryOtherServiceItemView() {
+fun DiaryNursingCourseItemView(title: String,description:String,isPlanned:Boolean) {
     Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
         Image(
-            painter = painterResource(id = R.drawable.ic_diary_other_services),
+            painter = painterResource(id = R.drawable.ic_diary_nursing_course),
             contentDescription = ""
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column {
             BuildHeader(
-                category = stringResource(id = R.string.other_prescriptions),
-                title = "Medicamento Forfait",
-                code = "FPT01"
+                category = stringResource(id = R.string.nursing_courses),
+                title = title
             )
             Text(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                text = "Forfait per prestazioni terapeutiche Grado 01",
+                text = description,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            if (!isPlanned){
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    DrugChip(
+                        label = stringResource(id = R.string.not_planned),
+                        textColor = redColor
+                    )
+                }
+            }
         }
     }
 }
