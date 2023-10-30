@@ -1,0 +1,191 @@
+package it.airbagstudio.ticare.pages.carePlans.selectActivity
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.theme.AppTheme
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectCareActivityPopupScreen(
+    onDismissRequest: () -> Unit
+) {
+    Dialog(
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        onDismissRequest = onDismissRequest,
+    ) {
+
+        Scaffold(modifier = Modifier.fillMaxSize(),
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Column {
+                            Text(text = stringResource(id = R.string.new_care))
+                        }
+
+                    },
+                    actions = {
+                        IconButton(onClick = { onDismissRequest() }) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = "")
+                        }
+                    }
+                )
+            }) { values ->
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(values)
+
+            ) {
+                var tabIndex by remember {
+                    mutableStateOf(1)
+                }
+                val labels = listOf(
+                    stringResource(id = R.string.planned),
+                    stringResource(id = R.string.not_planned)
+                )
+                TabRow(
+                    selectedTabIndex = tabIndex,
+                    indicator = { tabPositions ->
+                        if (tabIndex < tabPositions.size) {
+                            TabRowDefaults.Indicator(
+                                modifier = Modifier
+                                    .tabIndicatorOffset(tabPositions[tabIndex]),
+                                /*
+                                shape = RoundedCornerShape(
+                                    topStart = 3.dp,
+                                    topEnd = 3.dp,
+                                    bottomEnd = 0.dp,
+                                    bottomStart = 0.dp,
+                                ),
+
+                                 */
+                            )
+                        }
+                    },
+                ) {
+                    labels.forEachIndexed { index, title ->
+                        Tab(
+                            selected = tabIndex == index,
+                            onClick = {
+                                tabIndex = index
+                            },
+                            text = {
+                                Text(
+                                    text = title,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        )
+                    }
+                }
+                when (tabIndex){
+                    0 -> {
+                        ItemsList()
+                    }
+                    1 -> {
+                        SearchableList()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchableList(){
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    Column {
+        TextField(
+            singleLine = true,
+            shape = RoundedCornerShape(28.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
+                .padding(vertical = 16.dp, horizontal = 8.dp)
+                .height(56.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text,imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = {
+                focusRequester.freeFocus()
+                focusManager.clearFocus(true)
+            }),
+            placeholder = {
+                Text(text = stringResource(id = R.string.search))
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = stringResource(id = R.string.search)
+                )
+            },
+            colors = TextFieldDefaults.colors(
+                disabledTextColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            ),
+            value = "",
+            onValueChange = {}
+        )
+        ItemsList()
+    }
+}
+
+@Composable
+private fun ItemsList(){
+    LazyColumn(
+        content = {})
+}
+
+@Composable
+@Preview
+private fun PagePreview(){
+    AppTheme {
+        SelectCareActivityPopupScreen(){}
+    }
+}
