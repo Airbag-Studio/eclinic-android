@@ -112,8 +112,7 @@ fun DiaryNursingCourseItemView(title: String,description:String,isPlanned:Boolea
                         .fillMaxWidth()
                 ) {
                     DrugChip(
-                        label = stringResource(id = R.string.not_planned),
-                        textColor = redColor
+                        label = stringResource(id = R.string.not_planned)
                     )
                 }
             }

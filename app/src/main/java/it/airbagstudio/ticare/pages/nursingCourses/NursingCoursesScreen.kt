@@ -53,7 +53,6 @@ fun NursingCoursesScreen(
     }
 
     var showCreateBottomSheet by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
         floatingActionButton = {
