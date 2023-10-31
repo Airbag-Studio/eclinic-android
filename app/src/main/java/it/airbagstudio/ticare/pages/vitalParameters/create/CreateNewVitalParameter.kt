@@ -60,6 +60,7 @@ fun CreateNewVitalParameterSheet(
     onDismissRequest: (Boolean) -> Unit
 ) {
     LaunchedEffect(Unit) {
+        viewModel.clearData()
         viewModel.agendaTask = task
         viewModel.caseCode = caseCode
         if (vitalSignCode != null) {
