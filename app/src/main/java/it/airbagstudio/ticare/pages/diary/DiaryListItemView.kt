@@ -120,6 +120,41 @@ fun DiaryNursingCourseItemView(title: String,description:String,isPlanned:Boolea
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun DiaryCarePlaneItemView(title: String,description:String,isPlanned:Boolean) {
+    Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_diary_care_planes),
+            contentDescription = ""
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            BuildHeader(
+                category = stringResource(id = R.string.care_planes),
+                title = title
+            )
+            Text(
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (!isPlanned){
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    DrugChip(
+                        label = stringResource(id = R.string.not_planned)
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun DiaryVitaLParameterItemView(title: String, value: String, time: String) {
     Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
