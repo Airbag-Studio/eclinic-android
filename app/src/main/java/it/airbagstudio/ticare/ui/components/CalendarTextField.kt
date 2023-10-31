@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -83,7 +85,7 @@ fun CalendarTextField(
     Box(modifier = modifier) {
         OutlinedTextField(
             singleLine = true,
-            modifier = Modifier.onGloballyPositioned {
+            modifier = Modifier.fillMaxWidth().onGloballyPositioned {
                 fieldSize = it.size
                 fieldPosition = it.positionInRoot()
             },
@@ -107,92 +109,73 @@ fun CalendarTextField(
         }
     }
     if (showDatePicker) {
-        Popup(
-            popupPositionProvider = object : PopupPositionProvider {
-                override fun calculatePosition(
-                    anchorBounds: IntRect,
-                    windowSize: IntSize,
-                    layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
-                ): IntOffset {
-                    return IntOffset(
-                        fieldPosition.x.toInt(),
-                        fieldPosition.y.toInt() + fieldSize.height
-                    )
-                }
+        DatePickerDialog(
+            onDismissRequest = {
+                showDatePicker = false
+                showTimePicker = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDatePicker = false
+                        showTimePicker = true
 
-            }
+                    }) {
+                    Text(text = stringResource(id = R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDatePicker = false
+                        showTimePicker = false
+                    }) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
+            },
         ) {
-
-            Box(
-                modifier = Modifier
-                    .padding(top = 30.dp)
-                    .background(MaterialTheme.colorScheme.onPrimary),
-                contentAlignment = Alignment.Center,
-                content = {
-                    Column {
-                        DatePicker(
-                            headline = null,
-                            title = null,
-                            showModeToggle = false,
-                            state = datePickerState
-                        )
-                        BuildButtonsStack(onDiscard = {
-                            showDatePicker = false
-                            showTimePicker = false
-                        }) {
-                            showDatePicker = false
-                            showTimePicker = true
-                        }
-                    }
-
-                }
+            DatePicker(
+                headline = null,
+                title = null,
+                showModeToggle = false,
+                state = datePickerState
             )
         }
     }
     if (showTimePicker) {
-        Popup(popupPositionProvider = object : PopupPositionProvider {
-            override fun calculatePosition(
-                anchorBounds: IntRect,
-                windowSize: IntSize,
-                layoutDirection: LayoutDirection,
-                popupContentSize: IntSize
-            ): IntOffset {
-                return IntOffset(
-                    fieldPosition.x.toInt(),
-                    fieldPosition.y.toInt() + fieldSize.height
-                )
-            }
-
-        }) {
-            Box(
-                modifier = Modifier
-                    .padding(top = 30.dp)
-                    .background(MaterialTheme.colorScheme.onPrimary),
-                contentAlignment = Alignment.Center,
-                content = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        TimePicker(
-                            state = timePickerState
-                        )
-                        BuildButtonsStack(onDiscard = {
-                            showTimePicker = false
-                            showDatePicker = false
-                        }) {
-                            selectedDate =
-                                if (datePickerState.selectedDateMillis != null) Date(
-                                    datePickerState.selectedDateMillis!!
-                                ) else Date()
-                            selectedDate.hours = timePickerState.hour
-                            selectedDate.minutes = timePickerState.minute
-                            showTimePicker = false
-                            showDatePicker = false
-                            onDateChanged(selectedDate)
-                        }
-                    }
-
+        TimePickerDialog(
+            onDismissRequest = {
+                showDatePicker = false
+                showTimePicker = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        selectedDate =
+                            if (datePickerState.selectedDateMillis != null) Date(
+                                datePickerState.selectedDateMillis!!
+                            ) else Date()
+                        selectedDate.hours = timePickerState.hour
+                        selectedDate.minutes = timePickerState.minute
+                        showTimePicker = false
+                        showDatePicker = false
+                        onDateChanged(selectedDate)
+                    }) {
+                    Text(text = stringResource(id = R.string.ok))
                 }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDatePicker = false
+                        showTimePicker = false
+                    }) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
+            },
+        ) {
+            TimePicker(
+                state = timePickerState
             )
         }
     }

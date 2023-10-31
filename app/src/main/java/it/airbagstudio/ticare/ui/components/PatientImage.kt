@@ -45,9 +45,9 @@ fun PatientImage(code: String, photo: String, requestData: PatientImageRequestDa
             contentDescription = "",
             modifier = Modifier.padding(4.dp)
         )
-        if (photo.isNotBlank()) {
+        /*if (photo.isNotBlank()) {
             val url = "${requestData.url}/cases/case/image?cod=${Uri.encode(code)}&photo=${Uri.encode(photo)}"
-            val authTimestampHeader = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)
+            val authTimestampHeader = DateTimeFormatter.ISO_INSTANT.format(Instant.now())
             Image(
                 modifier = Modifier
                     .width(56.dp)
@@ -61,6 +61,6 @@ fun PatientImage(code: String, photo: String, requestData: PatientImageRequestDa
                 contentDescription = "",
                 contentScale = ContentScale.Crop
             )
-        }
+        }*/
     }
 }

@@ -4,7 +4,6 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,34 +25,19 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerDefaults
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -74,16 +58,12 @@ import androidx.navigation.navArgument
 import ch.ticare.eclinic.library.entity.AgendaTask
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.DestinationsArgs.NOTE_CONTENT
+import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.theme.seed
 import it.airbagstudio.ticare.ui.theme.tertiary95
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
-import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getExecDateTime
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -167,7 +147,7 @@ fun EditDrugAdministrationSheet(
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BuildContent(
     viewModel: EditDrugAdministrationSheetViewModel,
@@ -177,18 +157,6 @@ private fun BuildContent(
     viewModel.task.value?.let { task ->
         val isReserve = task.isReserve
         val focusManager = LocalFocusManager.current
-        var selectedDate by remember {
-            mutableStateOf(task.getExecDateTime() ?: Date())
-        }
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = selectedDate.time
-        )
-        val timePickerState = rememberTimePickerState(
-            initialHour = selectedDate.hours,
-            initialMinute = selectedDate.minutes
-        )
-        var showDatePicker by remember { mutableStateOf(false) }
-        var showTimePicker by remember { mutableStateOf(false) }
         Scaffold(
             containerColor = if (task?.isReserve == true) tertiary95 else MaterialTheme.colorScheme.surface,
 
@@ -268,206 +236,83 @@ private fun BuildContent(
                         label = { Text(text = stringResource(id = R.string.duration)) }
                     )
                 }
-
-                OutlinedTextField(
-                    modifier = Modifier
-                        .clickable {
-                            if (viewModel.isEditingEnable.invoke()) {
-                                showDatePicker = true
-                            }
-                        }
-                        .fillMaxWidth()
-                        .padding(top = 24.dp),
-                    value = selectedDate.format("dd MMMM yyyy, HH:mm "),
-                    enabled = false,
-                    singleLine = true,
-                    colors = if (viewModel.isEditingEnable.invoke()) OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                        disabledBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    ) else OutlinedTextFieldDefaults.colors(),
-                    onValueChange = {},
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_field_calendar),
-                            stringResource(id = R.string.actual_date_time)
+                Spacer(modifier = Modifier.height(24.dp))
+                CalendarTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    date = task.getExecDateTime(),
+                    label = { Text(text = stringResource(id = R.string.actual_date_time)) },
+                    onDateChanged = {
+                        viewModel.setExecutedDate(it)
+                    })
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    SchedulingNoteButton(
+                        text = if (task.sysSchedulingNotes.isEmpty()) stringResource(
+                            id = R.string.no_notes
+                        ) else task.sysSchedulingNotes
+                    ) {
+                        navController.navigate("noteScreen?$NOTE_CONTENT=${Uri.encode(task.sysSchedulingNotes)}")
+                    }
+                    NotesButton(
+                        text = if (task.notes.isEmpty()) stringResource(id = R.string.no_notes) else task.notes,
+                        enabled = viewModel.isEditingEnable.invoke()
+                    ) {
+                        navController.navigate(
+                            "editNoteScreen?$NOTE_CONTENT=${
+                                Uri.encode(
+                                    task.notes
+                                )
+                            }"
                         )
-                    },
-                    label = { Text(text = stringResource(id = R.string.actual_date_time)) }
-                )
-                Box(modifier = Modifier.height(500.dp)) {
-                    if (showDatePicker) {
-                        Column() {
-                            DatePicker(
-                                dateValidator = {
-                                    val date = Date(it)
-                                    date.before(Date())
-                                },
-                                state = datePickerState,
-                                headline = null,
-                                title = null,
-                                showModeToggle = false,
-                                colors = DatePickerDefaults.colors(
-                                    selectedDayContainerColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-                                    selectedYearContainerColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-                                    containerColor = if (isReserve) tertiary95 else MaterialTheme.colorScheme.surfaceVariant,
-                                    currentYearContentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                                )
-                            )
-                            Row() {
-                                Spacer(modifier = Modifier.weight(1f))
-                                TextButton(
-                                    colors = ButtonDefaults.textButtonColors(
-                                        contentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                                    ),
-                                    onClick = { showDatePicker = false }) {
-                                    Text(text = stringResource(id = R.string.cancel))
-                                }
-                                TextButton(
-                                    colors = ButtonDefaults.textButtonColors(
-                                        contentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                                    ),
-                                    onClick = {
-                                        showTimePicker = true
-                                        showDatePicker = false
-                                    }) {
-                                    Text(
-                                        text = stringResource(id = R.string.ok)
-                                    )
-                                }
-                            }
+                    }
+
+                    SwitchItem(
+                        label = stringResource(id = R.string.show_in_diary),
+                        isReserve = isReserve,
+                        enabled = viewModel.isEditingEnable.invoke(),
+                        value = viewModel.task.value?.showInDiary ?: false
+                    ) {
+                        viewModel.setShowInDiary(it)
+                    }
+                    SwitchItem(
+                        label = stringResource(id = R.string.rejected_by_patient),
+                        isReserve = isReserve,
+                        enabled = !isReserve && viewModel.isEditingEnable.invoke(),
+                        value = viewModel.task.value?.rejected ?: false
+                    ) {
+                        viewModel.setRejected(it)
+                    }
+                    SwitchItem(
+                        label = stringResource(id = R.string.not_performed),
+                        isReserve = isReserve,
+                        enabled = !isReserve && viewModel.isEditingEnable.invoke(),
+                        value = viewModel.task.value?.isSkipped ?: false
+                    ) {
+                        viewModel.setNotExecuted(it)
+                    }
+                    Button(
+                        enabled = !viewModel.isLoading && viewModel.isEditingEnable.invoke(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isReserve) MaterialTheme.colorScheme.tertiary else seed
+                        ),
+                        onClick = {
+                            viewModel.executeTask()
                         }
-
-                    } else if (showTimePicker) {
-                        Column(
-                            modifier = Modifier.padding(top = 24.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            TimePicker(
-                                state = timePickerState,
-                                colors = TimePickerDefaults.colors(
-                                    periodSelectorSelectedContainerColor = if (isReserve) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer,
-                                    selectorColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-                                    timeSelectorSelectedContainerColor = if (isReserve) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer,
-                                )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = stringResource(id = R.string.execute)
+                        )
+                        Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                        Text(text = stringResource(id = R.string.save))
+                        if (viewModel.isLoading) {
+                            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                            CircularProgressIndicator(
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(20.dp)
                             )
-                            Row() {
-                                Spacer(modifier = Modifier.weight(1f))
-                                TextButton(
-                                    colors = ButtonDefaults.textButtonColors(
-                                        contentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                                    ),
-                                    onClick = {
-                                        showTimePicker = false
-                                        showDatePicker = false
-                                    }
-                                ) {
-                                    Text(text = stringResource(id = R.string.cancel))
-                                }
-                                TextButton(
-                                    colors = ButtonDefaults.textButtonColors(
-                                        contentColor = if (isReserve) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                                    ),
-                                    onClick = {
-                                        selectedDate =
-                                            if (datePickerState.selectedDateMillis != null) Date(
-                                                datePickerState.selectedDateMillis!!
-                                            ) else Date()
-                                        selectedDate.hours = timePickerState.hour
-                                        selectedDate.minutes = timePickerState.minute
-                                        viewModel.setExecutedDate(selectedDate)
-                                        showTimePicker = false
-                                        showDatePicker = false
-
-                                    }) {
-                                    Text(text = stringResource(id = R.string.ok))
-                                }
-                            }
-                        }
-
-                    } else {
-                        Column(modifier = Modifier.padding(top = 16.dp)) {
-                            SchedulingNoteButton(
-                                text = if (task.sysSchedulingNotes.isEmpty()) stringResource(
-                                    id = R.string.no_notes
-                                ) else task.sysSchedulingNotes
-                            ) {
-                                navController.navigate("noteScreen?$NOTE_CONTENT=${Uri.encode(task.sysSchedulingNotes)}")
-                            }
-                            NotesButton(
-                                text = if (task.notes.isEmpty()) stringResource(id = R.string.no_notes) else task.notes,
-                                enabled = viewModel.isEditingEnable.invoke()
-                            ) {
-                                navController.navigate(
-                                    "editNoteScreen?$NOTE_CONTENT=${
-                                        Uri.encode(
-                                            task.notes
-                                        )
-                                    }"
-                                )
-                            }
-
-                            SwitchItem(
-                                label = stringResource(id = R.string.show_in_diary),
-                                isReserve = isReserve,
-                                enabled = viewModel.isEditingEnable.invoke(),
-                                value = viewModel.task.value?.showInDiary ?: false
-                            ) {
-                                viewModel.setShowInDiary(it)
-                            }
-                            SwitchItem(
-                                label = stringResource(id = R.string.rejected_by_patient),
-                                isReserve = isReserve,
-                                enabled = !isReserve && viewModel.isEditingEnable.invoke(),
-                                value = viewModel.task.value?.rejected ?: false
-                            ) {
-                                viewModel.setRejected(it)
-                            }
-                            SwitchItem(
-                                label = stringResource(id = R.string.not_performed),
-                                isReserve = isReserve,
-                                enabled = !isReserve && viewModel.isEditingEnable.invoke(),
-                                value = viewModel.task.value?.isSkipped ?: false
-                            ) {
-                                viewModel.setNotExecuted(it)
-                            }
-                            /*
-                            SwitchItem(
-                                label = stringResource(id = R.string.patient_medication),
-                                isReserve = isReserve,
-                                enabled = true,
-                                value = viewModel.task.value?.patientOwnedDrug ?: false
-                            ) {
-                                viewModel.setPatientDrug(it)
-                            }
-    */
-                            Button(
-                                enabled = !viewModel.isLoading && viewModel.isEditingEnable.invoke(),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 24.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isReserve) MaterialTheme.colorScheme.tertiary else seed
-                                ),
-                                onClick = {
-                                    viewModel.executeTask()
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = stringResource(id = R.string.execute)
-                                )
-                                Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                                Text(text = stringResource(id = R.string.save))
-                                if (viewModel.isLoading) {
-                                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                                    CircularProgressIndicator(
-                                        strokeWidth = 2.dp,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            }
                         }
                     }
                 }
