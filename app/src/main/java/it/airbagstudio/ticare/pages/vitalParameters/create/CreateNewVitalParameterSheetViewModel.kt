@@ -207,7 +207,8 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
                 typeCode = vitalSignCode.value ?: task.typeCode,
                 execDate = execDate,
                 execTime = execTime,
-                alertLevel = 1
+                alertLevel = 1,
+                value = value.value.toString()
             )
             val res = agendaTaskRepository.updateAgendaTasks(listOf(newTask))
             res.error?.let {
