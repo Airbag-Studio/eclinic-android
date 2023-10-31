@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,11 +19,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.DrugChip
-import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.redColor
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -97,6 +94,41 @@ fun DiaryNursingCourseItemView(title: String,description:String,isPlanned:Boolea
         Column {
             BuildHeader(
                 category = stringResource(id = R.string.nursing_courses),
+                title = title
+            )
+            Text(
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (!isPlanned){
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    DrugChip(
+                        label = stringResource(id = R.string.not_planned)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun DiaryCarePlaneItemView(title: String,description:String,isPlanned:Boolean) {
+    Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_diary_care_planes),
+            contentDescription = ""
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            BuildHeader(
+                category = stringResource(id = R.string.care_planes),
                 title = title
             )
             Text(

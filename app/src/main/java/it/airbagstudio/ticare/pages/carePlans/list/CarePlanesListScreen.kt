@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -15,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.pages.carePlans.details.CarePlanCoursesListItemView
+import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 
@@ -48,8 +52,21 @@ fun CarePlanesListScreen(
                     PatientListItemViewLoading()
                 }
             } else {
+                LazyColumn(content = {
+                    items(uiState.items){
+                        CarePlanesListItemView(item = it, onClick = {
 
+                        })
+                    }
+                })
             }
+        }
+        if (uiState.errorMessage != null){
+            ErrorAlert(message = uiState.errorMessage ?: "", onDismissRequest = {
+                viewModel.clearError()
+            }, onRetry = {
+                viewModel.downloadData()
+            })
         }
     }
 }

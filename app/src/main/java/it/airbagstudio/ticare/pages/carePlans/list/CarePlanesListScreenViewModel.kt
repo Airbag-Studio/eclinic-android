@@ -3,13 +3,19 @@ package it.airbagstudio.ticare.pages.carePlans.list
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.HomeCarePlan
+import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
+import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.toDate
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class CarePlanesListScreenUIState(
@@ -22,6 +28,7 @@ data class CarePlanesListScreenUIState(
 @HiltViewModel
 class CarePlanesListScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
+    private val homeCareActivitiesRepository: HomeCareActivitiesRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -29,13 +36,25 @@ class CarePlanesListScreenViewModel @Inject constructor(
     private val patientName = userDetailRepository.getCurrentCase()?.name ?: ""
     private val isLoading = MutableStateFlow(false)
     private val errorMessage = MutableStateFlow<String?>(null)
+    private val plans = MutableStateFlow<List<HomeCarePlan>>(listOf())
 
-    var uiState = combine(isLoading, errorMessage) { isLoading, errorMessage ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+        isLoading.value = false
+        errorMessage.value = throwable.localizedMessage
+
+    }
+
+    var uiState = combine(isLoading, errorMessage,plans) { isLoading, errorMessage,plans ->
+        val items = plans.map { CarePlanesListItem(
+            title = it.title,
+            date = it.openDate.toDate("dd.MM.yyyy")?.format("dd/MM/yyyy") ?: "",
+            id = it.id
+        ) }
         CarePlanesListScreenUIState(
             isLoading = true,
             patientName = patientName,
             errorMessage = null,
-            items = listOf()
+            items = items
         )
     }.stateIn(
         viewModelScope,
@@ -47,4 +66,26 @@ class CarePlanesListScreenViewModel @Inject constructor(
             items = listOf()
         )
     )
+
+    init {
+        downloadData()
+    }
+
+    fun downloadData(){
+        clearError()
+        isLoading.value = true
+        viewModelScope.launch(coroutineExceptionHandler) {
+            val res = homeCareActivitiesRepository.getHomeCarePlans(patientCod)
+            if(res.status == "success"){
+                plans.value = res.results ?: listOf()
+            }else if (res.error != null){
+                errorMessage.value = res.error?.desc ?: ""
+            }
+            isLoading.value = false
+        }
+    }
+
+    fun clearError(){
+        errorMessage.value = null
+    }
 }

@@ -93,11 +93,17 @@ fun DiaryScreen(
                                     notExecuted = item.isSkipped ?: false,
                                     rejected = item.isRejected ?: false
                                 )
-                            } else if (item.entityName == "HomeCareServiceTask"){
+                            } else if (item.entityName == "HomeCareCourse"){
                                 DiaryNursingCourseItemView(
+                                    title = item.title ?: "",
+                                    description = item.desc ?: "",
+                                    isPlanned = item.isScheduledTask ?: true
+                                )
+                            } else if (item.entityName == "HomeCareServiceTask"){
+                                DiaryCarePlaneItemView(
                                     title = item.typeLbl ?: "",
                                     description = item.schedulerLbl ?: "",
-                                    isPlanned = item.isScheduledTask ?: false
+                                    isPlanned = item.isScheduledTask ?: true
                                 )
                             }
                             

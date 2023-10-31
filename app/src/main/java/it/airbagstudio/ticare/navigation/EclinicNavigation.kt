@@ -35,6 +35,7 @@ private object Screens{
 }
 
 object DestinationsArgs{
+    const val ID: String = "id"
     const val PATIENT_COD = "patientCod"
     const val SHIFT_START = "shiftStart"
     const val SHIFT_END = "shiftEnd"

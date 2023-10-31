@@ -78,4 +78,9 @@
     <string name="description">Descrizione</string>
     <string name="new_nursing_course">Nuovo decorso</string>
     <string name="planned">Pianificate</string>
+    <string name="diagnosis">Diagnosi</string>
+    <string name="problem">Problema</string>
+    <string name="defining_features">Caratteristiche Definenti</string>
+    <string name="related_factors">Fattori Correlati</string>
+    <string name="goal">Obiettivo</string>
 </resources>

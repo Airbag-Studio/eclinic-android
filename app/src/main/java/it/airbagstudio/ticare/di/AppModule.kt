@@ -9,6 +9,7 @@ import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.CaseAllergiesRepository
 import ch.ticare.eclinic.library.repository.DiaryRepository
+import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import ch.ticare.eclinic.library.repository.NursingCourseRepository
 import ch.ticare.eclinic.library.repository.OtherServiceRepository
 import ch.ticare.eclinic.library.repository.SyncDataRepository
@@ -92,6 +93,12 @@ class AppModule {
     @Singleton
     fun provideUserDetailsRepository(apiClient: APIClient): UserDetailRepository {
         return UserDetailRepository(apiClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHomeCareActivitiesRepository(apiClient: APIClient): HomeCareActivitiesRepository {
+        return HomeCareActivitiesRepository(apiClient)
     }
 
     @Provides
