@@ -76,7 +76,7 @@ fun CreateTreatmentScreen(
                 viewModel.selectedArticleId.value = articleId
                 viewModel.setGuarantorId(null)
                 viewModel.setNotes("")
-                viewModel.setQuantity(1.0)
+                viewModel.setQuantity("1.0")
                 viewModel.setDate(Date())
             }
         }
@@ -209,22 +209,17 @@ private fun BuildSheetContent(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     maxLines = 1,
                     modifier = Modifier.weight(column2Weight),
-                    value = if (uiState.newTreatment.quantity != null) String.format(
-                        "%.1f",
-                        uiState.newTreatment.quantity
-                    ) else "",
+                    value = uiState.newTreatment.quantity ?: "0",
                     label = {
                         Text(text = stringResource(id = R.string.quantity))
                     },
                     onValueChange = {
-                        val quantity = it.toDoubleOrNull()
-                        if (it.isEmpty()) {
-                            viewModel.setQuantity(null)
-                        } else {
-                            viewModel.setQuantity(quantity)
-                        }
+                        viewModel.setQuantity(it)
+                    },
+                    isError = uiState.newTreatment.quantity?.toDoubleOrNull() == null
 
-                    })
+                )
+
 
             }
             Spacer(modifier = Modifier.height(24.dp))
@@ -240,6 +235,7 @@ private fun BuildSheetContent(
                 })
             Spacer(modifier = Modifier.height(24.dp))
             Button(
+                enabled = uiState.newTreatment.quantity?.toDoubleOrNull() != null && !uiState.isLoading,
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     viewModel.saveTreatment()
@@ -275,9 +271,7 @@ private fun BuildSheetContent(
                         label = it.name,
                         item = it
                     )
-                } + ListPopupItem(
-                    stringResource(id = R.string.no_guarantor), item = null
-                ),
+                },
                 setShowDialog = {
                     showGuarantorPopup = false
                 },

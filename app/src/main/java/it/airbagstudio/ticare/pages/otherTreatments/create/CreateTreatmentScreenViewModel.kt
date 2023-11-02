@@ -32,7 +32,7 @@ import java.util.Date
 import javax.inject.Inject
 
 data class CreateTreatmentScreenUiState(
-    val newTreatment: NewTreatment = NewTreatment(null, Date(), "", null, 1.0),
+    val newTreatment: NewTreatment = NewTreatment(null, Date(), "", null,"1"),
     val guarantorTypes: List<GuarantorType> = listOf(),
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
@@ -43,7 +43,7 @@ data class CreateTreatmentScreenUiState(
         val date: Date,
         val description: String,
         val guarantorType: GuarantorType?,
-        val quantity: Double?
+        val quantity: String?
     )
 }
 
@@ -61,8 +61,8 @@ class CreateTreatmentScreenViewModel @Inject constructor(
     private val guarantorTypes = otherServiceRepository.getGuarantors()
     private val selectedDate = MutableStateFlow<Date>(Date())
     private val notes = MutableStateFlow("")
-    private val quantity = MutableStateFlow<Double?>(1.0)
-    private val guarantorType = MutableStateFlow<Int?>(null)
+    private val quantity = MutableStateFlow<String>("0")
+    private val guarantorType = MutableStateFlow<Int>(0)
     private val isLoading = MutableStateFlow(false)
     private val isSuccess = MutableStateFlow(false)
     private val errorMessage = MutableStateFlow<String?>(null)
@@ -104,7 +104,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = CreateTreatmentScreenUiState(
-            newTreatment = CreateTreatmentScreenUiState.NewTreatment(null, Date(), "", null, 1.0)
+            newTreatment = CreateTreatmentScreenUiState.NewTreatment(null, Date(), "", null, "1")
         )
     )
 
@@ -116,12 +116,12 @@ class CreateTreatmentScreenViewModel @Inject constructor(
         notes.value = value
     }
 
-    fun setQuantity(value: Double?) {
+    fun setQuantity(value: String) {
         quantity.value = value
     }
 
     fun setGuarantorId(id: Int?) {
-        guarantorType.value = id
+        guarantorType.value = id ?: 0
     }
 
     fun clearState() {
@@ -147,7 +147,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
                 item = selectedArticleId.value ?: 0,
                 guarantorType = guarantorType.value,
                 desc = notes.value,
-                quantity = quantity.value ?: 0.0
+                quantity = quantity.value.toDoubleOrNull() ?: 0.0
             )
             val res = otherServiceRepository.updateOtherService(listOf(editService))
             if (res.status == "success") {
@@ -168,7 +168,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
                 item = selectedArticleId.value ?: 0,
                 guarantorType = guarantorType.value,
                 desc = notes.value,
-                quantity = quantity.value ?: 0.0
+                quantity = quantity.value.toDoubleOrNull() ?: 0.0
 
             )
 
@@ -187,7 +187,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
         this.otherService = otherService
         if (otherService != null) {
             viewModelScope.launch {
-                quantity.value = otherService.quantity
+                quantity.value = otherService.quantity.toString()
                 guarantorType.value = otherService.guarantorID
                 selectedArticleId.value = otherService.itemID
                 otherService.dateTime.toDate("yyyy-MM-dd'T'HH:mm:00.000")?.let { date ->
