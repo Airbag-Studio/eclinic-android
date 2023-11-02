@@ -56,7 +56,9 @@ class CreateEditCareScreenViewModel @Inject constructor(
 
     private val plannedActivity = combine(codCase,plannedActivityId,carePlanId){ codCase, plannedActivityId, carePlanId ->
         if (codCase != null && plannedActivityId != null && carePlanId != null) {
-            homeCareActivitiesRepository.getHomeCareActivitiesPlanned(codCase, carePlanId).results?.firstOrNull { it.id == plannedActivityId }
+            val activity = homeCareActivitiesRepository.getHomeCareActivitiesPlanned(codCase, carePlanId).results?.firstOrNull { it.id == plannedActivityId }
+            setDuration(activity?.duration ?: 0)
+            activity
         }else{
             null
         }
@@ -64,7 +66,9 @@ class CreateEditCareScreenViewModel @Inject constructor(
 
     private val notPlannedActivity: Flow<HomeCareUnplannedActivity?> = combine(codCase,idActivityType){ codCase, idActivityType ->
         if (codCase != null && idActivityType != null){
-            homeCareActivitiesRepository.getHomeCareActivitiesUnplanned().results?.firstOrNull { it.id == idActivityType }
+            val activity = homeCareActivitiesRepository.getHomeCareActivitiesUnplanned().results?.firstOrNull { it.id == idActivityType }
+            setDuration(activity?.duration ?: 0)
+            activity
         }else{
             null
         }

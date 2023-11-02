@@ -31,6 +31,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -92,7 +93,7 @@ fun SelectCareActivityPopupScreen(
 
             ) {
                 var tabIndex by remember {
-                    mutableStateOf(1)
+                    mutableIntStateOf(0)
                 }
                 val labels = listOf(
                     stringResource(id = R.string.planned),
@@ -105,15 +106,6 @@ fun SelectCareActivityPopupScreen(
                             TabRowDefaults.Indicator(
                                 modifier = Modifier
                                     .tabIndicatorOffset(tabPositions[tabIndex]),
-                                /*
-                                shape = RoundedCornerShape(
-                                    topStart = 3.dp,
-                                    topEnd = 3.dp,
-                                    bottomEnd = 0.dp,
-                                    bottomStart = 0.dp,
-                                ),
-
-                                 */
                             )
                         }
                     },
