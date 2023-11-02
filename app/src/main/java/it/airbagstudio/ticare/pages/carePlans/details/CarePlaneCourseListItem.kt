@@ -2,6 +2,7 @@ package it.airbagstudio.ticare.pages.carePlans.details
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -24,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ch.ticare.eclinic.library.entity.HomeCareActivity
 import coil.compose.AsyncImagePainter.State.Empty.painter
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.DrugChip
@@ -33,14 +35,17 @@ data class CarePlanCoursesListItem(
     val title: String,
     val executed: Boolean,
     val id: Int,
-    val planned: Boolean
+    val planned: Boolean,
+    val activity: HomeCareActivity
 )
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun CarePlanCoursesListItemView(item: CarePlanCoursesListItem,onClick: (Int) -> Unit){
+fun CarePlanCoursesListItemView(item: CarePlanCoursesListItem,onClick: (HomeCareActivity) -> Unit){
     Row(
-        modifier = Modifier.padding(16.dp,8.dp,24.dp,8.dp)
+        modifier = Modifier.clickable {
+            onClick(item.activity)
+        }.padding(16.dp,8.dp,24.dp,8.dp)
     ) {
         if (item.executed){
             Image(painter = painterResource(id = R.drawable.ic_check), contentDescription = "")
@@ -70,7 +75,7 @@ fun CarePlanCoursesListItemView(item: CarePlanCoursesListItem,onClick: (Int) -> 
 
     }
 }
-
+/*
 @Composable
 @Preview
 private fun CarePlanCoursesListItemViewPreview(){
@@ -86,3 +91,5 @@ private fun CarePlanCoursesListItemViewPreview(){
         }
     }
 }
+
+ */

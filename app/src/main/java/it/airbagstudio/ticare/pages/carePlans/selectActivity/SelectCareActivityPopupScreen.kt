@@ -1,11 +1,13 @@
 package it.airbagstudio.ticare.pages.carePlans.selectActivity
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,6 +18,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -26,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,19 +47,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectCareActivityPopupScreen(
-    onDismissRequest: () -> Unit
+    caseCode: String,
+    planId:Int,
+    viewModel: SelectCareActivityPopupScreenViewModel = hiltViewModel(),
+    onDismissRequest: (Pair<Boolean,Int>?) -> Unit
 ) {
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = { onDismissRequest(null) },
     ) {
-
+        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        LaunchedEffect(Unit) {
+            viewModel.setCarePlanId(planId)
+            viewModel.setPatientCode(caseCode)
+        }
         Scaffold(modifier = Modifier.fillMaxSize(),
             topBar = {
                 CenterAlignedTopAppBar(
@@ -66,7 +79,7 @@ fun SelectCareActivityPopupScreen(
 
                     },
                     actions = {
-                        IconButton(onClick = { onDismissRequest() }) {
+                        IconButton(onClick = { onDismissRequest(null) }) {
                             Icon(imageVector = Icons.Default.Close, contentDescription = "")
                         }
                     }
@@ -124,10 +137,16 @@ fun SelectCareActivityPopupScreen(
                 }
                 when (tabIndex){
                     0 -> {
-                        ItemsList()
+                        ItemsList(uiState.plannedActivities){
+                            onDismissRequest(Pair(true,it))
+                        }
                     }
                     1 -> {
-                        SearchableList()
+                        SearchableList(uiState.query,uiState.unplannedActivities, onItemClick = {
+                            onDismissRequest(Pair(false,it))
+                        }){
+                            viewModel.setQuery(it)
+                        }
                     }
                 }
             }
@@ -137,7 +156,7 @@ fun SelectCareActivityPopupScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchableList(){
+private fun SearchableList(query:String,activities: List<SelectCareActivityPopupUIState.ActivityListItem>,onItemClick:(Int)->Unit,onQueryChange: (String) -> Unit){
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     Column {
@@ -169,23 +188,23 @@ private fun SearchableList(){
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
             ),
-            value = "",
-            onValueChange = {}
+            value = query,
+            onValueChange = {
+                onQueryChange(it)
+            }
         )
-        ItemsList()
+        ItemsList(activities,onItemClick)
     }
 }
 
 @Composable
-private fun ItemsList(){
+private fun ItemsList(activities: List<SelectCareActivityPopupUIState.ActivityListItem>,onItemClick:(Int)->Unit){
     LazyColumn(
-        content = {})
-}
-
-@Composable
-@Preview
-private fun PagePreview(){
-    AppTheme {
-        SelectCareActivityPopupScreen(){}
-    }
+        content = {
+            items(activities){
+                ActivityListItemView(it.title){
+                    onItemClick(it.id)
+                }
+            }
+        })
 }

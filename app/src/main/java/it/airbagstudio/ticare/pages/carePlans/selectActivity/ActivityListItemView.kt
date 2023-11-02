@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.carePlans.selectActivity
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +21,9 @@ import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
 fun ActivityListItemView(title:String,onClick: () -> Unit){
-    Column {
+    Column(Modifier.clickable {
+        onClick()
+    }) {
         Row(
             modifier = Modifier.padding(16.dp,8.dp,24.dp,8.dp),
             verticalAlignment = Alignment.CenterVertically

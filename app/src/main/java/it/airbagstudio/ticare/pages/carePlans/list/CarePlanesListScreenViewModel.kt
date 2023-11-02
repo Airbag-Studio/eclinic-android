@@ -32,7 +32,7 @@ class CarePlanesListScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
+    val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
     private val patientName = userDetailRepository.getCurrentCase()?.name ?: ""
     private val isLoading = MutableStateFlow(false)
     private val errorMessage = MutableStateFlow<String?>(null)
@@ -51,7 +51,7 @@ class CarePlanesListScreenViewModel @Inject constructor(
             id = it.id
         ) }
         CarePlanesListScreenUIState(
-            isLoading = true,
+            isLoading = false,
             patientName = patientName,
             errorMessage = null,
             items = items

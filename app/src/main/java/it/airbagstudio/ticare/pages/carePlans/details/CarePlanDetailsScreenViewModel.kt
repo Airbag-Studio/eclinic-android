@@ -19,12 +19,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class CarePlanDetailsUIState(
-    private val isLoading: Boolean,
-    private val errorMessage: String?,
-    private val title: String,
-    private val date: String,
-    private val textItem: List<TextItems>,
-    private val cares: List<CarePlanCoursesListItem>
+    val isLoading: Boolean,
+    val errorMessage: String?,
+    val title: String,
+    val date: String,
+    val textItem: List<TextItems>,
+    val cares: List<CarePlanCoursesListItem>
 
 ) {
     data class TextItems(
@@ -39,8 +39,8 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
     private val homeCareActivitiesRepository: HomeCareActivitiesRepository,
 ) : ViewModel() {
 
-    private val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
-    private val planId: String = savedStateHandle[DestinationsArgs.ID]!!
+    val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
+    val planId: String = savedStateHandle[DestinationsArgs.ID]!!
 
     private val isLoading = MutableStateFlow(false)
     private val plans = MutableStateFlow<List<HomeCarePlan>>(listOf())
@@ -52,9 +52,20 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
             errorMessage.value = throwable.localizedMessage
         }
 
+
+
     val uiState = combine(isLoading, errorMessage, plans) { isLoading, errorMessage, plans ->
         val selectedPan = planId.toIntOrNull()?.let { id ->
             plans.firstOrNull { it.id == id }
+        }
+        val activities = homeCareActivitiesRepository.getHomeCareActivities(patientCod).results?.map {
+            CarePlanCoursesListItem(
+                title = it.type,
+                executed = true,
+                id = it.id,
+                planned = it.isScheduled,
+                activity = it
+            )
         }
         val textItems = listOf(
             CarePlanDetailsUIState.TextItems(R.string.diagnosis, selectedPan?.diagnosis ?: ""),
@@ -71,7 +82,7 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
             errorMessage = errorMessage,
             title = selectedPan?.title ?: "",
             date = selectedPan?.openDate?.toDate("dd.MM.yyyy")?.format("dd/MM/yyyy") ?: "",
-            cares = listOf(),
+            cares = activities ?: listOf(),
             textItem = textItems
         )
 

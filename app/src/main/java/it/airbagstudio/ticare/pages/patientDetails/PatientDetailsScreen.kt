@@ -280,8 +280,10 @@ fun PatientDetailsScreen(
                                 id = R.string.care_planes
                             ),
                             isLoading = viewModel.isLoadingActivities,
-                            modifier = Modifier.weight(1f)
-                        ) {}
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            navActions.navigateToCarePlans(Uri.encode(viewModel.patientCod))
+                        }
                     }
                     Divider(color = MaterialTheme.colorScheme.primary)
                     Row(

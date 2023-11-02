@@ -2,12 +2,14 @@ package it.airbagstudio.ticare.navigation
 
 import androidx.navigation.NavController
 import it.airbagstudio.ticare.navigation.DestinationsArgs.DATE_TIME
+import it.airbagstudio.ticare.navigation.DestinationsArgs.ID
 import it.airbagstudio.ticare.navigation.DestinationsArgs.PATIENT_COD
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_END
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_NAME
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_START
 import it.airbagstudio.ticare.navigation.Screens.ALLERGIES_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.CARE_PLANS_SCREEN
+import it.airbagstudio.ticare.navigation.Screens.CARE_PLAN_DETAILS_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.DIARY_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.DRUG_ADMINISTRATION_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.LOGIN_SCREEN
@@ -31,6 +33,7 @@ private object Screens{
     const val VITAL_PARAMETERS_SCREEN = "vitalSignsScreen"
     const val DIARY_SCREEN = "diaryScreen"
     const val CARE_PLANS_SCREEN = "carePlansScreen"
+    const val CARE_PLAN_DETAILS_SCREEN = "carePlanDetailsScreen"
     const val NURSING_COURSES_SCREEN = "nursingCoursesScreen"
 }
 
@@ -59,7 +62,7 @@ object Destinations{
     const val CARE_PLANS_ROUTE = "$CARE_PLANS_SCREEN/{$PATIENT_COD}"
     const val NURSING_COURSES_ROUTE = "$NURSING_COURSES_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{${SHIFT_START}}/{$SHIFT_END}/{$SHIFT_NAME}"
     const val NURSING_COURSES_ROUTE_NO_SHIFT = "$NURSING_COURSES_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{$SHIFT_NAME}"
-
+    const val CARE_PLANE_DETAILS_ROUTE = "$CARE_PLAN_DETAILS_SCREEN/{$PATIENT_COD}/{$ID}"
 }
 
 class NavigationActions(private val navController: NavController){
@@ -116,5 +119,8 @@ class NavigationActions(private val navController: NavController){
         navController.navigate("$NURSING_COURSES_SCREEN/$patientCod/$dateTime/$shiftName")
     }
 
+    fun navigateToCarePlanDetailsScreen(patientCod: String,id: String){
+        navController.navigate("$CARE_PLAN_DETAILS_SCREEN/$patientCod/$id")
+    }
 
 }
