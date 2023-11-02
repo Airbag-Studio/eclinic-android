@@ -47,12 +47,12 @@ import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
 import it.airbagstudio.ticare.utils.getExecDateTime
+import it.airbagstudio.ticare.utils.isValidVitalParameterValue
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateNewVitalParameterSheet(
-    sheetState: SheetState,
     task: AgendaTask? = null,
     vitalSignCode: String? = null,
     caseCode: String? = null,
@@ -123,7 +123,7 @@ private fun BuildSheetContent(
                     label = {
                         Text(uiState.mUSymbol)
                     },
-                    isError = uiState.value.toDoubleOrNull() == null,
+                    isError = !uiState.value.isValidVitalParameterValue(),
                     value = uiState.value,
                     visualTransformation = if (uiState.value.isEmpty()) PlaceholderTransformation("0") else VisualTransformation.None,
                     onValueChange = {
@@ -178,7 +178,7 @@ private fun BuildSheetContent(
             }
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                enabled = (!uiState.isLoading && uiState.value.toDoubleOrNull() != null),
+                enabled = (!uiState.isLoading && uiState.value.isValidVitalParameterValue()),
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     viewModel.saveTask()
@@ -194,6 +194,7 @@ private fun BuildSheetContent(
                     )
                 }
             }
+            Spacer(modifier = Modifier.weight(1f))
             if (uiState.errorMessage != null) {
                 ErrorAlert(message = uiState.errorMessage!!, onDismissRequest = {
                     viewModel.clearError()

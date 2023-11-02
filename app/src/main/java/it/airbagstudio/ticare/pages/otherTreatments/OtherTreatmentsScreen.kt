@@ -15,6 +15,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -61,10 +62,11 @@ fun OtherTreatmentScreen(
                 onBack()
             }
         },
+        floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 modifier = Modifier
-                    .padding(start = 24.dp, bottom = 24.dp)
+                    .padding(horizontal = 24.dp)
                     .fillMaxWidth(),
                 contentColor = MaterialTheme.colorScheme.primary,
                 content = {
