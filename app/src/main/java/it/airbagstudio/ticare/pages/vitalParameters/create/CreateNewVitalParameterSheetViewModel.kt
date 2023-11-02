@@ -46,7 +46,6 @@ private data class ItemValues(
 @HiltViewModel
 class CreateNewVitalParameterSheetViewModel @Inject constructor(
     private val agendaTaskRepository: AgendaTaskRepository,
-    private val userDetailRepository: UserDetailRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
 
@@ -201,14 +200,13 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
             val execTime = DateFormat.format("HH:mm:00.000", date.value).toString()
             val newTask = task.copy(
                 showInDiary = showInDiary.value,
-                quantity = value.value.toDoubleOrNull() ?: 0.0,
                 duration = duration.value,
                 notes = notes.value,
                 typeCode = vitalSignCode.value ?: task.typeCode,
                 execDate = execDate,
                 execTime = execTime,
                 alertLevel = 1,
-                value = value.value.toString()
+                value = value.value
             )
             val res = agendaTaskRepository.updateAgendaTasks(listOf(newTask))
             res.error?.let {

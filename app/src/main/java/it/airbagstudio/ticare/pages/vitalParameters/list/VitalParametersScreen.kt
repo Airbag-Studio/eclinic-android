@@ -107,7 +107,7 @@ fun VitalParametersScreen(
         })
     }
     if (viewModel.selectedTask != null){
-        CreateNewVitalParameterSheet(sheetState = sheetState, task = viewModel.selectedTask, onDismissRequest = { success ->
+        CreateNewVitalParameterSheet(task = viewModel.selectedTask, onDismissRequest = { success ->
             viewModel.selectedVitalSignCode = null
             viewModel.selectedTask = null
             if (success) {
@@ -116,7 +116,7 @@ fun VitalParametersScreen(
         })
     }
     if (viewModel.selectedVitalSignCode != null){
-        CreateNewVitalParameterSheet(sheetState = sheetState,vitalSignCode = viewModel.selectedVitalSignCode, caseCode = viewModel.patientCod, onDismissRequest = { success ->
+        CreateNewVitalParameterSheet(vitalSignCode = viewModel.selectedVitalSignCode, caseCode = viewModel.patientCod, onDismissRequest = { success ->
             viewModel.selectedVitalSignCode = null
             if (success) {
                 viewModel.downloadData()
