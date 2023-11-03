@@ -57,7 +57,9 @@ class CreateEditCareScreenViewModel @Inject constructor(
     private val plannedActivity = combine(codCase,plannedActivityId,carePlanId){ codCase, plannedActivityId, carePlanId ->
         if (codCase != null && plannedActivityId != null && carePlanId != null) {
             val activity = homeCareActivitiesRepository.getHomeCareActivitiesPlanned(codCase, carePlanId).results?.firstOrNull { it.id == plannedActivityId }
-            setDuration(activity?.duration ?: 0)
+            if (duration.value == 0) {
+                setDuration(activity?.duration ?: 0)
+            }
             activity
         }else{
             null

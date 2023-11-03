@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -69,14 +70,14 @@ fun CreateEditCareScreen(
 
         viewModel.setCodCase(codCase)
         viewModel.setCarePlanId(carePlanId)
-        if (homeCareActivity != null){
+        if (homeCareActivity != null) {
             viewModel.setActivityId(homeCareActivity.id)
             viewModel.setPlannedActivityId(homeCareActivity.idScheduler)
             viewModel.setNotes(homeCareActivity.notes)
             viewModel.setDuration(homeCareActivity.duration)
             viewModel.setDate(homeCareActivity.execDateTime.toDate("dd.MM.yyyy HH:mm") ?: Date())
             viewModel.setShowInDiary(homeCareActivity.showInDiary)
-        }else{
+        } else {
             viewModel.setIdActivityType(idActivityType)
         }
     }
@@ -94,7 +95,11 @@ fun CreateEditCareScreen(
                 CenterAlignedTopAppBar(
                     title = {
                         Column {
-                            Text(text = uiState.title)
+                            Text(
+                                text = uiState.title,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
 
                     },
@@ -193,22 +198,24 @@ fun CreateEditCareScreen(
             }
         }
     }
-    if (uiState.errorMessage != null){
+    if (uiState.errorMessage != null) {
         ErrorAlert(message = uiState.errorMessage!!, onDismissRequest = {
             viewModel.clearErrors()
         })
     }
-    if (uiState.isSuccess){
-        if (plannedActivityId == null && homeCareActivity == null){
+    if (uiState.isSuccess) {
+        if (plannedActivityId == null && homeCareActivity == null) {
             showAlertNotPlannedActivity = true
-        }else {
+        } else {
             viewModel.clearData()
             onDismissRequest(true)
         }
     }
-    if (showAlertNotPlannedActivity){
-        val message = if (uiState.item.showInDiary) stringResource(id = R.string.activity_saved_diary) else stringResource(
-            id = R.string.activity_saved_not_visible)
+    if (showAlertNotPlannedActivity) {
+        val message =
+            if (uiState.item.showInDiary) stringResource(id = R.string.activity_saved_diary) else stringResource(
+                id = R.string.activity_saved_not_visible
+            )
         ErrorAlert(message = message, onDismissRequest = {
             viewModel.clearData()
             onDismissRequest(true)
