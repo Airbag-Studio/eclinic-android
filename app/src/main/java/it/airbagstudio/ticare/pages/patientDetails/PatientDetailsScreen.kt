@@ -280,6 +280,7 @@ fun PatientDetailsScreen(
                             ),
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f),
+                            badgeCount = viewModel.badges.firstOrNull { it.carePlan.badgeNumber > 0 }?.carePlan?.badgeNumber ?: 0
                         ) {
                             navActions.navigateToCarePlans(Uri.encode(viewModel.patientCod))
                         }

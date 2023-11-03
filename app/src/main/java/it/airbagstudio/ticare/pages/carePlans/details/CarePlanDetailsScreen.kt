@@ -118,19 +118,20 @@ fun CarePlanDetailsScreen(
                     .fillMaxWidth()
                     .heightIn(0.dp, max = 150.dp)
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(vertical = 8.dp, horizontal = 16.dp)
+
             ) {
                 Text(
+                    modifier = Modifier.padding(horizontal = 16.dp).padding(top = 8.dp),
                     text = stringResource(id = R.string.opening),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
                     text = uiState.date,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Spacer(modifier = Modifier.height(16.dp))
                 PropertyList(
                     title = uiState.title,
                     properties = uiState.textItem
@@ -192,12 +193,12 @@ fun CarePlanDetailsScreen(
 @Composable
 private fun PropertyList(title: String, properties: List<CarePlanDetailsUIState.TextItems>) {
     var showPropertyDialog by remember { mutableStateOf(false) }
-    Row {
-        Column(modifier = Modifier
-            .clickable {
-                showPropertyDialog = true
-            }
-            .weight(1f)) {
+    Row(modifier = Modifier
+        .clickable {
+            showPropertyDialog = true
+        }.padding(16.dp)) {
+        Column(
+            modifier = Modifier.weight(1f)) {
             properties.forEach { property ->
                 Text(
                     text = stringResource(id = property.titleStringId),
