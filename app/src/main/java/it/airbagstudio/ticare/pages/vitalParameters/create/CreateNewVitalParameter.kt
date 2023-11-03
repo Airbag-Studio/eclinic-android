@@ -66,12 +66,14 @@ fun CreateNewVitalParameterSheet(
         if (vitalSignCode != null) {
             viewModel.setVitalSignCode(vitalSignCode)
         } else if (task != null) {
+            viewModel.caseCode = task.caseCode
             viewModel.setDate(task.getExecDateTime() ?: Date())
             viewModel.setDuration(task.duration)
             viewModel.setNotes(task.notes)
             viewModel.setVitalSignCode(task.typeCode)
             viewModel.setValue(task.value ?: "")
             viewModel.setShowInDiary(task.showInDiary)
+
         }
 
     }

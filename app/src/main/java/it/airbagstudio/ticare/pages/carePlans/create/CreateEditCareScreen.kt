@@ -29,6 +29,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -63,22 +66,25 @@ fun CreateEditCareScreen(
     LaunchedEffect(Unit) {
         viewModel.clearData()
         viewModel.setPlannedActivityId(plannedActivityId)
-        viewModel.setIdActivityType(idActivityType)
+
         viewModel.setCodCase(codCase)
         viewModel.setCarePlanId(carePlanId)
         if (homeCareActivity != null){
             viewModel.setActivityId(homeCareActivity.id)
+            viewModel.setPlannedActivityId(homeCareActivity.idScheduler)
             viewModel.setNotes(homeCareActivity.notes)
             viewModel.setDuration(homeCareActivity.duration)
             viewModel.setDate(homeCareActivity.execDateTime.toDate("dd.MM.yyyy HH:mm") ?: Date())
             viewModel.setShowInDiary(homeCareActivity.showInDiary)
+        }else{
+            viewModel.setIdActivityType(idActivityType)
         }
     }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    if (uiState.isSuccess){
-        viewModel.clearData()
-        onDismissRequest(true)
+    var showAlertNotPlannedActivity by remember {
+        mutableStateOf(false)
     }
+
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = { onDismissRequest(false) },
@@ -191,6 +197,23 @@ fun CreateEditCareScreen(
         ErrorAlert(message = uiState.errorMessage!!, onDismissRequest = {
             viewModel.clearErrors()
         })
+    }
+    if (uiState.isSuccess){
+        if (plannedActivityId == null && homeCareActivity == null){
+            showAlertNotPlannedActivity = true
+        }else {
+            viewModel.clearData()
+            onDismissRequest(true)
+        }
+    }
+    if (showAlertNotPlannedActivity){
+        val message = if (uiState.item.showInDiary) stringResource(id = R.string.activity_saved_diary) else stringResource(
+            id = R.string.activity_saved_not_visible)
+        ErrorAlert(message = message, onDismissRequest = {
+            viewModel.clearData()
+            onDismissRequest(true)
+        })
+
     }
 }
 

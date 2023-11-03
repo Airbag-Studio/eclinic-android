@@ -83,4 +83,6 @@
     <string name="defining_features">Caratteristiche Definenti</string>
     <string name="related_factors">Fattori Correlati</string>
     <string name="goal">Obiettivo</string>
+    <string name="activity_saved_diary">L\'attività è stata correttamente salvata ma sarà visibile solamente nel diario</string>
+    <string name="activity_saved_not_visible">L\'attività è stata correttamente salvata ma non sarà visibile all\'interno dell\'applicazione</string>
 </resources>

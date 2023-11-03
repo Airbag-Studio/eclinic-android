@@ -68,6 +68,7 @@ class CreateEditCareScreenViewModel @Inject constructor(
         if (codCase != null && idActivityType != null){
             val activity = homeCareActivitiesRepository.getHomeCareActivitiesUnplanned().results?.firstOrNull { it.id == idActivityType }
             setDuration(activity?.duration ?: 0)
+            setShowInDiary(true)
             activity
         }else{
             null

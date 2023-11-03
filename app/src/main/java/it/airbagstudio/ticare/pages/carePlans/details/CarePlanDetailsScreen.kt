@@ -40,6 +40,7 @@ import ch.ticare.eclinic.library.entity.HomeCareActivity
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.carePlans.create.CreateEditCareScreen
 import it.airbagstudio.ticare.pages.carePlans.selectActivity.SelectCareActivityPopupScreen
+import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import kotlinx.serialization.json.JsonNull.content
@@ -155,6 +156,11 @@ fun CarePlanDetailsScreen(
 
             })
         }
+    }
+    if (uiState.errorMessage != null){
+        ErrorAlert(message = uiState.errorMessage!!, onDismissRequest = {
+            //viewModel.clearError()
+        })
     }
     if(showSelectNewActivityPopup){
         SelectCareActivityPopupScreen(caseCode = viewModel.patientCod, planId = viewModel.planId.toInt(), onDismissRequest = { params ->

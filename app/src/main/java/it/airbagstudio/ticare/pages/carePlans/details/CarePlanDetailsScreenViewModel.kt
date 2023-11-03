@@ -3,6 +3,7 @@ package it.airbagstudio.ticare.pages.carePlans.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.HomeCareActivity
 import ch.ticare.eclinic.library.entity.HomeCarePlan
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,6 +46,8 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
     private val isLoading = MutableStateFlow(false)
     private val plans = MutableStateFlow<List<HomeCarePlan>>(listOf())
     private val errorMessage = MutableStateFlow<String?>(null)
+    private val activities = MutableStateFlow<List<HomeCareActivity>?>(null)
+    private val selectedPan = MutableStateFlow<HomeCarePlan?>(null)
 
     private val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -52,44 +55,60 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
             errorMessage.value = throwable.localizedMessage
         }
 
+    val uiState = combine(isLoading, errorMessage, activities,selectedPan) { isLoading, errorMessage, homeCareActivities,selectedPan ->
+        try {
+            val activities = homeCareActivities?.map {
+                CarePlanCoursesListItem(
+                    title = it.type,
+                    executed = true,
+                    id = it.id,
+                    planned = it.isScheduled,
+                    activity = it
+                )
+            }
+            val textItems = listOf(
+                CarePlanDetailsUIState.TextItems(R.string.diagnosis, selectedPan?.diagnosis ?: ""),
+                CarePlanDetailsUIState.TextItems(
+                    R.string.problem,
+                    selectedPan?.problemDescription ?: ""
+                ),
+                CarePlanDetailsUIState.TextItems(
+                    R.string.defining_features,
+                    selectedPan?.definingFeatures?.map { it.name }?.joinToString("\n") ?: ""
+                ),
+                CarePlanDetailsUIState.TextItems(
+                    R.string.related_factors,
+                    selectedPan?.relatedFactors?.map { it.name }?.joinToString("\n") ?: ""
+                ),
+                CarePlanDetailsUIState.TextItems(R.string.goal, selectedPan?.goal ?: ""),
+
+                )
 
 
-    val uiState = combine(isLoading, errorMessage, plans) { isLoading, errorMessage, plans ->
-        val selectedPan = planId.toIntOrNull()?.let { id ->
-            plans.firstOrNull { it.id == id }
-        }
-        val activities = homeCareActivitiesRepository.getHomeCareActivities(patientCod).results?.map {
-            CarePlanCoursesListItem(
-                title = it.type,
-                executed = true,
-                id = it.id,
-                planned = it.isScheduled,
-                activity = it
+            CarePlanDetailsUIState(
+                isLoading = isLoading,
+                errorMessage = errorMessage,
+                title = selectedPan?.title ?: "",
+                date = selectedPan?.openDate?.toDate("dd.MM.yyyy")?.format("dd/MM/yyyy") ?: "",
+                cares = activities ?: listOf(),
+                textItem = textItems
             )
-        }
-        val textItems = listOf(
-            CarePlanDetailsUIState.TextItems(R.string.diagnosis, selectedPan?.diagnosis ?: ""),
-            CarePlanDetailsUIState.TextItems(R.string.problem, selectedPan?.problemDescription ?: ""),
-            CarePlanDetailsUIState.TextItems(R.string.defining_features, selectedPan?.definingFeatures?.map { it.name }?.joinToString("\n") ?: ""),
-            CarePlanDetailsUIState.TextItems(R.string.related_factors, selectedPan?.relatedFactors?.map { it.name }?.joinToString("\n") ?: ""),
-            CarePlanDetailsUIState.TextItems(R.string.goal, selectedPan?.goal ?: ""),
+        } catch (e: Throwable) {
+            this.errorMessage.value = e.localizedMessage
 
+            CarePlanDetailsUIState(
+                isLoading = false,
+                errorMessage = e.localizedMessage,
+                title = "",
+                date = "",
+                cares = listOf(),
+                textItem = listOf()
             )
 
-
-        CarePlanDetailsUIState(
-            isLoading = isLoading,
-            errorMessage = errorMessage,
-            title = selectedPan?.title ?: "",
-            date = selectedPan?.openDate?.toDate("dd.MM.yyyy")?.format("dd/MM/yyyy") ?: "",
-            cares = activities ?: listOf(),
-            textItem = textItems
-        )
-
-
+        }
     }.stateIn(
         viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.Eagerly,
         initialValue = CarePlanDetailsUIState(
             isLoading = true,
             errorMessage = null,
@@ -111,6 +130,13 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
             val res = homeCareActivitiesRepository.getHomeCarePlans(patientCod)
             if (res.status == "success") {
                 plans.value = res.results ?: listOf()
+                selectedPan.value = planId.toIntOrNull()?.let { id ->
+                    plans.value.firstOrNull { it.id == id }
+                }
+                activities.value = homeCareActivitiesRepository.getHomeCareActivities(
+                    patientCod,
+                    selectedPan.value?.id ?: 0
+                ).results
             } else if (res.error != null) {
                 errorMessage.value = res.error?.desc ?: ""
             }

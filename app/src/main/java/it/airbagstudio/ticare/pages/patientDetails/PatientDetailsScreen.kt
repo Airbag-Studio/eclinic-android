@@ -269,7 +269,6 @@ fun PatientDetailsScreen(
                             ),
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f),
-                            badgeCount = viewModel.badges.firstOrNull { it.diary.badgeNumber > 0 }?.diary?.badgeNumber ?: 0
                         ) {
                             navActions.navigateToDiary(Uri.encode(viewModel.patientCod))
                         }
@@ -321,7 +320,6 @@ fun PatientDetailsScreen(
                             ),
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f),
-                            badgeCount = viewModel.badges.firstOrNull { it.otherServices.badgeNumber > 0 }?.otherServices?.badgeNumber ?: 0
                         ) {
                             navActions.navigateToOtherServices(Uri.encode(viewModel.patientCod))
                         }

@@ -193,31 +193,54 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
     }
 
     private fun putTask(task: AgendaTask) {
-
         isLoading.value = true
         viewModelScope.launch(coroutineExceptionHandler) {
-            val execDate = DateFormat.format("yyyy-MM-dd", date.value).toString()
-            val execTime = DateFormat.format("HH:mm:00.000", date.value).toString()
-            val newTask = task.copy(
-                showInDiary = showInDiary.value,
-                duration = duration.value,
-                notes = notes.value,
-                typeCode = vitalSignCode.value ?: task.typeCode,
-                execDate = execDate,
-                execTime = execTime,
-                alertLevel = 1,
-                value = value.value
-            )
-            val res = agendaTaskRepository.updateAgendaTasks(listOf(newTask))
-            res.error?.let {
-                errorMessage.value = it.desc
-            } ?: run {
-                isSuccess.value = true
+            if (task.expDate.isNullOrEmpty()){
+                val newTask = UnscheduledTask(
+                    index = 1,
+                    taskType = AgendaTaskRepository.VITAL_SIGN_TYPE,
+                    taskFields = UnscheduledTaskFields(
+                        codCase = caseCode ?: "",
+                        idType = vitalSingId ?: 0,
+                        idUser = userId ?: 0,
+                        showInDiary = showInDiary.value,
+                        duration = duration.value,
+                        value = value.value,
+                        notes = notes.value,
+                        excDateTime = date.value.format("yyyy.MM.dd HH:mm"),
+                        skipped = false,
+                        id = task.pkey
+                    )
+                )
+                val res = agendaTaskRepository.updateUnscheduledVitalSign(newTask)
+                if(res.status == "success"){
+                    isSuccess.value = true
+                } else if (res.error?.desc != null){
+                    errorMessage.value = res.error?.desc
+                }
+                isLoading.value = false
+            }else{
+                val execDate = DateFormat.format("yyyy-MM-dd", date.value).toString()
+                val execTime = DateFormat.format("HH:mm:00.000", date.value).toString()
+                val newTask = task.copy(
+                    showInDiary = showInDiary.value,
+                    duration = duration.value,
+                    notes = notes.value,
+                    typeCode = vitalSignCode.value ?: task.typeCode,
+                    execDate = execDate,
+                    execTime = execTime,
+                    alertLevel = 1,
+                    value = value.value
+                )
+                val res = agendaTaskRepository.updateAgendaTasks(listOf(newTask))
+                res.error?.let {
+                    errorMessage.value = it.desc
+                } ?: run {
+                    isSuccess.value = true
+                }
+                isLoading.value = false
             }
-            isLoading.value = false
         }
-
-
     }
 
     fun clearError() {
