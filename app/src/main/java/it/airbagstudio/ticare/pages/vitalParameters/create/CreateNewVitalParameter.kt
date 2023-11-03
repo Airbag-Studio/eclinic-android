@@ -121,7 +121,7 @@ private fun BuildSheetContent(
                 OutlinedTextField(
                     modifier = Modifier.weight(1f),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
                     label = {
                         Text(uiState.mUSymbol)
                     },
