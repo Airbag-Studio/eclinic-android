@@ -1,9 +1,5 @@
 package it.airbagstudio.ticare.pages.wounds.create
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,18 +7,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,14 +22,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalMapOf
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -49,12 +34,13 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import it.airbagstudio.ticare.R
-import it.airbagstudio.ticare.pages.wounds.AddingImagesGallery
+import it.airbagstudio.ticare.pages.wounds.common.AddingImagesGallery
 import it.airbagstudio.ticare.ui.components.AddPhotoButton
 import it.airbagstudio.ticare.ui.components.CalendarTextField
+import it.airbagstudio.ticare.ui.components.ListPopupItem
+import it.airbagstudio.ticare.ui.components.MultiselectPopupTextField
+import it.airbagstudio.ticare.ui.components.PopupTextField
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
 
@@ -65,6 +51,9 @@ fun CreateWoundDialogScreen(
     viewModel: CreateWoundDialogScreenViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val woundTypes by viewModel.woundTypes.collectAsState(initial = listOf())
+    val woundPositions by viewModel.woundPositions.collectAsState(initial = listOf())
+    val woundOrigins by viewModel.woundOrigins.collectAsState(initial = listOf())
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = {
@@ -100,6 +89,33 @@ fun CreateWoundDialogScreen(
                     }, onDateChanged = {
                         viewModel.setDate(it)
                     })
+                Spacer(modifier = Modifier.height(24.dp))
+                PopupTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = stringResource(id = R.string.injury_type),
+                    value = uiState.wound.woundType ?: "",
+                    items = woundTypes.map { ListPopupItem(label = it.name, item = it) }
+                ){
+                    viewModel.setWoundType(it.item)
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                MultiselectPopupTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = stringResource(id = R.string.position),
+                    items = woundPositions.map { ListPopupItem(label = it.name, item = it) },
+                    selectedItems = uiState.dropdownSelections.selectedWoundPositions?.map { ListPopupItem(it.name,it) } ?: listOf()
+                ){ selectedItems  ->
+                    selectedItems?.mapNotNull { it.item }?.let { viewModel.setWoundPositions(it) } ?: run { viewModel.setWoundPositions(null) }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                PopupTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = stringResource(id = R.string.origin),
+                    value = uiState.wound.origin ?: "",
+                    items = woundOrigins.map { ListPopupItem(label = it.name, item = it) }
+                ){
+                    viewModel.setWoundOrigin(it.item)
+                }
                 Spacer(modifier = Modifier.height(24.dp))
                 Row {
                     OutlinedTextField(
@@ -158,7 +174,9 @@ fun CreateWoundDialogScreen(
                     placeholder = {
                                   Text(text = stringResource(id = R.string.description))
                     },
-                    modifier = Modifier.fillMaxWidth().height(140.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp),
                     value = uiState.wound.description ?: "",
                     onValueChange = {
                     viewModel.setNotes(it)

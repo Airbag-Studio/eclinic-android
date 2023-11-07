@@ -1,7 +1,5 @@
 package it.airbagstudio.ticare.ui.components
 
-import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,25 +10,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
 import it.airbagstudio.ticare.R
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
-data class PatientImageRequestData(
+data class ImageRequestData(
     val url: String,
     val token: String
 )
 
 @Composable
-fun PatientImage(code: String, photo: String, requestData: PatientImageRequestData) {
+fun PatientImage(code: String, photo: String, requestData: ImageRequestData) {
     Box(
         modifier = Modifier
             .width(56.dp)

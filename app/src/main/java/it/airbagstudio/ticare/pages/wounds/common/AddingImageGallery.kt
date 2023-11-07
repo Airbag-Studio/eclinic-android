@@ -1,4 +1,4 @@
-package it.airbagstudio.ticare.pages.wounds
+package it.airbagstudio.ticare.pages.wounds.common
 
 import android.graphics.Bitmap
 import android.net.Uri

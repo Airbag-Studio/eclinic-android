@@ -29,17 +29,22 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
-import it.airbagstudio.ticare.pages.wounds.TitleValueView
+import it.airbagstudio.ticare.pages.wounds.common.ImagesDialog
+import it.airbagstudio.ticare.pages.wounds.common.NotesDialog
+import it.airbagstudio.ticare.pages.wounds.common.TitleValueView
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.ui.theme.AppTheme
@@ -53,6 +58,13 @@ fun WoundDetailsScreen(
     navigationActions: NavigationActions,
     onBack: () -> Unit
 ) {
+
+    var showImagesDialog by remember {
+        mutableStateOf(false)
+    }
+    var showNotesDialog by remember {
+        mutableStateOf(false)
+    }
     Scaffold(
         topBar = {
             ToolbarWithBackAndSync(title = stringResource(id = R.string.wounds)) {
@@ -60,8 +72,10 @@ fun WoundDetailsScreen(
             }
         }
     ) {
-        if (viewModel.errorMessage != null){
-            ErrorAlert(message = viewModel.errorMessage!!, onDismissRequest = { viewModel.errorMessage = null })
+        if (viewModel.errorMessage != null) {
+            ErrorAlert(
+                message = viewModel.errorMessage!!,
+                onDismissRequest = { viewModel.errorMessage = null })
         }
         if (viewModel.wound != null) {
             Column(
@@ -120,14 +134,14 @@ fun WoundDetailsScreen(
                     value = viewModel.wound?.appearanceDescription ?: "",
                     singleLine = true,
                     onClick = {
-
+                        showNotesDialog = true
                     }
                 )
                 Divider()
                 Row(verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clickable {
-
+                            showImagesDialog = true
                         }
                         .padding(start = 16.dp, top = 8.dp, end = 24.dp, bottom = 8.dp)) {
                     Image(
@@ -135,7 +149,7 @@ fun WoundDetailsScreen(
                         contentDescription = ""
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    Text(text = "${viewModel.wound?.photos?.count { it.iDCheck < 0} ?: 0}")
+                    Text(text = "${viewModel.wound?.photos?.count { it.iDCheck < 0 } ?: 0}")
                     Icon(
                         painter = painterResource(id = R.drawable.ic_arrow_right),
                         contentDescription = ""
@@ -170,7 +184,8 @@ fun WoundDetailsScreen(
                         val controls = viewModel.wound?.checks?.map { check ->
                             ControlListItem(
                                 id = check.iD,
-                                date = check.dateTime.toDate("dd.MM.yyyy HH:mm")?.format("dd/MM/yyyy")
+                                date = check.dateTime.toDate("dd.MM.yyyy HH:mm")
+                                    ?.format("dd/MM/yyyy")
                                     ?: "",
                                 description = check.medicationType,
                                 imagesCount = viewModel.wound?.photos?.count { it.iDCheck == check.iD }
@@ -178,8 +193,12 @@ fun WoundDetailsScreen(
                             )
                         }
                         controls?.forEach {
-                            ControlListItemView(item = it){
-                                navigationActions.navigateToCheckDetails(Uri.encode(viewModel.patientCod),viewModel.woundId,it)
+                            ControlListItemView(item = it) {
+                                navigationActions.navigateToCheckDetails(
+                                    Uri.encode(viewModel.patientCod),
+                                    viewModel.woundId,
+                                    it
+                                )
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                         }
@@ -206,8 +225,23 @@ fun WoundDetailsScreen(
 
         }
     }
+    if (showImagesDialog) {
+        val woundDate = viewModel.wound?.appearanceDate?.toDate("dd.MM.yyyy")
+            ?.format("dd/MM/yyyy") ?: ""
+        ImagesDialog(
+            date = woundDate,
+            photosIds = viewModel.wound?.photos?.filter { it.iDCheck < 0 }?.map { it.iD } ?: listOf(),
+            requestData = viewModel.requestImageRequestData
+        ) {
+            showImagesDialog = false
+        }
+    }
+    if (showNotesDialog){
+        NotesDialog(title = stringResource(id = R.string.description), notes = viewModel.wound?.appearanceDescription ?: "") {
+            showNotesDialog = false
+        }
+    }
 }
-
 
 
 @Composable

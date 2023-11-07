@@ -1,4 +1,4 @@
-package it.airbagstudio.ticare.utils
+package it.airbagstudio.ticare.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,12 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import ch.ticare.eclinic.library.entity.OperatingShift
 import ch.ticare.eclinic.library.entity.Zone
 import it.airbagstudio.ticare.R
-import it.airbagstudio.ticare.ui.components.ListPopup
-import it.airbagstudio.ticare.ui.components.ListPopupItem
-import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable

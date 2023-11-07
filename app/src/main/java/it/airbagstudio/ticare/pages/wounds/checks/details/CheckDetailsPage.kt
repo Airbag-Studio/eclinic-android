@@ -24,8 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.airbagstudio.ticare.R
-import it.airbagstudio.ticare.navigation.DestinationsArgs
-import it.airbagstudio.ticare.pages.wounds.TitleValueView
+import it.airbagstudio.ticare.pages.wounds.common.TitleValueView
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.utils.format

@@ -31,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.drugsAdministration.DrugAdministrationItemViewLoading
+import it.airbagstudio.ticare.pages.wounds.create.CreateWoundDialogScreen
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.utils.getCompleteName
@@ -118,5 +119,10 @@ fun WoundListScreen(
         }
 
 
+        if (showCreateBottomSheet){
+            CreateWoundDialogScreen(onDismissRequest = {
+                showCreateBottomSheet = false
+            })
+        }
     }
 }

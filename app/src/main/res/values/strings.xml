@@ -119,4 +119,5 @@
     <string name="pain">Dolore</string>
     <string name="pain_intensity">Intensità del dolore</string>
     <string name="medication_type">Tipo di medicazione</string>
+    <string name="injury_type">Tipo di lesione</string>
 </resources>

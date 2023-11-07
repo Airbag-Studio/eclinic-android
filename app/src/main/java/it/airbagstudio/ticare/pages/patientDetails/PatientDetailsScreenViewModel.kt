@@ -1,15 +1,12 @@
 package it.airbagstudio.ticare.pages.patientDetails
 
-import android.text.format.DateFormat
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import ch.ticare.eclinic.library.entity.AgendaTask
 import ch.ticare.eclinic.library.entity.Badge
 import ch.ticare.eclinic.library.entity.CaseDetail
@@ -19,13 +16,11 @@ import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.data.AlertItem
 import it.airbagstudio.ticare.navigation.DestinationsArgs
-import it.airbagstudio.ticare.ui.components.PatientImageRequestData
+import it.airbagstudio.ticare.ui.components.ImageRequestData
 import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
 import it.airbagstudio.ticare.utils.format
-import it.airbagstudio.ticare.utils.includeTime
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
-import java.time.LocalTime
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
@@ -47,7 +42,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
     var shifts by mutableStateOf<List<OperatingShift>?>(null)
     var selectedShift by mutableStateOf<OperatingShift?>(null)
-    lateinit var requestImageRequestData: PatientImageRequestData
+    lateinit var requestImageRequestData: ImageRequestData
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading = false
@@ -84,7 +79,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
             }
         }
 
-        requestImageRequestData = PatientImageRequestData(
+        requestImageRequestData = ImageRequestData(
             authRepository.getBaseURL(),
             authRepository.getToken() ?: ""
         )

@@ -4,6 +4,11 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.BodyPart
+import ch.ticare.eclinic.library.entity.WoundOrigin
+import ch.ticare.eclinic.library.entity.WoundPart
+import ch.ticare.eclinic.library.entity.WoundType
+import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,9 +19,15 @@ import java.util.Date
 import javax.inject.Inject
 
 data class CreateWoundDialogScreenUIState(
-    val wound: NewWound
-
+    val wound: NewWound,
+    val dropdownSelections:DropDownSelections,
 ) {
+
+    data class DropDownSelections(
+        val selectedWoundType : WoundType?,
+        val selectedWoundPositions: List<BodyPart>?,
+        val selectedWoundOrigin: WoundOrigin?
+    )
     data class NewWound(
         val date: Date,
         val woundType: String?,
@@ -31,8 +42,14 @@ data class CreateWoundDialogScreenUIState(
 }
 
 @HiltViewModel
-class CreateWoundDialogScreenViewModel @Inject constructor() : ViewModel() {
+class CreateWoundDialogScreenViewModel @Inject constructor(
+    private val woundRepository: WoundRepository
 
+) : ViewModel() {
+
+    val woundTypes = woundRepository.getWoundTypes()
+    val woundPositions = woundRepository.getBodyParts()
+    val woundOrigins = woundRepository.getWoundPositions()
 
     private val date = MutableStateFlow<Date>(Date())
     private val imagesUri = MutableStateFlow<List<Bitmap>>(listOf())
@@ -40,19 +57,30 @@ class CreateWoundDialogScreenViewModel @Inject constructor() : ViewModel() {
     private val width = MutableStateFlow<String>("")
     private val depth = MutableStateFlow<String>("")
     private val notes = MutableStateFlow<String>("")
+    private val selectedWoundType = MutableStateFlow<WoundType?>(null)
+    private val selectedWoundPositions = MutableStateFlow<List<BodyPart>?>(null)
+    private val selectedWoundOrigin = MutableStateFlow<WoundOrigin?>(null)
 
     val _size = combine(length, width, depth) { length, width, depth ->
         arrayOf(length, width, depth)
-
+    }
+    val _selections = combine(selectedWoundType,selectedWoundPositions,selectedWoundOrigin){ selectedWoundType,selectedWoundPositions,selectedWoundOrigin ->
+        CreateWoundDialogScreenUIState.DropDownSelections(
+            selectedWoundType,
+            selectedWoundPositions,
+            selectedWoundOrigin
+        )
     }
 
-    val uiState = combine(imagesUri, date, _size, notes) { imagesUri, date, size, notes ->
+
+    val uiState = combine(imagesUri, date, _size, notes,_selections) { imagesUri, date, size, notes,selections ->
         CreateWoundDialogScreenUIState(
-            CreateWoundDialogScreenUIState.NewWound(
+            dropdownSelections = selections,
+            wound = CreateWoundDialogScreenUIState.NewWound(
                 date = date,
-                woundType = null,
-                position = null,
-                origin = null,
+                woundType = selections.selectedWoundType?.name,
+                position = selections.selectedWoundPositions?.map { it.name }?.joinToString(", "),
+                origin = selections.selectedWoundOrigin?.name,
                 length = size[0],
                 width = size[1],
                 depth = size[2],
@@ -62,7 +90,8 @@ class CreateWoundDialogScreenViewModel @Inject constructor() : ViewModel() {
         )
     }.stateIn(
         viewModelScope, SharingStarted.Eagerly, CreateWoundDialogScreenUIState(
-            CreateWoundDialogScreenUIState.NewWound(
+            dropdownSelections = CreateWoundDialogScreenUIState.DropDownSelections(null,null,null),
+            wound =  CreateWoundDialogScreenUIState.NewWound(
                 date = Date(),
                 woundType = null,
                 position = null,
@@ -95,6 +124,18 @@ class CreateWoundDialogScreenViewModel @Inject constructor() : ViewModel() {
 
     fun setNotes(value: String){
         this.notes.value = value
+    }
+
+    fun setWoundPositions(parts: List<BodyPart>?){
+        this.selectedWoundPositions.value = parts
+    }
+
+    fun setWoundOrigin(origin: WoundOrigin?){
+        this.selectedWoundOrigin.value = origin
+    }
+
+    fun setWoundType(woundType: WoundType?){
+        this.selectedWoundType.value = woundType
     }
 
     fun addImages(uriList: List<Bitmap>) {

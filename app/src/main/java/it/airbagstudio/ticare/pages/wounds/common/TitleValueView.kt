@@ -1,4 +1,4 @@
-package it.airbagstudio.ticare.pages.wounds
+package it.airbagstudio.ticare.pages.wounds.common
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column

@@ -23,7 +23,7 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
-fun PatientListItemView(patient: CaseInfo, requestImageRequestData: PatientImageRequestData, onClick: () -> Unit) {
+fun PatientListItemView(patient: CaseInfo, requestImageRequestData: ImageRequestData, onClick: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth().clickable {
         onClick()
     }) {
@@ -137,7 +137,7 @@ private fun PreviewPatientListItemView() {
                 photo = null
                 //photo = "https://www.tag24.it/wp-content/uploads/2023/04/WhatsApp-Image-2023-03-31-at-14.12.21-e1680618678712-800x560.jpeg"
             ),
-            requestImageRequestData = PatientImageRequestData("", "")
+            requestImageRequestData = ImageRequestData("", "")
         ) {
 
         }

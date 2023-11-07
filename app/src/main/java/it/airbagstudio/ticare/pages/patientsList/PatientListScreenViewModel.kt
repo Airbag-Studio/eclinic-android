@@ -11,15 +11,13 @@ import ch.ticare.eclinic.library.entity.Zone
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.UserListRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import it.airbagstudio.ticare.ui.components.PatientImageRequestData
+import it.airbagstudio.ticare.ui.components.ImageRequestData
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -50,7 +48,7 @@ class PatientListScreenViewModel @Inject constructor(
     private var selectedZone = MutableStateFlow<Zone?>(null)
     private var selectedMicroZone  = MutableStateFlow<Microzone?>(null)
 
-    lateinit var requestImageRequestData: PatientImageRequestData
+    lateinit var requestImageRequestData: ImageRequestData
 
     var coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading = false
@@ -89,7 +87,7 @@ class PatientListScreenViewModel @Inject constructor(
     init {
         downloadCases()
         downloadZones()
-        requestImageRequestData = PatientImageRequestData(
+        requestImageRequestData = ImageRequestData(
             authRepository.getBaseURL(),
             authRepository.getToken() ?: ""
         )

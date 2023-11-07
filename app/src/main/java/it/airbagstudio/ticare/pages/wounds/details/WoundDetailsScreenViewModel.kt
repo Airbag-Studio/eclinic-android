@@ -7,9 +7,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.Wound
+import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
+import it.airbagstudio.ticare.ui.components.ImageRequestData
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WoundDetailsScreenViewModel @Inject constructor(
     private val woundRepository: WoundRepository,
+    private val authRepository: AuthRepository,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
@@ -29,8 +32,13 @@ class WoundDetailsScreenViewModel @Inject constructor(
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         errorMessage = throwable.localizedMessage
     }
+    lateinit var requestImageRequestData: ImageRequestData
 
     init {
+        requestImageRequestData = ImageRequestData(
+            authRepository.getBaseURL(),
+            authRepository.getToken() ?: ""
+        )
         viewModelScope.launch(coroutineExceptionHandler) {
             val res = woundRepository.getWounds(patientCod)
             wound = res.results?.firstOrNull { it.iD == woundId.toInt() }
