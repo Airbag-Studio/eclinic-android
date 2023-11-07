@@ -312,7 +312,9 @@ fun PatientDetailsScreen(
                             ),
                             isLoading = viewModel.isLoadingActivities,
                             modifier = Modifier.weight(1f)
-                        ) {}
+                        ) {
+                            navActions.navigateToWounds(Uri.encode(viewModel.patientCod))
+                        }
                         VerticalDivider()
                         GridButton(
                             image = painterResource(id = R.drawable.ic_other_prescriptions),

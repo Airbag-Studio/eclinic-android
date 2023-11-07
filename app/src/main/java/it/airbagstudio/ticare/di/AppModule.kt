@@ -4,6 +4,7 @@ import android.content.Context
 import ch.ticare.eclinic.library.database.DriverFactory
 import ch.ticare.eclinic.library.database.createDatabase
 import ch.ticare.eclinic.library.db.Database
+import ch.ticare.eclinic.library.entity.Wound
 import ch.ticare.eclinic.library.network.APIClient
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
@@ -16,6 +17,7 @@ import ch.ticare.eclinic.library.repository.SyncDataRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.UserListRepository
 import ch.ticare.eclinic.library.repository.UserRepository
+import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -93,6 +95,12 @@ class AppModule {
     @Singleton
     fun provideUserDetailsRepository(apiClient: APIClient): UserDetailRepository {
         return UserDetailRepository(apiClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWoundRepository(apiClient: APIClient,@ApplicationContext context: Context): WoundRepository {
+        return WoundRepository(apiClient,provideDatabase(context))
     }
 
     @Provides

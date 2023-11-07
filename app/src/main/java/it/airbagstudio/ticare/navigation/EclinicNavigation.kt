@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.navigation
 
 import androidx.navigation.NavController
+import it.airbagstudio.ticare.navigation.DestinationsArgs.CHECK_ID
 import it.airbagstudio.ticare.navigation.DestinationsArgs.DATE_TIME
 import it.airbagstudio.ticare.navigation.DestinationsArgs.ID
 import it.airbagstudio.ticare.navigation.DestinationsArgs.PATIENT_COD
@@ -10,6 +11,7 @@ import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_START
 import it.airbagstudio.ticare.navigation.Screens.ALLERGIES_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.CARE_PLANS_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.CARE_PLAN_DETAILS_SCREEN
+import it.airbagstudio.ticare.navigation.Screens.CHECK_DETAILS_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.DIARY_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.DRUG_ADMINISTRATION_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.LOGIN_SCREEN
@@ -20,6 +22,8 @@ import it.airbagstudio.ticare.navigation.Screens.PATIENT_DETAILS_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.PATIENT_INFO_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.SPLASH_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.VITAL_PARAMETERS_SCREEN
+import it.airbagstudio.ticare.navigation.Screens.WOUNDS_SCREEN
+import it.airbagstudio.ticare.navigation.Screens.WOUND_DETAILS_SCREEN
 
 private object Screens{
     const val SPLASH_SCREEN = "splashScreen"
@@ -35,9 +39,13 @@ private object Screens{
     const val CARE_PLANS_SCREEN = "carePlansScreen"
     const val CARE_PLAN_DETAILS_SCREEN = "carePlanDetailsScreen"
     const val NURSING_COURSES_SCREEN = "nursingCoursesScreen"
+    const val WOUNDS_SCREEN = "woundsScreen"
+    const val WOUND_DETAILS_SCREEN = "woundDetailsScreen"
+    const val CHECK_DETAILS_SCREEN = "checkDetailsScreen"
 }
 
 object DestinationsArgs{
+    const val CHECK_ID: String = "checkId"
     const val ID: String = "id"
     const val PATIENT_COD = "patientCod"
     const val SHIFT_START = "shiftStart"
@@ -63,6 +71,9 @@ object Destinations{
     const val NURSING_COURSES_ROUTE = "$NURSING_COURSES_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{${SHIFT_START}}/{$SHIFT_END}/{$SHIFT_NAME}"
     const val NURSING_COURSES_ROUTE_NO_SHIFT = "$NURSING_COURSES_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{$SHIFT_NAME}"
     const val CARE_PLANE_DETAILS_ROUTE = "$CARE_PLAN_DETAILS_SCREEN/{$PATIENT_COD}/{$ID}"
+    const val WOUNDS_ROUTE = "$WOUNDS_SCREEN/{$PATIENT_COD}"
+    const val WOUND_DETAILS_ROUTE = "$WOUND_DETAILS_SCREEN/{$PATIENT_COD}/{$ID}"
+    const val CHECK_DETAILS_ROUTE = "$CHECK_DETAILS_SCREEN/{$PATIENT_COD}/{$ID}/{$CHECK_ID}"
 }
 
 class NavigationActions(private val navController: NavController){
@@ -121,6 +132,18 @@ class NavigationActions(private val navController: NavController){
 
     fun navigateToCarePlanDetailsScreen(patientCod: String,id: String){
         navController.navigate("$CARE_PLAN_DETAILS_SCREEN/$patientCod/$id")
+    }
+
+    fun navigateToWounds(patientCod: String){
+        navController.navigate("$WOUNDS_SCREEN/$patientCod")
+    }
+
+    fun navigateToWoundDetails(patientCod: String,id: Int){
+        navController.navigate("$WOUND_DETAILS_SCREEN/$patientCod/$id")
+    }
+
+    fun navigateToCheckDetails(patientCod: String,woundId: String,checkId: Int){
+        navController.navigate("$CHECK_DETAILS_SCREEN/$patientCod/$woundId/$checkId")
     }
 
 }

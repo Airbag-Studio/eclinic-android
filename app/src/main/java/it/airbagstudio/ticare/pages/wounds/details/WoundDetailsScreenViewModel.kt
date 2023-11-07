@@ -1,0 +1,40 @@
+package it.airbagstudio.ticare.pages.wounds.details
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.Wound
+import ch.ticare.eclinic.library.repository.WoundRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import it.airbagstudio.ticare.navigation.DestinationsArgs
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class WoundDetailsScreenViewModel @Inject constructor(
+    private val woundRepository: WoundRepository,
+    savedStateHandle: SavedStateHandle
+): ViewModel() {
+
+    val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
+    val woundId: String = savedStateHandle[DestinationsArgs.ID]!!
+
+    var wound by mutableStateOf<Wound?>(null)
+    var errorMessage by mutableStateOf<String?>(null)
+
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+        errorMessage = throwable.localizedMessage
+    }
+
+    init {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            val res = woundRepository.getWounds(patientCod)
+            wound = res.results?.firstOrNull { it.iD == woundId.toInt() }
+            errorMessage = res.error?.desc
+        }
+    }
+}
