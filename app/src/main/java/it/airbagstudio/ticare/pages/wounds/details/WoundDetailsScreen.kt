@@ -42,9 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
+import it.airbagstudio.ticare.pages.wounds.checks.create.CheckCreateDialogScreen
 import it.airbagstudio.ticare.pages.wounds.common.ImagesDialog
 import it.airbagstudio.ticare.pages.wounds.common.NotesDialog
 import it.airbagstudio.ticare.pages.wounds.common.TitleValueView
+import it.airbagstudio.ticare.pages.wounds.create.CreateWoundDialogScreen
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.ui.theme.AppTheme
@@ -63,6 +65,9 @@ fun WoundDetailsScreen(
         mutableStateOf(false)
     }
     var showNotesDialog by remember {
+        mutableStateOf(false)
+    }
+    var showCheckCreateBottomSheet by remember {
         mutableStateOf(false)
     }
     Scaffold(
@@ -171,7 +176,7 @@ fun WoundDetailsScreen(
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = seed
                             ),
-                            onClick = { /*TODO*/ }) {
+                            onClick = { showCheckCreateBottomSheet = true }) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "")
                             Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                             Text(text = stringResource(id = R.string.new_control))
@@ -240,6 +245,11 @@ fun WoundDetailsScreen(
         NotesDialog(title = stringResource(id = R.string.description), notes = viewModel.wound?.appearanceDescription ?: "") {
             showNotesDialog = false
         }
+    }
+    if (showCheckCreateBottomSheet){
+        CheckCreateDialogScreen(codCase = viewModel.patientCod, idWound = viewModel.woundId.toInt(), idGender = 1, onDismissRequest = {success ->
+            showCheckCreateBottomSheet = false
+        })
     }
 }
 
