@@ -35,6 +35,7 @@ import it.airbagstudio.ticare.ui.components.BuildPageHeader
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.getCompleteName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +49,7 @@ fun VitalParametersScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     Scaffold(
         topBar = {
-            ToolbarWithBackAndSync(title = uiState.patient?.name ?: "") {
+            ToolbarWithBackAndSync(title = uiState.patient?.getCompleteName() ?: "") {
                 onBack()
             }
         },

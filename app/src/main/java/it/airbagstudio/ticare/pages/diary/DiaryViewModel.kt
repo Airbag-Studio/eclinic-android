@@ -9,6 +9,7 @@ import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
 import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.getCompleteName
 import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,7 +46,7 @@ class DiaryViewModel @Inject constructor(
                 val date = it.date.toDate("dd.MM.yyyy")
                 date?.format("EEE dd MMMM") ?: it.date
             },
-            patientName = case?.name ?: "",
+            patientName = case?.getCompleteName() ?: "",
             isLoading = false
         )
 
@@ -54,7 +55,7 @@ class DiaryViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = DiaryUIState(
             items = mapOf(),
-            patientName = case?.name ?: "",
+            patientName = case?.getCompleteName() ?: "",
             isLoading = true
         )
     )
@@ -67,7 +68,7 @@ class DiaryViewModel @Inject constructor(
                 patientCod,
                 from.format(dateFormatter),
                 now.format(dateFormatter)
-            ).results ?: listOf()
+            ).results?.filter { it.entityName != "Wound" } ?: listOf()
             isLoading.value = false
         }
     }

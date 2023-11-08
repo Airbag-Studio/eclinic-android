@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
 import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
 import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.getCompleteName
 import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,7 +64,7 @@ class WoundListScreenViewModel @Inject constructor(
             )
         }
         WoundListScreenUiState(
-            patientName = currentCase?.name,
+            patientName = currentCase?.getCompleteName() ?: "",
             date = date.format("dd/MM/yyyy"),
             shiftName = shift?.name,
             isLoading = isLoading,
@@ -75,7 +76,7 @@ class WoundListScreenViewModel @Inject constructor(
         isLoading.value = false
     }.stateIn(
         viewModelScope, SharingStarted.Eagerly, WoundListScreenUiState(
-            patientName = currentCase?.name,
+            patientName = currentCase?.getCompleteName(),
             date = date.format("dd/MM/yyyy"),
             shiftName = shift?.name,
             isLoading = false,

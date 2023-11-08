@@ -9,6 +9,7 @@ import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
 import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.getCompleteName
 import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +34,7 @@ class CarePlanesListScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
-    private val patientName = userDetailRepository.getCurrentCase()?.name ?: ""
+    private val patientName = userDetailRepository.getCurrentCase()?.getCompleteName() ?: ""
     private val isLoading = MutableStateFlow(false)
     private val errorMessage = MutableStateFlow<String?>(null)
     private val plans = MutableStateFlow<List<HomeCarePlan>>(listOf())

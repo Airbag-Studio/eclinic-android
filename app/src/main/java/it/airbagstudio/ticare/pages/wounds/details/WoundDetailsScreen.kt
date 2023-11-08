@@ -231,6 +231,7 @@ fun WoundDetailsScreen(
 
         }
     }
+    /*
     if (showImagesDialog) {
         val woundDate = viewModel.wound?.appearanceDate?.toDate("dd.MM.yyyy")
             ?.format("dd/MM/yyyy") ?: ""
@@ -242,6 +243,8 @@ fun WoundDetailsScreen(
             showImagesDialog = false
         }
     }
+
+     */
     if (showNotesDialog){
         NotesDialog(title = stringResource(id = R.string.description), notes = viewModel.wound?.appearanceDescription ?: "") {
             showNotesDialog = false

@@ -75,7 +75,7 @@ fun EditDrugAdministrationSheet(
 
     LaunchedEffect(Unit) {
         viewModel.task.value = task?.copy(showInDiary = task.isReserve)
-        viewModel.quantity.value = task?.quantity.toString()
+        viewModel.quantity.value = null
         if (task?.execDate == null && task?.isReserve == false) {
             //viewModel.task.value = viewModel.task.value?.copy(quantity = task?.expQuantity ?: 0.0)
             viewModel.setQuantity(task.expQuantity.toString())

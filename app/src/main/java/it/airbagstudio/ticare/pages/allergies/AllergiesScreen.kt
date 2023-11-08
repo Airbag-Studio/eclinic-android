@@ -18,6 +18,7 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.utils.getCompleteName
 
 @Composable
 fun AllergiesScreen(
@@ -27,7 +28,7 @@ fun AllergiesScreen(
 ) {
     Scaffold(
         topBar = {
-            ToolbarWithBackAndSync(title = "${viewModel.caseInfo?.name ?: ""} ${viewModel.caseInfo?.surname ?: ""}") {
+            ToolbarWithBackAndSync(title = viewModel.caseInfo?.getCompleteName() ?: "") {
                 onBack()
             }
         }
