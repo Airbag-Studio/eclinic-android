@@ -37,19 +37,23 @@ fun CloseWoundDialog(onDismissRequest:(Boolean,String?) -> Unit){
     Dialog(onDismissRequest = {
         onDismissRequest(false,null)
     }) {
-        Column(modifier = Modifier.background(Color.White, RoundedCornerShape(16.dp))) {
+        Column(modifier = Modifier.fillMaxWidth().background(Color.White, RoundedCornerShape(16.dp))) {
             Column(Modifier.padding(16.dp)) {
                 Text(
                     text = stringResource(id = R.string.closing_protocol),
                     style = MaterialTheme.typography.headlineSmall
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = stringResource(id = R.string.wound_closing_note))
+                Text(
+                    text = stringResource(id = R.string.wound_closing_note),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
                     visualTransformation = if (note.isEmpty()) PlaceholderTransformation("  ") else VisualTransformation.None,
 
-                    modifier = Modifier.fillMaxWidth().height(80.dp),
+                    modifier = Modifier.fillMaxWidth().height(100.dp),
                     label = {
                         Text(text = stringResource(id = R.string.notes))
                     },
@@ -65,7 +69,7 @@ fun CloseWoundDialog(onDismissRequest:(Boolean,String?) -> Unit){
 
             Divider()
             Spacer(modifier = Modifier.height(16.dp))
-            Row {
+            Row(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Spacer(modifier = Modifier.weight(1f))
                 TextButton(onClick = {
                     onDismissRequest(false,null)

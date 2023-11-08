@@ -70,6 +70,9 @@ fun WoundDetailsScreen(
     var showCheckCreateBottomSheet by remember {
         mutableStateOf(false)
     }
+    var showCloseDialog by remember {
+        mutableStateOf(false)
+    }
     Scaffold(
         topBar = {
             ToolbarWithBackAndSync(title = stringResource(id = R.string.wounds)) {
@@ -216,7 +219,7 @@ fun WoundDetailsScreen(
                         ),
                         border = BorderStroke(1.dp, seed),
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { /*TODO*/ }) {
+                        onClick = { showCloseDialog = true }) {
                         Text(text = stringResource(id = R.string.close_wound))
                     }
                 }
@@ -245,14 +248,26 @@ fun WoundDetailsScreen(
     }
 
      */
-    if (showNotesDialog){
-        NotesDialog(title = stringResource(id = R.string.description), notes = viewModel.wound?.appearanceDescription ?: "") {
+    if (showNotesDialog) {
+        NotesDialog(
+            title = stringResource(id = R.string.description),
+            notes = viewModel.wound?.appearanceDescription ?: ""
+        ) {
             showNotesDialog = false
         }
     }
-    if (showCheckCreateBottomSheet){
-        CheckCreateDialogScreen(codCase = viewModel.patientCod, idWound = viewModel.woundId.toInt(), idGender = 1, onDismissRequest = {success ->
-            showCheckCreateBottomSheet = false
+    if (showCheckCreateBottomSheet) {
+        CheckCreateDialogScreen(
+            codCase = viewModel.patientCod,
+            idWound = viewModel.woundId.toInt(),
+            idGender = 1,
+            onDismissRequest = { success ->
+                showCheckCreateBottomSheet = false
+            })
+    }
+    if (showCloseDialog) {
+        CloseWoundDialog(onDismissRequest = { confirm, mesage ->
+            showCloseDialog = false
         })
     }
 }
