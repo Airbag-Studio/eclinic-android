@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -72,7 +73,12 @@ fun AddPhotoButton(modifier: Modifier = Modifier,onSuccess: (List<Bitmap>) -> Un
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uriList ->
-            onSuccess(uriList.map { BitmapFactory.decodeFile(uri.path).resized() })
+            val bitmpas = uriList.map {
+                val source = ImageDecoder
+                    .createSource(context.contentResolver,it)
+                ImageDecoder.decodeBitmap(source).resized()
+            }
+            onSuccess(bitmpas)
         }
 
     val cameraLauncher =
@@ -81,19 +87,6 @@ fun AddPhotoButton(modifier: Modifier = Modifier,onSuccess: (List<Bitmap>) -> Un
             if (it) {
                 onSuccess(listOf(BitmapFactory.decodeFile(file.path).resized() ))
             }
-            /*
-            capturedImageUri = uri
-            val bitmap = BitmapFactory.decodeFile(file.path)
-            try {
-                val quality = 70
-                val fos = FileOutputStream(context.createImageFile(true))
-                bitmap.resized().compress(Bitmap.CompressFormat.JPEG, quality, fos)
-                fos.close()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
-             */
         }
 
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
