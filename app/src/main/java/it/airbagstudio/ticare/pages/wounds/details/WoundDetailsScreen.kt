@@ -163,6 +163,7 @@ fun WoundDetailsScreen(
                 Divider()
                 Column(
                     modifier = Modifier
+                        .weight(1f)
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(16.dp)
                 ) {

@@ -17,8 +17,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import ch.ticare.eclinic.library.entity.Zone
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
@@ -29,16 +31,17 @@ fun <T> MultiselectPopupTextField(
     label: String,
     items: List<ListPopupItem<T>>,
     selectedItems: List<ListPopupItem<T>>,
-    onClose:(List<ListPopupItem<T>>?) -> Unit
+    onClose: (List<ListPopupItem<T>>?) -> Unit
 ) {
     var showPopup by remember { mutableStateOf(false) }
     Box(modifier = modifier) {
         OutlinedTextField(
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             label = {
                 Text(text = label)
             },
-            value = selectedItems.map { it.label }.joinToString(", "),
+            value = if (selectedItems.isNotEmpty()) "     " else "",
             onValueChange = { },
             trailingIcon = {
                 Icon(
@@ -47,6 +50,13 @@ fun <T> MultiselectPopupTextField(
                 )
             }
         )
+        Text(
+            modifier = Modifier
+                .padding(start = 16.dp, top = 24.dp, end = 32.dp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            text = selectedItems.map { it.label }.joinToString(", ")
+        )
         Box(modifier = Modifier
             .matchParentSize()
             .clickable {
@@ -54,21 +64,25 @@ fun <T> MultiselectPopupTextField(
             })
     }
     if (showPopup) {
-        MultiSelectionListPopup(title = label, items = items, currentSelectedItems = selectedItems, onClose = {
-            showPopup = false
-            onClose(it)
-        })
+        MultiSelectionListPopup(
+            title = label,
+            items = items,
+            currentSelectedItems = selectedItems,
+            onClose = {
+                showPopup = false
+                onClose(it)
+            })
     }
 }
 
 @Composable
 @Preview
-private fun PreviewPopupTextField(){
+private fun PreviewPopupTextField() {
     val items = listOf(
-        ListPopupItem("Prova",Zone(id = 0, name = "Test")),
-        ListPopupItem("Prova 2",Zone(id = 1, name = "Test 2")),
-        ListPopupItem("Prova 3",Zone(id = 2, name = "Test 3")),
-        ListPopupItem("Prova 4",Zone(id = 3, name = "Test 4")),
+        ListPopupItem("Prova", Zone(id = 0, name = "Test")),
+        ListPopupItem("Prova 2", Zone(id = 1, name = "Test 2")),
+        ListPopupItem("Prova 3", Zone(id = 2, name = "Test 3")),
+        ListPopupItem("Prova 4", Zone(id = 3, name = "Test 4")),
     )
 
     var selectedItems by remember {
@@ -78,10 +92,16 @@ private fun PreviewPopupTextField(){
         Column(
             Modifier
                 .background(Color.White)
-                .padding(16.dp)) {
-            MultiselectPopupTextField(modifier = Modifier.fillMaxWidth(),label = "Prova", items = items,selectedItems = selectedItems, onClose =  {
-                selectedItems = it ?: listOf()
-            })
+                .padding(16.dp)
+        ) {
+            MultiselectPopupTextField(
+                modifier = Modifier.fillMaxWidth(),
+                label = "Prova",
+                items = items,
+                selectedItems = selectedItems,
+                onClose = {
+                    selectedItems = it ?: listOf()
+                })
         }
     }
 

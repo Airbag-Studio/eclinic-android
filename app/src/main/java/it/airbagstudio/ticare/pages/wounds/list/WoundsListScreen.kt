@@ -3,6 +3,7 @@ package it.airbagstudio.ticare.pages.wounds.list
 import android.net.Uri
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -102,7 +103,9 @@ fun WoundListScreen(
                     Divider(modifier = Modifier.padding(start = 16.dp))
                 }
             } else {
-                LazyColumn(content = {
+                LazyColumn(
+                    contentPadding = PaddingValues(bottom = 124.dp),
+                    content = {
                     items(uiState.wounds){
                         WoundListItemView(item = it){woundId ->
                             navigationActions.navigateToWoundDetails(Uri.encode(viewModel.patientCod),woundId)

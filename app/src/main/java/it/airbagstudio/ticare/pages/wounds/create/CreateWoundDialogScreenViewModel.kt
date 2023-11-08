@@ -11,6 +11,7 @@ import ch.ticare.eclinic.library.entity.WoundImageUploadRequest
 import ch.ticare.eclinic.library.entity.WoundOrigin
 import ch.ticare.eclinic.library.entity.WoundSave
 import ch.ticare.eclinic.library.entity.WoundType
+import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.ui.components.ListPopupItem
@@ -59,7 +60,8 @@ data class CreateWoundDialogScreenUIState(
 
 @HiltViewModel
 class CreateWoundDialogScreenViewModel @Inject constructor(
-    private val woundRepository: WoundRepository
+    private val woundRepository: WoundRepository,
+    private val userDetailRepository: UserDetailRepository
 
 ) : ViewModel() {
 
@@ -68,18 +70,6 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
     val woundTypes = mutableStateOf<List<ListPopupItem<WoundType>>>(listOf())
     val woundBodyParts = mutableStateOf<List<ListPopupItem<BodyPart>>>(listOf())
     var woundOrigins = mutableStateOf<List<ListPopupItem<WoundOrigin>>>(listOf())
-    /*
-    val woundTypes = woundRepository.getWoundTypes().map { it.map { ListPopupItem(label = it.name, item = it) } }.catch {
-        errorMessage = it.localizedMessage
-    }
-    val woundPositions = woundRepository.getBodyParts().map { it.map { ListPopupItem(label = it.name, item = it) } }.catch {
-        errorMessage = it.localizedMessage
-    }
-    val woundOrigins = woundRepository.getWoundPositions().map { it.map { ListPopupItem(label = it.name, item = it) } }.catch {
-        errorMessage = it.localizedMessage
-    }
-
-     */
 
     private val date = MutableStateFlow<Date>(Date())
     private val imagesUri = MutableStateFlow<List<Bitmap>>(listOf())
@@ -154,7 +144,9 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
                     !selections.selectedWoundBodyParts.isNullOrEmpty() &&
                     newWound.depth?.toIntOrNull() != null &&
                     newWound.length?.toIntOrNull() != null &&
-                    newWound.width?.toIntOrNull() != null
+                    newWound.width?.toIntOrNull() != null &&
+                    newWound.description?.isNotEmpty() == true
+
         CreateWoundDialogScreenUIState(
             dropdownSelections = selections,
             wound = newWound,
@@ -190,9 +182,10 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(coroutineExceptionHandler) {
+            val genderId = userDetailRepository.getCurrentCase()?.gender?.id ?: 0
             combine(woundRepository.getWoundTypes(),woundRepository.getBodyParts(),woundRepository.getWoundPositions()){_woundTypes,bodyParts,woundPositions ->
                 woundTypes.value = _woundTypes.map { ListPopupItem(it.name,it) }
-                woundBodyParts.value = bodyParts.map { ListPopupItem(it.name,it) }
+                woundBodyParts.value = bodyParts.filter { it.idGender == genderId }.map { ListPopupItem(it.name,it) }
                 woundOrigins.value = woundPositions.map { ListPopupItem(it.name,it) }
             }.collect()
         }
@@ -238,7 +231,6 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
     fun removeImage(uri: Bitmap) {
         imagesUri.value = imagesUri.value.minus(uri)
     }
-
 
     fun saveWound() {
         viewModelScope.launch(coroutineExceptionHandler) {

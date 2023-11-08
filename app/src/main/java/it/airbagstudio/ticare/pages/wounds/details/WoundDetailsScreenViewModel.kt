@@ -12,8 +12,10 @@ import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
 import it.airbagstudio.ticare.ui.components.ImageRequestData
+import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,4 +46,15 @@ class WoundDetailsScreenViewModel @Inject constructor(
             errorMessage = res.error?.desc
         }
     }
+
+    /*
+    fun closeWound(description: String){
+        viewModelScope.launch(coroutineExceptionHandler) {
+            wound?.copy(closeDescription = description, closeDate = Date().format("dd.MM.yyyy"))?.let{
+                val res = woundRepository.updateWound()
+            }
+        }
+    }
+
+     */
 }

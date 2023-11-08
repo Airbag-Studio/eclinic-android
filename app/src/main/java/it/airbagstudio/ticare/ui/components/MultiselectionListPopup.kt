@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -54,47 +58,42 @@ fun <T> MultiSelectionListPopup(
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.padding(8.dp)
                 )
-
-
-                Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                    items.forEach { item ->
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(items) { item ->
                         val selected = selectedItems.contains(item)
-                        Box(
-                            contentAlignment = Alignment.CenterStart,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
-                                .height(55.dp)
-                                .clickable {
-                                    if (selected) {
-                                        selectedItems = selectedItems.minus(item)
-                                    } else {
-                                        selectedItems = selectedItems.plus(item)
-                                    }
-
+                            .height(45.dp)
+                            .clickable {
+                                if (selected) {
+                                    selectedItems = selectedItems.minus(item)
+                                } else {
+                                    selectedItems = selectedItems.plus(item)
                                 }
-                        ) {
-                            Row {
-                                Icon(
-                                    modifier = Modifier.alpha(if (selected) 1f else 0f),
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = ""
-                                )
-                                Text(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    text = item.label,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-
+                            }) {
+                            Icon(
+                                modifier = Modifier.alpha(if (selected) 1f else 0f),
+                                imageVector = Icons.Default.Check,
+                                contentDescription = ""
+                            )
+                            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = item.label,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                         }
-
                         if (items.last() != item) {
                             Divider()
                         }
-
                     }
+
                 }
 
-                Row(modifier = Modifier.height(50.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.height(50.dp)) {
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(onClick = {
                         selectedItems = listOf()
