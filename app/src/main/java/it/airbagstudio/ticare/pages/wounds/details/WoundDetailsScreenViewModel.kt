@@ -32,13 +32,12 @@ class WoundDetailsScreenViewModel @Inject constructor(
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         errorMessage = throwable.localizedMessage
     }
-    lateinit var requestImageRequestData: ImageRequestData
+    var requestImageRequestData: ImageRequestData = ImageRequestData(
+        authRepository.getBaseURL(),
+        authRepository.getToken() ?: ""
+    )
 
     init {
-        requestImageRequestData = ImageRequestData(
-            authRepository.getBaseURL(),
-            authRepository.getToken() ?: ""
-        )
         viewModelScope.launch(coroutineExceptionHandler) {
             val res = woundRepository.getWounds(patientCod)
             wound = res.results?.firstOrNull { it.iD == woundId.toInt() }

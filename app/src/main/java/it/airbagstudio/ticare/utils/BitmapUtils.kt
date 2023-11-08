@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.utils
 
 import android.graphics.Bitmap
+import java.io.ByteArrayOutputStream
 
 fun Bitmap.resized(maxSize: Int = 1000, compression: Int = 70): Bitmap {
     val sourceWidth: Int = this.width
@@ -17,4 +18,10 @@ fun Bitmap.resized(maxSize: Int = 1000, compression: Int = 70): Bitmap {
         targetHeight = (maxSize.toFloat() / sourceRatio).toInt()
     }
     return Bitmap.createScaledBitmap(this, targetWidth, targetHeight, false)
+}
+
+fun Bitmap.toByteArray(): ByteArray{
+    val stream = ByteArrayOutputStream()
+    this.compress(Bitmap.CompressFormat.JPEG, 90, stream)
+    return stream.toByteArray()
 }

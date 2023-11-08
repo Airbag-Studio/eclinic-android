@@ -17,6 +17,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -24,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.pages.wounds.common.ImagesDialog
 import it.airbagstudio.ticare.pages.wounds.common.TitleValueView
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
@@ -36,6 +41,9 @@ fun CheckDetailsPage(
     viewModel: CheckDetailsViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
+    var showImagesDialog by remember {
+        mutableStateOf(false)
+    }
     Scaffold(
         topBar = {
             ToolbarWithBackAndSync(title = stringResource(id = R.string.check)) {
@@ -82,7 +90,7 @@ fun CheckDetailsPage(
                 Row(verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clickable {
-
+                            showImagesDialog = true
                         }
                         .padding(start = 16.dp, top = 8.dp, end = 24.dp, bottom = 8.dp)) {
                     Image(
@@ -104,6 +112,16 @@ fun CheckDetailsPage(
                 horizontalArrangement = Arrangement.Center
             ) {
                 CircularProgressIndicator()
+            }
+        }
+        if (showImagesDialog) {
+            val woundDate = viewModel.check?.dateTime?.toDate("dd.MM.yyyy HH:mm")?.format("dd MMMM yyyy, HH:mm") ?: ""
+            ImagesDialog(
+                date = woundDate,
+                photosIds = viewModel.photos?.filter { it.iDCheck == viewModel.checkId.toInt() }?.map { it.iD } ?: listOf(),
+                requestData = viewModel.requestImageRequestData
+            ) {
+                showImagesDialog = false
             }
         }
     }

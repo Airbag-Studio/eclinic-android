@@ -8,9 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.WoundCheck
 import ch.ticare.eclinic.library.entity.WoundPhoto
+import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
+import it.airbagstudio.ticare.ui.components.ImageRequestData
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CheckDetailsViewModel @Inject constructor(
     private val woundRepository: WoundRepository,
+    private val authRepository: AuthRepository,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
     val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
@@ -30,6 +33,10 @@ class CheckDetailsViewModel @Inject constructor(
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         errorMessage = throwable.localizedMessage
     }
+    var requestImageRequestData: ImageRequestData = ImageRequestData(
+        authRepository.getBaseURL(),
+        authRepository.getToken() ?: ""
+    )
 
     init {
         viewModelScope.launch(coroutineExceptionHandler) {

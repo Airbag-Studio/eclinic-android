@@ -84,6 +84,10 @@ class WoundListScreenViewModel @Inject constructor(
     )
 
     init {
+        downloadWounds()
+    }
+
+    fun downloadWounds(){
         isLoading.value = true
         viewModelScope.launch(coroutineExceptionHandler) {
             val res = woundRepository.getWounds(patientCod)

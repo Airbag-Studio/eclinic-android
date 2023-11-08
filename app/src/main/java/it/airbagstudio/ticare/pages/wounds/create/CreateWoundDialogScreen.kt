@@ -7,13 +7,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -22,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -38,6 +44,7 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.wounds.common.AddingImagesGallery
 import it.airbagstudio.ticare.ui.components.AddPhotoButton
 import it.airbagstudio.ticare.ui.components.CalendarTextField
+import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.MultiselectPopupTextField
 import it.airbagstudio.ticare.ui.components.PopupTextField
@@ -47,17 +54,19 @@ import it.airbagstudio.ticare.utils.PlaceholderTransformation
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateWoundDialogScreen(
+    codCase: String,
     onDismissRequest: (Boolean) -> Unit,
     viewModel: CreateWoundDialogScreenViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.clearData()
+        viewModel.codCase = codCase
+    }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val woundTypes by viewModel.woundTypes.collectAsState(initial = listOf())
-    val woundPositions by viewModel.woundPositions.collectAsState(initial = listOf())
-    val woundOrigins by viewModel.woundOrigins.collectAsState(initial = listOf())
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = {
-
+            viewModel.clearData()
             onDismissRequest(false)
         }) {
         Scaffold(modifier = Modifier.fillMaxSize(),
@@ -94,7 +103,7 @@ fun CreateWoundDialogScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(id = R.string.injury_type),
                     value = uiState.wound.woundType ?: "",
-                    items = woundTypes.map { ListPopupItem(label = it.name, item = it) }
+                    items = viewModel.woundTypes.value
                 ){
                     viewModel.setWoundType(it.item)
                 }
@@ -102,17 +111,17 @@ fun CreateWoundDialogScreen(
                 MultiselectPopupTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(id = R.string.position),
-                    items = woundPositions.map { ListPopupItem(label = it.name, item = it) },
-                    selectedItems = uiState.dropdownSelections.selectedWoundPositions?.map { ListPopupItem(it.name,it) } ?: listOf()
+                    items = viewModel.woundBodyParts.value,
+                    selectedItems = uiState.dropdownSelections.selectedWoundBodyParts?.map { ListPopupItem(it.name,it) } ?: listOf()
                 ){ selectedItems  ->
-                    selectedItems?.mapNotNull { it.item }?.let { viewModel.setWoundPositions(it) } ?: run { viewModel.setWoundPositions(null) }
+                    selectedItems?.mapNotNull { it.item }?.let { viewModel.setWoundBodyParts(it) } ?: run { viewModel.setWoundBodyParts(null) }
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 PopupTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(id = R.string.origin),
                     value = uiState.wound.origin ?: "",
-                    items = woundOrigins.map { ListPopupItem(label = it.name, item = it) }
+                    items = viewModel.woundOrigins.value
                 ){
                     viewModel.setWoundOrigin(it.item)
                 }
@@ -194,8 +203,38 @@ fun CreateWoundDialogScreen(
                 AddPhotoButton(onSuccess = {
                     viewModel.addImages(it)
                 })
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    enabled = uiState.isValid && !uiState.isLoading,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        viewModel.saveWound()
+                    }) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = stringResource(id = R.string.execute)
+                    )
+                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                    Text(text = stringResource(id = R.string.save))
+                    if (uiState.isLoading) {
+                        Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                        CircularProgressIndicator(
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
 
             }
+        }
+        if (viewModel.errorMessage != null){
+            ErrorAlert(message = viewModel.errorMessage!!, onDismissRequest = {
+                viewModel.errorMessage = null
+            })
+        }
+        if (uiState.isSuccess){
+            viewModel.clearData()
+            onDismissRequest(true)
         }
     }
 }
@@ -204,6 +243,6 @@ fun CreateWoundDialogScreen(
 @Preview
 private fun CreateWoundDialogScreenPreview() {
     AppTheme {
-        CreateWoundDialogScreen(onDismissRequest = {})
+        CreateWoundDialogScreen("",onDismissRequest = {})
     }
 }

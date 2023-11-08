@@ -118,10 +118,10 @@ fun WoundListScreen(
             }
         }
 
-
         if (showCreateBottomSheet){
-            CreateWoundDialogScreen(onDismissRequest = {
+            CreateWoundDialogScreen(codCase = viewModel.patientCod,onDismissRequest = {success ->
                 showCreateBottomSheet = false
+                viewModel.downloadWounds()
             })
         }
     }
