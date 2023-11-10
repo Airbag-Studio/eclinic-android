@@ -86,6 +86,10 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
         task.value = task.value?.copy(patientOwnedDrug = value)
     }
 
+    fun setNote(text: String){
+        task.value = task.value?.copy(notes = text)
+    }
+
     fun executeTask() {
         task.value?.let { updatedTask ->
             if (updatedTask.quantity > updatedTask.maxQuantity){
