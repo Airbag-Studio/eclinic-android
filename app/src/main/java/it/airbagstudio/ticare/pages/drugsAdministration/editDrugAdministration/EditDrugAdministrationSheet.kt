@@ -86,6 +86,7 @@ fun EditDrugAdministrationSheet(
                 isSkipped = task.isSkipped,
                 rejected = task.rejected
             )
+            viewModel.setQuantity(task.quantity.toString())
         }
     }
 
