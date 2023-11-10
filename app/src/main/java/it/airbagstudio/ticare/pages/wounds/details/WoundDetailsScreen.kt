@@ -213,11 +213,7 @@ fun WoundDetailsScreen(
                         }
                     }
                     Spacer(modifier = Modifier.weight(1f))
-                    OutlinedButton(
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = seed
-                        ),
-                        border = BorderStroke(1.dp, seed),
+                    Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { showCloseDialog = true }) {
                         Text(text = stringResource(id = R.string.close_wound))
