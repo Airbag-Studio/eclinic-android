@@ -2,6 +2,7 @@ package it.airbagstudio.ticare.pages.drugsAdministration
 
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -170,7 +171,9 @@ fun DrugsAdministrationScreen(
             } else {
                 when (tabIndex) {
                     0 -> {
-                        LazyColumn(content = {
+                        LazyColumn(
+                            contentPadding = PaddingValues(bottom = 124.dp),
+                            content = {
                             items(viewModel.tasks) { task ->
                                 DrugAdministrationItemView(
                                     name = task.itemDescription ?: "",

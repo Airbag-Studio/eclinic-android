@@ -2,6 +2,7 @@ package it.airbagstudio.ticare.pages.otherTreatments
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -93,7 +94,9 @@ fun OtherTreatmentScreen(
                 .padding(values)
         ) {
             BuildPageHeader(title = stringResource(id = R.string.other_prescriptions), date = uiState.selectedDate?.format("dd/MM/yyyy") ?: "", shiftName = uiState.selectedShift?.name ?: stringResource(id = R.string.all))
-            LazyColumn(content = {
+            LazyColumn(
+                contentPadding = PaddingValues(bottom = 124.dp),
+                content = {
                 items(uiState.services){
                     OtherTreatmentItemView(item = it) {
                         viewModel.setSelectedServiceId(it.id)

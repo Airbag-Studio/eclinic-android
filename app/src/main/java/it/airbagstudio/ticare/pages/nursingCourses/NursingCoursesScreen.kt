@@ -2,6 +2,7 @@ package it.airbagstudio.ticare.pages.nursingCourses
 
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -116,7 +117,9 @@ fun NursingCoursesScreen(
         } else {
             Spacer(modifier = Modifier.height(16.dp))
             Divider()
-            LazyColumn(content = {
+            LazyColumn(
+                contentPadding = PaddingValues(bottom = 124.dp),
+                content = {
                 items(viewModel.tasks) { task ->
                     val date = task.dateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA)?.format(DATE_ONLY_TIME_FORMAT) ?: "-"
                     NursingCourseItemView(

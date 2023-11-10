@@ -145,7 +145,7 @@ fun CarePlanDetailsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             LazyColumn(
-                contentPadding = PaddingValues(0.dp,0.dp,0.dp,100.dp),
+                contentPadding = PaddingValues(bottom = 124.dp),
                 content = {
                 items(uiState.cares){ carePlanItem ->
                     CarePlanCoursesListItemView(item = carePlanItem, onClick = {

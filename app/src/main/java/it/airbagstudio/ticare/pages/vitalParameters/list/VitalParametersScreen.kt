@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.pages.vitalParameters.list
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -87,7 +88,9 @@ fun VitalParametersScreen(
                 date = uiState.date?.format("dd/MM/yyyy") ?: "",
                 shiftName = uiState.shift?.name ?: stringResource(id = R.string.all)
             )
-            LazyColumn(content = {
+            LazyColumn(
+                contentPadding = PaddingValues(bottom = 124.dp),
+                content = {
                 items(uiState.items){
                     VitalParameterItemView(item = it) {
                         viewModel.selectedTask = it.item
