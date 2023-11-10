@@ -58,6 +58,7 @@ import java.util.Date
 @Composable
 fun CalendarTextField(
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     date: Date?,
     label: @Composable() (() -> Unit)?,
     onDateChanged: (Date) -> Unit
@@ -84,6 +85,7 @@ fun CalendarTextField(
     }
     Box(modifier = modifier) {
         OutlinedTextField(
+            enabled = enabled,
             singleLine = true,
             modifier = Modifier.fillMaxWidth().onGloballyPositioned {
                 fieldSize = it.size
@@ -104,7 +106,9 @@ fun CalendarTextField(
             .matchParentSize()
             .clickable {
                 focusManager.clearFocus(true)
-                showDatePicker = true
+                if (enabled) {
+                    showDatePicker = true
+                }
             }) {
         }
     }

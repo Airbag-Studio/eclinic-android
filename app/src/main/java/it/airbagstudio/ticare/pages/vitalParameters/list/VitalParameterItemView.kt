@@ -3,6 +3,8 @@ package it.airbagstudio.ticare.pages.vitalParameters.list
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,8 +25,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ch.ticare.eclinic.library.entity.AgendaTask
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.DrugChip
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.checkGreen
+import it.airbagstudio.ticare.ui.theme.redColor
 
 data class VitalParameterItem(
     val name: String,
@@ -32,9 +36,11 @@ data class VitalParameterItem(
     val quantity: String,
     val time: String,
     val executed:Boolean,
+    val isConfirmed: Boolean,
     val item: AgendaTask?,
 )
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun VitalParameterItemView(item: VitalParameterItem, onClick: () -> Unit) {
     Column(
@@ -83,6 +89,18 @@ fun VitalParameterItemView(item: VitalParameterItem, onClick: () -> Unit) {
                 value = item.time
             )
         }
+        Spacer(modifier = Modifier.height(8.dp))
+        if (!item.isConfirmed) {
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                DrugChip(
+                    label = stringResource(id = R.string.not_confirmed),
+                    textColor = redColor
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(12.dp))
         Divider()
     }
@@ -111,7 +129,7 @@ private fun LabelValueRow(label: String, value: String) {
 @Preview
 private fun PreviewVitalParameterItem(){
     AppTheme {
-        VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = false,null)) {
+        VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = false,false,null)) {
 
         }
     }

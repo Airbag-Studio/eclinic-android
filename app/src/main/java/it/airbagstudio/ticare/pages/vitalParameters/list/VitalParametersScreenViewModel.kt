@@ -21,6 +21,7 @@ import it.airbagstudio.ticare.utils.getExpectedTime
 import it.airbagstudio.ticare.utils.includeTime
 import it.airbagstudio.ticare.utils.printTime
 import it.airbagstudio.ticare.utils.toDate
+import it.airbagstudio.ticare.utils.validated
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -84,6 +85,7 @@ class VitalParametersScreenViewModel @Inject constructor(
                     quantity = it.value ?: "",
                     time = timeFormatted,
                     executed = executed,
+                    isConfirmed = it.validated(),
                     item = it
                 )
             }

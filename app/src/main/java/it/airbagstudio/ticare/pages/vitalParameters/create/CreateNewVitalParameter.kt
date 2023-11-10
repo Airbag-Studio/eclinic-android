@@ -119,6 +119,7 @@ private fun BuildSheetContent(
         ) {
             Row {
                 OutlinedTextField(
+                    enabled = uiState.isEditingEnabled,
                     modifier = Modifier.weight(1f),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
@@ -134,6 +135,7 @@ private fun BuildSheetContent(
                 )
                 Spacer(modifier = Modifier.width(24.dp))
                 OutlinedTextField(
+                    enabled = uiState.isEditingEnabled,
                     modifier = Modifier.weight(1f),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -150,6 +152,7 @@ private fun BuildSheetContent(
             Spacer(modifier = Modifier.height(24.dp))
             Log.d("uiState.date", uiState.date.toString())
             CalendarTextField(
+                enabled = uiState.isEditingEnabled,
                 modifier = Modifier.fillMaxWidth(),
                 date = uiState.date,
                 label = { Text(text = stringResource(id = R.string.actual_date_time)) },
@@ -158,6 +161,7 @@ private fun BuildSheetContent(
                 })
             Spacer(modifier = Modifier.height(24.dp))
             OutlinedTextField(
+                enabled = uiState.isEditingEnabled,
                 modifier = Modifier
                     .height(150.dp)
                     .fillMaxWidth(),
@@ -174,13 +178,16 @@ private fun BuildSheetContent(
                     modifier = Modifier.weight(1f),
                     text = stringResource(id = R.string.show_in_diary)
                 )
-                Switch(checked = uiState.showInDiary, onCheckedChange = {
+                Switch(
+                    enabled = uiState.isEditingEnabled,
+                    checked = uiState.showInDiary,
+                    onCheckedChange = {
                     viewModel.setShowInDiary(it)
                 })
             }
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                enabled = (!uiState.isLoading && uiState.value.isValidVitalParameterValue()),
+                enabled = (!uiState.isLoading && uiState.value.isValidVitalParameterValue() && uiState.isEditingEnabled),
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     viewModel.saveTask()

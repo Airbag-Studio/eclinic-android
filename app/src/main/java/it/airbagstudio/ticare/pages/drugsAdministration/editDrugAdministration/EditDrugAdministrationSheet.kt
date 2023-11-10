@@ -238,6 +238,7 @@ private fun BuildContent(
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 CalendarTextField(
+                    enabled = viewModel.isEditingEnable.invoke(),
                     modifier = Modifier.fillMaxWidth(),
                     date = task.getExecDateTime(),
                     label = { Text(text = stringResource(id = R.string.actual_date_time)) },

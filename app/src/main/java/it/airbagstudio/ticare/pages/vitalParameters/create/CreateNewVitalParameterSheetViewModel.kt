@@ -11,6 +11,7 @@ import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.validated
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,7 +33,8 @@ data class NewVitalParameterUIState(
     val description: String,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val isSuccess: Boolean = false
+    val isSuccess: Boolean = false,
+    val isEditingEnabled: Boolean = true,
 )
 
 private data class ItemValues(
@@ -107,7 +109,8 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
             vitalSignType?.desc ?: "",
             isLoading,
             errorMessage,
-            isSuccess
+            isSuccess,
+            agendaTask?.validated() ?: true
         )
     }.stateIn(
         scope = viewModelScope,
@@ -119,7 +122,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
             "",
             true,
             "",
-            ""
+            "",
         )
     )
 
