@@ -185,7 +185,7 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
             val genderId = userDetailRepository.getCurrentCase()?.gender?.id ?: 0
             combine(woundRepository.getWoundTypes(),woundRepository.getBodyParts(),woundRepository.getWoundPositions()){_woundTypes,bodyParts,woundPositions ->
                 woundTypes.value = _woundTypes.map { ListPopupItem(it.name,it) }
-                woundBodyParts.value = bodyParts.filter { it.idGender == genderId }.map { ListPopupItem(it.name,it) }
+                woundBodyParts.value = bodyParts.filter { it.idGender == genderId || it.idGender == null}.map { ListPopupItem(it.name,it) }
                 woundOrigins.value = woundPositions.map { ListPopupItem(it.name,it) }
             }.collect()
         }
