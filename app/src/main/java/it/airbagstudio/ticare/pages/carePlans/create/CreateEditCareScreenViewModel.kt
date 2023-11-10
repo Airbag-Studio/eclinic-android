@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -95,6 +96,9 @@ class CreateEditCareScreenViewModel @Inject constructor(
             item = care,
             isSuccess = isSuccess
         )
+    }.catch {
+        errorMessage.value = it.localizedMessage
+        isLoading.value = false
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),

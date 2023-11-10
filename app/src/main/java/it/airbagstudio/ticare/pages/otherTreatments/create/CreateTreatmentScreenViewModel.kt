@@ -1,6 +1,9 @@
 package it.airbagstudio.ticare.pages.otherTreatments.create
 
 import android.text.Html
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,9 +17,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getItemDesc
 import it.airbagstudio.ticare.utils.toDate
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -35,8 +40,7 @@ data class CreateTreatmentScreenUiState(
     val newTreatment: NewTreatment = NewTreatment(null, Date(), "", null,"1"),
     val guarantorTypes: List<GuarantorType> = listOf(),
     val isLoading: Boolean = false,
-    val isSuccess: Boolean = false,
-    val error: String? = null
+    val isSuccess: Boolean = false
 ) {
     data class NewTreatment(
         val article: Article?,
@@ -65,7 +69,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
     private val guarantorType = MutableStateFlow<Int>(0)
     private val isLoading = MutableStateFlow(false)
     private val isSuccess = MutableStateFlow(false)
-    private val errorMessage = MutableStateFlow<String?>(null)
+    var errorMessage by mutableStateOf<String?>(null)
 
     private val selectedArticle = combine(articles, selectedArticleId) { _articles, _id ->
         _articles.firstOrNull { it.id == _id }
@@ -73,6 +77,11 @@ class CreateTreatmentScreenViewModel @Inject constructor(
 
     private val selectedGuarantorType = combine(guarantorTypes, guarantorType) { _guarantors, _id ->
         _guarantors.firstOrNull { it.id == _id }
+    }
+
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+        errorMessage = throwable.localizedMessage
+        isLoading.value = false
     }
 
     private val newService = combine(
@@ -89,17 +98,17 @@ class CreateTreatmentScreenViewModel @Inject constructor(
         newService,
         guarantorTypes,
         isLoading,
-        isSuccess,
-        errorMessage
-    ) { _newService, _guarantorTypes, _isLoading, _isSuccess, _errorMessage ->
+        isSuccess
+    ) { _newService, _guarantorTypes, _isLoading, _isSuccess ->
         CreateTreatmentScreenUiState(
             _newService,
             _guarantorTypes,
             _isLoading,
-            _isSuccess,
-            _errorMessage
+            _isSuccess
         )
 
+    }.catch {
+        errorMessage = it.localizedMessage
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -125,7 +134,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
     }
 
     fun clearState() {
-        errorMessage.value = null
+        errorMessage = null
         isSuccess.value = false
     }
 
@@ -139,7 +148,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
 
     private fun patchService(otherService: OtherService){
         isLoading.value = true
-        viewModelScope.launch() {
+        viewModelScope.launch(coroutineExceptionHandler) {
             val editService = EditOtherService(
                 id = otherService.id,
                 cod = patientCode.value ?: "",
@@ -153,7 +162,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
             if (res.status == "success") {
                 isSuccess.value = true
             } else if (res.status == "error") {
-                errorMessage.value = res.error?.desc ?: ""
+                errorMessage = res.error?.desc ?: ""
             }
             isLoading.value = false
         }
@@ -161,7 +170,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
 
     private fun createNewService(){
         isLoading.value = true
-        viewModelScope.launch() {
+        viewModelScope.launch(coroutineExceptionHandler) {
             val newService = AddOtherService(
                 cod = patientCode.value ?: "",
                 dateTime = selectedDate.value.format("yyyy-MM-dd HH:mm:00"),
@@ -176,7 +185,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
             if (res.status == "success") {
                 isSuccess.value = true
             } else if (res.status == "error") {
-                errorMessage.value = res.error?.desc ?: ""
+                errorMessage = res.error?.desc ?: ""
             }
             isLoading.value = false
 

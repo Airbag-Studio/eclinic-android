@@ -256,11 +256,11 @@ private fun BuildSheetContent(
             }
             Spacer(modifier = Modifier.height(24.dp))
         }
-        if (uiState.error != null) {
+        if (viewModel.errorMessage != null) {
             ErrorAlert(
-                message = uiState.error!!,
+                message = viewModel.errorMessage!!,
                 onDismissRequest = {
-                    viewModel.clearState()
+                    viewModel.errorMessage = null
                 })
         }
         if (showGuarantorPopup) {

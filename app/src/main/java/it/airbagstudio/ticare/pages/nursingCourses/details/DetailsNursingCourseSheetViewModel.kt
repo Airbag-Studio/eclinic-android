@@ -17,6 +17,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -78,6 +79,8 @@ class EditNursingCourseSheetViewModel @Inject constructor(
             errorMessage
         )
 
+    }.catch {
+        errorMessage.value = it.localizedMessage
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -184,7 +187,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
 
     private fun editNursingCourse(patientCode: String) {
         isLoading.value = true
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             val newCourse = EditHomeCareCourse(
                 id = editNursingCourseId,
                 caseCode = patientCode,
