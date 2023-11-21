@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.HomeCareActivitySave
 import ch.ticare.eclinic.library.entity.HomeCareUnplannedActivity
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
+import ch.ticare.eclinic.library.repository.UserMarkingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -37,6 +38,7 @@ data class CreateEditCareScreenUiState(
 @HiltViewModel
 class CreateEditCareScreenViewModel @Inject constructor(
     private val homeCareActivitiesRepository: HomeCareActivitiesRepository,
+    private val userMarkingRepository: UserMarkingRepository
 ) : ViewModel() {
 
 
@@ -51,15 +53,16 @@ class CreateEditCareScreenViewModel @Inject constructor(
     private val duration = MutableStateFlow<Int>(0)
     private val notes = MutableStateFlow<String>("")
     private val showInDiary = MutableStateFlow<Boolean>(false)
+    private val timeFromLastActivity = userMarkingRepository.getMinutesFromLastActivity()
 
     private val isLoading = MutableStateFlow<Boolean>(false)
     private val errorMessage = MutableStateFlow<String?>(null)
 
-    private val plannedActivity = combine(codCase,plannedActivityId,carePlanId){ codCase, plannedActivityId, carePlanId ->
+    private val plannedActivity = combine(codCase,plannedActivityId,carePlanId,timeFromLastActivity){ codCase, plannedActivityId, carePlanId,timeFromLastActivity ->
         if (codCase != null && plannedActivityId != null && carePlanId != null) {
             val activity = homeCareActivitiesRepository.getHomeCareActivitiesPlanned(codCase, carePlanId).results?.firstOrNull { it.id == plannedActivityId }
             if (duration.value == 0) {
-                setDuration(activity?.duration ?: 0)
+                setDuration(timeFromLastActivity?.toInt() ?: 0)
             }
             activity
         }else{
@@ -67,10 +70,11 @@ class CreateEditCareScreenViewModel @Inject constructor(
         }
     }
 
-    private val notPlannedActivity: Flow<HomeCareUnplannedActivity?> = combine(codCase,idActivityType){ codCase, idActivityType ->
+    private val notPlannedActivity: Flow<HomeCareUnplannedActivity?> = combine(codCase,idActivityType,timeFromLastActivity){ codCase, idActivityType,timeFromLastActivity ->
         if (codCase != null && idActivityType != null){
             val activity = homeCareActivitiesRepository.getHomeCareActivitiesUnplanned().results?.firstOrNull { it.id == idActivityType }
-            setDuration(activity?.duration ?: 0)
+            //setDuration(activity?.duration ?: 0)
+            setDuration(timeFromLastActivity?.toInt() ?: 0)
             setShowInDiary(true)
             activity
         }else{
@@ -177,7 +181,7 @@ class CreateEditCareScreenViewModel @Inject constructor(
                 if (activityId.value != null){
                     val item = HomeCareActivitySave(
                         codCase = codCase.value!!,
-                        execDateTime = date.value.format("yyyy.MM.dd HH.mm"),
+                        execDateTime = date.value.format("yyyy.MM.dd HH:mm"),
                         duration = duration.value,
                         notes = notes.value,
                         showInDiary = showInDiary.value,
@@ -193,7 +197,7 @@ class CreateEditCareScreenViewModel @Inject constructor(
                     val item = HomeCareActivitySave(
                         codCase = codCase.value!!,
                         idActivityType = idActivityType.value,
-                        execDateTime = date.value.format("yyyy.MM.dd HH.mm"),
+                        execDateTime = date.value.format("yyyy.MM.dd HH:mm"),
                         duration = duration.value,
                         notes = notes.value,
                         showInDiary = showInDiary.value,

@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerButton
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.seed
 
@@ -65,12 +66,15 @@ private fun SyncButton(state: SyncButtonState) {
                 SyncButtonState.SYNCING -> painterResource(id = R.drawable.ic_syncing)
                 SyncButtonState.OFFLINE -> painterResource(id = R.drawable.ic_offline)
             }
+            /*
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
                 color = if (state == SyncButtonState.OFFLINE) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+
+             */
             Image(painter = icon, contentDescription = message)
         }
         MaterialTheme(
@@ -178,6 +182,7 @@ fun ToolbarWithSyncAndSettings(title: String, onSettingsClick: () -> Unit) {
         },
         actions = {
             SyncButton(state = SyncButtonState.ONLINE)
+            TimeTrackerButton()
         }
     )
 }
@@ -199,6 +204,7 @@ fun ToolbarWithBackAndSync(title: String, onBack: () -> Unit) {
         },
         actions = {
             SyncButton(state = SyncButtonState.ONLINE)
+            TimeTrackerButton()
         }
     )
 }

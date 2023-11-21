@@ -123,6 +123,7 @@ fun CreateEditCareScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 Row {
                     CalendarTextField(
+                        enabled = homeCareActivity != null,
                         modifier = Modifier.weight(1f),
                         date = uiState.item.date, label = {
                             Text(text = stringResource(id = R.string.actual_date_time))
@@ -132,6 +133,7 @@ fun CreateEditCareScreen(
                     Spacer(modifier = Modifier.width(24.dp))
                     OutlinedTextField(
                         modifier = Modifier.weight(1f),
+                        enabled = homeCareActivity != null,
                         singleLine = true,
                         label = {
                             Text(text = stringResource(id = R.string.duration))

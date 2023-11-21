@@ -13,29 +13,40 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import it.airbagstudio.ticare.LocalActivity
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.carePlans.details.CarePlanCoursesListItemView
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.ui.components.timeTracker.StartTrackerDialog
+import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerViewModel
 
 @Composable
 fun CarePlanesListScreen(
-
+    trackingViewModel: TimeTrackerViewModel = hiltViewModel(LocalActivity.current),
     viewModel: CarePlanesListScreenViewModel = hiltViewModel(),
     navigationActions: NavigationActions,
-            onBack: () -> Unit
-){
+    onBack: () -> Unit
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
+    val trackingUiState by trackingViewModel.uiState.collectAsStateWithLifecycle()
+    var showStartTrackingDialog by remember {
+        mutableStateOf(false)
+    }
+    var selectedId by remember {
+        mutableIntStateOf(0)
+    }
     Scaffold(
         topBar = {
             ToolbarWithBackAndSync(title = uiState.patientName) {
@@ -62,20 +73,42 @@ fun CarePlanesListScreen(
                 }
             } else {
                 LazyColumn(content = {
-                    items(uiState.items){
+                    items(uiState.items) {
                         CarePlanesListItemView(item = it, onClick = { id ->
-                            navigationActions.navigateToCarePlanDetailsScreen(Uri.encode(viewModel.patientCod),id.toString())
+                            if (trackingUiState.isEnabled) {
+                                navigationActions.navigateToCarePlanDetailsScreen(
+                                    Uri.encode(viewModel.patientCod),
+                                    id.toString()
+                                )
+                            } else {
+                                selectedId = id
+                                showStartTrackingDialog = true
+                            }
                         })
                         Divider()
                     }
                 })
             }
         }
-        if (uiState.errorMessage != null){
+        if (uiState.errorMessage != null) {
             ErrorAlert(message = uiState.errorMessage ?: "", onDismissRequest = {
                 viewModel.clearError()
             }, onRetry = {
                 viewModel.downloadData()
+            })
+        }
+        if (showStartTrackingDialog) {
+            StartTrackerDialog(onDismissRequest = { confirm ->
+                showStartTrackingDialog = false
+                if (confirm) {
+                    trackingViewModel.startTracker(){
+                        navigationActions.navigateToCarePlanDetailsScreen(
+                            Uri.encode(viewModel.patientCod),
+                            selectedId.toString()
+                        )
+                    }
+
+                }
             })
         }
     }

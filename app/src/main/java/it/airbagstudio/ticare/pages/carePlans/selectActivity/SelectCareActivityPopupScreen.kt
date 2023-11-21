@@ -50,7 +50,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import it.airbagstudio.ticare.LocalActivity
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.ErrorAlert
+import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerViewModel
+import it.airbagstudio.ticare.ui.components.timeTracker.TravelTimeDialog
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +63,7 @@ fun SelectCareActivityPopupScreen(
     caseCode: String,
     planId:Int,
     viewModel: SelectCareActivityPopupScreenViewModel = hiltViewModel(),
+    trackerViewModel: TimeTrackerViewModel = hiltViewModel(LocalActivity.current),
     onDismissRequest: (Pair<Boolean,Int>?) -> Unit
 ) {
     Dialog(
@@ -66,9 +71,14 @@ fun SelectCareActivityPopupScreen(
         onDismissRequest = { onDismissRequest(null) },
     ) {
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        val trackerViewUIState by trackerViewModel.uiState.collectAsStateWithLifecycle()
+        var showTravelTimeDialog by remember {
+            mutableStateOf(false)
+        }
         LaunchedEffect(Unit) {
             viewModel.setCarePlanId(planId)
             viewModel.setPatientCode(caseCode)
+            trackerViewModel.updateLastMinutesFromLastActivity()
         }
         Scaffold(modifier = Modifier.fillMaxSize(),
             topBar = {
@@ -129,13 +139,17 @@ fun SelectCareActivityPopupScreen(
                 }
                 when (tabIndex){
                     0 -> {
-                        ItemsList(uiState.plannedActivities){
-                            onDismissRequest(Pair(true,it))
+                        ItemsList(uiState.plannedActivities){ id,isTracking ->
+                            onDismissRequest(Pair(true,id))
                         }
                     }
                     1 -> {
-                        SearchableList(uiState.query,uiState.unplannedActivities, onItemClick = {
-                            onDismissRequest(Pair(false,it))
+                        SearchableList(uiState.query,uiState.unplannedActivities, onItemClick = { id,isTracking ->
+                            if (isTracking){
+                                showTravelTimeDialog = true
+                            }else{
+                                onDismissRequest(Pair(false,id))
+                            }
                         }){
                             viewModel.setQuery(it)
                         }
@@ -143,12 +157,36 @@ fun SelectCareActivityPopupScreen(
                 }
             }
         }
+        if (showTravelTimeDialog){
+            TravelTimeDialog(travelTime = trackerViewUIState.elapsedTimeFromLastActivity, onDismissRequest = { confirm ->
+                if (confirm){
+                    viewModel.sendTransferActivity(trackerViewUIState.elapsedTimeFromLastActivity){
+                        showTravelTimeDialog = false
+                    }
+                }else{
+                    showTravelTimeDialog = false
+                }
+
+
+            })
+        }
+        if (uiState.errorMessage != null){
+            ErrorAlert(message = uiState.errorMessage!!, onDismissRequest = {
+                viewModel.clearErrors()
+            })
+        }
+        /*
+        if (!trackerViewUIState.isEnabled){
+            onDismissRequest(null)
+        }
+
+         */
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchableList(query:String,activities: List<SelectCareActivityPopupUIState.ActivityListItem>,onItemClick:(Int)->Unit,onQueryChange: (String) -> Unit){
+private fun SearchableList(query:String,activities: List<SelectCareActivityPopupUIState.ActivityListItem>,onItemClick:(Int,Boolean)->Unit,onQueryChange: (String) -> Unit){
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     Column {
@@ -190,12 +228,12 @@ private fun SearchableList(query:String,activities: List<SelectCareActivityPopup
 }
 
 @Composable
-private fun ItemsList(activities: List<SelectCareActivityPopupUIState.ActivityListItem>,onItemClick:(Int)->Unit){
+private fun ItemsList(activities: List<SelectCareActivityPopupUIState.ActivityListItem>,onItemClick:(Int,Boolean)->Unit){
     LazyColumn(
         content = {
             items(activities){
-                ActivityListItemView(it.title){
-                    onItemClick(it.id)
+                ActivityListItemView(it.title,isTransferRow = it.isTransferActivity){
+                    onItemClick(it.id,it.isTransferActivity)
                 }
             }
         })

@@ -16,6 +16,7 @@ import ch.ticare.eclinic.library.repository.OtherServiceRepository
 import ch.ticare.eclinic.library.repository.SyncDataRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.UserListRepository
+import ch.ticare.eclinic.library.repository.UserMarkingRepository
 import ch.ticare.eclinic.library.repository.UserRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.Module
@@ -105,14 +106,20 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideHomeCareActivitiesRepository(apiClient: APIClient): HomeCareActivitiesRepository {
-        return HomeCareActivitiesRepository(apiClient)
+    fun provideHomeCareActivitiesRepository(apiClient: APIClient,@ApplicationContext context: Context): HomeCareActivitiesRepository {
+        return HomeCareActivitiesRepository(apiClient,provideDatabase(context))
     }
 
     @Provides
     @Singleton
     fun providesNursingCourseRepository(apiClient: APIClient): NursingCourseRepository {
         return NursingCourseRepository(apiClient)
+    }
+
+    @Provides
+    @Singleton
+    fun providesUserMarkingRepositoryRepository(apiClient: APIClient,@ApplicationContext context: Context): UserMarkingRepository {
+        return UserMarkingRepository(apiClient,provideDatabase(context))
     }
 
 }

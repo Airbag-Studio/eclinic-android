@@ -37,27 +37,35 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.HomeCareActivity
+import it.airbagstudio.ticare.LocalActivity
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.carePlans.create.CreateEditCareScreen
 import it.airbagstudio.ticare.pages.carePlans.selectActivity.SelectCareActivityPopupScreen
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.ui.components.timeTracker.StartTrackerDialog
+import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerViewModel
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import kotlinx.serialization.json.JsonNull.content
 
 @Composable
 fun CarePlanDetailsScreen(
     viewModel : CarePlanDetailsScreenViewModel = hiltViewModel(),
+
+    trackerViewModel: TimeTrackerViewModel = hiltViewModel(LocalActivity.current),
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val trackerUiState by trackerViewModel.uiState.collectAsStateWithLifecycle()
     var showSelectNewActivityPopup by remember {
         mutableStateOf(false)
     }
     var showCreateCarePopup by remember {
         mutableStateOf(false)
     }
-
+    var showStartTrackingPopup by remember {
+        mutableStateOf(false)
+    }
     var plannedActivityId:Int? by remember {
         mutableStateOf(null)
     }
@@ -88,7 +96,11 @@ fun CarePlanDetailsScreen(
                 icon = { Icon(imageVector = Icons.Default.Add, contentDescription = "") },
                 contentColor = MaterialTheme.colorScheme.primary,
                 onClick = {
-                    showSelectNewActivityPopup = true
+                    if (trackerUiState.isEnabled) {
+                        showSelectNewActivityPopup = true
+                    }else{
+                        showStartTrackingPopup = true
+                    }
 
                 })
         },
@@ -121,7 +133,9 @@ fun CarePlanDetailsScreen(
 
             ) {
                 Text(
-                    modifier = Modifier.padding(horizontal = 16.dp).padding(top = 8.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 8.dp),
                     text = stringResource(id = R.string.opening),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -149,8 +163,10 @@ fun CarePlanDetailsScreen(
                 content = {
                 items(uiState.cares){ carePlanItem ->
                     CarePlanCoursesListItemView(item = carePlanItem, onClick = {
-                        selectedActivity = it
-                        showCreateCarePopup = true
+
+                            selectedActivity = it
+                            showCreateCarePopup = true
+
                     })
                     Divider()
                 }
@@ -158,6 +174,17 @@ fun CarePlanDetailsScreen(
             })
         }
     }
+    if(showStartTrackingPopup){
+        StartTrackerDialog(onDismissRequest = {
+            if (it){
+                trackerViewModel.startTracker() {
+                    showSelectNewActivityPopup = true
+                }
+            }
+            showStartTrackingPopup = false
+        })
+    }
+
     if (uiState.errorMessage != null){
         ErrorAlert(message = uiState.errorMessage!!, onDismissRequest = {
             //viewModel.clearError()
@@ -196,7 +223,8 @@ private fun PropertyList(title: String, properties: List<CarePlanDetailsUIState.
     Row(modifier = Modifier
         .clickable {
             showPropertyDialog = true
-        }.padding(16.dp)) {
+        }
+        .padding(16.dp)) {
         Column(
             modifier = Modifier.weight(1f)) {
             properties.forEach { property ->

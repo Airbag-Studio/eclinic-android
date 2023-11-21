@@ -121,4 +121,17 @@
     <string name="pain_intensity">Intensità del dolore</string>
     <string name="medication_type">Tipo di medicazione</string>
     <string name="injury_type">Tipo di lesione</string>
+    <string name="time_tracking_enabled">STATO ATTIVO</string>
+    <string name="time_tracking_status">Stato timbratura</string>
+    <string name="time_tracking_disabled">Stato non attivo</string>
+    <string name="working_time">Tempo di lavoro</string>
+    <string name="start_date_time">Data e ora di inizio</string>
+    <string name="start_work">Inizio lavoro</string>
+    <string name="stop_work">Fine lavoro</string>
+    <string name="stop_work_confirm_message">Confermando la fine lavoro il calcolo del tempo sarà interrotto. Vuoi procedere?</string>
+    <string name="start_work_from_care_planes">Eseguire prestazioni di Piani di Cura richiede lo stato lavoro attivo, vuoi attivare lo stato lavoro?</string>
+    <string name="travel_time">Tempo di trasferta</string>
+    <string name="travel_time_text">Desideri aggiungere una prestazione non pianificata per il Tempo Trasferta?\n\nProcedendo, verrà computato il tempo dalla tua ultima registrazione come tempo di trasferimento. Vuoi procedere?\n\n<b>Tempo trasferta</b>\n%1$s
+</string>
+    <string name="add_travel_time">Aggiungi Tempo Trasferta</string>
 </resources>
