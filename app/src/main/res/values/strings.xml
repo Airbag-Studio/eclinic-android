@@ -134,4 +134,11 @@
     <string name="travel_time_text">Desideri aggiungere una prestazione non pianificata per il Tempo Trasferta?\n\nProcedendo, verrà computato il tempo dalla tua ultima registrazione come tempo di trasferimento. Vuoi procedere?\n\n<b>Tempo trasferta</b>\n%1$s
 </string>
     <string name="add_travel_time">Aggiungi Tempo Trasferta</string>
+    <string name="setting">Impostazioni</string>
+    <string name="show_all_patient">Mostra tutti i pazienti</string>
+    <string name="enable_all_patients_dialog_title">Abilitazione visibilità di tutti i pazienti</string>
+    <string name="enable_all_patients_dialog_body">Abilitando la visualizzazione di tutti i pazienti verrà eseguita una sincronizzazione totale. Per procedere è necessario aggiungere un testo di motivazione della richiesta nel campo sottostante.</string>
+    <string name="logout">Logout</string>
+    <string name="time_tracking_enabled_dialog_title">Timbratura attiva</string>
+    <string name="time_tracking_enabled_dialog_text">La timbratura verra chiusa al logout</string>
 </resources>

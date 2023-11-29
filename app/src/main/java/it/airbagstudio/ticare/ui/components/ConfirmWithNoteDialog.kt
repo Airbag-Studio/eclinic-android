@@ -1,4 +1,4 @@
-package it.airbagstudio.ticare.pages.wounds.details
+package it.airbagstudio.ticare.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -30,22 +30,26 @@ import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
 
 @Composable
-fun CloseWoundDialog(onDismissRequest:(Boolean,String?) -> Unit){
+fun ConfirmWithNoteDialog(title: String, body: String, onDismissRequest: (Boolean, String?) -> Unit) {
     var note by remember {
         mutableStateOf("")
     }
     Dialog(onDismissRequest = {
-        onDismissRequest(false,null)
+        onDismissRequest(false, null)
     }) {
-        Column(modifier = Modifier.fillMaxWidth().background(Color.White, RoundedCornerShape(16.dp))) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White, RoundedCornerShape(16.dp))
+        ) {
             Column(Modifier.padding(16.dp)) {
                 Text(
-                    text = stringResource(id = R.string.closing_protocol),
+                    text = title,
                     style = MaterialTheme.typography.headlineSmall
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = stringResource(id = R.string.wound_closing_note),
+                    text = body,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -53,7 +57,9 @@ fun CloseWoundDialog(onDismissRequest:(Boolean,String?) -> Unit){
                 OutlinedTextField(
                     visualTransformation = if (note.isEmpty()) PlaceholderTransformation("  ") else VisualTransformation.None,
 
-                    modifier = Modifier.fillMaxWidth().height(100.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
                     label = {
                         Text(text = stringResource(id = R.string.notes))
                     },
@@ -72,15 +78,15 @@ fun CloseWoundDialog(onDismissRequest:(Boolean,String?) -> Unit){
             Row(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Spacer(modifier = Modifier.weight(1f))
                 TextButton(onClick = {
-                    onDismissRequest(false,null)
+                    onDismissRequest(false, null)
                 }) {
                     Text(text = stringResource(id = R.string.cancel))
                 }
                 TextButton(
                     enabled = note.isNotEmpty(),
                     onClick = {
-                    onDismissRequest(true,note)
-                }) {
+                        onDismissRequest(true, note)
+                    }) {
                     Text(text = stringResource(id = R.string.save))
                 }
             }
@@ -91,10 +97,13 @@ fun CloseWoundDialog(onDismissRequest:(Boolean,String?) -> Unit){
 
 @Composable
 @Preview
-private fun PreviewCloseWoundDialog(){
+private fun PreviewConfirmWithNoteDialog() {
     AppTheme {
-        CloseWoundDialog(onDismissRequest = {success,note ->
+        ConfirmWithNoteDialog(
+            title = stringResource(id = R.string.closing_protocol),
+            body = stringResource(id = R.string.wound_closing_note),
+            onDismissRequest = { success, note ->
 
-        })
+            })
     }
 }

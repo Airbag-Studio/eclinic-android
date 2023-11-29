@@ -47,6 +47,7 @@ import it.airbagstudio.ticare.pages.wounds.common.ImagesDialog
 import it.airbagstudio.ticare.pages.wounds.common.NotesDialog
 import it.airbagstudio.ticare.pages.wounds.common.TitleValueView
 import it.airbagstudio.ticare.pages.wounds.create.CreateWoundDialogScreen
+import it.airbagstudio.ticare.ui.components.ConfirmWithNoteDialog
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.ui.theme.AppTheme
@@ -262,8 +263,11 @@ fun WoundDetailsScreen(
             })
     }
     if (showCloseDialog) {
-        CloseWoundDialog(onDismissRequest = { confirm, mesage ->
-            showCloseDialog = false
+        ConfirmWithNoteDialog(
+            title = stringResource(id = R.string.closing_protocol),
+            body = stringResource(id = R.string.wound_closing_note),
+            onDismissRequest = { confirm, mesage ->
+                showCloseDialog = false
         })
     }
 }

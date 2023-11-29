@@ -89,7 +89,7 @@ class CreateEditCareScreenViewModel @Inject constructor(
         }
 
     private val title = combine(plannedActivity,notPlannedActivity){ plannedActivity,notPlannedActivity ->
-        plannedActivity?.type ?: notPlannedActivity?.desc ?: ""
+        plannedActivity?.type ?: "${notPlannedActivity?.code} - ${notPlannedActivity?.desc}"
     }
 
     val uiState = combine(care, isLoading, errorMessage,title,isSuccess) { care, isLoading, errorMessage,title,isSuccess ->

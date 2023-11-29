@@ -31,6 +31,7 @@ data class SelectCareActivityPopupUIState(
 ){
     data class ActivityListItem(
         val title:String,
+        val code: String?,
         val id: Int,
         val isPlanned: Boolean,
         val isTransferActivity: Boolean
@@ -60,7 +61,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
             otherActivities
         }
         activities.map {
-            SelectCareActivityPopupUIState.ActivityListItem(it.desc, it.id, false,it.code == transferActivityCode)
+            SelectCareActivityPopupUIState.ActivityListItem(it.desc,it.code, it.id, false,it.code == transferActivityCode)
         }
     }
 
@@ -83,12 +84,12 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         plannedActivities
     ) { isLoading, errorMessage, query, notPlannedActivities, plannedActivities ->
         val unPlannedItems = if (query.isNotEmpty()) {
-            notPlannedActivities.filter { it.title.contains(query, true) }
+            notPlannedActivities.filter { it.title.contains(query, true) || it.code?.contains(query,true) == true }
         } else {
             notPlannedActivities
         }
 
-        val plannedItems = plannedActivities?.map { SelectCareActivityPopupUIState.ActivityListItem(it.type, it.id, false,false) } ?: listOf()
+        val plannedItems = plannedActivities?.map { SelectCareActivityPopupUIState.ActivityListItem(it.type,null, it.id, false,false) } ?: listOf()
 
         SelectCareActivityPopupUIState(
             isLoading = isLoading,

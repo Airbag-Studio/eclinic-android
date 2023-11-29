@@ -232,7 +232,12 @@ private fun ItemsList(activities: List<SelectCareActivityPopupUIState.ActivityLi
     LazyColumn(
         content = {
             items(activities){
-                ActivityListItemView(it.title,isTransferRow = it.isTransferActivity){
+                val title = if (it.code != null){
+                    "${it.code} - ${it.title}"
+                }else{
+                    it.title
+                }
+                ActivityListItemView(title,isTransferRow = it.isTransferActivity){
                     onItemClick(it.id,it.isTransferActivity)
                 }
             }

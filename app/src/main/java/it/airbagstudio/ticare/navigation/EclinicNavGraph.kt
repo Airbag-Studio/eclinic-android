@@ -23,6 +23,7 @@ import it.airbagstudio.ticare.pages.otherTreatments.OtherTreatmentScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
 import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
+import it.airbagstudio.ticare.pages.settings.SettingsPage
 import it.airbagstudio.ticare.pages.splashPage.SplashPageScreen
 import it.airbagstudio.ticare.pages.vitalParameters.list.VitalParametersScreen
 import it.airbagstudio.ticare.pages.wounds.checks.details.CheckDetailsPage
@@ -151,6 +152,12 @@ fun EclinicNavGraph(
 
         composable(Destinations.CHECK_DETAILS_ROUTE){
             CheckDetailsPage {
+                navController.popBackStack()
+            }
+        }
+
+        composable(Destinations.SETTING_ROUTE){
+            SettingsPage(navigationActions = navActions) {
                 navController.popBackStack()
             }
         }

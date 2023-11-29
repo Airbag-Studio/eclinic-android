@@ -41,15 +41,12 @@ import ch.ticare.eclinic.library.entity.Microzone
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
-import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.PatientListItemView
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithSyncAndSettings
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,8 +65,8 @@ fun PatientListScreen(
     }
     Scaffold(
         topBar = {
-            ToolbarWithSyncAndSettings(title = uiState.companyName ?: "") {
-                // viewModel.downloadCases()
+            ToolbarWithSyncAndSettings(title = uiState.companyName) {
+                navActions.navigateToSettings()
             }
         }
     ) { values ->
