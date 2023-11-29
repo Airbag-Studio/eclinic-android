@@ -231,7 +231,7 @@ fun WoundDetailsScreen(
 
         }
     }
-    /*
+
     if (showImagesDialog) {
         val woundDate = viewModel.wound?.appearanceDate?.toDate("dd.MM.yyyy")
             ?.format("dd/MM/yyyy") ?: ""
@@ -244,7 +244,6 @@ fun WoundDetailsScreen(
         }
     }
 
-     */
     if (showNotesDialog) {
         NotesDialog(
             title = stringResource(id = R.string.description),
@@ -257,8 +256,9 @@ fun WoundDetailsScreen(
         CheckCreateDialogScreen(
             codCase = viewModel.patientCod,
             idWound = viewModel.woundId.toInt(),
-            idGender = 1,
+            idGender = viewModel.genderId,
             onDismissRequest = { success ->
+                if (success) viewModel.reloadWound()
                 showCheckCreateBottomSheet = false
             })
     }
@@ -266,9 +266,16 @@ fun WoundDetailsScreen(
         ConfirmWithNoteDialog(
             title = stringResource(id = R.string.closing_protocol),
             body = stringResource(id = R.string.wound_closing_note),
-            onDismissRequest = { confirm, mesage ->
+            onDismissRequest = { confirm, message ->
+                if (confirm && message != null) {
+                    viewModel.closeWound(message)
+                }
                 showCloseDialog = false
         })
+    }
+    if (viewModel.closedWound) {
+        viewModel.closedWound = false
+        onBack()
     }
 }
 

@@ -114,7 +114,6 @@ fun CheckDetailsPage(
                 CircularProgressIndicator()
             }
         }
-        /*
         if (showImagesDialog) {
             val woundDate = viewModel.check?.dateTime?.toDate("dd.MM.yyyy HH:mm")?.format("dd MMMM yyyy, HH:mm") ?: ""
             ImagesDialog(
@@ -125,7 +124,5 @@ fun CheckDetailsPage(
                 showImagesDialog = false
             }
         }
-
-         */
     }
 }

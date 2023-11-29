@@ -7,12 +7,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.AddWoundCheck
 import ch.ticare.eclinic.library.entity.PainIntensite
 import ch.ticare.eclinic.library.entity.PainType
 import ch.ticare.eclinic.library.entity.WoundArea
 import ch.ticare.eclinic.library.entity.WoundDepth
 import ch.ticare.eclinic.library.entity.WoundFibrin
 import ch.ticare.eclinic.library.entity.WoundGranulation
+import ch.ticare.eclinic.library.entity.WoundImageUploadRequest
 import ch.ticare.eclinic.library.entity.WoundNecrosis
 import ch.ticare.eclinic.library.entity.WoundSecretion
 import ch.ticare.eclinic.library.entity.WoundSmell
@@ -21,6 +23,8 @@ import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.ui.components.ListPopupItem
+import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.toByteArray
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -30,6 +34,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Date
+import java.util.UUID
 import javax.inject.Inject
 
 data class CheckCreateDialogScreenUIState(
@@ -358,27 +363,47 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
     }
 
     fun saveCheck() {
-        /*viewModelScope.launch(coroutineExceptionHandler) {
+        viewModelScope.launch(coroutineExceptionHandler) {
             isLoading.value = true
             val woundCheck = AddWoundCheck(
                 codArea = selectedWoundArea.value!!.cod,
-                codDepth = selectedWoundDepth.value!!.cod.toString(), //FIXME
+                codDepth = selectedWoundDepth.value!!.cod.toString(),
                 codNecrosis = selectedWoundNecrosis.value!!.cod,
                 codFibrin = selectedWoundFibrin.value!!.cod,
                 codGranulationTissue = selectedWoundGranulation.value!!.cod,
                 codSmell = selectedWoundSmell.value!!.cod,
                 codSecretion = selectedWoundSecretion.value!!.cod,
                 codSurroundingSkin = selectedWoundSurroundingSkin.value!!.cod,
-                dateTime = "", //FIXME
-                iDWound = 0, //FIXME
+                dateTime = date.value.format("yyyy.MM.dd HH:mm"),
+                iDWound = idWound ?: 0,
                 iDWoundPain = selectedWoundPainType.value!!.id,
                 iDWoundPainIntensity = selectedWoundPainIntensite.value!!.id,
                 medicationType = medicationType.value
             )
-            woundRepository.addCheck(woundCheck)
+            val res = woundRepository.addCheck(woundCheck)
+
+            errorMessage = res.error?.desc
+            val isSaved = res.status?.equals("success",true) == true
+            if(isSaved){
+                res.results?.firstOrNull()?.id?.let { lastCreatedId ->
+                    imagesUri.value.forEach { bitmap ->
+                        val request = WoundImageUploadRequest(
+                            desc = "",
+                            type = "CK",
+                            woundId = woundCheck.iDWound,
+                            name = "${UUID.randomUUID()}.jpeg",
+                            ecImage = bitmap.toByteArray(),
+                            checkId = lastCreatedId
+                        )
+                        woundRepository.uploadImage(request)
+                    }
+                }
+            }
+            isSuccess.value = isSaved
+
             isSuccess.value = true
             isLoading.value = false
-        }*/
+        }
     }
 
     fun clearData(){

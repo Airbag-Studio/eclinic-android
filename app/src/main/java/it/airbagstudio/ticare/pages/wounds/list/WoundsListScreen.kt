@@ -20,14 +20,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
@@ -46,6 +50,19 @@ fun WoundListScreen(
     var showCreateBottomSheet by remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
+
+    LaunchedEffect(lifecycleState) {
+        when (lifecycleState) {
+            Lifecycle.State.RESUMED -> {
+                viewModel.downloadWounds()
+            }
+            else -> {}
+        }
+    }
+
     Scaffold(
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
@@ -108,7 +125,11 @@ fun WoundListScreen(
                     content = {
                     items(uiState.wounds){
                         WoundListItemView(item = it){woundId ->
-                            navigationActions.navigateToWoundDetails(Uri.encode(viewModel.patientCod),woundId)
+                            navigationActions.navigateToWoundDetails(
+                                Uri.encode(viewModel.patientCod),
+                                woundId,
+                                viewModel.genderId
+                            )
                         }
                         Divider(modifier = Modifier.padding(start = 16.dp))
                     }

@@ -3,6 +3,7 @@ package it.airbagstudio.ticare.navigation
 import androidx.navigation.NavController
 import it.airbagstudio.ticare.navigation.DestinationsArgs.CHECK_ID
 import it.airbagstudio.ticare.navigation.DestinationsArgs.DATE_TIME
+import it.airbagstudio.ticare.navigation.DestinationsArgs.GENDER_ID
 import it.airbagstudio.ticare.navigation.DestinationsArgs.ID
 import it.airbagstudio.ticare.navigation.DestinationsArgs.PATIENT_COD
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_END
@@ -55,6 +56,7 @@ object DestinationsArgs{
     const val SHIFT_NAME = "shiftName"
     const val DATE_TIME = "dateTime"
     const val NOTE_CONTENT = "noteContent"
+    const val GENDER_ID = "genderId"
 }
 
 object Destinations{
@@ -74,7 +76,7 @@ object Destinations{
     const val NURSING_COURSES_ROUTE_NO_SHIFT = "$NURSING_COURSES_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{$SHIFT_NAME}"
     const val CARE_PLANE_DETAILS_ROUTE = "$CARE_PLAN_DETAILS_SCREEN/{$PATIENT_COD}/{$ID}"
     const val WOUNDS_ROUTE = "$WOUNDS_SCREEN/{$PATIENT_COD}"
-    const val WOUND_DETAILS_ROUTE = "$WOUND_DETAILS_SCREEN/{$PATIENT_COD}/{$ID}"
+    const val WOUND_DETAILS_ROUTE = "$WOUND_DETAILS_SCREEN/{$PATIENT_COD}/{$ID}/{$GENDER_ID}"
     const val CHECK_DETAILS_ROUTE = "$CHECK_DETAILS_SCREEN/{$PATIENT_COD}/{$ID}/{$CHECK_ID}"
     const val SETTING_ROUTE = SETTINGS_SCREEN
 }
@@ -141,8 +143,8 @@ class NavigationActions(private val navController: NavController){
         navController.navigate("$WOUNDS_SCREEN/$patientCod")
     }
 
-    fun navigateToWoundDetails(patientCod: String,id: Int){
-        navController.navigate("$WOUND_DETAILS_SCREEN/$patientCod/$id")
+    fun navigateToWoundDetails(patientCod: String,id: Int, genderId: Int){
+        navController.navigate("$WOUND_DETAILS_SCREEN/$patientCod/$id/$genderId")
     }
 
     fun navigateToCheckDetails(patientCod: String,woundId: String,checkId: Int){

@@ -44,10 +44,13 @@ class WoundListScreenViewModel @Inject constructor(
     private val shift = userDetailRepository.getCurrentShift()
     private val date = userDetailRepository.getSelectedDate()?.toDate(SERVER_DATE_FORMAT) ?: Date()
     private val currentCase = userDetailRepository.getCurrentCase()
+    val genderId = userDetailRepository.getCurrentCase()?.gender?.id ?: 0
 
     var errorMessage by mutableStateOf<String?>(null)
     private val isLoading = MutableStateFlow<Boolean>(false)
     private val wounds = MutableStateFlow<List<Wound>>(listOf())
+
+    private var firstTime: Boolean = true
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         errorMessage = throwable.localizedMessage
@@ -84,17 +87,14 @@ class WoundListScreenViewModel @Inject constructor(
         )
     )
 
-    init {
-        downloadWounds()
-    }
-
     fun downloadWounds(){
         isLoading.value = true
         viewModelScope.launch(coroutineExceptionHandler) {
-            val res = woundRepository.getWounds(patientCod)
+            val res = woundRepository.getWounds(patientCod, fromCache = !firstTime && !woundRepository.needRefresh)
             wounds.value = res.results ?: listOf()
             errorMessage = res.error?.desc
             isLoading.value = false
+            firstTime = false
         }
     }
 }

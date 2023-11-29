@@ -6,7 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.CloseWound
 import ch.ticare.eclinic.library.entity.Wound
+import ch.ticare.eclinic.library.entity.WoundSave
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +17,7 @@ import it.airbagstudio.ticare.ui.components.ImageRequestData
 import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.util.Date
 import javax.inject.Inject
 
@@ -27,6 +30,7 @@ class WoundDetailsScreenViewModel @Inject constructor(
 
     val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
     val woundId: String = savedStateHandle[DestinationsArgs.ID]!!
+    val genderId: Int = savedStateHandle.get<String>(DestinationsArgs.GENDER_ID)!!.toInt()
 
     var wound by mutableStateOf<Wound?>(null)
     var errorMessage by mutableStateOf<String?>(null)
@@ -38,23 +42,32 @@ class WoundDetailsScreenViewModel @Inject constructor(
         authRepository.getBaseURL(),
         authRepository.getToken() ?: ""
     )
+    var closedWound by mutableStateOf(false)
 
     init {
+        reloadWound()
+    }
+
+    fun reloadWound() {
         viewModelScope.launch(coroutineExceptionHandler) {
-            val res = woundRepository.getWounds(patientCod)
-            wound = res.results?.firstOrNull { it.iD == woundId.toInt() }
+            val res = woundRepository.getWound(woundId.toInt())
+            wound = res.results?.firstOrNull()
             errorMessage = res.error?.desc
         }
     }
 
-    /*
     fun closeWound(description: String){
         viewModelScope.launch(coroutineExceptionHandler) {
-            wound?.copy(closeDescription = description, closeDate = Date().format("dd.MM.yyyy"))?.let{
-                val res = woundRepository.updateWound()
-            }
+            val res = woundRepository.closeWound(
+                CloseWound(
+                    woundId.toInt(),
+                    Date().format("yyyy.MM.dd"),
+                    description
+                )
+            )
+            closedWound = res.results?.isNotEmpty() == true
+            errorMessage = res.error?.desc
         }
     }
 
-     */
 }
