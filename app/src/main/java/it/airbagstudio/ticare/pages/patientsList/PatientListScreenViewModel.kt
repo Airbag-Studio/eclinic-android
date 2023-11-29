@@ -10,6 +10,7 @@ import ch.ticare.eclinic.library.entity.Microzone
 import ch.ticare.eclinic.library.entity.Zone
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.UserListRepository
+import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.ui.components.ImageRequestData
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -25,20 +26,21 @@ import javax.inject.Inject
 data class PatientListUiState(
     val companyName: String = "",
     val caseList: List<CaseInfo> = listOf(),
-    val isLoading:Boolean = false,
     val zones: List<Zone> = listOf(),
     val microZones: List<Microzone> = listOf(),
     val selectedZone: Zone? = null,
-    val selectedMicrozone: Microzone? = null
+    val selectedMicrozone: Microzone? = null,
+    val isRequestAllCasesAccessOn: Boolean
 )
 
 @HiltViewModel
 class PatientListScreenViewModel @Inject constructor(
     private val userListRepository: UserListRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository
 ): ViewModel() {
 
-    private var isLoading by mutableStateOf(true)
+    var isLoading by mutableStateOf(false)
     var query by mutableStateOf("")
     //private var patients = userListRepository.getCaseList()
     private var companyName = MutableStateFlow("")
@@ -47,6 +49,7 @@ class PatientListScreenViewModel @Inject constructor(
     private var microzones = MutableStateFlow<List<Microzone>>(listOf())
     private var selectedZone = MutableStateFlow<Zone?>(null)
     private var selectedMicroZone  = MutableStateFlow<Microzone?>(null)
+    private var isRequestAllCasesAccessOn = userRepository.isRequestAllCasesAccessOn()
 
     lateinit var requestImageRequestData: ImageRequestData
 
@@ -55,7 +58,8 @@ class PatientListScreenViewModel @Inject constructor(
         errorMessage = throwable.localizedMessage
     }
 
-    val uiState: StateFlow<PatientListUiState> = combine(zones,microzones,selectedZone,selectedMicroZone){ _zones : List<Zone>,_microzones: List<Microzone>,_selectedZone : Zone?,_selectedMicrozone: Microzone? ->
+    val uiState: StateFlow<PatientListUiState> = combine(zones,microzones,selectedZone,selectedMicroZone,isRequestAllCasesAccessOn){ _zones : List<Zone>,_microzones: List<Microzone>,_selectedZone : Zone?,_selectedMicrozone: Microzone?,isRequestAllCasesAccessOn ->
+        isLoading = true
         val filteredMicrozones = if (_selectedZone != null){
             _microzones.filter { it.idZone == _selectedZone.id }
         }else{
@@ -68,20 +72,20 @@ class PatientListScreenViewModel @Inject constructor(
             isLoading = false
             errorMessage = e.localizedMessage
         }
-
+        isLoading = false
         PatientListUiState(
             companyName = companyName.value,
-            isLoading = false,
             zones = _zones,
             microZones = filteredMicrozones,
             selectedMicrozone = _selectedMicrozone,
             selectedZone = _selectedZone,
-            caseList = caseList
+            caseList = caseList,
+            isRequestAllCasesAccessOn = isRequestAllCasesAccessOn
         )
     }.stateIn(
         scope = viewModelScope,
         started =  SharingStarted.WhileSubscribed(5000),
-        initialValue = PatientListUiState(isLoading = true)
+        initialValue = PatientListUiState(isRequestAllCasesAccessOn = false)
     )
 
     init {

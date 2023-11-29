@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.Microzone
+import ch.ticare.eclinic.library.entity.Zone
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
@@ -81,13 +82,11 @@ fun PatientListScreen(
         ) {
             Box(
                 modifier = Modifier
-                    //.padding(horizontal = 16.dp)
-
                     .fillMaxWidth()
 
             ) {
                 DockedSearchBar(
-                    enabled = !uiState.isLoading,
+                    enabled = !viewModel.isLoading,
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
                         .clip(RoundedCornerShape(28.dp))
@@ -162,21 +161,23 @@ fun PatientListScreen(
                         DropDownButton(
                             modifier = Modifier.weight(1f),
                             value = uiState.selectedZone?.name ?: stringResource(id = R.string.zones),
-                            isEnabled = !uiState.isLoading
+                            isEnabled = !viewModel.isLoading && uiState.isRequestAllCasesAccessOn
                         ) {
-                           // showZonesPopup = true
+
+                                showZonesPopup = true
+
 
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         DropDownButton(
                             modifier = Modifier.weight(1f),
                             value = uiState.selectedMicrozone?.name ?: stringResource(id = R.string.micro_zones),
-                            isEnabled = !uiState.isLoading
+                            isEnabled = !viewModel.isLoading && uiState.selectedZone != null
                         ) {
                             showMicrozonesPopup = true
                         }
                     }
-                    if (uiState.isLoading) {
+                    if (viewModel.isLoading) {
                         repeat(8) {
                             PatientListItemViewLoading()
                         }
@@ -190,7 +191,8 @@ fun PatientListScreen(
                         }
                     }
                     if(showZonesPopup){
-                        ListPopup(title = stringResource(id = R.string.zones), items = uiState.zones.map { ListPopupItem(label = it.name, it) }, setShowDialog = {
+                        ListPopup(title = stringResource(id = R.string.zones), items = listOf(ListPopupItem<Zone>(
+                            stringResource(id = R.string.all),null)) + uiState.zones.map { ListPopupItem(label = it.name, it) }, setShowDialog = {
                             showZonesPopup = it
                         }, onItemSelected = {
                             viewModel.setSelectedZone(it.item)

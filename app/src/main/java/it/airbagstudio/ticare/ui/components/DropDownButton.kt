@@ -34,7 +34,9 @@ fun DropDownButton(modifier: Modifier = Modifier, value: String,isEnabled: Boole
                     .padding(vertical = 4.dp)
             ),
         onClick = {
-            onClick()
+            if (isEnabled) {
+                onClick()
+            }
         }) {
         Text(
             modifier = Modifier.weight(1f),

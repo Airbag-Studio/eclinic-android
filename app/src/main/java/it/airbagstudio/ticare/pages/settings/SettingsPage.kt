@@ -32,6 +32,7 @@ import it.airbagstudio.ticare.LocalActivity
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.ConfirmWithNoteDialog
+import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBack
 import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerViewModel
 
@@ -76,7 +77,7 @@ fun SettingsPage(
                         if (selected) {
                             showNotesDialog = true
                         } else {
-                            viewModel.setAllCaseState(false)
+                            viewModel.clearAllCasesRequest()
                         }
 
                     })
@@ -112,7 +113,7 @@ fun SettingsPage(
                 body = stringResource(id = R.string.enable_all_patients_dialog_body),
                 onDismissRequest = { confirm, notes ->
                     if (confirm && !notes.isNullOrEmpty()) {
-                        viewModel.setAllCaseState(confirm)
+                        viewModel.requestAllCasesAccess(notes)
                     }
                     showNotesDialog = false
                 })
@@ -148,6 +149,11 @@ fun SettingsPage(
                 }
 
             )
+        }
+        if (viewModel.errorMessage != null){
+            ErrorAlert(message = viewModel.errorMessage!!, onDismissRequest = {
+                viewModel.errorMessage = null
+            })
         }
     }
 }

@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.HomeCareActivity
 import ch.ticare.eclinic.library.entity.HomeCarePlan
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
+import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.DestinationsArgs
+import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 data class CarePlanDetailsUIState(
@@ -38,6 +41,7 @@ data class CarePlanDetailsUIState(
 class CarePlanDetailsScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val homeCareActivitiesRepository: HomeCareActivitiesRepository,
+    private val userRepository: UserDetailRepository
 ) : ViewModel() {
 
     val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
@@ -48,6 +52,8 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
     private val errorMessage = MutableStateFlow<String?>(null)
     private val activities = MutableStateFlow<List<HomeCareActivity>?>(null)
     private val selectedPan = MutableStateFlow<HomeCarePlan?>(null)
+    private val selectedDate = userRepository.getSelectedDate()?.toDate(SERVER_DATE_FORMAT) ?: Date()
+    private val shift = userRepository.getCurrentShift()
 
     private val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -133,9 +139,23 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                 selectedPan.value = planId.toIntOrNull()?.let { id ->
                     plans.value.firstOrNull { it.id == id }
                 }
+                val date = selectedDate.format("yyyy.MM.dd")
+                val shiftIndex: Int? =
+                    if (shift != null) {
+                        userRepository.getOperatingShifts().results?.let { shifts ->
+                            shifts.indexOf(shift)
+                        } ?: run{
+                            null
+                        }
+                    } else {
+                        null
+                    }
                 activities.value = homeCareActivitiesRepository.getHomeCareActivities(
-                    patientCod,
-                    selectedPan.value?.id ?: 0
+                    code = patientCod,
+                    start = date,
+                    end = date,
+                    shift = shiftIndex,
+                    carePlanId = selectedPan.value?.id ?: 0
                 ).results
             } else if (res.error != null) {
                 errorMessage.value = res.error?.desc ?: ""
