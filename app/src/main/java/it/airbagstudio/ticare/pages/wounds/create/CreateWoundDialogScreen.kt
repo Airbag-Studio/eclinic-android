@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.airbagstudio.ticare.R
@@ -134,7 +135,9 @@ fun CreateWoundDialogScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         value = uiState.wound.length ?: "",
                         onValueChange = {
-                            viewModel.setLength(it)
+                            if (it.isDigitsOnly()) {
+                                viewModel.setLength(it)
+                            }
                         },
                         label = {
                             Text(text = stringResource(id = R.string.length))
@@ -151,7 +154,9 @@ fun CreateWoundDialogScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         value = uiState.wound.width ?: "",
                         onValueChange = {
-                            viewModel.setWidth(it)
+                            if (it.isDigitsOnly()) {
+                                viewModel.setWidth(it)
+                            }
                         },
                         label = {
                             Text(text = stringResource(id = R.string.width))
@@ -168,7 +173,9 @@ fun CreateWoundDialogScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         value = uiState.wound.depth ?: "",
                         onValueChange = {
-                            viewModel.setDepth(it)
+                            if (it.isDigitsOnly()) {
+                                viewModel.setDepth(it)
+                            }
                         },
                         label = {
                             Text(text = stringResource(id = R.string.depth))

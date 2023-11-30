@@ -17,7 +17,9 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -87,6 +89,13 @@ class PatientListScreenViewModel @Inject constructor(
         started =  SharingStarted.WhileSubscribed(5000),
         initialValue = PatientListUiState(isRequestAllCasesAccessOn = false)
     )
+
+    private val userZoneStatus = combine(isRequestAllCasesAccessOn,userListRepository.getUserZone()){ isOn,userZone ->
+        if (!isOn){
+            selectedZone.value = userZone
+            selectedMicroZone.value = null
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly,Unit)
 
     init {
         downloadCases()

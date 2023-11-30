@@ -6,8 +6,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -188,37 +192,47 @@ fun WoundDetailsScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    if (viewModel.wound?.checks.isNullOrEmpty()) {
-                        Text(text = stringResource(id = R.string.no_controls))
-                    } else {
-                        val controls = viewModel.wound?.checks?.map { check ->
-                            ControlListItem(
-                                id = check.iD,
-                                date = check.dateTime.toDate("dd.MM.yyyy HH:mm")
-                                    ?.format("dd/MM/yyyy")
-                                    ?: "",
-                                description = check.medicationType,
-                                imagesCount = viewModel.wound?.photos?.count { it.iDCheck == check.iD }
-                                    ?: 0
-                            )
-                        }
-                        controls?.forEach {
-                            ControlListItemView(item = it) {
-                                navigationActions.navigateToCheckDetails(
-                                    Uri.encode(viewModel.patientCod),
-                                    viewModel.woundId,
-                                    it
+                    Box{
+                        if (viewModel.wound?.checks.isNullOrEmpty()) {
+                            Text(text = stringResource(id = R.string.no_controls))
+                        } else {
+                            val controls = viewModel.wound?.checks?.map { check ->
+                                ControlListItem(
+                                    id = check.iD,
+                                    date = check.dateTime.toDate("dd.MM.yyyy HH:mm")
+                                        ?.format("dd/MM/yyyy")
+                                        ?: "",
+                                    description = check.medicationType,
+                                    imagesCount = viewModel.wound?.photos?.count { it.iDCheck == check.iD }
+                                        ?: 0
                                 )
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
+                            } ?: listOf()
+                            LazyColumn(
+                                contentPadding = PaddingValues(bottom = 50.dp),
+                                content = {
+                                items(controls){
+                                    ControlListItemView(item = it) {
+                                        navigationActions.navigateToCheckDetails(
+                                            Uri.encode(viewModel.patientCod),
+                                            viewModel.woundId,
+                                            it
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+                            })
                         }
+                        Column {
+                            Spacer(modifier = Modifier.weight(1f))
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { showCloseDialog = true }) {
+                                Text(text = stringResource(id = R.string.close_wound))
+                            }
+                        }
+
                     }
-                    Spacer(modifier = Modifier.weight(1f))
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = { showCloseDialog = true }) {
-                        Text(text = stringResource(id = R.string.close_wound))
-                    }
+
                 }
             }
         } else {

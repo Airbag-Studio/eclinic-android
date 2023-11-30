@@ -52,6 +52,7 @@ class LoginViewModel @Inject constructor(
     var successLogin by mutableStateOf(false)
 
     init {
+        userRepository.clearAllCasesRequest()
         if (authRepository.getRememberMe()){
             viewModelScope.launch(exceptionHandler) {
                 server = authRepository.getBaseURL().split("/api/").firstOrNull() ?: ""
