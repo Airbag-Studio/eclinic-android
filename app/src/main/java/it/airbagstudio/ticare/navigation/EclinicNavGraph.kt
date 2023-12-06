@@ -15,6 +15,7 @@ import it.airbagstudio.ticare.LoginRedirect
 import it.airbagstudio.ticare.pages.allergies.AllergiesScreen
 import it.airbagstudio.ticare.pages.carePlans.details.CarePlanDetailsScreen
 import it.airbagstudio.ticare.pages.carePlans.list.CarePlanesListScreen
+import it.airbagstudio.ticare.pages.consumptions.ConsumptionListScreen
 import it.airbagstudio.ticare.pages.diary.DiaryScreen
 import it.airbagstudio.ticare.pages.drugsAdministration.DrugsAdministrationScreen
 import it.airbagstudio.ticare.pages.login.LoginScreen
@@ -161,5 +162,12 @@ fun EclinicNavGraph(
                 navController.popBackStack()
             }
         }
+
+        composable(Destinations.CONSUMPTION_LIST_SCREEN) {
+            ConsumptionListScreen {
+                navController.popBackStack()
+            }
+        }
+
     }
 }
