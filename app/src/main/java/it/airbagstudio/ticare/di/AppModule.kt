@@ -9,6 +9,7 @@ import ch.ticare.eclinic.library.network.APIClient
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.CaseAllergiesRepository
+import ch.ticare.eclinic.library.repository.ConsumptionRepository
 import ch.ticare.eclinic.library.repository.DiaryRepository
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import ch.ticare.eclinic.library.repository.NursingCourseRepository
@@ -120,6 +121,12 @@ class AppModule {
     @Singleton
     fun providesUserMarkingRepositoryRepository(apiClient: APIClient,@ApplicationContext context: Context): UserMarkingRepository {
         return UserMarkingRepository(apiClient,provideDatabase(context))
+    }
+
+    @Provides
+    @Singleton
+    fun providesConsumptionRepository(apiClient: APIClient,@ApplicationContext context: Context): ConsumptionRepository {
+        return ConsumptionRepository(apiClient,provideDatabase(context))
     }
 
 }
