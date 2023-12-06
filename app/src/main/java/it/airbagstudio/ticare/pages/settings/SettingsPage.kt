@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -24,7 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -35,6 +39,7 @@ import it.airbagstudio.ticare.ui.components.ConfirmWithNoteDialog
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBack
 import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerViewModel
+import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
 fun SettingsPage(
@@ -60,6 +65,12 @@ fun SettingsPage(
             mutableStateOf(false)
         }
         Column(Modifier.padding(it)) {
+            Divider()
+            SettingsListItem(title = stringResource(id = R.string.consumption_title), subtitle = stringResource(
+                id = R.string.consumption_subtitle
+            )) {
+                navigationActions.navigateToConsumptionList()
+            }
             Divider()
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -154,6 +165,44 @@ fun SettingsPage(
             ErrorAlert(message = viewModel.errorMessage!!, onDismissRequest = {
                 viewModel.errorMessage = null
             })
+        }
+    }
+}
+
+@Composable
+private fun SettingsListItem(title: String,subtitle:String,onClick: () -> Unit){
+    Row(
+        modifier = Modifier.clickable {
+            onClick()
+        }.padding(start = 16.dp, top = 16.dp, bottom = 16.dp, end = 24.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Icon(painter = painterResource(id = R.drawable.ic_arrow_right), contentDescription = "")
+    }
+}
+
+@Composable
+@Preview
+private fun PreviewSettingsListItem(){
+    AppTheme {
+        Scaffold {
+            Column(Modifier.padding(it)) {
+                SettingsListItem("Consumi e rimborsi","Registrazione note spese"){
+
+                }
+                Divider(modifier = Modifier.padding(start = 16.dp))
+            }
         }
     }
 }

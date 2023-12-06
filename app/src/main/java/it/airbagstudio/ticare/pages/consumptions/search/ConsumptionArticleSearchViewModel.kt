@@ -2,6 +2,7 @@ package it.airbagstudio.ticare.pages.consumptions.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.Article
 import ch.ticare.eclinic.library.repository.ConsumptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.pages.otherTreatments.OtherTreatmentItem
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 data class ConsumptionArticleSearchUiState(
-    val articles: List<OtherTreatmentItem> = listOf(),
+    val articles: List<Article> = listOf(),
     val isLoading: Boolean,
     val searchQuery: String = ""
 )
@@ -28,10 +29,10 @@ class ConsumptionArticleSearchViewModel @Inject constructor(
 
 
     val uiState = combine(articles,query){ _articles,_query ->
-        var articleModels = _articles.map { OtherTreatmentItem(name = it.group, description = it.desc, number = it.code,id = it.id) }
-        var filteredArticles = listOf<OtherTreatmentItem>()
+        var articleModels = _articles
+        var filteredArticles = listOf<Article>()
         if (_query.count() > 2){
-            filteredArticles = articleModels.filter { it.description.contains(_query,true) || it.name.contains(_query,true) }
+            filteredArticles = articleModels.filter { it.desc.contains(_query,true) || it.code.contains(_query,true) }
         }else{
             filteredArticles = articleModels
         }

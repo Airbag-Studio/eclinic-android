@@ -141,4 +141,7 @@
     <string name="logout">Logout</string>
     <string name="time_tracking_enabled_dialog_title">Timbratura attiva</string>
     <string name="time_tracking_enabled_dialog_text">La timbratura verra chiusa al logout</string>
+    <string name="consumption_title">Consumi e Rimborsi</string>
+    <string name="consumption_subtitle">Registrazione note spese</string>
+    <string name="new_recording">Nuova registrazione</string>
 </resources>
