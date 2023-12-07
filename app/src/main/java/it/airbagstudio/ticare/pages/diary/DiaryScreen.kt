@@ -80,12 +80,14 @@ fun DiaryScreen(
                                 DiaryVitaLParameterItemView(
                                     title = item.typeLbl ?: "",
                                     value = item.value ?: "",
-                                    time = item.time
+                                    time = item.time,
+                                    note = item.taskNotes ?: ""
                                 )
                             } else if (item.entityName == "PharmacologicalTask") {
                                 DiaryDrugAdministrationItemView(
                                     title = item.typeLbl ?: "",
                                     quantity = item.actualQuantity ?: "",
+                                    note = item.taskNotes ?: "",
                                     expectedQuantity = item.expQuantity ?: "",
                                     time = item.time,
                                     isConfirmed = true,
@@ -97,13 +99,18 @@ fun DiaryScreen(
                                 DiaryNursingCourseItemView(
                                     title = item.title ?: "",
                                     description = item.desc ?: "",
+                                    duration = item.duration.toString(),
+                                    time = item.time,
+                                    note = item.taskNotes ?: "",
                                     isPlanned = item.isScheduledTask ?: true
                                 )
                             } else if (item.entityName == "HomeCareServiceTask"){
                                 DiaryCarePlaneItemView(
                                     title = item.typeLbl ?: "",
                                     description = item.schedulerLbl ?: "",
-                                    isPlanned = item.isScheduledTask ?: true
+                                    isPlanned = item.isScheduledTask ?: true,
+                                    time = item.time,
+                                    note = item.taskNotes ?: ""
                                 )
                             }
                             

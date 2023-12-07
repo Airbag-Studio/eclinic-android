@@ -1,7 +1,9 @@
 package it.airbagstudio.ticare.pages.diary
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -12,16 +14,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.DrugChip
+import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.redColor
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -29,6 +35,7 @@ import it.airbagstudio.ticare.ui.theme.redColor
 fun DiaryDrugAdministrationItemView(
     title: String,
     quantity: String,
+    note:String,
     expectedQuantity: String,
     time: String,
     isConfirmed: Boolean,
@@ -36,60 +43,86 @@ fun DiaryDrugAdministrationItemView(
     notExecuted: Boolean,
     rejected: Boolean
 ) {
-    Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_diary_drug_administration),
-            contentDescription = ""
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column {
-            BuildHeader(
-                category = stringResource(id = R.string.drug_administration),
-                title = title
-            )
-            Row {
-                LabelValueRow(label = stringResource(id = R.string.quantity), value = quantity)
-                if (!isReserve) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    LabelValueRow(
-                        label = stringResource(id = R.string.prescribed),
-                        value = expectedQuantity
-                    )
-                }
-            }
-            LabelValueRow(label = stringResource(id = R.string.time), value = time)
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
+    Column {
+        Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (!isConfirmed) {
-                    DrugChip(
-                        label = stringResource(id = R.string.not_confirmed),
-                        textColor = redColor
-                    )
+                Image(
+                    painter = painterResource(id = R.drawable.ic_diary_drug_administration),
+                    contentDescription = ""
+                )
+                Text(
+                    text = time,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                BuildHeader(
+                    category = stringResource(id = R.string.drug_administration),
+                    title = title
+                )
+                Row {
+                    LabelValueRow(label = stringResource(id = R.string.quantity), value = quantity)
+                    if (!isReserve) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        LabelValueRow(
+                            label = stringResource(id = R.string.prescribed),
+                            value = expectedQuantity
+                        )
+                    }
                 }
-                if (notExecuted) {
-                    DrugChip(label = stringResource(id = R.string.not_performed))
-                }
-                if (isReserve) {
-                    DrugChip(label = stringResource(id = R.string.reserves))
-                }
-                if (rejected) {
-                    DrugChip(label = stringResource(id = R.string.rejected_by_patient))
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    if (!isConfirmed) {
+                        DrugChip(
+                            label = stringResource(id = R.string.not_confirmed),
+                            textColor = redColor
+                        )
+                    }
+                    if (notExecuted) {
+                        DrugChip(label = stringResource(id = R.string.not_performed))
+                    }
+                    if (isReserve) {
+                        DrugChip(label = stringResource(id = R.string.reserves))
+                    }
+                    if (rejected) {
+                        DrugChip(label = stringResource(id = R.string.rejected_by_patient))
+                    }
                 }
             }
         }
+        if (note.isNotEmpty()) {
+            NoteView(note = note)
+        }
     }
+
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DiaryNursingCourseItemView(title: String,description:String,isPlanned:Boolean) {
+fun DiaryNursingCourseItemView(title: String,description:String,duration:String,time:String,note:String,isPlanned:Boolean) {
+Column {
     Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_diary_nursing_course),
-            contentDescription = ""
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_diary_nursing_course),
+                contentDescription = ""
+            )
+            Text(
+                text = time,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
         Spacer(modifier = Modifier.width(16.dp))
         Column {
             BuildHeader(
@@ -103,6 +136,7 @@ fun DiaryNursingCourseItemView(title: String,description:String,isPlanned:Boolea
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            LabelValueRow(label = stringResource(id = R.string.duration), value = duration)
             if (!isPlanned){
                 FlowRow(
                     modifier = Modifier
@@ -115,60 +149,94 @@ fun DiaryNursingCourseItemView(title: String,description:String,isPlanned:Boolea
             }
         }
     }
+    if (note.isNotEmpty()) {
+        NoteView(note = note)
+    }
+}
+
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DiaryCarePlaneItemView(title: String,description:String,isPlanned:Boolean) {
-    Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_diary_care_planes),
-            contentDescription = ""
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column {
-            BuildHeader(
-                category = stringResource(id = R.string.care_planes),
-                title = title
-            )
-            Text(
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            if (!isPlanned){
-                FlowRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    DrugChip(
-                        label = stringResource(id = R.string.not_planned)
-                    )
+fun DiaryCarePlaneItemView(title: String,description:String,time: String,note:String,isPlanned:Boolean) {
+    Column {
+        Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_diary_care_planes),
+                    contentDescription = ""
+                )
+                Text(
+                    text = time,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                BuildHeader(
+                    category = stringResource(id = R.string.care_planes),
+                    title = title
+                )
+                Text(
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                if (!isPlanned){
+                    FlowRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        DrugChip(
+                            label = stringResource(id = R.string.not_planned)
+                        )
+                    }
                 }
             }
         }
+        if (note.isNotEmpty()) {
+            NoteView(note = note)
+        }
     }
+
 }
 
 @Composable
-fun DiaryVitaLParameterItemView(title: String, value: String, time: String) {
-    Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_diary_vital_parameter),
-            contentDescription = ""
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column {
-            BuildHeader(
-                category = stringResource(id = R.string.vital_parameters),
-                title = title
-            )
-            LabelValueRow(label = stringResource(id = R.string.value), value = value)
-            LabelValueRow(label = stringResource(id = R.string.time), value = time)
+fun DiaryVitaLParameterItemView(title: String, value: String, time: String,note: String) {
+    Column {
+        Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_diary_vital_parameter),
+                    contentDescription = ""
+                )
+                Text(
+                    text = time,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                BuildHeader(
+                    category = stringResource(id = R.string.vital_parameters),
+                    title = title
+                )
+                LabelValueRow(label = stringResource(id = R.string.value), value = value)
+            }
+        }
+        if (note.isNotEmpty()) {
+            NoteView(note = note)
         }
     }
+
 }
 /*
 @Composable
@@ -228,6 +296,24 @@ private fun DrugChip(label: String, textColor: Color = MaterialTheme.colorScheme
         color = textColor
     )
 }
+@Composable
+private  fun NoteView(note: String){
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 8.dp)
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(size = 5.dp)
+            )
+            .padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
+        text = note,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MaterialTheme.typography.bodyMedium
+    )
+
+}
 
 @Composable
 private fun LabelValueRow(label: String, value: String) {
@@ -242,5 +328,38 @@ private fun LabelValueRow(label: String, value: String) {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Preview
+@Composable
+private fun DiaryPreview(){
+    AppTheme {
+        Scaffold(Modifier.background(Color.White)) {
+            Column(Modifier.padding(it)) {
+                DiaryDrugAdministrationItemView(
+                    title = "Meto Zeroch cpr ret 25mg",
+                    quantity = "2",
+                    note = "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id es. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, to\n" +
+                            "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatu. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur ma.\n" +
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+                    expectedQuantity = "2",
+                    time = "09:30",
+                    isConfirmed = true,
+                    isReserve = true,
+                    notExecuted = true,
+                    rejected = true
+                )
+
+                DiaryNursingCourseItemView(
+                    title = "Dolor sit amen",
+                    description = "Dolor sit amen",
+                    duration = "23",
+                    time = "14:56",
+                    note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+                            isPlanned = false
+                )
+            }
+        }
     }
 }
