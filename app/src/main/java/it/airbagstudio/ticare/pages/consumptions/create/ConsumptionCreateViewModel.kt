@@ -59,7 +59,6 @@ class ConsumptionCreateViewModel @Inject constructor(
         }
 
     val uiState = combine(consumption, isLoading, errorMessage,selectedArticle,isSuccess) { consumption, isLoading, errorMessage,selectedArticle,isSuccess ->
-
         val isValid = consumption.notes.isNotEmpty() && (consumption.quantity.toDoubleOrNull() != null && consumption.quantity.toDouble() > 0 )
         ConsumptionCreateUiState(
             title = selectedArticle?.desc ?: "",

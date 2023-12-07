@@ -1,4 +1,148 @@
 package it.airbagstudio.ticare.pages.workinghours.create
 
-class WorkingHoursItemCreateViewModel {
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.EmployeeWorkingHour
+import ch.ticare.eclinic.library.entity.SaveEmployeeConsumption
+import ch.ticare.eclinic.library.entity.SaveEmployeeWorkingHour
+import ch.ticare.eclinic.library.repository.UserMarkingRepository
+import ch.ticare.eclinic.library.repository.WorkingHourRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import it.airbagstudio.ticare.utils.format
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.util.Date
+import javax.inject.Inject
+
+data class WorkingHoursItemCreateUiState(
+    val isSuccess: Boolean,
+    val title: String,
+    val errorMessage: String?,
+    val isLoading: Boolean,
+    val item: Item,
+    val isValid: Boolean
+) {
+    data class Item(
+        val date: Date,
+        val duration: Int
+    )
+}
+
+@HiltViewModel
+class WorkingHoursItemCreateViewModel @Inject constructor(
+    private val workingHourRepository: WorkingHourRepository,
+    private val userMarkingRepository: UserMarkingRepository
+) : ViewModel() {
+
+    private val isSuccess = MutableStateFlow<Boolean>(false)
+
+    private val types = workingHourRepository.getTypes()
+    private val workingHourId = MutableStateFlow<Int?>(null)
+    private val selectedTypeId = MutableStateFlow<Int?>(null)
+    private val consumptionId = MutableStateFlow<Int?>(null)
+    private val date = MutableStateFlow<Date>(Date())
+    private val duration = MutableStateFlow<Int>(0)
+
+    private val isLoading = MutableStateFlow<Boolean>(false)
+    private val errorMessage = MutableStateFlow<String?>(null)
+    private val timeFromLastActivity = userMarkingRepository.getMinutesFromLastActivity()
+
+    private val selectedType = combine(types, selectedTypeId){ _types, _id ->
+        _types.firstOrNull { it.id == _id }
+    }
+
+    private val workingHour =
+        combine(date, duration, timeFromLastActivity) { _date, _duration, _timeFromLastActivity ->
+            WorkingHoursItemCreateUiState.Item(_date, if (_duration > 0) _duration else _timeFromLastActivity?.toInt() ?: 0)
+        }
+
+    val uiState = combine(workingHour, isLoading, errorMessage,selectedType,isSuccess) { workingHour, isLoading, errorMessage, selectedArticle, isSuccess ->
+        val isValid = (workingHour.duration > 0 )
+        WorkingHoursItemCreateUiState(
+            title = selectedArticle?.name ?: "",
+            errorMessage = errorMessage,
+            isLoading = isLoading,
+            item = workingHour,
+            isSuccess = isSuccess,
+            isValid = isValid
+        )
+    }.catch {
+        errorMessage.value = it.localizedMessage
+        isLoading.value = false
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        initialValue = WorkingHoursItemCreateUiState(
+            title = "",
+            errorMessage = null,
+            isLoading = false,
+            item = WorkingHoursItemCreateUiState.Item(Date(), 0),
+            isSuccess = false,
+            isValid = false
+        )
+    )
+
+    val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+        throwable.printStackTrace()
+        errorMessage.value = throwable.localizedMessage
+        isLoading.value = false
+    }
+
+    fun setSelectedTypeId(id: Int?){
+        this.selectedTypeId.value = id
+    }
+
+    fun setDate(date: Date){
+        this.date.value = date
+    }
+
+    fun setDuration(value: Int){
+        this.duration.value = value
+    }
+
+    fun clearErrors() {
+        errorMessage.value = null
+    }
+
+    fun clearData() {
+        this.isSuccess.value = false
+        this.selectedTypeId.value = null
+        date.value = Date()
+        duration.value = 0
+    }
+
+    fun saveWorkingHour() {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            isLoading.value = true
+            val totalHours = "${duration.value / 60.0}:${duration.value % 60}"
+            val item = SaveEmployeeWorkingHour(
+                id = consumptionId.value,
+                idType = selectedTypeId.value!!,
+                totalHours = totalHours,
+                date = date.value.format("yyyy.MM.dd")
+
+            )
+            if (item.id != null) {
+                val res = workingHourRepository.editWorkingHour(item)
+                res.error?.desc?.let {
+                    errorMessage.value = it
+                } ?: run{
+                    isSuccess.value = true
+                }
+            } else {
+                val res = workingHourRepository.addWorkingHour(item)
+                res.error?.desc?.let {
+                    errorMessage.value = it
+                } ?: run{
+                    isSuccess.value = true
+                }
+            }
+            isLoading.value = false
+        }
+    }
 }

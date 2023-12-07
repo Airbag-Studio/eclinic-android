@@ -19,6 +19,7 @@ import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.UserListRepository
 import ch.ticare.eclinic.library.repository.UserMarkingRepository
 import ch.ticare.eclinic.library.repository.UserRepository
+import ch.ticare.eclinic.library.repository.WorkingHourRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.Module
 import dagger.Provides
@@ -127,6 +128,12 @@ class AppModule {
     @Singleton
     fun providesConsumptionRepository(apiClient: APIClient,@ApplicationContext context: Context): ConsumptionRepository {
         return ConsumptionRepository(apiClient,provideDatabase(context))
+    }
+
+    @Provides
+    @Singleton
+    fun providesWorkingHoursRepository(apiClient: APIClient,@ApplicationContext context: Context): WorkingHourRepository {
+        return WorkingHourRepository(apiClient, provideDatabase(context))
     }
 
 }
