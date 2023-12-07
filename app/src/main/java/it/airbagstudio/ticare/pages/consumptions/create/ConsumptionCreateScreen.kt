@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -26,42 +27,69 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.Article
+import ch.ticare.eclinic.library.entity.EmployeeConsumption
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.CalendarTextField
-import it.airbagstudio.ticare.ui.theme.AppTheme
+import it.airbagstudio.ticare.ui.components.ErrorAlert
+import it.airbagstudio.ticare.utils.PlaceholderTransformation
+import it.airbagstudio.ticare.utils.toDate
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConsumptionCreateScreen(
-    article: Article,
+    viewModel: ConsumptionCreateViewModel = hiltViewModel(),
+    article: Article?,
+    consumption: EmployeeConsumption?,
     onDismissRequest: (Boolean) -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        if (article != null) {
+            viewModel.setSelectedArticleId(article.id)
+        }
+        if (consumption != null){
+            viewModel.setSelectedArticleId(consumption.idItem)
+            viewModel.setConsumptionId(consumption.id)
+            viewModel.setNotes(consumption.remarks)
+            viewModel.setDate(consumption.date.toDate("dd.MM.yyyy") ?: Date())
+            viewModel.setQuantity(consumption.quantity.toString())
+        }
+    }
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = {
+            viewModel.clearData()
             onDismissRequest(false)
         }
 
     ) {
+        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
         Scaffold(modifier = Modifier.fillMaxSize(),
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
                         Column {
-                            Text(text = article.desc)
+                            Text(text = uiState.title)
                         }
 
                     },
                     actions = {
-                        IconButton(onClick = { onDismissRequest(false) }) {
+                        IconButton(onClick = {
+                            viewModel.clearData()
+                            onDismissRequest(false)
+                        }) {
                             Icon(imageVector = Icons.Default.Close, contentDescription = "")
                         }
                     }
@@ -82,42 +110,50 @@ fun ConsumptionCreateScreen(
                     Row {
                         CalendarTextField(
                             modifier = Modifier.weight(1f),
-                            date = Date(),
+                            date = uiState.item.date,
+                            showTime = false,
                             label = {
-                                Text(text = stringResource(id = R.string.actual_date_time))
+                                Text(text = stringResource(id = R.string.actual_date))
                             },
                             onDateChanged = {
-
+                                viewModel.setDate(it)
                             })
                         Spacer(modifier = Modifier.width(16.dp))
                         OutlinedTextField(
                             modifier = Modifier.width(100.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            visualTransformation = if (uiState.item.quantity.isEmpty()) PlaceholderTransformation(
+                                "0"
+                            ) else VisualTransformation.None,
                             label = {
                                 Text(text = stringResource(id = R.string.quantity))
                             },
-                            value = "",
+                            isError = uiState.item.quantity.toDoubleOrNull() == null,
+                            value = uiState.item.quantity,
                             onValueChange = {
-
+                                viewModel.setQuantity(it)
                             }
                         )
-
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedTextField(
                         label = {
-                                Text(text = stringResource(id = R.string.notes))
+                            Text(text = stringResource(id = R.string.notes))
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(0.5f),
-                        value = "", onValueChange = {}
+                        value = uiState.item.notes,
+                        onValueChange = {
+                            viewModel.setNotes(it)
+                        }
                     )
                     Spacer(modifier = Modifier.weight(0.4f))
                     Button(
-                        enabled = true,
+                        enabled = !uiState.isLoading && uiState.isValid,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
-
+                            viewModel.saveConsumption()
                         }) {
                         Icon(
                             imageVector = Icons.Default.Check,
@@ -125,7 +161,7 @@ fun ConsumptionCreateScreen(
                         )
                         Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                         Text(text = stringResource(id = R.string.save))
-                        if (false) {
+                        if (uiState.isLoading) {
                             Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                             CircularProgressIndicator(
                                 strokeWidth = 2.dp,
@@ -138,21 +174,15 @@ fun ConsumptionCreateScreen(
 
             }
         }
-    }
-}
+        if (uiState.isSuccess) {
+            viewModel.clearData()
+            onDismissRequest(true)
 
-@Composable
-@Preview
-private fun PreviewConsumptionCreateScreen(){
-    AppTheme {
-        Scaffold {
-            Column(Modifier.padding(it)) {
-
-                ConsumptionCreateScreen(Article("","","",1)){
-
-                }
-            }
+        }
+        if (uiState.errorMessage != null){
+            ErrorAlert(message = uiState.errorMessage!!, onDismissRequest = {
+                viewModel.clearErrors()
+            })
         }
     }
-
 }

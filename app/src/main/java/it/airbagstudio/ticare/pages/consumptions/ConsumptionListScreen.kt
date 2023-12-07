@@ -1,6 +1,8 @@
 package it.airbagstudio.ticare.pages.consumptions
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
@@ -37,8 +40,12 @@ import ch.ticare.eclinic.library.entity.Article
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.consumptions.create.ConsumptionCreateScreen
 import it.airbagstudio.ticare.pages.consumptions.search.ConsumptionArticleSearch
+import it.airbagstudio.ticare.ui.components.ErrorAlert
+import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.ui.theme.AppTheme
+import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.toDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,15 +100,38 @@ fun ConsumptionListScreen(
             Modifier
                 .padding(values)
         ) {
-            LazyColumn(
-                contentPadding = PaddingValues(bottom = 124.dp),
-                content = {
-                    items(uiState.consumptions){
-                        ConsumptionListItem(name = "", date = "") {
-                            viewModel.selectedConsumption = it
+            if (uiState.isLoading) {
+                repeat(8) {
+                    PatientListItemViewLoading()
+                }
+            } else {
+                LazyColumn(
+                    contentPadding = PaddingValues(bottom = 124.dp),
+                    content = {
+                        items(uiState.consumptions.keys.toList()) {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.titleMedium,
+                                text = it
+                            )
+                            val items = uiState.consumptions.get(it)
+
+                            items?.forEach { item ->
+                                ConsumptionListItem(
+                                    name = item.item,
+                                    date = item.date.toDate("dd.MM.yyyy")?.format("dd/MM/yyyy") ?: ""
+                                ) {
+                                    viewModel.selectedConsumption = item
+                                    showCreateDialog = true
+                                }
+                                Divider(modifier = Modifier.padding(start = if (items.lastOrNull() == item) 0.dp else 16.dp))
+                            }
                         }
-                    }
-                })
+                    })
+            }
         }
     }
     if (showSearchDialog){
@@ -112,12 +142,23 @@ fun ConsumptionListScreen(
         })
     }
     if (showCreateDialog){
-        selectedArticle?.let {
-            ConsumptionCreateScreen(it,onDismissRequest = { refreshList ->
+        ConsumptionCreateScreen(
+            article = selectedArticle,
+            consumption = viewModel.selectedConsumption,
+            onDismissRequest = { refreshList ->
                 showCreateDialog = false
                 selectedArticle = null
-            })
-        }
+                viewModel.selectedConsumption = null
+                if (refreshList) {
+                    viewModel.downloadData()
+                }
+        })
+
+    }
+    if (uiState.errorMessage != null){
+        ErrorAlert(message = uiState.errorMessage!!, onDismissRequest = {
+            viewModel.clearError()
+        })
     }
 }
 
@@ -125,7 +166,11 @@ fun ConsumptionListScreen(
 private fun ConsumptionListItem(name:String,date:String,onClick: () -> Unit){
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 8.dp)
+        modifier = Modifier
+            .clickable {
+                onClick()
+            }
+            .padding(vertical = 8.dp)
     ) {
         Image(
             modifier = Modifier.padding(horizontal = 16.dp),

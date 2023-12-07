@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.EmployeeConsumption
 import ch.ticare.eclinic.library.repository.ConsumptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,7 +21,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class ConsumptionListUIState(
-    val consumptions: List<EmployeeConsumption> = listOf(),
+    val consumptions: Map<String, List<EmployeeConsumption>> = mapOf(),
     val errorMessage: String? = null,
     val isLoading: Boolean = false,
 )
@@ -43,7 +45,10 @@ class ConsumptionListViewModel @Inject constructor(
 
     val uiState: StateFlow<ConsumptionListUIState> = combine(consumptions,throwable,isLoading){ consumptions, throwable, isLoading ->
         ConsumptionListUIState(
-            consumptions = consumptions,
+            consumptions = consumptions.groupBy {
+                val date = it.date.toDate("dd.MM.yyyy")
+                date?.format("EEE dd MMMM") ?: it.date
+            },
             errorMessage = throwable?.localizedMessage,
             isLoading = isLoading
         )
@@ -72,4 +77,7 @@ class ConsumptionListViewModel @Inject constructor(
     }
 
 
+    fun clearError(){
+        throwable.value = null
+    }
 }

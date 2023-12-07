@@ -21,12 +21,13 @@ data class ConsumptionCreateUiState(
     val title: String,
     val errorMessage: String?,
     val isLoading: Boolean,
-    val item: Item
+    val item: Item,
+    val isValid: Boolean
 
 ) {
     data class Item(
         val date: Date,
-        val quantity: Double,
+        val quantity: String,
         val notes: String
     )
 }
@@ -42,7 +43,7 @@ class ConsumptionCreateViewModel @Inject constructor(
     private val selectedArticleId = MutableStateFlow<Int?>(null)
     private val consumptionId = MutableStateFlow<Int?>(null)
     private val date = MutableStateFlow<Date>(Date())
-    private val quantity = MutableStateFlow<Double>(0.0)
+    private val quantity = MutableStateFlow<String>("")
     private val notes = MutableStateFlow<String>("")
 
     private val isLoading = MutableStateFlow<Boolean>(false)
@@ -58,12 +59,15 @@ class ConsumptionCreateViewModel @Inject constructor(
         }
 
     val uiState = combine(consumption, isLoading, errorMessage,selectedArticle,isSuccess) { consumption, isLoading, errorMessage,selectedArticle,isSuccess ->
+
+        val isValid = consumption.notes.isNotEmpty() && (consumption.quantity.toDoubleOrNull() != null && consumption.quantity.toDouble() > 0 )
         ConsumptionCreateUiState(
             title = selectedArticle?.desc ?: "",
             errorMessage = errorMessage,
             isLoading = isLoading,
             item = consumption,
-            isSuccess = isSuccess
+            isSuccess = isSuccess,
+            isValid = isValid
         )
     }.catch {
         errorMessage.value = it.localizedMessage
@@ -75,8 +79,9 @@ class ConsumptionCreateViewModel @Inject constructor(
             title = "",
             errorMessage = null,
             isLoading = false,
-            item = ConsumptionCreateUiState.Item(Date(), 0.0, ""),
-            isSuccess = false
+            item = ConsumptionCreateUiState.Item(Date(), "", ""),
+            isSuccess = false,
+            isValid = false
         )
     )
 
@@ -102,7 +107,7 @@ class ConsumptionCreateViewModel @Inject constructor(
         this.notes.value = value
     }
 
-    fun setQuantity(value: Double){
+    fun setQuantity(value: String){
         this.quantity.value = value
     }
 
@@ -114,7 +119,7 @@ class ConsumptionCreateViewModel @Inject constructor(
         this.isSuccess.value = false
         this.selectedArticleId.value = null
         date.value = Date()
-        quantity.value = 0.0
+        quantity.value = ""
         notes.value = ""
     }
 
@@ -124,7 +129,7 @@ class ConsumptionCreateViewModel @Inject constructor(
             val item = SaveEmployeeConsumption(
                 id = consumptionId.value,
                 idItem = selectedArticleId.value!!,
-                quantity = quantity.value,
+                quantity = quantity.value.toDoubleOrNull() ?: 0.0,
                 remarks = notes.value,
                 date = date.value.format("yyyy.MM.dd")
 

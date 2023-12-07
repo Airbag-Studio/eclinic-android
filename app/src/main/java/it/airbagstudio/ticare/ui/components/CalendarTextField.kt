@@ -59,6 +59,7 @@ import java.util.Date
 fun CalendarTextField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    showTime: Boolean = true,
     date: Date?,
     label: @Composable() (() -> Unit)?,
     onDateChanged: (Date) -> Unit
@@ -83,6 +84,11 @@ fun CalendarTextField(
     var selectedDate by remember {
         mutableStateOf(date ?: Date())
     }
+    val pattern = if (showTime){
+        "dd MMMM yyyy, HH:mm "
+    }else{
+        "dd MMMM yyyy"
+    }
     Box(modifier = modifier) {
         OutlinedTextField(
             enabled = enabled,
@@ -91,8 +97,8 @@ fun CalendarTextField(
                 fieldSize = it.size
                 fieldPosition = it.positionInRoot()
             },
-            value = date?.format("dd MMMM yyyy, HH:mm ")
-                ?: selectedDate.format("dd MMMM yyyy, HH:mm "),
+            value = date?.format(pattern)
+                ?: selectedDate.format(pattern),
             onValueChange = {},
             trailingIcon = {
                 Icon(
@@ -121,8 +127,21 @@ fun CalendarTextField(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showDatePicker = false
                         showTimePicker = true
+                        if (showTime) {
+                            showDatePicker = false
+                        }else{
+                            selectedDate =
+                                if (datePickerState.selectedDateMillis != null) Date(
+                                    datePickerState.selectedDateMillis!!
+                                ) else Date()
+                            selectedDate.hours = timePickerState.hour
+                            selectedDate.minutes = timePickerState.minute
+                            showTimePicker = false
+                            showDatePicker = false
+                            onDateChanged(selectedDate)
+                        }
+
 
                     }) {
                     Text(text = stringResource(id = R.string.ok))
