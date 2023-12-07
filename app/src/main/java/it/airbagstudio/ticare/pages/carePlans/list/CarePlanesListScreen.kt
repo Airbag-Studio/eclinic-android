@@ -75,15 +75,10 @@ fun CarePlanesListScreen(
                 LazyColumn(content = {
                     items(uiState.items) {
                         CarePlanesListItemView(item = it, onClick = { id ->
-                            if (trackingUiState.isEnabled) {
-                                navigationActions.navigateToCarePlanDetailsScreen(
-                                    Uri.encode(viewModel.patientCod),
-                                    id.toString()
-                                )
-                            } else {
-                                selectedId = id
-                                showStartTrackingDialog = true
-                            }
+                            navigationActions.navigateToCarePlanDetailsScreen(
+                                Uri.encode(viewModel.patientCod),
+                                id.toString()
+                            )
                         })
                         Divider()
                     }

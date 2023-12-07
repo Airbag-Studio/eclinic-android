@@ -120,6 +120,7 @@ fun ConsumptionCreateScreen(
                             })
                         Spacer(modifier = Modifier.width(16.dp))
                         OutlinedTextField(
+                            singleLine = true,
                             modifier = Modifier.width(100.dp),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             visualTransformation = if (uiState.item.quantity.isEmpty()) PlaceholderTransformation(

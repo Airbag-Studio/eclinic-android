@@ -73,8 +73,12 @@ class WorkingHoursListScreenViewModel @Inject constructor(
         }
     }
 
-    fun setSelectedConsumption(id: Int){
-        selectedWorkingHour = workingHours.value.firstOrNull { it.id == id }
+    fun setSelectedConsumption(id: Int?){
+        if (id != null) {
+            selectedWorkingHour = workingHours.value.firstOrNull { it.id == id }
+        }else{
+            selectedWorkingHour = null
+        }
     }
 
 

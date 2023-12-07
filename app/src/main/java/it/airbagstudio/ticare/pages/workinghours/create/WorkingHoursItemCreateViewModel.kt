@@ -44,7 +44,6 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
     private val types = workingHourRepository.getTypes()
     private val workingHourId = MutableStateFlow<Int?>(null)
     private val selectedTypeId = MutableStateFlow<Int?>(null)
-    private val consumptionId = MutableStateFlow<Int?>(null)
     private val date = MutableStateFlow<Date>(Date())
     private val duration = MutableStateFlow<Int>(0)
 
@@ -109,6 +108,10 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
         errorMessage.value = null
     }
 
+    fun setId(id: Int){
+        workingHourId.value = id
+    }
+
     fun clearData() {
         this.isSuccess.value = false
         this.selectedTypeId.value = null
@@ -119,9 +122,9 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
     fun saveWorkingHour() {
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading.value = true
-            val totalHours = "%02d:%02d".format(duration.value / 60.0, duration.value % 60)
+            val totalHours = "%02d:%02d".format((duration.value / 60.0).toInt(), duration.value % 60)
             val item = SaveEmployeeWorkingHour(
-                id = consumptionId.value,
+                id = workingHourId.value,
                 idType = selectedTypeId.value!!,
                 totalHours = totalHours,
                 date = date.value.format("yyyy.MM.dd")

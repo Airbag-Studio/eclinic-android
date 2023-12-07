@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,6 +53,7 @@ fun DiaryDrugAdministrationItemView(
                     painter = painterResource(id = R.drawable.ic_diary_drug_administration),
                     contentDescription = ""
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = time,
                     style = MaterialTheme.typography.labelSmall,
@@ -116,6 +118,7 @@ Column {
                 painter = painterResource(id = R.drawable.ic_diary_nursing_course),
                 contentDescription = ""
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = time,
                 style = MaterialTheme.typography.labelSmall,
@@ -168,6 +171,7 @@ fun DiaryCarePlaneItemView(title: String,description:String,time: String,note:St
                     painter = painterResource(id = R.drawable.ic_diary_care_planes),
                     contentDescription = ""
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = time,
                     style = MaterialTheme.typography.labelSmall,
@@ -217,6 +221,7 @@ fun DiaryVitaLParameterItemView(title: String, value: String, time: String,note:
                     painter = painterResource(id = R.drawable.ic_diary_vital_parameter),
                     contentDescription = ""
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = time,
                     style = MaterialTheme.typography.labelSmall,

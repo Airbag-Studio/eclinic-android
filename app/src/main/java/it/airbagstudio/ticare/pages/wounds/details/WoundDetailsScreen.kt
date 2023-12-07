@@ -91,108 +91,107 @@ fun WoundDetailsScreen(
                 onDismissRequest = { viewModel.errorMessage = null })
         }
         if (viewModel.wound != null) {
-            Column(
-                Modifier
-                    .padding(it)
-                    .fillMaxHeight()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                    Text(
-                        text = stringResource(id = R.string.wound_type),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                    Text(
-                        text = viewModel.wound?.woundType ?: "",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                }
-                Divider()
-                Row(modifier = Modifier.height(IntrinsicSize.Min)) {
-                    TitleValueView(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(id = R.string.origin),
-                        value = viewModel.wound?.woundOrigin ?: ""
-                    )
-                    Divider(
-                        modifier = Modifier
-                            .fillMaxHeight()//fill the max height
-                            .width(1.dp)
-                    )
-                    TitleValueView(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(id = R.string.opening),
-                        value = viewModel.wound?.appearanceDate?.toDate("dd.MM.yyyy")
-                            ?.format("dd/MM/yyyy") ?: ""
-                    )
-                }
-                Divider()
-                TitleValueView(
-                    title = stringResource(id = R.string.position),
-                    value = viewModel.wound?.parts?.map { it.name }?.joinToString(", ") ?: ""
-                )
-                Divider()
-                TitleValueView(
-                    title = stringResource(id = R.string.dimensions),
-                    value = stringResource(
-                        id = R.string.wound_size,
-                        viewModel.wound?.length ?: 0,
-                        viewModel.wound?.width ?: 0,
-                        viewModel.wound?.depth ?: 0
-                    )
-                )
-                Divider()
-                TitleValueView(
-                    title = stringResource(id = R.string.description),
-                    value = viewModel.wound?.appearanceDescription ?: "",
-                    singleLine = true,
-                    onClick = {
-                        showNotesDialog = true
-                    }
-                )
-                Divider()
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .clickable {
-                            showImagesDialog = true
-                        }
-                        .padding(start = 16.dp, top = 8.dp, end = 24.dp, bottom = 8.dp)) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_photos),
-                        contentDescription = ""
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Text(text = "${viewModel.wound?.photos?.count { it.iDCheck < 0 } ?: 0}")
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_right),
-                        contentDescription = ""
-                    )
-                }
-                Divider()
+            Box(Modifier.padding(it)) {
                 Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(16.dp)
+                    Modifier
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
                         Text(
-                            modifier = Modifier.weight(1f),
-                            text = stringResource(id = R.string.controls),
-                            style = MaterialTheme.typography.titleLarge
+                            text = stringResource(id = R.string.wound_type),
+                            style = MaterialTheme.typography.labelMedium
                         )
-                        Button(
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = seed
-                            ),
-                            onClick = { showCheckCreateBottomSheet = true }) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = "")
-                            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                            Text(text = stringResource(id = R.string.new_control))
-                        }
+                        Text(
+                            text = viewModel.wound?.woundType ?: "",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Box{
+                    Divider()
+                    Row(modifier = Modifier.height(IntrinsicSize.Min)) {
+                        TitleValueView(
+                            modifier = Modifier.weight(1f),
+                            title = stringResource(id = R.string.origin),
+                            value = viewModel.wound?.woundOrigin ?: ""
+                        )
+                        Divider(
+                            modifier = Modifier
+                                .fillMaxHeight()//fill the max height
+                                .width(1.dp)
+                        )
+                        TitleValueView(
+                            modifier = Modifier.weight(1f),
+                            title = stringResource(id = R.string.opening),
+                            value = viewModel.wound?.appearanceDate?.toDate("dd.MM.yyyy")
+                                ?.format("dd/MM/yyyy") ?: ""
+                        )
+                    }
+                    Divider()
+                    TitleValueView(
+                        title = stringResource(id = R.string.position),
+                        value = viewModel.wound?.parts?.map { it.name }?.joinToString(", ") ?: ""
+                    )
+                    Divider()
+                    TitleValueView(
+                        title = stringResource(id = R.string.dimensions),
+                        value = stringResource(
+                            id = R.string.wound_size,
+                            viewModel.wound?.length ?: 0,
+                            viewModel.wound?.width ?: 0,
+                            viewModel.wound?.depth ?: 0
+                        )
+                    )
+                    Divider()
+                    TitleValueView(
+                        title = stringResource(id = R.string.description),
+                        value = viewModel.wound?.appearanceDescription ?: "",
+                        singleLine = true,
+                        onClick = {
+                            showNotesDialog = true
+                        }
+                    )
+                    Divider()
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clickable {
+                                showImagesDialog = true
+                            }
+                            .padding(start = 16.dp, top = 8.dp, end = 24.dp, bottom = 8.dp)) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_photos),
+                            contentDescription = ""
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(text = "${viewModel.wound?.photos?.count { it.iDCheck < 0 } ?: 0}")
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_arrow_right),
+                            contentDescription = ""
+                        )
+                    }
+                    Divider()
+                    Column(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(16.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                modifier = Modifier.weight(1f),
+                                text = stringResource(id = R.string.controls),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Button(
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = seed
+                                ),
+                                onClick = { showCheckCreateBottomSheet = true }) {
+                                Icon(imageVector = Icons.Default.Add, contentDescription = "")
+                                Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                                Text(text = stringResource(id = R.string.new_control))
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+
                         if (viewModel.wound?.checks.isNullOrEmpty()) {
                             Text(text = stringResource(id = R.string.no_controls))
                         } else {
@@ -207,34 +206,37 @@ fun WoundDetailsScreen(
                                         ?: 0
                                 )
                             } ?: listOf()
-                            LazyColumn(
-                                contentPadding = PaddingValues(bottom = 50.dp),
+                            Column(
                                 content = {
-                                items(controls){
-                                    ControlListItemView(item = it) {
-                                        navigationActions.navigateToCheckDetails(
-                                            Uri.encode(viewModel.patientCod),
-                                            viewModel.woundId,
-                                            it
-                                        )
+                                    controls.forEach{
+                                        ControlListItemView(item = it) {
+                                            navigationActions.navigateToCheckDetails(
+                                                Uri.encode(viewModel.patientCod),
+                                                viewModel.woundId,
+                                                it
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.height(16.dp))
                                     }
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                }
-                            })
-                        }
-                        Column {
-                            Spacer(modifier = Modifier.weight(1f))
-                            Button(
-                                modifier = Modifier.fillMaxWidth(),
-                                onClick = { showCloseDialog = true }) {
-                                Text(text = stringResource(id = R.string.close_wound))
-                            }
+                                })
                         }
 
+
+                        Spacer(modifier = Modifier.height(80.dp))
                     }
-
+                }
+                Column {
+                    Spacer(modifier = Modifier.weight(1f))
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        onClick = { showCloseDialog = true }) {
+                        Text(text = stringResource(id = R.string.close_wound))
+                    }
                 }
             }
+
         } else {
             Column(
                 verticalArrangement = Arrangement.Center,

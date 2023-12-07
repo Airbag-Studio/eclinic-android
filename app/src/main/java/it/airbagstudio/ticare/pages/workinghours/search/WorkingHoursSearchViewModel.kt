@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.workinghours.search
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.WorkingHoursType
@@ -28,6 +29,7 @@ class WorkingHoursSearchViewModel @Inject constructor(
 
 
     val uiState = combine(types,query){ _types, _query ->
+        Log.d("types",_types.toString())
         var typeModels = _types
         var filteredTypes = listOf<WorkingHoursType>()
         if (_query.count() > 2){
