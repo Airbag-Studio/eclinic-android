@@ -71,6 +71,12 @@ fun SettingsPage(
             )) {
                 navigationActions.navigateToConsumptionList()
             }
+            Divider(Modifier.padding(start = 16.dp))
+            SettingsListItem(title = stringResource(id = R.string.working_hours_title), subtitle = stringResource(
+                id = R.string.working_hours_subtitle
+            )) {
+                navigationActions.navigateToWorkingHours()
+            }
             Divider()
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -172,9 +178,11 @@ fun SettingsPage(
 @Composable
 private fun SettingsListItem(title: String,subtitle:String,onClick: () -> Unit){
     Row(
-        modifier = Modifier.clickable {
-            onClick()
-        }.padding(start = 16.dp, top = 16.dp, bottom = 16.dp, end = 24.dp),
+        modifier = Modifier
+            .clickable {
+                onClick()
+            }
+            .padding(start = 16.dp, top = 16.dp, bottom = 16.dp, end = 24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {

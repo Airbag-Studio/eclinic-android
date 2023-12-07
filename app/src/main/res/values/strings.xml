@@ -145,4 +145,9 @@
     <string name="consumption_subtitle">Registrazione note spese</string>
     <string name="new_recording">Nuova registrazione</string>
     <string name="actual_date">Data effettiva</string>
+    <string name="working_hours_tracking_alert_title">Timbratura non attiva</string>
+    <string name="working_hours_tracking_alert_text">Desideri aggiungere una prestazione amministrativa o modificarne una passata?\nQueste operazione possono essere effettuate solo con la Timbratura attiva.\n\n<b>Vuoi attivare la Timbratura adesso?</b></string>
+    <string name="working_hours_tracking_alert_confirm_button">Attiva Timbratura</string>
+    <string name="working_hours_title">Prestazioni Amministrative</string>
+    <string name="working_hours_subtitle">Registrazione attività amministrative</string>
 </resources>

@@ -43,6 +43,7 @@ import it.airbagstudio.ticare.pages.consumptions.search.ConsumptionArticleSearch
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.ui.components.lists.TitleDateListItem
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.toDate
@@ -120,7 +121,7 @@ fun ConsumptionListScreen(
                             val items = uiState.consumptions.get(it)
 
                             items?.forEach { item ->
-                                ConsumptionListItem(
+                                TitleDateListItem(
                                     name = item.item,
                                     date = item.date.toDate("dd.MM.yyyy")?.format("dd/MM/yyyy") ?: ""
                                 ) {
@@ -159,47 +160,5 @@ fun ConsumptionListScreen(
         ErrorAlert(message = uiState.errorMessage!!, onDismissRequest = {
             viewModel.clearError()
         })
-    }
-}
-
-@Composable
-private fun ConsumptionListItem(name:String,date:String,onClick: () -> Unit){
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .clickable {
-                onClick()
-            }
-            .padding(vertical = 8.dp)
-    ) {
-        Image(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            painter = painterResource(id = R.drawable.ic_check),
-            contentDescription = ""
-        )
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = date,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-        Icon(painter = painterResource(id = R.drawable.ic_arrow_right), contentDescription = "")
-        Spacer(modifier = Modifier.width(24.dp))
-    }
-}
-@Composable
-@Preview
-private fun PreviewConsumptionListItem(){
-    AppTheme {
-        Column {
-            ConsumptionListItem(name = "Rimborso chilometrico \n dadadsa \n dsdasd", date = "20/08/2023") {
-                
-            }
-        }
     }
 }

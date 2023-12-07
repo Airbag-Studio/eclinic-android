@@ -27,6 +27,7 @@ import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
 import it.airbagstudio.ticare.pages.settings.SettingsPage
 import it.airbagstudio.ticare.pages.splashPage.SplashPageScreen
 import it.airbagstudio.ticare.pages.vitalParameters.list.VitalParametersScreen
+import it.airbagstudio.ticare.pages.workinghours.list.WorkingHoursListScreen
 import it.airbagstudio.ticare.pages.wounds.checks.details.CheckDetailsPage
 import it.airbagstudio.ticare.pages.wounds.details.WoundDetailsScreen
 import it.airbagstudio.ticare.pages.wounds.list.WoundListScreen
@@ -163,11 +164,16 @@ fun EclinicNavGraph(
             }
         }
 
-        composable(Destinations.CONSUMPTION_LIST_SCREEN) {
+        composable(Destinations.CONSUMPTION_LIST_ROUTE) {
             ConsumptionListScreen {
                 navController.popBackStack()
             }
         }
 
+        composable(Destinations.WORKING_HOURS_LIST_ROUTE){
+            WorkingHoursListScreen {
+                navController.popBackStack()
+            }
+        }
     }
 }

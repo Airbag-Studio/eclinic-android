@@ -25,6 +25,7 @@ import it.airbagstudio.ticare.navigation.Screens.PATIENT_INFO_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.SETTINGS_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.SPLASH_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.VITAL_PARAMETERS_SCREEN
+import it.airbagstudio.ticare.navigation.Screens.WORKING_HOURS_LIST_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.WOUNDS_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.WOUND_DETAILS_SCREEN
 
@@ -47,6 +48,7 @@ private object Screens{
     const val CHECK_DETAILS_SCREEN = "checkDetailsScreen"
     const val SETTINGS_SCREEN = "settingsScreen"
     const val CONSUMPTION_LIST_SCREEN = "consumptionListScreen"
+    const val WORKING_HOURS_LIST_SCREEN = "workingHoursListScreen"
 }
 
 object DestinationsArgs{
@@ -81,7 +83,8 @@ object Destinations{
     const val WOUND_DETAILS_ROUTE = "$WOUND_DETAILS_SCREEN/{$PATIENT_COD}/{$ID}/{$GENDER_ID}"
     const val CHECK_DETAILS_ROUTE = "$CHECK_DETAILS_SCREEN/{$PATIENT_COD}/{$ID}/{$CHECK_ID}"
     const val SETTING_ROUTE = SETTINGS_SCREEN
-    const val CONSUMPTION_LIST_SCREEN = "consumptionListScreen"
+    const val CONSUMPTION_LIST_ROUTE = CONSUMPTION_LIST_SCREEN
+    const val WORKING_HOURS_LIST_ROUTE = WORKING_HOURS_LIST_SCREEN
 }
 
 class NavigationActions(private val navController: NavController){
@@ -160,5 +163,9 @@ class NavigationActions(private val navController: NavController){
 
     fun navigateToConsumptionList() {
         navController.navigate(CONSUMPTION_LIST_SCREEN)
+    }
+
+    fun navigateToWorkingHours(){
+        navController.navigate(WORKING_HOURS_LIST_SCREEN)
     }
 }
