@@ -119,7 +119,7 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
     fun saveWorkingHour() {
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading.value = true
-            val totalHours = "${duration.value / 60.0}:${duration.value % 60}"
+            val totalHours = "%02d:%02d".format(duration.value / 60.0, duration.value % 60)
             val item = SaveEmployeeWorkingHour(
                 id = consumptionId.value,
                 idType = selectedTypeId.value!!,
