@@ -2,8 +2,6 @@ package it.airbagstudio.ticare.pages.workinghours.create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ch.ticare.eclinic.library.entity.EmployeeWorkingHour
-import ch.ticare.eclinic.library.entity.SaveEmployeeConsumption
 import ch.ticare.eclinic.library.entity.SaveEmployeeWorkingHour
 import ch.ticare.eclinic.library.repository.UserMarkingRepository
 import ch.ticare.eclinic.library.repository.WorkingHourRepository
@@ -14,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -29,7 +28,7 @@ data class WorkingHoursItemCreateUiState(
 ) {
     data class Item(
         val date: Date,
-        val duration: Int
+        val duration: Int?
     )
 }
 
@@ -45,7 +44,7 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
     private val workingHourId = MutableStateFlow<Int?>(null)
     private val selectedTypeId = MutableStateFlow<Int?>(null)
     private val date = MutableStateFlow<Date>(Date())
-    private val duration = MutableStateFlow<Int>(0)
+    private val duration = MutableStateFlow<String>("")
 
     private val isLoading = MutableStateFlow<Boolean>(false)
     private val errorMessage = MutableStateFlow<String?>(null)
@@ -56,12 +55,12 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
     }
 
     private val workingHour =
-        combine(date, duration, timeFromLastActivity) { _date, _duration, _timeFromLastActivity ->
-            WorkingHoursItemCreateUiState.Item(_date, if (_duration > 0) _duration else _timeFromLastActivity?.toInt() ?: 0)
+        combine(date, duration) { _date, _duration ->
+            WorkingHoursItemCreateUiState.Item(_date,_duration.toIntOrNull())
         }
 
     val uiState = combine(workingHour, isLoading, errorMessage,selectedType,isSuccess) { workingHour, isLoading, errorMessage, selectedArticle, isSuccess ->
-        val isValid = (workingHour.duration > 0 )
+        val isValid = workingHour.duration != null
         WorkingHoursItemCreateUiState(
             title = selectedArticle?.name ?: "",
             errorMessage = errorMessage,
@@ -100,7 +99,7 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
         this.date.value = date
     }
 
-    fun setDuration(value: Int){
+    fun setDuration(value: String){
         this.duration.value = value
     }
 
@@ -108,21 +107,28 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
         errorMessage.value = null
     }
 
-    fun setId(id: Int){
+    fun setId(id: Int?){
         workingHourId.value = id
+        if (id == null) {
+            viewModelScope.launch {
+                timeFromLastActivity.mapNotNull { it }.collect {
+                    setDuration(it.toString())
+                }
+            }
+        }
     }
 
     fun clearData() {
         this.isSuccess.value = false
         this.selectedTypeId.value = null
         date.value = Date()
-        duration.value = 0
+        duration.value = ""
     }
 
     fun saveWorkingHour() {
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading.value = true
-            val totalHours = "%02d:%02d".format((duration.value / 60.0).toInt(), duration.value % 60)
+            val totalHours = "%02d:%02d".format((duration.value.toInt() / 60.0).toInt(), duration.value.toInt() % 60)
             val item = SaveEmployeeWorkingHour(
                 id = workingHourId.value,
                 idType = selectedTypeId.value!!,

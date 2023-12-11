@@ -56,6 +56,7 @@ fun ConsumptionArticleSearch(
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = {
+            viewModel.setSearchQuery("")
             onDismissRequest(null)
         }
 
@@ -72,7 +73,10 @@ fun ConsumptionArticleSearch(
 
                     },
                     actions = {
-                        IconButton(onClick = { onDismissRequest(null) }) {
+                        IconButton(onClick = {
+                            viewModel.setSearchQuery("")
+                            onDismissRequest(null)
+                        }) {
                             Icon(imageVector = Icons.Default.Close, contentDescription = "")
                         }
                     }
@@ -123,6 +127,7 @@ fun ConsumptionArticleSearch(
                         items(uiState.articles){
                             ListItem(
                                 modifier = Modifier.clickable {
+                                    viewModel.setSearchQuery("")
                                     onDismissRequest(it)
                                 },
                                 headlineContent = {

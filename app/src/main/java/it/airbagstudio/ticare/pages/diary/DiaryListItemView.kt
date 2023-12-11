@@ -108,7 +108,7 @@ fun DiaryDrugAdministrationItemView(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DiaryNursingCourseItemView(title: String,description:String,duration:String,time:String,note:String,isPlanned:Boolean) {
+fun DiaryNursingCourseItemView(title: String,duration:String,time:String,note:String,isPlanned:Boolean) {
 Column {
     Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
         Column(
@@ -132,14 +132,7 @@ Column {
                 category = stringResource(id = R.string.nursing_courses),
                 title = title
             )
-            Text(
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            LabelValueRow(label = stringResource(id = R.string.duration), value = duration)
+            //LabelValueRow(label = stringResource(id = R.string.duration), value = duration)
             if (!isPlanned){
                 FlowRow(
                     modifier = Modifier
@@ -358,7 +351,6 @@ private fun DiaryPreview(){
 
                 DiaryNursingCourseItemView(
                     title = "Dolor sit amen",
-                    description = "Dolor sit amen",
                     duration = "23",
                     time = "14:56",
                     note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",

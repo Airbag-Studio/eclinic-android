@@ -57,6 +57,7 @@ fun WorkingHoursSearch(
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = {
+            viewModel.setSearchQuery("")
             onDismissRequest(null)
         }
 
@@ -73,7 +74,10 @@ fun WorkingHoursSearch(
 
                     },
                     actions = {
-                        IconButton(onClick = { onDismissRequest(null) }) {
+                        IconButton(onClick = {
+                            viewModel.setSearchQuery("")
+                            onDismissRequest(null)
+                        }) {
                             Icon(imageVector = Icons.Default.Close, contentDescription = "")
                         }
                     }
@@ -124,6 +128,7 @@ fun WorkingHoursSearch(
                         items(uiState.types){
                             ListItem(
                                 modifier = Modifier.clickable {
+                                    viewModel.setSearchQuery("")
                                     onDismissRequest(it)
                                 },
                                 headlineContent = {

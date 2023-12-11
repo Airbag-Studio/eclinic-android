@@ -87,7 +87,7 @@ fun ConsumptionListScreen(
                     Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                     Text(
                         text = stringResource(
-                            id = R.string.new_treatment
+                            id = R.string.new_consumption
                         )
                     )
                 },
@@ -136,10 +136,12 @@ fun ConsumptionListScreen(
         }
     }
     if (showSearchDialog){
-        ConsumptionArticleSearch(onDismissRequest = {
+        ConsumptionArticleSearch(onDismissRequest = { article ->
             showSearchDialog = false
-            selectedArticle = it
-            showCreateDialog = true
+            selectedArticle = article
+            if (article != null) {
+                showCreateDialog = true
+            }
         })
     }
     if (showCreateDialog){

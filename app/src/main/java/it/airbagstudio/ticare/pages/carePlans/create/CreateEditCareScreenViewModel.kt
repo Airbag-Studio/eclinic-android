@@ -7,15 +7,18 @@ import ch.ticare.eclinic.library.entity.HomeCareUnplannedActivity
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import ch.ticare.eclinic.library.repository.UserMarkingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.ktor.util.reflect.instanceOf
 import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.Date
 import javax.inject.Inject
 
@@ -53,10 +56,19 @@ class CreateEditCareScreenViewModel @Inject constructor(
     private val duration = MutableStateFlow<Int>(0)
     private val notes = MutableStateFlow<String>("")
     private val showInDiary = MutableStateFlow<Boolean>(false)
-    private val timeFromLastActivity = userMarkingRepository.getMinutesFromLastActivity()
+    private val timeFromLastActivity = MutableStateFlow<Long?>(null)
 
     private val isLoading = MutableStateFlow<Boolean>(false)
     private val errorMessage = MutableStateFlow<String?>(null)
+
+    fun updateLastActivity(){
+        viewModelScope.launch {
+            userMarkingRepository.getMinutesFromLastActivity().collect{
+                timeFromLastActivity.value = it
+
+            }
+        }
+    }
 
     private val plannedActivity = combine(codCase,plannedActivityId,carePlanId,timeFromLastActivity){ codCase, plannedActivityId, carePlanId,timeFromLastActivity ->
         if (codCase != null && plannedActivityId != null && carePlanId != null) {

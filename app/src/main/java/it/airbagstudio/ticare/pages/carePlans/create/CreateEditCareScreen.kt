@@ -51,6 +51,7 @@ import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
 import it.airbagstudio.ticare.utils.toDate
+import kotlinx.coroutines.delay
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,6 +66,8 @@ fun CreateEditCareScreen(
     onDismissRequest: (Boolean) -> Unit
 ) {
     LaunchedEffect(Unit) {
+        viewModel.updateLastActivity()
+        delay(200)
         viewModel.clearData()
         viewModel.setPlannedActivityId(plannedActivityId)
 
@@ -80,6 +83,7 @@ fun CreateEditCareScreen(
         } else {
             viewModel.setIdActivityType(idActivityType)
         }
+
     }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showAlertNotPlannedActivity by remember {

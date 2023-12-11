@@ -150,4 +150,5 @@
     <string name="working_hours_tracking_alert_confirm_button">Attiva Timbratura</string>
     <string name="working_hours_title">Prestazioni Amministrative</string>
     <string name="working_hours_subtitle">Registrazione attività amministrative</string>
+    <string name="new_consumption">Crea Rimborso/Consumo</string>
 </resources>

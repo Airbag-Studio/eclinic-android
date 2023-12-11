@@ -59,19 +59,17 @@ fun WorkingHoursItemCreate(
     onDismissRequest: (Boolean) -> Unit
 ){
     LaunchedEffect(Unit) {
-        if (typeId != null) {
-            Log.d("typeId",typeId.toString())
-            viewModel.setSelectedTypeId(typeId)
-        }
+        viewModel.setId(employeeWorkingHour?.id)
+        viewModel.setSelectedTypeId(typeId)
         if (employeeWorkingHour != null){
-            viewModel.setSelectedTypeId(employeeWorkingHour.idType)
-            viewModel.setId(employeeWorkingHour.id)
+            viewModel.setSelectedTypeId(employeeWorkingHour?.idType)
+
             val duration = employeeWorkingHour.totalHours.split(":").let {
                 val hours = it[0].trim().toInt()
                 val minutes = it[1].trim().toInt()
                 hours * 60 + minutes
             }
-            viewModel.setDuration(duration)
+            viewModel.setDuration(duration.toString())
             viewModel.setDate(employeeWorkingHour.date.toDate("dd.MM.yyyy") ?: Date())
         }
     }
@@ -134,15 +132,16 @@ fun WorkingHoursItemCreate(
                             singleLine = true,
                             modifier = Modifier.width(120.dp),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            visualTransformation = if (uiState.item.duration == 0) PlaceholderTransformation(
-                                "0"
+                            visualTransformation = if (uiState.item.duration == null) PlaceholderTransformation(
+                                "      "
                             ) else VisualTransformation.None,
                             label = {
                                 Text(text = stringResource(id = R.string.duration))
                             },
-                            value = uiState.item.duration.toString(),
+                            value = if(uiState.item.duration != null) uiState.item.duration.toString() else "",
+                            isError = uiState.item.duration == null,
                             onValueChange = {
-                                viewModel.setDuration(it.toIntOrNull() ?: 0)
+                                viewModel.setDuration(it)
                             }
                         )
 

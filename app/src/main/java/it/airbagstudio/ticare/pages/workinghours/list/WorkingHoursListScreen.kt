@@ -70,22 +70,16 @@ fun WorkingHoursListScreen(
         mutableStateOf<WorkingHoursType?>(null)
     }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    LaunchedEffect(Unit) {
-        if (!trackingUiState.isEnabled){
-            showTrackingAlert = true
-        }
-    }
     Scaffold(
         topBar = {
-            ToolbarWithBackAndSync(title = stringResource(id = R.string.consumption_title)) {
+            ToolbarWithBackAndSync(title = stringResource(id = R.string.working_hours_title)) {
                 onBack()
             }
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                containerColor = if (trackingUiState.isEnabled) MaterialTheme.colorScheme.primaryContainer else buttonDisableBg,
-                contentColor = if (trackingUiState.isEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                contentColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
                     .fillMaxWidth(),
@@ -151,7 +145,7 @@ fun WorkingHoursListScreen(
             showTrackingAlert = false
             if (confirm){
                 trackingViewModel.startTracker {
-
+                    showCreateDialog = true
                 }
             }
         })
