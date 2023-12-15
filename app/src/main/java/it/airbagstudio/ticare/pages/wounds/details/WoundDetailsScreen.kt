@@ -199,7 +199,7 @@ fun WoundDetailsScreen(
                                 ControlListItem(
                                     id = check.iD,
                                     date = check.dateTime.toDate("dd.MM.yyyy HH:mm")
-                                        ?.format("dd/MM/yyyy")
+                                        ?.format("dd/MM/yyyy, HH:mm")
                                         ?: "",
                                     description = check.medicationType,
                                     imagesCount = viewModel.wound?.photos?.count { it.iDCheck == check.iD }
