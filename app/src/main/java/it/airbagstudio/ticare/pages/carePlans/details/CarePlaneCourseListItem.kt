@@ -30,6 +30,8 @@ import coil.compose.AsyncImagePainter.State.Empty.painter
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.DrugChip
 import it.airbagstudio.ticare.ui.theme.AppTheme
+import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.toDate
 
 data class CarePlanCoursesListItem(
     val title: String,
@@ -43,9 +45,11 @@ data class CarePlanCoursesListItem(
 @Composable
 fun CarePlanCoursesListItemView(item: CarePlanCoursesListItem,onClick: (HomeCareActivity) -> Unit){
     Row(
-        modifier = Modifier.clickable {
-            onClick(item.activity)
-        }.padding(16.dp,8.dp,24.dp,8.dp)
+        modifier = Modifier
+            .clickable {
+                onClick(item.activity)
+            }
+            .padding(16.dp, 8.dp, 24.dp, 8.dp)
     ) {
         if (item.executed){
             Image(painter = painterResource(id = R.drawable.ic_check), contentDescription = "")
@@ -56,6 +60,11 @@ fun CarePlanCoursesListItemView(item: CarePlanCoursesListItem,onClick: (HomeCare
                 text = item.title,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = item.activity.execDateTime.toDate("dd.MM.yyyy HH:mm")?.format("dd MMMM yyyy, HH:mm") ?: "",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             if (!item.planned){
                 Spacer(modifier = Modifier.height(8.dp))

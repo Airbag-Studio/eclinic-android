@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -17,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -47,6 +49,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import coil.compose.AsyncImagePainter.State.Empty.painter
 import io.ktor.util.reflect.instanceOf
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
@@ -85,27 +88,30 @@ fun CalendarTextField(
         mutableStateOf(date ?: Date())
     }
     val pattern = if (showTime){
-        "dd MMMM yyyy, HH:mm "
+        "dd/MM/yyyy, HH:mm "
     }else{
-        "dd MMMM yyyy"
+        "dd/MM/yyyy"
     }
     Box(modifier = modifier) {
         OutlinedTextField(
             enabled = enabled,
             singleLine = true,
-            modifier = Modifier.fillMaxWidth().onGloballyPositioned {
-                fieldSize = it.size
-                fieldPosition = it.positionInRoot()
-            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .onGloballyPositioned {
+                    fieldSize = it.size
+                    fieldPosition = it.positionInRoot()
+                },
             value = date?.format(pattern)
                 ?: selectedDate.format(pattern),
             onValueChange = {},
-            trailingIcon = {
+            suffix = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_field_calendar),
-                    stringResource(id = R.string.actual_date_time)
+                    contentDescription = ""
                 )
             },
+
             label = label
         )
         Box(modifier = Modifier
@@ -229,15 +235,25 @@ private fun BuildButtonsStack(onDiscard: () -> Unit, onConfirm: () -> Unit) {
 @Preview
 private fun PreviewContent() {
     AppTheme {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text(text = "TEst")
-            Text(text = "TEst")
-            Text(text = "TEst")
-            Text(text = "TEst")
-            Text(text = "TEst")
-            Spacer(modifier = Modifier.height(50.dp))
-            CalendarTextField(date = null, label = { Text(text = "Data e ora") }) {}
-            Text(text = "TEst")
+        Scaffold {
+            Column(modifier = Modifier
+                .padding(it)
+                .fillMaxSize()) {
+                Text(text = "TEst")
+                Text(text = "TEst")
+                Text(text = "TEst")
+                Text(text = "TEst")
+                Text(text = "TEst")
+                Spacer(modifier = Modifier.height(50.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CalendarTextField(modifier = Modifier.weight(1f), date = Date(), label = { Text(text = "Data e ora") }) {}
+                    Spacer(modifier = Modifier.width(24.dp))
+                    OutlinedTextField(value = "2", onValueChange = {}, modifier = Modifier.width(120.dp))
+                }
+
+                Text(text = "TEst")
+            }
         }
+
     }
 }

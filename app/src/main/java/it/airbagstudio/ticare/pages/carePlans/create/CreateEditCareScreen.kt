@@ -136,7 +136,7 @@ fun CreateEditCareScreen(
                         })
                     Spacer(modifier = Modifier.width(24.dp))
                     OutlinedTextField(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.width(110.dp),
                         enabled = homeCareActivity != null,
                         singleLine = true,
                         label = {
