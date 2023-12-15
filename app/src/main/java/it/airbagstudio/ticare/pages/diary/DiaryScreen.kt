@@ -111,6 +111,11 @@ fun DiaryScreen(
                                     time = item.time,
                                     note = item.taskNotes ?: ""
                                 )
+                            } else if (item.entityName == "Wound"){
+                                DiaryWoundItemView(
+                                    title = item.bodyPart ?: "",
+                                    note = item.appearanceDescription ?: ""
+                                )
                             }
                             
                             Divider(modifier = Modifier.padding(start = if (items.lastOrNull() == item) 0.dp else 16.dp))

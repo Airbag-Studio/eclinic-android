@@ -68,7 +68,7 @@ class DiaryViewModel @Inject constructor(
                 patientCod,
                 from.format(dateFormatter),
                 now.format(dateFormatter)
-            ).results?.filter { it.entityName != "Wound" } ?: listOf()
+            ).results ?: listOf()
             isLoading.value = false
         }
     }

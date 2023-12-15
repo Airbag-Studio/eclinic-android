@@ -87,6 +87,7 @@
     <string name="activity_saved_not_visible">L\'attività è stata correttamente salvata ma non sarà visibile all\'interno dell\'applicazione</string>
     <string name="new_wounds">Nuovo protocollo ferite</string>
     <string name="wound_protocol">Protocollo ferita</string>
+    <string name="wounds_protocol">Protocollo ferite</string>
     <string name="new_check">Nuovo controllo ferita</string>
     <string name="photo">Foto</string>
     <string name="camera">Scatta una foto</string>
