@@ -17,9 +17,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -70,6 +68,10 @@ class PatientListScreenViewModel @Inject constructor(
         var caseList = listOf<CaseInfo>()
         try {
             caseList = userListRepository.getRemoteCaseList(_selectedZone?.id,_selectedMicrozone?.id).results ?: listOf<CaseInfo>()
+            requestImageRequestData = ImageRequestData(
+                authRepository.getBaseURL(),
+                authRepository.getToken() ?: ""
+            )
         }catch (e: Throwable){
             isLoading = false
             errorMessage = e.localizedMessage
@@ -90,15 +92,8 @@ class PatientListScreenViewModel @Inject constructor(
         initialValue = PatientListUiState(isRequestAllCasesAccessOn = false)
     )
 
-    private val userZoneStatus = combine(isRequestAllCasesAccessOn,userListRepository.getUserZone()){ isOn,userZone ->
-        if (!isOn){
-            selectedZone.value = userZone
-            selectedMicroZone.value = null
-        }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly,Unit)
-
     init {
-        downloadCases()
+        getCompanyName()
         downloadZones()
         requestImageRequestData = ImageRequestData(
             authRepository.getBaseURL(),
@@ -106,7 +101,7 @@ class PatientListScreenViewModel @Inject constructor(
         )
     }
 
-    fun downloadCases(){
+    fun getCompanyName(){
         viewModelScope.launch(coroutineExceptionHandler) {
             companyName.value = authRepository.getCompanyName() ?: ""
         }
