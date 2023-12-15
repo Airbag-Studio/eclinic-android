@@ -51,6 +51,7 @@ import it.airbagstudio.ticare.ui.components.MultiselectPopupTextField
 import it.airbagstudio.ticare.ui.components.PopupTextField
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
+import it.airbagstudio.ticare.utils.rememberImeState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +64,13 @@ fun CreateWoundDialogScreen(
         viewModel.clearData()
         viewModel.codCase = codCase
     }
+    val imeState = rememberImeState()
+    val scrollState = rememberScrollState()
+    LaunchedEffect(key1 = imeState.value, block = {
+        if (imeState.value){
+            scrollState.scrollTo(scrollState.maxValue)
+        }
+    })
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -89,7 +97,7 @@ fun CreateWoundDialogScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(values)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
                     .padding(16.dp)
             ) {
                 CalendarTextField(
@@ -231,7 +239,9 @@ fun CreateWoundDialogScreen(
                         )
                     }
                 }
-
+                if (imeState.value){
+                    Spacer(modifier = Modifier.height(150.dp))
+                }
             }
         }
         if (viewModel.errorMessage != null){

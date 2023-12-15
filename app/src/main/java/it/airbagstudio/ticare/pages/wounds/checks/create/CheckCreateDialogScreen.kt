@@ -51,6 +51,7 @@ import it.airbagstudio.ticare.ui.components.MultiselectPopupTextField
 import it.airbagstudio.ticare.ui.components.PopupTextField
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
+import it.airbagstudio.ticare.utils.rememberImeState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,6 +68,17 @@ fun CheckCreateDialogScreen(
         viewModel.idWound = idWound
         viewModel.idGender = idGender
     }
+    val scrollState = rememberScrollState()
+
+    val imeState = rememberImeState()
+
+    LaunchedEffect(key1 = imeState.value, block = {
+        if (imeState.value){
+            scrollState.scrollTo(scrollState.maxValue)
+        }
+    })
+
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -93,7 +105,7 @@ fun CheckCreateDialogScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(values)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
                     .padding(16.dp)
             ) {
                 CalendarTextField(
@@ -218,7 +230,7 @@ fun CheckCreateDialogScreen(
                 AddPhotoButton(onSuccess = {
                     viewModel.addImages(it)
                 })
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     enabled = uiState.isValid && !uiState.isLoading,
                     modifier = Modifier.fillMaxWidth(),
@@ -239,7 +251,9 @@ fun CheckCreateDialogScreen(
                         )
                     }
                 }
-
+                if (imeState.value){
+                    Spacer(modifier = Modifier.height(150.dp))
+                }
             }
         }
         if (viewModel.errorMessage != null){
