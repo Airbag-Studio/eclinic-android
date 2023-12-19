@@ -70,7 +70,9 @@ fun CreateEditCareScreen(
         delay(200)
         viewModel.clearData()
         viewModel.setPlannedActivityId(plannedActivityId)
-
+        if (plannedActivityId == null){
+            viewModel.setShowInDiary(true)
+        }
         viewModel.setCodCase(codCase)
         viewModel.setCarePlanId(carePlanId)
         if (homeCareActivity != null) {

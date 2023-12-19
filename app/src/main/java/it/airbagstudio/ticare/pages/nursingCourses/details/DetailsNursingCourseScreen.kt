@@ -66,6 +66,7 @@ fun CreateNursingCourseScreen(
             run {
                 viewModel.setScreenType(ScreenType.Add)
                 viewModel.loadCategory()
+                viewModel.setShowInDiary(true)
             }
         }
         BuildSheetContent(viewModel = viewModel, patientCode, onDismissRequest)
