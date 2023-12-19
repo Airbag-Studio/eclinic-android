@@ -88,9 +88,9 @@ fun CalendarTextField(
         mutableStateOf(date ?: Date())
     }
     val pattern = if (showTime){
-        "dd/MM/yyyy, HH:mm "
+        "dd/MM/yy, HH:mm "
     }else{
-        "dd/MM/yyyy"
+        "dd/MM/yy"
     }
     Box(modifier = modifier) {
         OutlinedTextField(
