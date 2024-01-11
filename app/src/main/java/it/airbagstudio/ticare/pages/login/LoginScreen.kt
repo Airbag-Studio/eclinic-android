@@ -51,6 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
+import it.airbagstudio.ticare.ui.components.AppVersionText
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
@@ -233,7 +234,7 @@ fun LoginScreen(
                     )
                 }
             }
-
+            AppVersionText(modifier = Modifier.fillMaxWidth())
         }
         if (showStructuresDialog.value) {
             val popupItems = viewModel.companies.map { ListPopupItem(label = it.name, item = it) }

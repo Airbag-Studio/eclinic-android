@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.airbagstudio.ticare.LocalActivity
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
+import it.airbagstudio.ticare.ui.components.AppVersionText
 import it.airbagstudio.ticare.ui.components.ConfirmWithNoteDialog
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBack
@@ -122,7 +123,7 @@ fun SettingsPage(
                 }
             }
 
-
+            AppVersionText(modifier = Modifier.fillMaxWidth())
         }
         if (showNotesDialog) {
             ConfirmWithNoteDialog(
