@@ -30,7 +30,8 @@ data class PatientListUiState(
     val microZones: List<Microzone> = listOf(),
     val selectedZone: Zone? = null,
     val selectedMicrozone: Microzone? = null,
-    val isRequestAllCasesAccessOn: Boolean
+    val isRequestAllCasesAccessOn: Boolean,
+    val userZones: List<Zone> = listOf(),
 )
 
 @HiltViewModel
@@ -46,6 +47,7 @@ class PatientListScreenViewModel @Inject constructor(
     private var companyName = MutableStateFlow("")
     private var errorMessage by mutableStateOf<String?>(null)
     private var zones = MutableStateFlow<List<Zone>>(listOf())
+    private var userZones = MutableStateFlow<List<Zone>>(listOf())
     private var microzones = MutableStateFlow<List<Microzone>>(listOf())
     private var selectedZone = MutableStateFlow<Zone?>(null)
     private var selectedMicroZone  = MutableStateFlow<Microzone?>(null)
@@ -84,7 +86,8 @@ class PatientListScreenViewModel @Inject constructor(
             selectedMicrozone = _selectedMicrozone,
             selectedZone = _selectedZone,
             caseList = caseList,
-            isRequestAllCasesAccessOn = isRequestAllCasesAccessOn
+            isRequestAllCasesAccessOn = isRequestAllCasesAccessOn,
+            userZones = userZones.value
         )
     }.stateIn(
         scope = viewModelScope,
@@ -110,11 +113,12 @@ class PatientListScreenViewModel @Inject constructor(
     fun downloadZones(){
         viewModelScope.launch(coroutineExceptionHandler)  {
 
-            combine(userListRepository.getZones(),userListRepository.getUserZone(),userListRepository.getMicrozones()) { _zones,_userZone, _microzones ->
+            combine(userListRepository.getZones(),userListRepository.getUserZones(),userListRepository.getMicrozones()) { _zones,_userZones, _microzones ->
                 zones.value = _zones
                 microzones.value = _microzones
-                if (_userZone != null){
-                    selectedZone.value = _userZone
+                userZones.value = _userZones
+                if (_userZones.isNotEmpty()){
+                    selectedZone.value = _userZones.first()
                 }
 
             }.collect()

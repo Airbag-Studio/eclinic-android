@@ -162,12 +162,9 @@ fun PatientListScreen(
                         DropDownButton(
                             modifier = Modifier.weight(1f),
                             value = uiState.selectedZone?.name ?: stringResource(id = R.string.zones),
-                            isEnabled = !viewModel.isLoading && uiState.isRequestAllCasesAccessOn
+                            isEnabled = !viewModel.isLoading && (uiState.isRequestAllCasesAccessOn || uiState.userZones.count() > 1)
                         ) {
-
-                                showZonesPopup = true
-
-
+                            showZonesPopup = true
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         DropDownButton(
@@ -192,8 +189,14 @@ fun PatientListScreen(
                         }
                     }
                     if(showZonesPopup){
-                        ListPopup(title = stringResource(id = R.string.zones), items = listOf(ListPopupItem<Zone>(
-                            stringResource(id = R.string.all),null)) + uiState.zones.map { ListPopupItem(label = it.name, it) }, setShowDialog = {
+                        val visibleZones = if (uiState.isRequestAllCasesAccessOn){
+                            listOf(ListPopupItem<Zone>(
+                                stringResource(id = R.string.all),null)) + uiState.zones.map { ListPopupItem(label = it.name, it) }
+                        }else {
+                            uiState.userZones.map { ListPopupItem(label = it.name, it) }
+                        }
+
+                        ListPopup(title = stringResource(id = R.string.zones), items = visibleZones, setShowDialog = {
                             showZonesPopup = it
                         }, onItemSelected = {
                             viewModel.setSelectedZone(it.item)
