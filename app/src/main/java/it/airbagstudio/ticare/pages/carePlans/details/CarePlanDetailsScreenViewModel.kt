@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.HomeCareActivity
 import ch.ticare.eclinic.library.entity.HomeCarePlan
+import ch.ticare.eclinic.library.entity.HomeCarePlannedActivity
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,8 +20,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DayOfWeek
+import java.time.format.TextStyle
+import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
+import kotlin.streams.toList
 
 data class CarePlanDetailsUIState(
     val isLoading: Boolean,
@@ -52,8 +58,10 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
     private val errorMessage = MutableStateFlow<String?>(null)
     private val activities = MutableStateFlow<List<HomeCareActivity>?>(null)
     private val selectedPan = MutableStateFlow<HomeCarePlan?>(null)
-    private val selectedDate = userRepository.getSelectedDate()?.toDate(SERVER_DATE_FORMAT) ?: Date()
+    private val selectedDate =
+        userRepository.getSelectedDate()?.toDate(SERVER_DATE_FORMAT) ?: Date()
     private val shift = userRepository.getCurrentShift()
+    private val planndeActivities = MutableStateFlow<List<HomeCarePlannedActivity>>(listOf())
 
     private val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -61,7 +69,13 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
             errorMessage.value = throwable.localizedMessage
         }
 
-    val uiState = combine(isLoading, errorMessage, activities,selectedPan) { isLoading, errorMessage, homeCareActivities,selectedPan ->
+    val uiState = combine(
+        isLoading,
+        errorMessage,
+        activities,
+        selectedPan,
+        planndeActivities
+    ) { isLoading, errorMessage, homeCareActivities, selectedPan, planndeActivities ->
         try {
             val activities = homeCareActivities?.map {
                 CarePlanCoursesListItem(
@@ -72,7 +86,19 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                     activity = it
                 )
             }
+            val plannedInfo = planndeActivities.map {
+                var data = "${it.type}\n${it.number} ${it.timeUnit}\n${getWeekDays(it.weekDays)}"
+                if(it.qualMin.isNotEmpty()){
+                    data+= "\n${it.qualMin}"
+                }
+                if (it.notes.isNotEmpty()){
+                    data+= "\n${it.notes}"
+                }
+                data
+            }.joinToString("\n\n")
+
             val textItems = listOf(
+
                 CarePlanDetailsUIState.TextItems(R.string.diagnosis, selectedPan?.diagnosis ?: ""),
                 CarePlanDetailsUIState.TextItems(
                     R.string.problem,
@@ -87,8 +113,12 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                     selectedPan?.relatedFactors?.map { it.name }?.joinToString("\n") ?: ""
                 ),
                 CarePlanDetailsUIState.TextItems(R.string.goal, selectedPan?.goal ?: ""),
-
+                CarePlanDetailsUIState.TextItems(
+                    R.string.planned_activities,
+                    plannedInfo
                 )
+            )
+
 
 
             CarePlanDetailsUIState(
@@ -129,22 +159,41 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
         downloadData()
     }
 
+    private fun getWeekDays(string: String): String {
+        val chars = string.toCharArray().map { it.digitToInt() }
+        if (chars.all { it == 1 } || chars.all { it == 0 }) {
+            return "Tutti i giorni"
+        } else {
+            val concatDays: MutableList<String> = mutableListOf()
+            chars.forEachIndexed { index, element ->
+                if (element == 1) {
+                    concatDays.add(
+                        DayOfWeek(index + 1).getDisplayName(
+                            TextStyle.SHORT,
+                            Locale.ITALIAN
+                        )
+                    )
+                }
+            }
+            return concatDays.joinToString(" | ")
+        }
+    }
+
     fun downloadData() {
         clearError()
         isLoading.value = true
         viewModelScope.launch(coroutineExceptionHandler) {
             val res = homeCareActivitiesRepository.getHomeCarePlans(patientCod)
+            val intPlanId = planId.toIntOrNull() ?: return@launch
             if (res.status == "success") {
                 plans.value = res.results ?: listOf()
-                selectedPan.value = planId.toIntOrNull()?.let { id ->
-                    plans.value.firstOrNull { it.id == id }
-                }
+                selectedPan.value = plans.value.firstOrNull { it.id == intPlanId }
                 val date = selectedDate.format("yyyy.MM.dd")
                 val shiftIndex: Int? =
                     if (shift != null) {
                         userRepository.getOperatingShifts().results?.let { shifts ->
                             shifts.indexOf(shift)
-                        } ?: run{
+                        } ?: run {
                             null
                         }
                     } else {
@@ -157,6 +206,11 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                     shift = shiftIndex,
                     carePlanId = selectedPan.value?.id ?: 0
                 ).results
+
+                planndeActivities.value = homeCareActivitiesRepository.getHomeCareActivitiesPlanned(
+                    patientCod,
+                    intPlanId
+                ).results ?: listOf()
             } else if (res.error != null) {
                 errorMessage.value = res.error?.desc ?: ""
             }
