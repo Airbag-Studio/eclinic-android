@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,6 +59,7 @@ import it.airbagstudio.ticare.ui.components.DropDownButton
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
+import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.utils.copy
@@ -137,11 +139,16 @@ fun PatientDetailsScreen(
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
                 ) {
-                    PatientImage(
-                        viewModel.patientCod ?: "",
-                        caseDetail?.photo ?: "",
-                        viewModel.requestImageRequestData
-                    )
+                    Column {
+                        PatientImage(
+                            viewModel.patientCod ?: "",
+                            caseDetail?.photo ?: "",
+                            viewModel.requestImageRequestData
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OfflineSyncImage(hasOfflineData = true, hasDataToSync = true)
+                    }
+
                     Column(
                         modifier = Modifier
                             .padding(start = 8.dp)

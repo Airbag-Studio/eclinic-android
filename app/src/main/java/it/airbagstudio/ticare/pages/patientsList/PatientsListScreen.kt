@@ -45,6 +45,7 @@ import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
 import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
+import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.PatientListItemView
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading

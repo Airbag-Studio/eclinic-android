@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -24,16 +26,23 @@ import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
 fun PatientListItemView(patient: CaseInfo, requestImageRequestData: ImageRequestData, onClick: () -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth().clickable {
-        onClick()
-    }) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .clickable {
+            onClick()
+        }) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
                 .padding(vertical = 12.dp)
         ) {
-            PatientImage(patient.code, patient.photo ?: "", requestImageRequestData)
+            Column() {
+                PatientImage(patient.code, patient.photo ?: "", requestImageRequestData)
+                Spacer(modifier = Modifier.height(8.dp))
+                //OfflineSyncImage(hasOfflineData = true, hasDataToSync = true)
+            }
+
             Column(
                 modifier = Modifier
                     .padding(start = 16.dp)
