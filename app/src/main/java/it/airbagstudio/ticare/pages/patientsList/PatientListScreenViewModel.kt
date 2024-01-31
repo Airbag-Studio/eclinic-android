@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -39,18 +40,19 @@ class PatientListScreenViewModel @Inject constructor(
     private val userListRepository: UserListRepository,
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository
-): ViewModel() {
+) : ViewModel() {
 
     var isLoading by mutableStateOf(false)
     var query by mutableStateOf("")
+
     //private var patients = userListRepository.getCaseList()
     private var companyName = MutableStateFlow("")
-    private var errorMessage by mutableStateOf<String?>(null)
+    var errorMessage by mutableStateOf<String?>(null)
     private var zones = MutableStateFlow<List<Zone>>(listOf())
     private var userZones = MutableStateFlow<List<Zone>>(listOf())
     private var microzones = MutableStateFlow<List<Microzone>>(listOf())
     private var selectedZone = MutableStateFlow<Zone?>(null)
-    private var selectedMicroZone  = MutableStateFlow<Microzone?>(null)
+    private var selectedMicroZone = MutableStateFlow<Microzone?>(null)
     private var isRequestAllCasesAccessOn = userRepository.isRequestAllCasesAccessOn()
 
     lateinit var requestImageRequestData: ImageRequestData
@@ -89,6 +91,9 @@ class PatientListScreenViewModel @Inject constructor(
             isRequestAllCasesAccessOn = isRequestAllCasesAccessOn,
             userZones = userZones.value
         )
+    }.catch {
+        isLoading = false
+        errorMessage = it.localizedMessage
     }.stateIn(
         scope = viewModelScope,
         started =  SharingStarted.WhileSubscribed(5000),
@@ -110,27 +115,30 @@ class PatientListScreenViewModel @Inject constructor(
         }
     }
 
-    fun downloadZones(){
-        viewModelScope.launch(coroutineExceptionHandler)  {
+    fun downloadZones() {
+        viewModelScope.launch(coroutineExceptionHandler) {
 
-            combine(userListRepository.getZones(),userListRepository.getUserZones(),userListRepository.getMicrozones()) { _zones,_userZones, _microzones ->
+            combine(
+                userListRepository.getZones(),
+                userListRepository.getUserZone(),
+                userListRepository.getMicrozones()
+            ) { _zones, _userZone, _microzones ->
                 zones.value = _zones
                 microzones.value = _microzones
-                userZones.value = _userZones
-                if (_userZones.isNotEmpty()){
-                    selectedZone.value = _userZones.first()
+                if (_userZone != null) {
+                    selectedZone.value = _userZone
                 }
 
             }.collect()
         }
     }
 
-    fun setSelectedZone(zone: Zone?){
+    fun setSelectedZone(zone: Zone?) {
         selectedZone.value = zone
         selectedMicroZone.value = null
     }
 
-    fun setSelectedMicrozone(microzone: Microzone?){
+    fun setSelectedMicrozone(microzone: Microzone?) {
         selectedMicroZone.value = microzone
     }
 }

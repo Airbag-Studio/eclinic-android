@@ -65,12 +65,37 @@ fun PatientListScreen(
     var showMicrozonesPopup by remember {
         mutableStateOf(false)
     }
-    Scaffold(
+    var showDownloadPatientDataPopup by remember {
+        mutableStateOf(false)
+    }
+
+
+
+    BottomSheetScaffold(
+        modifier = Modifier.consumeWindowInsets(
+            WindowInsets.systemBars.only(WindowInsetsSides.Vertical)
+        ),
         topBar = {
-            ToolbarWithSyncAndSettings(title = uiState.companyName) {
-                navActions.navigateToSettings()
-            }
+            ToolbarWithSyncAndSettings(
+                title = uiState.companyName,
+                onDownloadPatientDataClick = {
+                    showDownloadPatientDataPopup = true
+                },
+                onSettingsClick = {
+                    navActions.navigateToSettings()
+                }
+            )
+        },
+        sheetPeekHeight = 100.dp,
+        sheetContent = {
+            OfflineDataSheet(
+                itemsToSync = 4,
+                localItems = 4,
+                isOffline = true,
+                expireDate = Date()
+            )
         }
+
     ) { values ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -140,7 +165,13 @@ fun PatientListScreen(
                                 ListItem(
                                     headlineContent = { Text("${it.surname} ${it.name}") },
                                     supportingContent = { Text("${it.birthday} (${it.age})") },
-                                    leadingContent = { PatientImage(it.code, it.photo ?: "", viewModel.requestImageRequestData) },
+                                    leadingContent = {
+                                        PatientImage(
+                                            it.code,
+                                            it.photo ?: "",
+                                            viewModel.requestImageRequestData
+                                        )
+                                    },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         //.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -162,14 +193,18 @@ fun PatientListScreen(
                         DropDownButton(
                             modifier = Modifier.weight(1f),
                             value = uiState.selectedZone?.name ?: stringResource(id = R.string.zones),
-                            isEnabled = !viewModel.isLoading && (uiState.isRequestAllCasesAccessOn || uiState.userZones.count() > 1)
+                            isEnabled = !viewModel.isLoading && uiState.isRequestAllCasesAccessOn
                         ) {
-                            showZonesPopup = true
+
+                                showZonesPopup = true
+
+
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         DropDownButton(
                             modifier = Modifier.weight(1f),
-                            value = uiState.selectedMicrozone?.name ?: stringResource(id = R.string.micro_zones),
+                            value = uiState.selectedMicrozone?.name
+                                ?: stringResource(id = R.string.micro_zones),
                             isEnabled = !viewModel.isLoading && uiState.selectedZone != null
                         ) {
                             showMicrozonesPopup = true
@@ -182,7 +217,10 @@ fun PatientListScreen(
                     } else {
                         LazyColumn(modifier = Modifier.fillMaxHeight()) {
                             items(uiState.caseList) { patientListItem ->
-                                PatientListItemView(patient = patientListItem, viewModel.requestImageRequestData) {
+                                PatientListItemView(
+                                    patient = patientListItem,
+                                    viewModel.requestImageRequestData
+                                ) {
                                     navActions.navigateToPatientDetails(Uri.encode(patientListItem.code))
                                 }
                             }
@@ -217,16 +255,14 @@ fun PatientListScreen(
             }
             Spacer(modifier = Modifier.weight(1f))
         }
-        /*
         if (viewModel.errorMessage != null) {
             ErrorAlert(
                 message = viewModel.errorMessage!!,
                 onDismissRequest = { viewModel.errorMessage = null },
                 onRetry = {
-                    viewModel.downloadCases()
+                    viewModel.errorMessage = null
+                    viewModel.downloadZones()
                 })
         }
-
-         */
     }
 }
