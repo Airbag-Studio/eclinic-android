@@ -1,5 +1,10 @@
 package it.airbagstudio.ticare.pages.patientsList.downloadPatientData
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -50,11 +56,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.CaseInfo
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.pages.patientsList.PatientListUiState
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.seed
@@ -63,13 +71,31 @@ import it.airbagstudio.ticare.ui.theme.seed
 @Composable
 fun SelectPatientsDialogScreen(
     viewModel: SelectPatientsDataViewModel = hiltViewModel(),
-    cases: List<CaseInfo>,
+    cases: List<PatientListUiState.PatientUIState>,
     onDismissRequest: () -> Unit
 ) {
     LaunchedEffect(key1 = Unit, block = {
         viewModel.setCases(cases)
     })
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(key1 = uiState.syncState.isCompleted, block = {
+        if (uiState.syncState.isCompleted) {
+            viewModel.resetData()
+            onDismissRequest()
+        }
+    })
+
+    val storagePermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            viewModel.startDownloadPatientData()
+        }
+    }
+
+    val context = LocalContext.current
+
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -84,7 +110,7 @@ fun SelectPatientsDialogScreen(
 
                     },
                     actions = {
-                        if (!uiState.isDownloading) {
+                        if (!uiState.syncState.isDownloading) {
                             IconButton(onClick = { onDismissRequest() }) {
                                 Icon(imageVector = Icons.Default.Close, contentDescription = "")
                             }
@@ -105,7 +131,7 @@ fun SelectPatientsDialogScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                if (uiState.isDownloading) {
+                if (uiState.syncState.isDownloading) {
                     Spacer(modifier = Modifier.weight(0.8f))
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -120,7 +146,7 @@ fun SelectPatientsDialogScreen(
                             modifier = Modifier
                                 .padding(top = 16.dp)
                                 .fillMaxWidth(),
-                            progress = uiState.progress
+                            progress = uiState.syncState.progress
                         )
                     }
                     Spacer(modifier = Modifier.weight(1.2f))
@@ -193,9 +219,23 @@ fun SelectPatientsDialogScreen(
                                             .fillMaxWidth()
                                             .padding(16.dp),
                                         onClick = {
+                                            /*
+                                            val permissionCheckResult =
+                                                ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                            if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                                                viewModel.startDownloadPatientData()
+                                            } else {
+                                                // Request a permission
+                                                storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                            }
+
+                                             */
                                             viewModel.startDownloadPatientData()
                                         }) {
-                                        Icon(imageVector = Icons.Default.Check, contentDescription = "")
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = ""
+                                        )
                                         Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                                         Text(text = stringResource(id = R.string.download_patient_data))
                                     }
@@ -204,41 +244,17 @@ fun SelectPatientsDialogScreen(
                             }
                         }
                     }
-
-
                 }
             }
         }
         if (viewModel.errorMessage != null) {
-        ErrorAlert(
-            message = viewModel.errorMessage!!,
-            onDismissRequest = {
-                viewModel.errorMessage = null
-                onDismissRequest()
-            })
+            ErrorAlert(
+                message = viewModel.errorMessage!!,
+                onDismissRequest = {
+                    viewModel.errorMessage = null
+                    onDismissRequest()
+                })
         }
 
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewSelectPatientsDialogScreen() {
-    AppTheme {
-        SelectPatientsDialogScreen(
-            cases = listOf(
-                CaseInfo(
-                    "Test",
-                    name = "Test",
-                    code = "Test",
-                    address = "test",
-                    age = 44,
-                    birthday = "Test",
-                    cap = "",
-                    locality = "",
-                    photo = null
-                )
-            )
-        ) {}
     }
 }

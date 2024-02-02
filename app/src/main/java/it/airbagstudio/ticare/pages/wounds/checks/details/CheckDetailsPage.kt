@@ -118,8 +118,9 @@ fun CheckDetailsPage(
             val woundDate = viewModel.check?.dateTime?.toDate("dd.MM.yyyy HH:mm")?.format("dd MMMM yyyy, HH:mm") ?: ""
             ImagesDialog(
                 date = woundDate,
-                photosIds = viewModel.photos?.filter { it.iDCheck == viewModel.checkId.toInt() }?.map { it.iD } ?: listOf(),
-                requestData = viewModel.requestImageRequestData
+                photos = viewModel.photos?.filter { it.iDCheck == viewModel.checkId.toInt() } ?: listOf(),
+                requestData = viewModel.requestImageRequestData,
+                isOnline = viewModel.isOnline
             ) {
                 showImagesDialog = false
             }

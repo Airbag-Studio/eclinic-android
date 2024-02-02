@@ -93,7 +93,7 @@ class LoginViewModel @Inject constructor(
                 }
                 loginResponse.token?.let { _ ->
                     authRepository.getCompanyName()?.let { company ->
-                        val res = syncDataRepository.syncData(company)
+                        val res = syncDataRepository.syncPersistentData(company)
                         if (res.isSuccess) {
                             successLogin = true
                         } else if (res.isFailure){

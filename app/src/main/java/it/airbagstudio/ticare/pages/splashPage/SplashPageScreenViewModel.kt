@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.network.CredentialsListener
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.SyncDataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.LoginRedirect
@@ -20,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SplashPageScreenViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val syncDataRepository: SyncDataRepository
+    private val syncDataRepository: SyncDataRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository
 ) : ViewModel() {
 
     var isLoggedIn by mutableStateOf<Boolean?>(null)
@@ -40,19 +42,23 @@ class SplashPageScreenViewModel @Inject constructor(
             isLoggedIn = false
         }
         viewModelScope.launch(coroutineExceptionHandler) {
-
+            offlineOnlineRepository.restore()
             val _isLoggedIn =
                 authRepository.getToken() != null && authRepository.getRefreshToken() != null
             if (_isLoggedIn) {
-                authRepository.getCompanyName()?.let { company ->
-                    val res = syncDataRepository.syncData(company)
-                    if (isLoggedIn == null && res.isSuccess) {
-                        isLoggedIn = _isLoggedIn
-                    }else if (res.isFailure){
-                        errorMessage = res.exceptionOrNull()?.localizedMessage
+                if (offlineOnlineRepository.isOnline){
+                    authRepository.getCompanyName()?.let { company ->
+                        val res = syncDataRepository.syncPersistentData(company)
+                        if (isLoggedIn == null && res.isSuccess) {
+                            isLoggedIn = _isLoggedIn
+                        }else if (res.isFailure){
+                            errorMessage = res.exceptionOrNull()?.localizedMessage
+                        }
                     }
+                }else{
+                    delay(500)
+                    isLoggedIn = _isLoggedIn
                 }
-
             }else{
                 delay(500)
                 isLoggedIn = false

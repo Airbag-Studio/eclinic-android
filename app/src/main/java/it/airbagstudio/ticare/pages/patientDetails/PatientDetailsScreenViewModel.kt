@@ -12,6 +12,7 @@ import ch.ticare.eclinic.library.entity.Badge
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.OperatingShift
 import ch.ticare.eclinic.library.network.AuthRepository
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.data.AlertItem
@@ -29,9 +30,13 @@ import javax.inject.Inject
 class PatientDetailsScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val userDetailRepository: UserDetailRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository
 ): ViewModel() {
 
+
+    var isDownloaded by mutableStateOf(false)
+    var isModified by mutableStateOf(false)
 
     var badges by mutableStateOf<List<Badge>>(listOf())
     var isLoading by mutableStateOf(false)
@@ -75,6 +80,10 @@ class PatientDetailsScreenViewModel @Inject constructor(
 
                 shifts = userDetailRepository.getOperatingShifts().results
                 downloadBadges()
+
+                isDownloaded = offlineOnlineRepository.patientsDownloaded.contains(patientCod)
+                isModified = offlineOnlineRepository.patientsModified.contains(patientCod)
+
                 isLoading = false
             }
         }

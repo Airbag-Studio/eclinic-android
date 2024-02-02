@@ -253,8 +253,9 @@ fun WoundDetailsScreen(
             ?.format("dd/MM/yyyy") ?: ""
         ImagesDialog(
             date = woundDate,
-            photosIds = viewModel.wound?.photos?.filter { it.iDCheck < 0 }?.map { it.iD } ?: listOf(),
-            requestData = viewModel.requestImageRequestData
+            photos = viewModel.wound?.photos?.filter { it.iDCheck < 0 } ?: listOf(),
+            requestData = viewModel.requestImageRequestData,
+            isOnline = viewModel.isOnline
         ) {
             showImagesDialog = false
         }

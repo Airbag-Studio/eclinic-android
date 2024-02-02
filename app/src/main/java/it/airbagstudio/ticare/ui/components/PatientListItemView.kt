@@ -22,10 +22,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ch.ticare.eclinic.library.entity.CaseInfo
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.pages.patientsList.PatientListUiState
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
-fun PatientListItemView(patient: CaseInfo, requestImageRequestData: ImageRequestData, onClick: () -> Unit) {
+fun PatientListItemView(patient: PatientListUiState.PatientUIState, requestImageRequestData: ImageRequestData, onClick: () -> Unit) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .clickable {
@@ -38,9 +39,9 @@ fun PatientListItemView(patient: CaseInfo, requestImageRequestData: ImageRequest
                 .padding(vertical = 12.dp)
         ) {
             Column() {
-                PatientImage(patient.code, patient.photo ?: "", requestImageRequestData)
+                PatientImage(patient.patientCode, patient.photo ?: "", requestImageRequestData)
                 Spacer(modifier = Modifier.height(8.dp))
-                //OfflineSyncImage(hasOfflineData = true, hasDataToSync = true)
+                OfflineSyncImage(hasOfflineData = patient.hasDownloadedData, hasDataToSync = patient.hasModifiedData)
             }
 
             Column(
@@ -49,24 +50,24 @@ fun PatientListItemView(patient: CaseInfo, requestImageRequestData: ImageRequest
                     .weight(1f)
             ) {
                 Text(
-                    text = "${patient.birthday} (${patient.age})",
+                    text = patient.birthDate,
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "${patient.surname} ${patient.name}",
+                    text = patient.completeName,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${patient.address}\n${patient.cap} ${patient.locality}",
+                    text = patient.address,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_right),
-                contentDescription = patient.name
+                contentDescription = patient.patientCode
             )
         }
         Divider(modifier = Modifier.padding(start = 24.dp))
@@ -126,30 +127,4 @@ fun PatientListItemViewLoading(){
         }
         Divider(modifier = Modifier.padding(start = 24.dp))
     }
-}
-
-
-@Composable
-@Preview
-private fun PreviewPatientListItemView() {
-    AppTheme() {
-        PatientListItemView(
-            patient = CaseInfo(
-                surname = "ABETE",
-                name = "Maria",
-                address = "Via la Montagna 16",
-                cap = "6962",
-                code = "23/2172",
-                locality = "Viganello",
-                birthday = "03.08.1936",
-                age = 87,
-                photo = null
-                //photo = "https://www.tag24.it/wp-content/uploads/2023/04/WhatsApp-Image-2023-03-31-at-14.12.21-e1680618678712-800x560.jpeg"
-            ),
-            requestImageRequestData = ImageRequestData("", "")
-        ) {
-
-        }
-    }
-
 }

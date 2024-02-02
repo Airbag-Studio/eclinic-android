@@ -87,7 +87,7 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    var codCase: String? = null
+    lateinit var codCase: String
     var idWound: Int? = null
     var idGender: Int? = null
 
@@ -380,7 +380,7 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
                 iDWoundPainIntensity = selectedWoundPainIntensite.value!!.id,
                 medicationType = medicationType.value
             )
-            val res = woundRepository.addCheck(woundCheck)
+            val res = woundRepository.addCheck(codCase,woundCheck)
 
             errorMessage = res.error?.desc
             val isSaved = res.status?.equals("success",true) == true
@@ -395,7 +395,7 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
                             ecImage = bitmap.toByteArray(),
                             checkId = lastCreatedId
                         )
-                        woundRepository.uploadImage(request)
+                        woundRepository.uploadImage(codCase,request)
                     }
                 }
             }

@@ -12,7 +12,9 @@ import ch.ticare.eclinic.library.repository.CaseAllergiesRepository
 import ch.ticare.eclinic.library.repository.ConsumptionRepository
 import ch.ticare.eclinic.library.repository.DiaryRepository
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
+import ch.ticare.eclinic.library.repository.LocalStorageApi
 import ch.ticare.eclinic.library.repository.NursingCourseRepository
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.OtherServiceRepository
 import ch.ticare.eclinic.library.repository.SyncDataRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
@@ -48,14 +50,14 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideApiService(@ApplicationContext context: Context): APIClient {
-        return APIClient(provideAuthRepository(context),LoginRedirect)
+    fun provideApiService(authRepository: AuthRepository): APIClient {
+        return APIClient(authRepository,LoginRedirect)
     }
 
     @Provides
     @Singleton
-    fun provideUserRepository(apiClient: APIClient,@ApplicationContext context: Context): UserRepository {
-        return UserRepository(apiClient, provideDatabase(context))
+    fun provideUserRepository(apiClient: APIClient,database: Database): UserRepository {
+        return UserRepository(apiClient, database)
     }
 
     @Provides
@@ -66,20 +68,32 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun syncDataRepository(apiClient: APIClient,@ApplicationContext context: Context): SyncDataRepository {
-        return SyncDataRepository(apiClient, provideDatabase(context))
+    fun provideOfflineOnlineRepository(database: Database): OfflineOnlineRepository{
+        return OfflineOnlineRepository(database)
     }
 
     @Provides
     @Singleton
-    fun provideUserListRepository(apiClient: APIClient,@ApplicationContext context: Context): UserListRepository {
-        return UserListRepository(apiClient,provideDatabase(context))
+    fun provideLocalStorageApi(@ApplicationContext context: Context): LocalStorageImpl{
+        return LocalStorageImpl(context)
     }
 
     @Provides
     @Singleton
-    fun otherServiceRepository(apiClient: APIClient,@ApplicationContext context: Context): OtherServiceRepository{
-        return OtherServiceRepository(apiClient,provideDatabase(context))
+    fun syncDataRepository(apiClient: APIClient,database: Database,localStorageImpl: LocalStorageImpl,offlineOnlineRepository: OfflineOnlineRepository): SyncDataRepository {
+        return SyncDataRepository(apiClient,database,localStorageImpl,offlineOnlineRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserListRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): UserListRepository {
+        return UserListRepository(apiClient,database,offlineOnlineRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun otherServiceRepository(apiClient: APIClient,database: Database): OtherServiceRepository{
+        return OtherServiceRepository(apiClient,database)
     }
 
     @Provides
@@ -90,26 +104,26 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providesAgendaTaskRepositoryRepository(apiClient: APIClient,@ApplicationContext context: Context): AgendaTaskRepository{
-        return AgendaTaskRepository(apiClient,provideDatabase(context))
+    fun providesAgendaTaskRepositoryRepository(apiClient: APIClient,database: Database): AgendaTaskRepository{
+        return AgendaTaskRepository(apiClient,database)
     }
 
     @Provides
     @Singleton
-    fun provideUserDetailsRepository(apiClient: APIClient): UserDetailRepository {
-        return UserDetailRepository(apiClient)
+    fun provideUserDetailsRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): UserDetailRepository {
+        return UserDetailRepository(apiClient,database,offlineOnlineRepository)
     }
 
     @Provides
     @Singleton
-    fun provideWoundRepository(apiClient: APIClient,@ApplicationContext context: Context): WoundRepository {
-        return WoundRepository(apiClient,provideDatabase(context))
+    fun provideWoundRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository,localStorageImpl: LocalStorageImpl): WoundRepository {
+        return WoundRepository(apiClient,database,offlineOnlineRepository,localStorageImpl)
     }
 
     @Provides
     @Singleton
-    fun provideHomeCareActivitiesRepository(apiClient: APIClient,@ApplicationContext context: Context): HomeCareActivitiesRepository {
-        return HomeCareActivitiesRepository(apiClient,provideDatabase(context))
+    fun provideHomeCareActivitiesRepository(apiClient: APIClient,database: Database): HomeCareActivitiesRepository {
+        return HomeCareActivitiesRepository(apiClient,database)
     }
 
     @Provides
@@ -120,20 +134,20 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providesUserMarkingRepositoryRepository(apiClient: APIClient,@ApplicationContext context: Context): UserMarkingRepository {
-        return UserMarkingRepository(apiClient,provideDatabase(context))
+    fun providesUserMarkingRepositoryRepository(apiClient: APIClient,database: Database): UserMarkingRepository {
+        return UserMarkingRepository(apiClient,database)
     }
 
     @Provides
     @Singleton
-    fun providesConsumptionRepository(apiClient: APIClient,@ApplicationContext context: Context): ConsumptionRepository {
-        return ConsumptionRepository(apiClient,provideDatabase(context))
+    fun providesConsumptionRepository(apiClient: APIClient,database: Database): ConsumptionRepository {
+        return ConsumptionRepository(apiClient,database)
     }
 
     @Provides
     @Singleton
-    fun providesWorkingHoursRepository(apiClient: APIClient,@ApplicationContext context: Context): WorkingHourRepository {
-        return WorkingHourRepository(apiClient, provideDatabase(context))
+    fun providesWorkingHoursRepository(apiClient: APIClient,database: Database): WorkingHourRepository {
+        return WorkingHourRepository(apiClient, database)
     }
 
 }

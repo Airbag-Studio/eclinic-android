@@ -10,6 +10,7 @@ import ch.ticare.eclinic.library.entity.CloseWound
 import ch.ticare.eclinic.library.entity.Wound
 import ch.ticare.eclinic.library.entity.WoundSave
 import ch.ticare.eclinic.library.network.AuthRepository
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -25,6 +26,7 @@ import javax.inject.Inject
 class WoundDetailsScreenViewModel @Inject constructor(
     private val woundRepository: WoundRepository,
     private val authRepository: AuthRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
@@ -34,6 +36,7 @@ class WoundDetailsScreenViewModel @Inject constructor(
 
     var wound by mutableStateOf<Wound?>(null)
     var errorMessage by mutableStateOf<String?>(null)
+    var isOnline by mutableStateOf(false)
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         errorMessage = throwable.localizedMessage
@@ -50,7 +53,9 @@ class WoundDetailsScreenViewModel @Inject constructor(
 
     fun reloadWound() {
         viewModelScope.launch(coroutineExceptionHandler) {
-            val res = woundRepository.getWound(woundId.toInt())
+            offlineOnlineRepository.restore()
+            isOnline = offlineOnlineRepository.isOnline
+            val res = woundRepository.getWound(patientCod,woundId.toInt())
             wound = res.results?.firstOrNull()
             errorMessage = res.error?.desc
         }
@@ -59,6 +64,7 @@ class WoundDetailsScreenViewModel @Inject constructor(
     fun closeWound(description: String){
         viewModelScope.launch(coroutineExceptionHandler) {
             val res = woundRepository.closeWound(
+                patientCod,
                 CloseWound(
                     woundId.toInt(),
                     Date().format("yyyy.MM.dd"),

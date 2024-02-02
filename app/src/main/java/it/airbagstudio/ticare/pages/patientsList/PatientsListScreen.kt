@@ -7,9 +7,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,7 +48,11 @@ import ch.ticare.eclinic.library.entity.Microzone
 import ch.ticare.eclinic.library.entity.Zone
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
+import it.airbagstudio.ticare.pages.patientsList.downloadPatientData.SelectPatientsDialogScreen
+import it.airbagstudio.ticare.pages.patientsList.offlineDataSheet.OfflineDataSheet
+import it.airbagstudio.ticare.pages.patientsList.syncDataSheet.SyncDataSheetView
 import it.airbagstudio.ticare.ui.components.DropDownButton
+import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.OfflineSyncImage
@@ -50,6 +60,7 @@ import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.PatientListItemView
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithSyncAndSettings
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +81,12 @@ fun PatientListScreen(
         mutableStateOf(false)
     }
 
+    var openSyncSheet by remember {
+        mutableStateOf(false)
+    }
 
+
+    val isOfflineDataSheetVisible = uiState.downloadCount > 0 && uiState.expireDate != null
 
     BottomSheetScaffold(
         modifier = Modifier.consumeWindowInsets(
@@ -79,6 +95,7 @@ fun PatientListScreen(
         topBar = {
             ToolbarWithSyncAndSettings(
                 title = uiState.companyName,
+                isOnline = uiState.isOnline,
                 onDownloadPatientDataClick = {
                     showDownloadPatientDataPopup = true
                 },
@@ -87,14 +104,24 @@ fun PatientListScreen(
                 }
             )
         },
-        sheetPeekHeight = 100.dp,
+        sheetPeekHeight = if(isOfflineDataSheetVisible) 100.dp else 0.dp,
         sheetContent = {
             OfflineDataSheet(
-                itemsToSync = 4,
-                localItems = 4,
-                isOffline = true,
-                expireDate = Date()
-            )
+                itemsToSync = uiState.modifiedCount,
+                localItems = uiState.downloadCount,
+                isOffline = !uiState.isOnline,
+                expireDate = uiState.expireDate
+            ){
+                if (uiState.isOnline){
+                    viewModel.setOffline()
+                }else{
+                    if (uiState.modifiedCount > 0){
+                        openSyncSheet = true
+                    }else{
+                        viewModel.setOnline()
+                    }
+                }
+            }
         }
 
     ) { values ->
@@ -156,19 +183,19 @@ fun PatientListScreen(
                         modifier = Modifier.wrapContentHeight()
                     ) {
                         if (viewModel.query.count() > 3) {
-                            val filtered = uiState.caseList?.filter {
-                                "${it.name} ${it.surname}".contains(
+                            val filtered = uiState.caseList.filter {
+                                it.completeName.contains(
                                     viewModel.query,
                                     ignoreCase = true
                                 )
-                            } ?: listOf()
+                            }
                             items(filtered) {
                                 ListItem(
-                                    headlineContent = { Text("${it.surname} ${it.name}") },
-                                    supportingContent = { Text("${it.birthday} (${it.age})") },
+                                    headlineContent = { Text(it.completeName) },
+                                    supportingContent = { Text(it.birthDate) },
                                     leadingContent = {
                                         PatientImage(
-                                            it.code,
+                                            it.patientCode,
                                             it.photo ?: "",
                                             viewModel.requestImageRequestData
                                         )
@@ -179,7 +206,7 @@ fun PatientListScreen(
                                         .clickable {
                                             //viewModel.query = ""
                                             //searchActive = false
-                                            navActions.navigateToPatientDetails(Uri.encode(it.code))
+                                            navActions.navigateToPatientDetails(Uri.encode(it.patientCode))
                                         }
                                 )
                             }
@@ -193,11 +220,12 @@ fun PatientListScreen(
                     ) {
                         DropDownButton(
                             modifier = Modifier.weight(1f),
-                            value = uiState.selectedZone?.name ?: stringResource(id = R.string.zones),
-                            isEnabled = !viewModel.isLoading && uiState.isRequestAllCasesAccessOn
+                            value = uiState.selectedZone?.name
+                                ?: stringResource(id = R.string.zones),
+                            isEnabled = uiState.isOnline && !viewModel.isLoading && uiState.isRequestAllCasesAccessOn
                         ) {
 
-                                showZonesPopup = true
+                            showZonesPopup = true
 
 
                         }
@@ -206,7 +234,7 @@ fun PatientListScreen(
                             modifier = Modifier.weight(1f),
                             value = uiState.selectedMicrozone?.name
                                 ?: stringResource(id = R.string.micro_zones),
-                            isEnabled = !viewModel.isLoading && uiState.selectedZone != null
+                            isEnabled = uiState.isOnline && !viewModel.isLoading && uiState.selectedZone != null
                         ) {
                             showMicrozonesPopup = true
                         }
@@ -222,34 +250,47 @@ fun PatientListScreen(
                                     patient = patientListItem,
                                     viewModel.requestImageRequestData
                                 ) {
-                                    navActions.navigateToPatientDetails(Uri.encode(patientListItem.code))
+                                    navActions.navigateToPatientDetails(Uri.encode(patientListItem.patientCode))
                                 }
                             }
                         }
                     }
-                    if(showZonesPopup){
-                        val visibleZones = if (uiState.isRequestAllCasesAccessOn){
-                            listOf(ListPopupItem<Zone>(
-                                stringResource(id = R.string.all),null)) + uiState.zones.map { ListPopupItem(label = it.name, it) }
-                        }else {
+                    if (showZonesPopup) {
+                        val visibleZones = if (uiState.isRequestAllCasesAccessOn) {
+                            listOf(
+                                ListPopupItem<Zone>(
+                                    stringResource(id = R.string.all), null
+                                )
+                            ) + uiState.zones.map { ListPopupItem(label = it.name, it) }
+                        } else {
                             uiState.userZones.map { ListPopupItem(label = it.name, it) }
                         }
 
-                        ListPopup(title = stringResource(id = R.string.zones), items = visibleZones, setShowDialog = {
-                            showZonesPopup = it
-                        }, onItemSelected = {
-                            viewModel.setSelectedZone(it.item)
-                            showZonesPopup = false
-                        })
+                        ListPopup(
+                            title = stringResource(id = R.string.zones),
+                            items = visibleZones,
+                            setShowDialog = {
+                                showZonesPopup = it
+                            },
+                            onItemSelected = {
+                                viewModel.setSelectedZone(it.item)
+                                showZonesPopup = false
+                            })
                     }
-                    if(showMicrozonesPopup){
-                        ListPopup(title = stringResource(id = R.string.zones), items = listOf(ListPopupItem<Microzone>(
-                            stringResource(id = R.string.all),null)) + uiState.microZones.map { ListPopupItem(label = it.name, it) }, setShowDialog = {
-                            showMicrozonesPopup = it
-                        }, onItemSelected = {
-                            viewModel.setSelectedMicrozone(it.item)
-                            showMicrozonesPopup = false
-                        })
+                    if (showMicrozonesPopup) {
+                        ListPopup(title = stringResource(id = R.string.zones),
+                            items = listOf(
+                                ListPopupItem<Microzone>(
+                                    stringResource(id = R.string.all), null
+                                )
+                            ) + uiState.microZones.map { ListPopupItem(label = it.name, it) },
+                            setShowDialog = {
+                                showMicrozonesPopup = it
+                            },
+                            onItemSelected = {
+                                viewModel.setSelectedMicrozone(it.item)
+                                showMicrozonesPopup = false
+                            })
                     }
                 }
 
@@ -262,8 +303,22 @@ fun PatientListScreen(
                 onDismissRequest = { viewModel.errorMessage = null },
                 onRetry = {
                     viewModel.errorMessage = null
-                    viewModel.downloadZones()
+                    viewModel.downloadData()
                 })
+        }
+        if (showDownloadPatientDataPopup) {
+            SelectPatientsDialogScreen(cases = uiState.caseList) {
+                showDownloadPatientDataPopup = false
+                viewModel.updatePatients()
+            }
+        }
+        if (openSyncSheet){
+            SyncDataSheetView { success ->
+                openSyncSheet = false
+                if (success){
+                    viewModel.setOnline()
+                }
+            }
         }
     }
 }

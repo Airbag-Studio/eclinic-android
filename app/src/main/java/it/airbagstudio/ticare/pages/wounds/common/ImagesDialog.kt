@@ -1,5 +1,8 @@
 package it.airbagstudio.ticare.pages.wounds.common
 
+import android.content.Context
+import android.net.Uri
+import android.provider.ContactsContract.CommonDataKinds.Photo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -28,13 +31,16 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import ch.ticare.eclinic.library.entity.WoundPhoto
 import coil.ImageLoader
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.ImageDetailsDialog
 import it.airbagstudio.ticare.ui.components.ImageRequestData
 import it.airbagstudio.ticare.ui.components.okHttpClient
+import java.io.File
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
@@ -42,9 +48,10 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ImagesDialog(
     date: String,
-    photosIds: List<Int>,
+    photos: List<WoundPhoto>,
     requestData: ImageRequestData,
     authTimestampHeader: String = DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
+    isOnline: Boolean,
     onDismissRequest: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -52,28 +59,17 @@ fun ImagesDialog(
         .okHttpClient(okHttpClient)
         .build()
 
-    val context = LocalContext.current
-
     var selectedPainter by remember {
         mutableStateOf<Painter?>(null)
     }
 
-    val painters = photosIds.map {
-        val url = "${requestData.url}/wounds/image?id=${it}"
-        val imageRequest = ImageRequest.Builder(context)
-            .data(url)
-            .addHeader("Authorization", "Bearer ${requestData.token}")
-            .addHeader("auth-timestamp", authTimestampHeader)
-            .build()
-        rememberAsyncImagePainter(
-            model = imageRequest,
+    val painters = photos.map {
+        getPainter(
+            photo = it,
+            requestData = requestData,
             imageLoader = imageLoader,
-            onError = {
-
-            },
-            onSuccess = {
-                it.painter
-            }
+            authTimestampHeader = authTimestampHeader,
+            isOnline = isOnline
         )
     }
 
@@ -125,6 +121,35 @@ fun ImagesDialog(
         ImageDetailsDialog(painter = selectedPainter!!) {
             selectedPainter = null
         }
+    }
+
+}
+
+@Composable
+private fun getPainter(photo: WoundPhoto, requestData: ImageRequestData, imageLoader: ImageLoader, authTimestampHeader: String, isOnline: Boolean): AsyncImagePainter{
+    val context = LocalContext.current
+    if (isOnline){
+
+        val url = "${requestData.url}/wounds/image?id=${photo.iD}"
+        val imageRequest = ImageRequest.Builder(context)
+            .data(url)
+            .addHeader("Authorization", "Bearer ${requestData.token}")
+            .addHeader("auth-timestamp", authTimestampHeader)
+            .build()
+        return rememberAsyncImagePainter(
+            model = imageRequest,
+            imageLoader = imageLoader,
+            onError = {
+
+            },
+            onSuccess = {
+                it.painter
+            }
+        )
+    }else{
+        val dir = context.getDir("images", Context.MODE_PRIVATE)
+        val photoFile = File(dir, "${Uri.encode(photo.photo)}.jpg")
+        return rememberAsyncImagePainter(model = photoFile)
     }
 
 }

@@ -140,7 +140,7 @@ private fun SyncButton(state: SyncButtonState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ToolbarWithSyncAndSettings(title: String, onSettingsClick: () -> Unit,onDownloadPatientDataClick:()->Unit) {
+fun ToolbarWithSyncAndSettings(title: String, onSettingsClick: () -> Unit,isOnline: Boolean,onDownloadPatientDataClick:()->Unit) {
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
         title = {
@@ -151,6 +151,7 @@ fun ToolbarWithSyncAndSettings(title: String, onSettingsClick: () -> Unit,onDown
         },
         navigationIcon = {
             FilledIconButton(
+                enabled = isOnline,
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -164,6 +165,7 @@ fun ToolbarWithSyncAndSettings(title: String, onSettingsClick: () -> Unit,onDown
         },
         actions = {
             FilledIconButton(
+                enabled = isOnline,
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -224,7 +226,8 @@ fun ToolbarWithBack(title: String,actions: @Composable() (RowScope.() -> Unit) =
 @Preview
 private fun PreviewToolbar() {
     AppTheme() {
-        ToolbarWithSyncAndSettings(title = "Casa Delle Rose", onDownloadPatientDataClick = {}, onSettingsClick = {})
+        ToolbarWithSyncAndSettings(title = "Casa Delle Rose", onDownloadPatientDataClick = {},
+            isOnline = true,onSettingsClick = {})
     }
 
 }

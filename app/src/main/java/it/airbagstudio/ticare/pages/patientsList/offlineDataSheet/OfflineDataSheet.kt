@@ -37,7 +37,7 @@ import it.airbagstudio.ticare.utils.format
 import java.util.Date
 
 @Composable
-fun OfflineDataSheet(itemsToSync: Int, localItems: Int, isOffline: Boolean, expireDate: Date) {
+fun OfflineDataSheet(itemsToSync: Int, localItems: Int, isOffline: Boolean, expireDate: Date?,changeState:() -> Unit) {
    Column(modifier = Modifier .padding(horizontal = 16.dp)) {
         Row(modifier = Modifier.padding(bottom = 24.dp)) {
             if (itemsToSync > 0) {
@@ -55,7 +55,7 @@ fun OfflineDataSheet(itemsToSync: Int, localItems: Int, isOffline: Boolean, expi
         Text(
             text = stringResource(
                 id = R.string.sync_data_expire_at,
-                expireDate.format("dd/MM/yyyy HH:mm")
+                expireDate?.format("dd/MM/yyyy HH:mm") ?: ""
             ),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -76,13 +76,15 @@ fun OfflineDataSheet(itemsToSync: Int, localItems: Int, isOffline: Boolean, expi
         }
 
         Button(
-            modifier = Modifier.padding(vertical = 32.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(vertical = 32.dp)
+                .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = seed
             ),
-            onClick = { /*TODO*/ }
+            onClick = { changeState() }
         ) {
-            Text(text = stringResource(id = R.string.work_with_local_data))
+            Text(text = if (isOffline) stringResource(id = R.string.sync_and_back_online) else stringResource(id = R.string.work_with_local_data))
         }
     }
 }
@@ -154,7 +156,7 @@ private fun LocalDataChip(items: Int) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = stringResource(id = R.string.patient_data, "0"),
+            text = stringResource(id = R.string.patient_data, items),
             style = MaterialTheme.typography.titleSmall
         )
     }
@@ -171,7 +173,7 @@ private fun PreviewOfflineDataSheet() {
                     localItems = 3,
                     isOffline = true,
                     Date()
-                )
+                ){}
             }
         }
     }

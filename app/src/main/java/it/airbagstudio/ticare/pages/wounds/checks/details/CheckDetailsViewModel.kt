@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.WoundCheck
 import ch.ticare.eclinic.library.entity.WoundPhoto
 import ch.ticare.eclinic.library.network.AuthRepository
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class CheckDetailsViewModel @Inject constructor(
     private val woundRepository: WoundRepository,
     private val authRepository: AuthRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
     val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
@@ -30,6 +32,9 @@ class CheckDetailsViewModel @Inject constructor(
     var check by mutableStateOf<WoundCheck?>(null)
     var photos by mutableStateOf<List<WoundPhoto>>(listOf())
     var errorMessage by mutableStateOf<String?>(null)
+
+    var isOnline by mutableStateOf(false)
+
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         errorMessage = throwable.localizedMessage
     }
@@ -40,6 +45,8 @@ class CheckDetailsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(coroutineExceptionHandler) {
+            offlineOnlineRepository.restore()
+            isOnline = offlineOnlineRepository.isOnline
             val res = woundRepository.getWounds(patientCod)
             errorMessage = res.error?.desc
             val wound = res.results?.firstOrNull { it.iD == woundId.toInt() }

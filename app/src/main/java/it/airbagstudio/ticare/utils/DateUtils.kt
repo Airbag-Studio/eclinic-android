@@ -8,7 +8,7 @@ public const val SERVER_DATE_FORMAT = "dd.MM.yyyy"
 public const val SERVER_PARAMETER_DATE_TIME_FORMAT = "yyyy.MM.dd HH:mm"
 public const val SERVER_PARAMETER_DATE_TIME_FORMAT_ITA = "dd.MM.yyyy HH:mm"
 public const val DATE_ONLY_TIME_FORMAT = "HH:mm"
-
+const val ISO_DATE_TIME = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
 
 
 fun Date.format(pattern: String) : String{

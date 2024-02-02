@@ -146,7 +146,7 @@ fun PatientDetailsScreen(
                             viewModel.requestImageRequestData
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        OfflineSyncImage(hasOfflineData = true, hasDataToSync = true)
+                        OfflineSyncImage(hasOfflineData = viewModel.isDownloaded, hasDataToSync = viewModel.isModified)
                     }
 
                     Column(

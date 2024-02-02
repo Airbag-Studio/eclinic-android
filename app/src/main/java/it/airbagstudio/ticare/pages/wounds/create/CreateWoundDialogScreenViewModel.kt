@@ -65,7 +65,7 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
 
 ) : ViewModel() {
 
-    var codCase: String? = null
+    lateinit var codCase: String
 
     val woundTypes = mutableStateOf<List<ListPopupItem<WoundType>>>(listOf())
     val woundBodyParts = mutableStateOf<List<ListPopupItem<BodyPart>>>(listOf())
@@ -89,6 +89,7 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
     private val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, throwable ->
             errorMessage = throwable.localizedMessage
+            throwable.printStackTrace()
         }
 
     val _size = combine(length, width, depth) { length, width, depth ->
@@ -261,7 +262,7 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
                             name = "${UUID.randomUUID()}.jpeg",
                             ecImage = bitmap.toByteArray()
                         )
-                        woundRepository.uploadImage(request)
+                        woundRepository.uploadImage(codCase,request)
                     }
                 }
             }
