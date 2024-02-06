@@ -1,5 +1,9 @@
 package it.airbagstudio.ticare.pages.patientsList.syncDataSheet
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.provider.MediaStore
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -41,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.shreyaspatil.capturable.capturable
@@ -48,6 +53,7 @@ import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.seed
+import it.airbagstudio.ticare.utils.LocalNotificationReceiver
 import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -65,7 +71,7 @@ fun SyncDataSheetView(
 ){
     val captureController = rememberCaptureController()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
+    val context = LocalContext.current
     val contentResolver = LocalContext.current.contentResolver
     Dialog(
         onDismissRequest = {
@@ -148,6 +154,7 @@ fun SyncDataSheetView(
                             containerColor = seed
                         ),
                         onClick = {
+                            removePendingNotifications(context)
                             onDismissRequest(true)
                         }
                     ) {
@@ -156,10 +163,19 @@ fun SyncDataSheetView(
                 }else if (uiState.isCompleted){
                     viewModel.resetData()
                     onDismissRequest(true)
+                    removePendingNotifications(context)
                 }
             }
         }
     }
+}
+
+private fun removePendingNotifications(context : Context){
+    val alarmManager = ContextCompat.getSystemService(context, AlarmManager::class.java) as AlarmManager
+    val alarmIntent = Intent(context, LocalNotificationReceiver::class.java)
+    val pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent,
+        PendingIntent.FLAG_IMMUTABLE)
+    alarmManager.cancel(pendingIntent)
 }
 
 @Composable

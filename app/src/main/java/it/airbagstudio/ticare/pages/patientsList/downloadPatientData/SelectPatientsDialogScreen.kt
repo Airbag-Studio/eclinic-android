@@ -1,10 +1,18 @@
 package it.airbagstudio.ticare.pages.patientsList.downloadPatientData
 
 import android.Manifest
+import android.app.AlarmManager
+import android.app.Notification
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -52,10 +60,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.data.SourceContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,6 +77,8 @@ import it.airbagstudio.ticare.pages.patientsList.PatientListUiState
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.seed
+import it.airbagstudio.ticare.utils.LocalNotificationReceiver
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,24 +90,43 @@ fun SelectPatientsDialogScreen(
     LaunchedEffect(key1 = Unit, block = {
         viewModel.setCases(cases)
     })
-
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     LaunchedEffect(key1 = uiState.syncState.isCompleted, block = {
         if (uiState.syncState.isCompleted) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                val permissionCheckResult =
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    )
+                if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                    scheduleNotification(context)
+                } else {
+                    // Request a permission
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }else{
+                scheduleNotification(context)
+            }
+
             viewModel.resetData()
             onDismissRequest()
         }
     })
 
-    val storagePermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) {
-        if (it) {
-            viewModel.startDownloadPatientData()
-        }
-    }
-
-    val context = LocalContext.current
 
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -257,4 +289,12 @@ fun SelectPatientsDialogScreen(
         }
 
     }
+}
+
+private fun scheduleNotification(context: Context){
+    val alarmManager = ContextCompat.getSystemService(context, AlarmManager::class.java) as AlarmManager
+    val alarmIntent = Intent(context, LocalNotificationReceiver::class.java)
+    val pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent,
+        PendingIntent.FLAG_IMMUTABLE)
+    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + TimeUnit.HOURS.toMillis(22), pendingIntent)
 }
