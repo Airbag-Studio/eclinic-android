@@ -203,7 +203,8 @@ fun WoundDetailsScreen(
                                         ?: "",
                                     description = check.medicationType,
                                     imagesCount = viewModel.wound?.photos?.count { it.iDCheck == check.iD }
-                                        ?: 0
+                                        ?: 0,
+                                    hasDataToUpload = viewModel.modifiedIds.contains(check.iD.toString())
                                 )
                             } ?: listOf()
                             Column(

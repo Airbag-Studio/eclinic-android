@@ -6,7 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.Wound
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,6 +39,7 @@ data class WoundListScreenUiState(
 class WoundListScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
     private val woundRepository: WoundRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -50,6 +53,8 @@ class WoundListScreenViewModel @Inject constructor(
     private val isLoading = MutableStateFlow<Boolean>(false)
     private val wounds = MutableStateFlow<List<Wound>>(listOf())
 
+    private val modifiedIds = MutableStateFlow<List<String>>(listOf())
+
     private var firstTime: Boolean = true
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -57,12 +62,13 @@ class WoundListScreenViewModel @Inject constructor(
         isLoading.value = false
     }
 
-    val uiState = combine(isLoading,wounds) { isLoading,wounds ->
+    val uiState = combine(isLoading,wounds,modifiedIds) { isLoading,wounds,modifiedIds ->
         val items = wounds.map {
             WoundListItem(
                 id = it.iD,
                 name = it.appearanceDescription,
                 date = it.appearanceDate.toDate("dd.MM.yyyy")?.format("dd MMMM yy") ?: "",
+                hasDataToUpload = modifiedIds.contains(it.iD.toString())
 
             )
         }
@@ -90,6 +96,7 @@ class WoundListScreenViewModel @Inject constructor(
     fun downloadWounds(){
         isLoading.value = true
         viewModelScope.launch(coroutineExceptionHandler) {
+            modifiedIds.value = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.Wounds)
             val res = woundRepository.getWounds(patientCod, fromCache = !firstTime && !woundRepository.needRefresh)
             wounds.value = res.results ?: listOf()
             errorMessage = res.error?.desc

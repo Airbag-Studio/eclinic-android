@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.DrugChip
+import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.checkGreen
@@ -50,7 +51,7 @@ fun DrugAdministrationItemView(
     reserves: Double? = null,
     isCompleted: Boolean,
     isReserve: Boolean = false,
-
+    hasDataToUpload: Boolean,
     onClick: () -> Unit
 ) {
     Column(
@@ -63,49 +64,61 @@ fun DrugAdministrationItemView(
 
         val alpha = if (isCompleted) 0.5f else 1f
 
-        Row(Modifier.padding(end = 24.dp)) {
-            if (isCompleted) {
-                Icon(
-                    modifier = Modifier.padding(end = 16.dp),
-                    tint = checkGreen,
-                    imageVector = Icons.Default.Check, contentDescription = ""
-                )
+        Row(Modifier.padding(end = 8.dp)) {
+
+            if (isCompleted || hasDataToUpload) {
+                Column(Modifier.padding(end = 8.dp)) {
+                    if (isCompleted){
+                        Icon(
+                            tint = checkGreen,
+                            imageVector = Icons.Default.Check, contentDescription = ""
+                        )
+                    }
+                    if (hasDataToUpload){
+                        Spacer(modifier = Modifier.height(2.dp))
+                        OfflineSyncImage(hasOfflineData = false, hasDataToSync = hasDataToUpload)
+                    }
+                }
+
             }
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                    .weight(1f)
-                    .alpha(alpha)
-            )
-            Image(
-                painter = painterResource(id = R.drawable.ic_arrow_right),
-                contentDescription = name
-            )
-        }
-        Row(
-            modifier = Modifier
-                .alpha(alpha)
-                .padding(end = 24.dp)
-        ) {
-            if (isCompleted) {
-                Spacer(modifier = Modifier.width(40.dp))
+            Column {
+                Row {
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .weight(1f)
+                            .alpha(alpha)
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_arrow_right),
+                        contentDescription = name
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .alpha(alpha)
+                        .padding(end = 24.dp)
+                ) {
+                    LabelValueRow(label = stringResource(id = R.string.quantity), value = "$quantity")
+                    if (!isCompleted && !isReserve) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        LabelValueRow(
+                            label = stringResource(id = R.string.reserves),
+                            value = "${reserves ?: 0}"
+                        )
+                        Spacer(modifier = Modifier.width(40.dp))
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .alpha(alpha)
+                        .padding(end = 24.dp)
+                ) {
+                    LabelValueRow(label = stringResource(id = R.string.time), value = time)
+                }
             }
-            LabelValueRow(label = stringResource(id = R.string.quantity), value = "$quantity")
-            if (!isCompleted && !isReserve) {
-                Spacer(modifier = Modifier.weight(1f))
-                LabelValueRow(
-                    label = stringResource(id = R.string.reserves),
-                    value = "${reserves ?: 0}"
-                )
-                Spacer(modifier = Modifier.width(40.dp))
-            }
-        }
-        Row(modifier = Modifier.alpha(alpha)) {
-            if (isCompleted) {
-                Spacer(modifier = Modifier.width(40.dp))
-            }
-            LabelValueRow(label = stringResource(id = R.string.time), value = time)
+
         }
 
 
@@ -193,7 +206,8 @@ private fun PreviewDrugAdministrationItem() {
             rejected = true,
             isConfirmed = false,
             notExecuted = true,
-            reserves = 2.0
+            reserves = 2.0,
+            hasDataToUpload = false
         ) {}
     }
 }
@@ -210,7 +224,8 @@ private fun PreviewDrugAdministrationItemCompleted() {
             rejected = true,
             isConfirmed = false,
             notExecuted = true,
-            reserves = 2.2
+            reserves = 2.2,
+            hasDataToUpload = true
         ) {}
     }
 }
@@ -230,7 +245,8 @@ private fun PreviewDrugAdministrationReserveItem() {
             rejected = true,
             isConfirmed = false,
             notExecuted = true,
-            isReserve = true
+            isReserve = true,
+            hasDataToUpload = true
         ) {}
     }
 }

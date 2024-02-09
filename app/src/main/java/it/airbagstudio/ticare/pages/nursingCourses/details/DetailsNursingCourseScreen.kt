@@ -65,7 +65,7 @@ fun CreateNursingCourseScreen(
         LaunchedEffect(Unit) {
             run {
                 viewModel.setScreenType(ScreenType.Add)
-                viewModel.loadCategory()
+                viewModel.loadCategory(patientCode = patientCode)
                 viewModel.setShowInDiary(true)
             }
         }
@@ -93,7 +93,7 @@ fun EditNursingCourseScreen(
                 } else {
                     viewModel.setScreenType(ScreenType.Add)
                 }
-                viewModel.loadCategory()
+                viewModel.loadCategory(patientCode)
             }
         }
         BuildSheetContent(viewModel = viewModel, patientCode, onDismissRequest)

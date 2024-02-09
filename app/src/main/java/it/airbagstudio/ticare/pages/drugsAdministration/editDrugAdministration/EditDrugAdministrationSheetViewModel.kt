@@ -106,7 +106,7 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
             }
             viewModelScope.launch(coroutineExceptionHandler) {
                 isLoading = true
-                val res = agendaTaskRepository.updateAgendaTasks(listOf(updatedTask))
+                val res = agendaTaskRepository.updateAgendaTasks(updatedTask)
                 res.error?.let {
                     errorMessage = it.desc
                 } ?: run {

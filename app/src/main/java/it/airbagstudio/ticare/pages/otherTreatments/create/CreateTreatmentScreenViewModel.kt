@@ -158,7 +158,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
                 desc = notes.value,
                 quantity = quantity.value.toDoubleOrNull() ?: 0.0
             )
-            val res = otherServiceRepository.updateOtherService(listOf(editService))
+            val res = otherServiceRepository.updateOtherService(editService)
             if (res.status == "success") {
                 isSuccess.value = true
             } else if (res.status == "error") {
@@ -181,7 +181,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
 
             )
 
-            val res = otherServiceRepository.addOtherServices(listOf(newService))
+            val res = otherServiceRepository.addOtherServices(newService)
             if (res.status == "success") {
                 isSuccess.value = true
             } else if (res.status == "error") {

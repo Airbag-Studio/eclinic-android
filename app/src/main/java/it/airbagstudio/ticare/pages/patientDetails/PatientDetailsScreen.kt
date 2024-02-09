@@ -51,6 +51,7 @@ import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import ch.ticare.eclinic.library.entity.OperatingShift
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.data.AlertItem
@@ -74,6 +75,13 @@ fun PatientDetailsScreen(
     onBack: () -> Unit
 ) {
 
+    LifecycleResumeEffect(Unit) {
+        // Do something on resume or launch effect
+        viewModel.downloadData()
+        onPauseOrDispose {
+
+        }
+    }
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     var showShiftsPopup by remember { mutableStateOf(false) }
@@ -190,7 +198,7 @@ fun PatientDetailsScreen(
                     DropDownButton(
                         modifier = Modifier.weight(1f),
                         value = dateButtonValue,
-                        isEnabled = !viewModel.isLoading
+                        isEnabled = !viewModel.isLoading && viewModel.isOnline
                     ) {
                         showDatePicker = true
                     }
@@ -198,7 +206,7 @@ fun PatientDetailsScreen(
                     DropDownButton(
                         modifier = Modifier.weight(1f),
                         value = viewModel.selectedShift?.name ?: stringResource(id = R.string.all),
-                        isEnabled = !viewModel.isLoading
+                        isEnabled = !viewModel.isLoading && viewModel.isOnline
                     ) {
                         showShiftsPopup = true
                     }

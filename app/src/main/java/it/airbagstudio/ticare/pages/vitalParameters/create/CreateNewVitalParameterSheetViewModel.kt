@@ -235,7 +235,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
                     alertLevel = 1,
                     value = value.value
                 )
-                val res = agendaTaskRepository.updateAgendaTasks(listOf(newTask))
+                val res = agendaTaskRepository.updateAgendaTasks(newTask)
                 res.error?.let {
                     errorMessage.value = it.desc
                 } ?: run {

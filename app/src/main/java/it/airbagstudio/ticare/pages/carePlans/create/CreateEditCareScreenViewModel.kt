@@ -84,7 +84,7 @@ class CreateEditCareScreenViewModel @Inject constructor(
 
     private val notPlannedActivity: Flow<HomeCareUnplannedActivity?> = combine(codCase,idActivityType,timeFromLastActivity){ codCase, idActivityType,timeFromLastActivity ->
         if (codCase != null && idActivityType != null){
-            val activity = homeCareActivitiesRepository.getHomeCareActivitiesUnplanned().results?.firstOrNull { it.id == idActivityType }
+            val activity = homeCareActivitiesRepository.getHomeCareActivitiesUnplanned(codCase).results?.firstOrNull { it.id == idActivityType }
             //setDuration(activity?.duration ?: 0)
             setDuration(timeFromLastActivity?.toInt() ?: 0)
             setShowInDiary(true)

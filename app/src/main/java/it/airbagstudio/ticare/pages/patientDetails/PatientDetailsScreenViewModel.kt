@@ -38,8 +38,10 @@ class PatientDetailsScreenViewModel @Inject constructor(
     var isDownloaded by mutableStateOf(false)
     var isModified by mutableStateOf(false)
 
+    var isOnline by mutableStateOf(false)
+
     var badges by mutableStateOf<List<Badge>>(listOf())
-    var isLoading by mutableStateOf(false)
+    var isLoading by mutableStateOf(true)
     var isLoadingActivities by mutableStateOf(false)
 
     val patientCod: String? = savedStateHandle[DestinationsArgs.PATIENT_COD]
@@ -47,7 +49,10 @@ class PatientDetailsScreenViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
     var shifts by mutableStateOf<List<OperatingShift>?>(null)
     var selectedShift by mutableStateOf<OperatingShift?>(null)
-    lateinit var requestImageRequestData: ImageRequestData
+    var requestImageRequestData: ImageRequestData = ImageRequestData(
+        authRepository.getBaseURL(),
+        authRepository.getToken() ?: ""
+    )
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading = false
@@ -60,14 +65,15 @@ class PatientDetailsScreenViewModel @Inject constructor(
 
     private var allTasksForDay by mutableStateOf<List<AgendaTask>>(listOf())
 
-    init {
-        downloadData()
-    }
     fun downloadData(){
+        requestImageRequestData = ImageRequestData(
+            authRepository.getBaseURL(),
+            authRepository.getToken() ?: ""
+        )
         patientCod?.let { code ->
 
             viewModelScope.launch(coroutineExceptionHandler) {
-                isLoading = true
+                isOnline = offlineOnlineRepository.isOnline
                 caseDetails = userDetailRepository.getCase(code).results?.firstOrNull()
 
                 caseDetails?.let { userDetailRepository.setCurrentCase(it) }
@@ -88,10 +94,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
             }
         }
 
-        requestImageRequestData = ImageRequestData(
-            authRepository.getBaseURL(),
-            authRepository.getToken() ?: ""
-        )
+
     }
 
     fun downloadBadges(){

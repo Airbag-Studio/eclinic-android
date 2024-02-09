@@ -89,9 +89,9 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         )
     )
 
-    fun loadCategory() {
+    fun loadCategory(patientCode: String) {
         viewModelScope.launch(coroutineExceptionHandler) {
-            listOfCategories.value = nursingCourseRepository.getNursingCourseCategory().results.also {
+            listOfCategories.value = nursingCourseRepository.getNursingCourseCategory(patientCode).results.also {
                 if(screenType.value == ScreenType.Add) {
                 selectedCategoryId.value = it?.find { cat -> cat.useAsDefault }?.id
                 }

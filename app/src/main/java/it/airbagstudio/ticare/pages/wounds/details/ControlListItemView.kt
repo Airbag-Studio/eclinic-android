@@ -27,13 +27,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 data class ControlListItem(
     val id: Int,
     val date: String,
     val description: String,
-    val imagesCount: Int
+    val imagesCount: Int,
+    val hasDataToUpload: Boolean
 )
 
 @Composable
@@ -51,6 +53,12 @@ fun ControlListItemView(item: ControlListItem,onClick:(Int) -> Unit) {
             .background(Color.White)
             .padding(16.dp)
     ) {
+        if(item.hasDataToUpload){
+            Column(Modifier.padding(end = 8.dp)) {
+                Spacer(modifier = Modifier.height(2.dp))
+                OfflineSyncImage(hasOfflineData = true, hasDataToSync = true)
+            }
+        }
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
             horizontalAlignment = Alignment.Start,
@@ -87,13 +95,17 @@ fun ControlListItemView(item: ControlListItem,onClick:(Int) -> Unit) {
 private fun PreviewControlListItemView() {
     AppTheme {
         Scaffold {
-            Column(Modifier.padding(it).padding(16.dp)) {
+            Column(
+                Modifier
+                    .padding(it)
+                    .padding(16.dp)) {
                 ControlListItemView(
                     item = ControlListItem(
                         id = 0,
                         date = "22/08/2023",
                         description = "Disinfettante e bendaggio.",
-                        imagesCount = 5
+                        imagesCount = 5,
+                        true
                     )
                 ){}
                 Spacer(modifier = Modifier.height(24.dp))
@@ -102,7 +114,8 @@ private fun PreviewControlListItemView() {
                         id = 0,
                         date = "22/08/2023",
                         description = "Disinfettante e bendaggio.",
-                        imagesCount = 5
+                        imagesCount = 5,
+                        false
                     )
                 ){}
             }

@@ -123,7 +123,7 @@ private fun BuildContent(query: String, results: List<OtherTreatmentItem>, onQue
 private fun SearchContentPreview() {
     AppTheme {
         BuildContent(query = "Test", results = listOf(
-            OtherTreatmentItem("Medicamento Forfait", description = "Forfait per prestazioni terapeutiche Grado 01", number = "FPT01")
+            OtherTreatmentItem("Medicamento Forfait", description = "Forfait per prestazioni terapeutiche Grado 01", number = "FPT01", hasDataToUpload = false)
         ), onQueryChange = {}, onItemSelected = {})
     }
 }

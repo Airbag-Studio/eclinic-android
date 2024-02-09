@@ -24,17 +24,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.Microzone
 import ch.ticare.eclinic.library.entity.Zone
@@ -60,6 +65,9 @@ import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.PatientListItemView
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithSyncAndSettings
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,10 +93,21 @@ fun PatientListScreen(
         mutableStateOf(false)
     }
 
+    val scope = rememberCoroutineScope()
+
+    LifecycleResumeEffect(Unit) {
+        // Do something on resume or launch effect
+        viewModel.updatePatients()
+        onPauseOrDispose {
+
+        }
+    }
 
     val isOfflineDataSheetVisible = uiState.downloadCount > 0 && uiState.expireDate != null
+    val sheetState = rememberModalBottomSheetState()
 
     BottomSheetScaffold(
+        scaffoldState = BottomSheetScaffoldState(sheetState, snackbarHostState = SnackbarHostState()),
         modifier = Modifier.consumeWindowInsets(
             WindowInsets.systemBars.only(WindowInsetsSides.Vertical)
         ),
@@ -112,14 +131,18 @@ fun PatientListScreen(
                 isOffline = !uiState.isOnline,
                 expireDate = uiState.expireDate
             ){
+                scope.launch {
+                    sheetState.partialExpand()
+                }
                 if (uiState.isOnline){
                     viewModel.setOffline()
                 }else{
-                    if (uiState.modifiedCount > 0){
+                    if (viewModel.shouldUploadData){
                         openSyncSheet = true
                     }else{
                         viewModel.setOnline()
                     }
+
                 }
             }
         }
@@ -313,11 +336,12 @@ fun PatientListScreen(
             }
         }
         if (openSyncSheet){
-            SyncDataSheetView { success ->
+            SyncDataSheetView(caseList = uiState.caseList) { success ->
                 openSyncSheet = false
                 if (success){
                     viewModel.setOnline()
                 }
+                viewModel.updatePatients()
             }
         }
     }

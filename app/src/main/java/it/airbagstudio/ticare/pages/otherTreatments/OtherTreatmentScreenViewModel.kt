@@ -6,8 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.OperatingShift
 import ch.ticare.eclinic.library.entity.OtherService
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.OtherServiceRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,6 +45,7 @@ data class OtherServicesUIState(
 class OtherTreatmentScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
     private val otherServiceRepository: OtherServiceRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
@@ -53,8 +56,9 @@ class OtherTreatmentScreenViewModel @Inject constructor(
     private val throwable = MutableStateFlow<Throwable?>(null)
     private val isLoading = MutableStateFlow<Boolean>(false)
     private val _selectedDate = MutableStateFlow<Date?>(null)
+    private val modifiedIds = MutableStateFlow<List<String>>(listOf())
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, _throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, _throwable ->
         throwable.value = _throwable
         isLoading.value = false
     }
@@ -62,14 +66,15 @@ class OtherTreatmentScreenViewModel @Inject constructor(
     var selectedService by mutableStateOf<OtherService?>(null)
 
 
-    val uiState: StateFlow<OtherServicesUIState> = combine(_selectedDate,services,throwable,isLoading){date,services,throwable,isLoading ->
+    val uiState: StateFlow<OtherServicesUIState> = combine(_selectedDate,services,throwable,isLoading,modifiedIds){date,services,throwable,isLoading,modifiedIds ->
         val case = userDetailRepository.getCurrentCase()
         OtherServicesUIState(
             services = services.map { OtherTreatmentItem(
                 name = it.itemGroup,
                 description = it.getItemDesc(),
                 number = it.getNumber(),
-                id = it.id
+                id = it.id,
+                hasDataToUpload = modifiedIds.contains(it.id.toString())
 
             ) },
             errorMessage = throwable?.localizedMessage,
@@ -94,6 +99,7 @@ class OtherTreatmentScreenViewModel @Inject constructor(
     fun downloadData(){
         isLoading.value = true
         viewModelScope.launch(coroutineExceptionHandler) {
+            modifiedIds.value = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.OtherServices)
             val selectedDate = if (userDetailRepository.getSelectedDate() != null){
                 userDetailRepository.getSelectedDate()?.toDate(SERVER_DATE_FORMAT) ?: Date()
             } else{

@@ -127,6 +127,7 @@ fun NursingCoursesScreen(
                         time = date,
                         duration = task.duration,
                         description = task.desc,
+                        hasDataToUpload = viewModel.modifiedIds.contains(task.id.toString())
                     ) {
                         selectedTasks = task
                     }

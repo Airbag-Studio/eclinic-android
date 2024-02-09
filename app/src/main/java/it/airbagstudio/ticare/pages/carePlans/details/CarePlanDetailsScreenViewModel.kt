@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.HomeCareActivity
 import ch.ticare.eclinic.library.entity.HomeCarePlan
 import ch.ticare.eclinic.library.entity.HomeCarePlannedActivity
+import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.R
@@ -47,7 +49,8 @@ data class CarePlanDetailsUIState(
 class CarePlanDetailsScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val homeCareActivitiesRepository: HomeCareActivitiesRepository,
-    private val userRepository: UserDetailRepository
+    private val userRepository: UserDetailRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository
 ) : ViewModel() {
 
     val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
@@ -62,6 +65,7 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
         userRepository.getSelectedDate()?.toDate(SERVER_DATE_FORMAT) ?: Date()
     private val shift = userRepository.getCurrentShift()
     private val planndeActivities = MutableStateFlow<List<HomeCarePlannedActivity>>(listOf())
+    private val modifiedIds = MutableStateFlow<List<String>>(listOf())
 
     private val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, throwable ->
@@ -83,7 +87,8 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                     executed = true,
                     id = it.id,
                     planned = it.isScheduled,
-                    activity = it
+                    activity = it,
+                    isLocalContent = it.user.isEmpty()
                 )
             }
             val plannedInfo = planndeActivities.map {
@@ -183,6 +188,7 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
         clearError()
         isLoading.value = true
         viewModelScope.launch(coroutineExceptionHandler) {
+            modifiedIds.value = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.HomeCareActivities)
             val res = homeCareActivitiesRepository.getHomeCarePlans(patientCod)
             val intPlanId = planId.toIntOrNull() ?: return@launch
             if (res.status == "success") {

@@ -9,9 +9,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AgendaTask
 import ch.ticare.eclinic.library.entity.CaseDetail
+import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.OperatingShift
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository.Companion.PHARMACOLOGICAL_TYPE
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -27,6 +29,7 @@ import javax.inject.Inject
 class DrugsAdministrationScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
     private val agendaTaskRepository: AgendaTaskRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -41,6 +44,8 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     var reserves by mutableStateOf<List<AgendaTask>>(listOf())
     var errorMessage by mutableStateOf<String?>(null)
     var patient by mutableStateOf<CaseDetail?>(null)
+
+    var modifiedIds by mutableStateOf<List<String>>(listOf())
 
     var date by mutableStateOf<Date?>(null)
 
@@ -85,7 +90,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
                 task.expDate == expDate
             }
         } ?: listOf()
-
+        modifiedIds = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.Pharmacological)
         tasks = tasks.map { it.copy(reservesCount = reserves.filter { res -> res.itemPKey == it.itemPKey }.sumOf { it.expQuantity }) }
     }
 
@@ -100,17 +105,17 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     fun executeAll(){
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading = true
-            val newTasks = tasks.filter { it.validated() }.map {task ->
-                //val execDate = DateFormat.format("yyyy-MM-dd", Date()).toString()
-                //val execTime = DateFormat.format("HH:mm:ss.000", Date()).toString()
-                task.copy(quantity = task.expQuantity)
+            tasks.filter { it.validated() }.forEach {task ->
+                val newTask = task.copy(quantity = task.expQuantity)
+                val res = agendaTaskRepository.updateAgendaTasks(newTask)
+                res.error?.let {
+                    errorMessage = it.desc
+                }
             }
-            val res = agendaTaskRepository.updateAgendaTasks(newTasks)
-            res.error?.let {
-                errorMessage = it.desc
-            }
+
             downloadTasks(false)
             isLoading = false
+
         }
     }
 

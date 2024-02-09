@@ -45,7 +45,7 @@ data class PatientListUiState(
     val selectedZone: Zone? = null,
     val selectedMicrozone: Microzone? = null,
     val isRequestAllCasesAccessOn: Boolean,
-    val userZones: List<Zone> = listOf(),
+    val userZones: List<Zone> = listOf()
 ){
     data class PatientUIState(
         val patientCode: String,
@@ -68,13 +68,14 @@ class PatientListScreenViewModel @Inject constructor(
 
     var isLoading by mutableStateOf(false)
     var query by mutableStateOf("")
+    var shouldUploadData by mutableStateOf(false)
 
     private var isOnline = MutableStateFlow(true)
     private var companyName = MutableStateFlow("")
     var errorMessage by mutableStateOf<String?>(null)
-    private var zones = MutableStateFlow<List<Zone>>(listOf())
-    private var userZones = MutableStateFlow<List<Zone>>(listOf())
-    private var microzones = MutableStateFlow<List<Microzone>>(listOf())
+    private var zones = userListRepository.getZones()
+    private var userZones = userListRepository.getUserZones()
+    private var microzones = userListRepository.getMicrozones()
     private var selectedZone = MutableStateFlow<Zone?>(null)
     private var selectedMicroZone = MutableStateFlow<Microzone?>(null)
     private var isRequestAllCasesAccessOn = userRepository.isRequestAllCasesAccessOn()
@@ -111,6 +112,17 @@ class PatientListScreenViewModel @Inject constructor(
         errorMessage = it.localizedMessage
     }
 
+    private val zonesState = combine(zones,microzones,isRequestAllCasesAccessOn,userListRepository.getUserZones()){ zones,microzones,isRequestAllCasesAccessOn,userZones ->
+        if (isRequestAllCasesAccessOn){
+            setSelectedZone(null)
+        }else{
+            if (userZones.isNotEmpty()){
+                selectedZone.value = userZones.first()
+            }
+
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly,Unit)
+
     val uiState: StateFlow<PatientListUiState> = combine(zones,microzones,selectedZone,selectedMicroZone,isRequestAllCasesAccessOn,userZones,companyName,caseList){ values ->
         val _zones = values[0] as List<Zone>
         val _microzones = values[1] as List<Microzone>
@@ -120,10 +132,6 @@ class PatientListScreenViewModel @Inject constructor(
         val userZones = values[5]  as List<Zone>
         val companyName = values[6] as String
         isLoading = true
-
-        if (userZones.isNotEmpty()){
-            selectedZone.value = userZones.first()
-        }
         val filteredMicrozones = if (_selectedZone != null){
             _microzones.filter { it.idZone == _selectedZone.id }
         }else{
@@ -178,31 +186,18 @@ class PatientListScreenViewModel @Inject constructor(
     fun updatePatients(){
         patientsModified.value = onlineRepository.patientsModified
         patientsDownloaded.value = onlineRepository.patientsDownloaded
+        viewModelScope.launch {
+            shouldUploadData = onlineRepository.shouldUploadData()
+        }
     }
 
     fun downloadData(){
         getCompanyName()
-        downloadZones()
     }
 
     fun getCompanyName(){
         viewModelScope.launch(coroutineExceptionHandler) {
             companyName.value = authRepository.getCompanyName() ?: ""
-        }
-    }
-
-    fun downloadZones(){
-        viewModelScope.launch(coroutineExceptionHandler)  {
-            zones.value = listOf()
-            combine(userListRepository.getZones(),userListRepository.getUserZones(),userListRepository.getMicrozones()) { _zones,_userZones, _microzones ->
-                zones.value = _zones
-                microzones.value = _microzones
-                userZones.value = _userZones
-                if (_userZones.isNotEmpty()){
-                    selectedZone.value = _userZones.first()
-                }
-
-            }.collect()
         }
     }
 
@@ -218,14 +213,14 @@ class PatientListScreenViewModel @Inject constructor(
     fun setOnline(){
         viewModelScope.launch(coroutineExceptionHandler) {
             onlineRepository.setOnline()
-            isOnline.value = onlineRepository.isOnline
+            isOnline.value = true
         }
     }
 
     fun setOffline(){
         viewModelScope.launch(coroutineExceptionHandler) {
             onlineRepository.setOffline()
-            isOnline.value = onlineRepository.isOnline
+            isOnline.value = false
         }
     }
 

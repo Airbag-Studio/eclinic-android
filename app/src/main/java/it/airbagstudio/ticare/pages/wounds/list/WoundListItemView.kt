@@ -4,7 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,12 +19,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 data class WoundListItem(
     val id: Int,
     val name:String,
-    val date: String
+    val date: String,
+    val hasDataToUpload: Boolean
 )
 
 @Composable
@@ -31,6 +36,14 @@ fun WoundListItemView(item: WoundListItem,onClick: (Int) -> Unit){
             onClick(item.id)
         }
         .padding(start = 16.dp, top = 12.dp, 24.dp, 12.dp)) {
+        if (item.hasDataToUpload){
+            Column {
+                Spacer(modifier = Modifier.height(4.dp))
+                OfflineSyncImage(hasOfflineData = true, hasDataToSync = true)
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+        }
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.name,
@@ -54,7 +67,7 @@ fun WoundListItemView(item: WoundListItem,onClick: (Int) -> Unit){
 private fun PreviewWoundListItemView(){
     AppTheme {
         Column(Modifier.background(Color.White)) {
-            WoundListItemView(item = WoundListItem(0,"Lacerazione","23 agosto 2023")){}
+            WoundListItemView(item = WoundListItem(0,"Lacerazione","23 agosto 2023", true)){}
         }
     }
 }

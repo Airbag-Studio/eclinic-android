@@ -14,6 +14,7 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
     private val usernameKey = "USERNAME_KEY"
     private val passwordKey = "PASSWORD_KEY"
     private val rememberKey = "REMEMBER_KEY"
+    private val userValueKey = "USER_VALUE_KEY"
 
     override fun getBaseURL(): String {
         return sharedPreferences.getString(baseUrlKey,"") ?: ""
@@ -42,6 +43,10 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
     override fun getUUID(): String? {
         // return  "8b827876-f089-4153-a8b5-006e63bfc957"
         return sharedPreferences.getString(uuidKey,null)
+    }
+
+    override fun getUserValue(): String? {
+        return sharedPreferences.getString(userValueKey,null)
     }
 
     override fun getUsername(): String? {
@@ -78,6 +83,10 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
 
     override fun setUUID(uuid: String?) {
         sharedPreferences.edit().putString(uuidKey,uuid).commit()
+    }
+
+    override fun setUserValue(userValue: String?) {
+        sharedPreferences.edit().putString(userValueKey,userValue).commit()
     }
 
     override fun setUsername(username: String?) {

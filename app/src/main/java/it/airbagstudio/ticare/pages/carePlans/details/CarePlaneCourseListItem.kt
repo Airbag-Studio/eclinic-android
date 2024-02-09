@@ -29,6 +29,7 @@ import ch.ticare.eclinic.library.entity.HomeCareActivity
 import coil.compose.AsyncImagePainter.State.Empty.painter
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.DrugChip
+import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.toDate
@@ -38,7 +39,8 @@ data class CarePlanCoursesListItem(
     val executed: Boolean,
     val id: Int,
     val planned: Boolean,
-    val activity: HomeCareActivity
+    val activity: HomeCareActivity,
+    val isLocalContent: Boolean
 )
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -51,10 +53,14 @@ fun CarePlanCoursesListItemView(item: CarePlanCoursesListItem,onClick: (HomeCare
             }
             .padding(16.dp, 8.dp, 24.dp, 8.dp)
     ) {
-        if (item.executed){
-            Image(painter = painterResource(id = R.drawable.ic_check), contentDescription = "")
-            Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            if (item.executed){
+                Image(painter = painterResource(id = R.drawable.ic_check), contentDescription = "")
+            }
+            OfflineSyncImage(hasOfflineData = false, hasDataToSync = item.isLocalContent)
         }
+        Spacer(modifier = Modifier.width(16.dp))
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.title,

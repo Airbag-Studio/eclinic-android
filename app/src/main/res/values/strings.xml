@@ -167,4 +167,5 @@
     <string name="sync_errors_message">Attenzione, sono stati rilevati dati non corretti. Si prega di prenderne nota e contattare il proprio responsabile.\n<b>I seguenti dati non verranno registrati.</b></string>
     <string name="take_screenshot">Effettua uno screenshot</string>
     <string name="not_sync_data_present">Sono presenti dati locali non sincronizzati.</string>
+    <string name="image">Immagine</string>
 </resources>

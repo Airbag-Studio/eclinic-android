@@ -17,6 +17,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
@@ -34,6 +36,7 @@ fun NursingCourseItemView(
     time: String,
     duration: Int?,
     description: String,
+    hasDataToUpload: Boolean,
     onClick: () -> Unit
 ) {
     Column(
@@ -43,61 +46,71 @@ fun NursingCourseItemView(
             .fillMaxWidth()
             .padding(start = 16.dp, top = 12.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 16.dp, bottom = 0.dp)
-        ) {
 
-            Row(Modifier.padding(end = 24.dp)) {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f)
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.ic_arrow_right),
-                    contentDescription = name
-                )
-            }
-            Row(
-                modifier = Modifier.padding(end = 24.dp)
-            ) {
-                Spacer(modifier = Modifier.height(8.dp))
-                LabelValueRow(label = stringResource(id = R.string.duration), value = "$duration")
-                Spacer(modifier = Modifier.width(8.dp))
-                LabelValueRow(
-                    label = stringResource(id = R.string.time),
-                    value = time
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
 
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(end = 24.dp, top = 8.dp)
-                    .clip(
-                        RoundedCornerShape(12.dp)
-                    )
-                    .background(MaterialTheme.colorScheme.inverseOnSurface)
+                    .padding(end = 16.dp, bottom = 0.dp)
             ) {
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
+
+                Row(modifier = Modifier.padding(end = 24.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                    ) {
+                    if( hasDataToUpload) {
+                        OfflineSyncImage(hasOfflineData = false, hasDataToSync = hasDataToUpload)
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_arrow_right),
+                        contentDescription = name
+                    )
+                }
+                Row(
+                    modifier = Modifier.padding(end = 24.dp)
+                ) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LabelValueRow(label = stringResource(id = R.string.duration), value = "$duration")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    LabelValueRow(
+                        label = stringResource(id = R.string.time),
+                        value = time
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
-                )
+                        .wrapContentHeight()
+                        .padding(end = 24.dp, top = 8.dp)
+                        .clip(
+                            RoundedCornerShape(12.dp)
+                        )
+                        .background(MaterialTheme.colorScheme.inverseOnSurface)
+                ) {
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
 
-        }
 
         Divider(modifier = Modifier.padding(top = 8.dp))
 
@@ -168,6 +181,7 @@ private fun PreviewNursingCourseItemView() {
             duration = 4,
             time = "10:30",
             description = "Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            hasDataToUpload = true
         ) {}
     }
 }

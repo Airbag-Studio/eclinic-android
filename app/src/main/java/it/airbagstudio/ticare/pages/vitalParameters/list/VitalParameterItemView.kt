@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import ch.ticare.eclinic.library.entity.AgendaTask
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.DrugChip
+import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.checkGreen
 import it.airbagstudio.ticare.ui.theme.redColor
@@ -38,6 +40,7 @@ data class VitalParameterItem(
     val executed:Boolean,
     val isConfirmed: Boolean,
     val item: AgendaTask?,
+    val hasDataToUpload: Boolean
 )
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -49,58 +52,64 @@ fun VitalParameterItemView(item: VitalParameterItem, onClick: () -> Unit) {
             .fillMaxWidth()
             .padding(start = 16.dp, top = 12.dp, end = 0.dp, bottom = 0.dp)
     ) {
-        Row(Modifier.padding(end = 24.dp)) {
-            if (item.executed) {
-                Icon(
-                    modifier = Modifier.padding(end = 16.dp),
-                    tint = checkGreen,
-                    imageVector = Icons.Default.Check, contentDescription = ""
-                )
+        Row {
+            if (item.executed || item.hasDataToUpload) {
+                Column(modifier = Modifier.padding(end = 8.dp)) {
+                    if (item.executed) {
+                        Icon(
+                            tint = checkGreen,
+                            imageVector = Icons.Default.Check, contentDescription = ""
+                        )
+                    }
+                    if (item.hasDataToUpload) {
+                        Spacer(modifier = Modifier.padding(top = 2.dp))
+                        OfflineSyncImage(hasOfflineData = true, hasDataToSync = true)
+                    }
+                }
             }
-            Text(
-                text = item.name,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                    .weight(1f)
-            )
-            Image(
-                painter = painterResource(id = R.drawable.ic_arrow_right),
-                contentDescription = item.name
-            )
-        }
-        Row(
-            modifier = Modifier
-                .padding(end = 24.dp)
-        ) {
-            if (item.executed) {
-                Spacer(modifier = Modifier.width(40.dp))
-            }
-            LabelValueRow(
-                label = item.typeMsmUnit,
-                value = item.quantity
-            )
-        }
-        Row() {
-            if (item.executed) {
-                Spacer(modifier = Modifier.width(40.dp))
-            }
-            LabelValueRow(
-                label = stringResource(id = R.string.time),
-                value = item.time
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        if (!item.isConfirmed) {
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                DrugChip(
-                    label = stringResource(id = R.string.not_confirmed),
-                    textColor = redColor
-                )
+            Column {
+                Row {
+                    Text(
+                        text = item.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .weight(1f)
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_arrow_right),
+                        contentDescription = item.name
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .padding(end = 24.dp)
+                ) {
+                    LabelValueRow(
+                        label = item.typeMsmUnit,
+                        value = item.quantity
+                    )
+                }
+                Row() {
+                    LabelValueRow(
+                        label = stringResource(id = R.string.time),
+                        value = item.time
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                if (!item.isConfirmed) {
+                    FlowRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        DrugChip(
+                            label = stringResource(id = R.string.not_confirmed),
+                            textColor = redColor
+                        )
+                    }
+                }
             }
         }
+
         Spacer(modifier = Modifier.height(12.dp))
         Divider()
     }
@@ -129,8 +138,16 @@ private fun LabelValueRow(label: String, value: String) {
 @Preview
 private fun PreviewVitalParameterItem(){
     AppTheme {
-        VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = false,false,null)) {
+        Scaffold {
+            Column(Modifier.padding(it)) {
+                VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = true,false,null,true)) {
 
+                }
+                VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = false,false,null,false)) {
+
+                }
+            }
         }
+
     }
 }

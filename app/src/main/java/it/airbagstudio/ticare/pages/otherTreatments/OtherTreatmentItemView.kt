@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -20,21 +22,30 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
-data class OtherTreatmentItem(val name:String,val description:String,val number:String,val id:Int = 0)
+data class OtherTreatmentItem(val name:String,val description:String,val number:String,val id:Int = 0,val hasDataToUpload: Boolean)
 
 @Composable
 fun OtherTreatmentItemView(item:OtherTreatmentItem,isSearch: Boolean = false,onClick:()-> Unit){
-    Column(modifier = Modifier.padding(start = 16.dp).clickable {
-        onClick()
-    }) {
+    Column(modifier = Modifier
+        .padding(start = 16.dp)
+        .clickable {
+            onClick()
+        }) {
         Row(
             modifier = Modifier.padding(end = 14.dp, top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (!isSearch) {
-                Image(painter = painterResource(id = R.drawable.ic_check), contentDescription = "")
+                Column {
+                    Image(painter = painterResource(id = R.drawable.ic_check), contentDescription = "")
+                    if (item.hasDataToUpload){
+                        Spacer(modifier = Modifier.height(2.dp))
+                        OfflineSyncImage(hasOfflineData = true, hasDataToSync = true)
+                    }
+                }
                 Spacer(modifier = Modifier.width(16.dp))
             }
             Column(modifier = Modifier.weight(1f)) {
@@ -62,7 +73,7 @@ fun OtherTreatmentItemView(item:OtherTreatmentItem,isSearch: Boolean = false,onC
             )
 
         }
-        Divider()
+        HorizontalDivider()
     }
 
 }
@@ -72,7 +83,7 @@ fun OtherTreatmentItemView(item:OtherTreatmentItem,isSearch: Boolean = false,onC
 private fun PreviewOtherTreatmentItemView(){
     AppTheme() {
         Surface() {
-            OtherTreatmentItemView(item = OtherTreatmentItem("Medicamento Forfait", description = "Forfait per prestazioni terapeutiche Grado 02", number = "FPT01")){
+            OtherTreatmentItemView(item = OtherTreatmentItem("Medicamento Forfait", description = "Forfait per prestazioni terapeutiche Grado 02", number = "FPT01", hasDataToUpload = true)){
 
             }
         }
@@ -84,7 +95,7 @@ private fun PreviewOtherTreatmentItemView(){
 private fun PreviewOtherTreatmentItemViewSearch(){
     AppTheme() {
         Surface() {
-            OtherTreatmentItemView(item = OtherTreatmentItem("Medicamento Forfait", description = "Forfait per prestazioni terapeutiche Grado 02", number = "FPT01"), isSearch = true){
+            OtherTreatmentItemView(item = OtherTreatmentItem("Medicamento Forfait", description = "Forfait per prestazioni terapeutiche Grado 02", number = "FPT01", hasDataToUpload = true), isSearch = true){
 
             }
         }

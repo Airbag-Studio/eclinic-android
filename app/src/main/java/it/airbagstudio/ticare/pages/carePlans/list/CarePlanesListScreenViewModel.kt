@@ -4,7 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.HomeCarePlan
+import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -30,6 +32,7 @@ data class CarePlanesListScreenUIState(
 class CarePlanesListScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
     private val homeCareActivitiesRepository: HomeCareActivitiesRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -38,6 +41,7 @@ class CarePlanesListScreenViewModel @Inject constructor(
     private val isLoading = MutableStateFlow(false)
     private val errorMessage = MutableStateFlow<String?>(null)
     private val plans = MutableStateFlow<List<HomeCarePlan>>(listOf())
+    private val modifiedIds = MutableStateFlow<List<String>>(listOf())
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading.value = false
@@ -45,11 +49,12 @@ class CarePlanesListScreenViewModel @Inject constructor(
 
     }
 
-    var uiState = combine(isLoading, errorMessage,plans) { isLoading, errorMessage,plans ->
+    var uiState = combine(isLoading, errorMessage,plans,modifiedIds) { isLoading, errorMessage,plans,modifiedIds ->
         val items = plans.map { CarePlanesListItem(
             title = it.title,
             date = it.openDate.toDate("dd.MM.yyyy")?.format("dd/MM/yyyy") ?: "",
-            id = it.id
+            id = it.id,
+            hasDataToUpload = modifiedIds.contains(it.id.toString())
         ) }
         CarePlanesListScreenUIState(
             isLoading = false,
@@ -76,6 +81,7 @@ class CarePlanesListScreenViewModel @Inject constructor(
         clearError()
         isLoading.value = true
         viewModelScope.launch(coroutineExceptionHandler) {
+            modifiedIds.value = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.HomeCarePlans)
             val res = homeCareActivitiesRepository.getHomeCarePlans(patientCod)
             if(res.status == "success"){
                 plans.value = res.results ?: listOf()

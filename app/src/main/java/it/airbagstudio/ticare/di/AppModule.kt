@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.di
 
 import android.content.Context
+import ch.ticare.eclinic.library.ECLogger
 import ch.ticare.eclinic.library.database.DriverFactory
 import ch.ticare.eclinic.library.database.createDatabase
 import ch.ticare.eclinic.library.db.Database
@@ -38,6 +39,12 @@ class AppModule {
 
     @Provides
     @Singleton
+    fun provideLogger(): ECLogger{
+        return MyLogger()
+    }
+
+    @Provides
+    @Singleton
     fun provideDatabase(@ApplicationContext context: Context): Database {
         return createDatabase(DriverFactory(context))
     }
@@ -62,8 +69,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideDiaryRepository(apiClient: APIClient): DiaryRepository {
-        return DiaryRepository(apiClient)
+    fun provideDiaryRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): DiaryRepository {
+        return DiaryRepository(apiClient,database,offlineOnlineRepository)
     }
 
     @Provides
@@ -80,8 +87,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun syncDataRepository(apiClient: APIClient,database: Database,localStorageImpl: LocalStorageImpl,offlineOnlineRepository: OfflineOnlineRepository): SyncDataRepository {
-        return SyncDataRepository(apiClient,database,localStorageImpl,offlineOnlineRepository)
+    fun syncDataRepository(apiClient: APIClient,database: Database,localStorageImpl: LocalStorageImpl,offlineOnlineRepository: OfflineOnlineRepository,logger: ECLogger,authRepository: AuthRepository): SyncDataRepository {
+        return SyncDataRepository(apiClient,database,localStorageImpl,offlineOnlineRepository,authRepository, logger)
     }
 
     @Provides
@@ -92,20 +99,20 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun otherServiceRepository(apiClient: APIClient,database: Database): OtherServiceRepository{
-        return OtherServiceRepository(apiClient,database)
+    fun otherServiceRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): OtherServiceRepository{
+        return OtherServiceRepository(apiClient,database,offlineOnlineRepository)
     }
 
     @Provides
     @Singleton
-    fun provideCaseAllergiesRepository(apiClient: APIClient): CaseAllergiesRepository{
-        return CaseAllergiesRepository(apiClient)
+    fun provideCaseAllergiesRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): CaseAllergiesRepository{
+        return CaseAllergiesRepository(apiClient,database,offlineOnlineRepository)
     }
 
     @Provides
     @Singleton
-    fun providesAgendaTaskRepositoryRepository(apiClient: APIClient,database: Database): AgendaTaskRepository{
-        return AgendaTaskRepository(apiClient,database)
+    fun providesAgendaTaskRepositoryRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): AgendaTaskRepository{
+        return AgendaTaskRepository(apiClient,database,offlineOnlineRepository)
     }
 
     @Provides
@@ -122,20 +129,20 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideHomeCareActivitiesRepository(apiClient: APIClient,database: Database): HomeCareActivitiesRepository {
-        return HomeCareActivitiesRepository(apiClient,database)
+    fun provideHomeCareActivitiesRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): HomeCareActivitiesRepository {
+        return HomeCareActivitiesRepository(apiClient,database,offlineOnlineRepository)
     }
 
     @Provides
     @Singleton
-    fun providesNursingCourseRepository(apiClient: APIClient): NursingCourseRepository {
-        return NursingCourseRepository(apiClient)
+    fun providesNursingCourseRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository,authRepository: AuthRepository): NursingCourseRepository {
+        return NursingCourseRepository(apiClient,database, offlineOnlineRepository,authRepository)
     }
 
     @Provides
     @Singleton
-    fun providesUserMarkingRepositoryRepository(apiClient: APIClient,database: Database): UserMarkingRepository {
-        return UserMarkingRepository(apiClient,database)
+    fun providesUserMarkingRepositoryRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): UserMarkingRepository {
+        return UserMarkingRepository(apiClient,database,offlineOnlineRepository)
     }
 
     @Provides

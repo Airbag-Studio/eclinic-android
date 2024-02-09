@@ -28,7 +28,7 @@ class TreatmentSearchViewModel @Inject constructor(
 
 
     val uiState = combine(articles,query){ _articles,_query ->
-        var articleModels = _articles.map { OtherTreatmentItem(name = it.group, description = it.desc, number = it.code,id = it.id) }
+        var articleModels = _articles.map { OtherTreatmentItem(name = it.group, description = it.desc, number = it.code,id = it.id, hasDataToUpload = false) }
         var filteredArticles = listOf<OtherTreatmentItem>()
         if (_query.count() > 2){
             filteredArticles = articleModels.filter { it.description.contains(_query,true) || it.name.contains(_query,true) }

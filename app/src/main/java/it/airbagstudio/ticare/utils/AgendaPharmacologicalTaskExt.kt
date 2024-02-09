@@ -25,6 +25,9 @@ fun AgendaTask.getExecTime(): LocalTime? {
 }
 
 fun AgendaTask.getExecDateTime(): Date? {
+    if (execDate == null && execTime == null){
+        return null
+    }
     try {
         val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         val value = "$execDate $execTime"

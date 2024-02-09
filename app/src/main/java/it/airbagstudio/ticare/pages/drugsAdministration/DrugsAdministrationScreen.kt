@@ -184,7 +184,8 @@ fun DrugsAdministrationScreen(
                                     notExecuted = task.isSkipped,
                                     isConfirmed = task.validated(),
                                     rejected = task.rejected ?: false,
-                                    isCompleted = task.execTime != null
+                                    isCompleted = task.execTime != null,
+                                    hasDataToUpload = viewModel.modifiedIds.contains(task.pkey.toString())
                                 ) {
                                     selectedTasks = task
                                     CoroutineScope(Dispatchers.Default).launch {
@@ -209,6 +210,7 @@ fun DrugsAdministrationScreen(
                                     notExecuted = task.isSkipped,
                                     isConfirmed = task.validated(),
                                     rejected = task.rejected ?: false,
+                                    hasDataToUpload = viewModel.modifiedIds.contains(task.pkey.toString())
                                 ) {
                                     selectedTasks = task
                                     CoroutineScope(Dispatchers.Default).launch {

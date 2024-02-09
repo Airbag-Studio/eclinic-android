@@ -8,9 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AgendaTask
 import ch.ticare.eclinic.library.entity.CaseDetail
+import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.OperatingShift
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository.Companion.VITAL_SIGN_TYPE
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -46,6 +48,7 @@ data class VitalParametersUIState(
 class VitalParametersScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
     private val agendaTaskRepository: AgendaTaskRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -56,6 +59,7 @@ class VitalParametersScreenViewModel @Inject constructor(
     private val case = userDetailRepository.getCurrentCase()
     private val date = userDetailRepository.getSelectedDate()?.toDate(SERVER_DATE_FORMAT)
     private val shift = userDetailRepository.getCurrentShift()
+    private val modifiedIds = MutableStateFlow<List<String>>(listOf())
     private val isLoading = MutableStateFlow<Boolean>(false)
     private val throwable = MutableStateFlow<Throwable?>(null)
     private val tasks = MutableStateFlow<List<AgendaTask>>(listOf())
@@ -65,7 +69,7 @@ class VitalParametersScreenViewModel @Inject constructor(
         }
 
     val uiState: StateFlow<VitalParametersUIState> =
-        combine(isLoading, throwable, tasks) { _isLoading, _throwable, _tasks ->
+        combine(isLoading, throwable, tasks,modifiedIds) { _isLoading, _throwable, _tasks,modifiedIds ->
             val filteredTasks = if (shift != null) {
                 _tasks.filter {
                     shift?.includeTime(
@@ -86,7 +90,8 @@ class VitalParametersScreenViewModel @Inject constructor(
                     time = timeFormatted,
                     executed = executed,
                     isConfirmed = it.validated(),
-                    item = it
+                    item = it,
+                    hasDataToUpload = modifiedIds.contains(it.pkey.toString())
                 )
             }
             VitalParametersUIState(
@@ -120,6 +125,7 @@ class VitalParametersScreenViewModel @Inject constructor(
     fun downloadData(){
         isLoading.value = false
         viewModelScope.launch(coroutineExceptionHandler) {
+            modifiedIds.value = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.VitalSign)
             val _tasks = agendaTaskRepository.getAgendaTasks(
                 VITAL_SIGN_TYPE,
                 date?.format("yyyy.MM.dd") ?: "",

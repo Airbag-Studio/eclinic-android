@@ -9,7 +9,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.HomeCareCourse
+import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.repository.NursingCourseRepository
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -22,6 +24,7 @@ import kotlinx.coroutines.launch
 class NursingCoursesScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
     private val nursingCourseRepository: NursingCourseRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -35,6 +38,7 @@ class NursingCoursesScreenViewModel @Inject constructor(
     var patient by mutableStateOf<CaseDetail?>(null)
 
     var date by mutableStateOf<Date?>(null)
+    var modifiedIds by mutableStateOf<List<String>>(listOf())
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading = false
@@ -52,6 +56,7 @@ class NursingCoursesScreenViewModel @Inject constructor(
     }
 
     private suspend fun downloadTasks(){
+        modifiedIds = offlineOnlineRepository.getModifiedIdForSection(patientCode,OfflineSection.NursingCourses)
         val dateParam =  DateFormat.format("yyyy.MM.dd", date).toString()
         tasks = nursingCourseRepository.getNursingCourses(patientCode, date = dateParam).results ?: emptyList()
     }

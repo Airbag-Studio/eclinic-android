@@ -117,23 +117,19 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
             isLoading.value = false
         }
 
-    init {
-        isLoading.value = true
-        viewModelScope.launch(coroutineExceptionHandler) {
-            val res = homeCareActivitiesRepository.getHomeCareActivitiesUnplanned()
-            notPlannedActivities.value = res.results ?: listOf()
-            errorMessage.value = res.error?.desc
-            isLoading.value = false
-        }
-    }
-
-
     fun setCarePlanId(id: Int) {
         carePlanId.value = id
     }
 
     fun setPatientCode(code: String) {
         patientCode.value = code
+        isLoading.value = true
+        viewModelScope.launch(coroutineExceptionHandler) {
+            val res = homeCareActivitiesRepository.getHomeCareActivitiesUnplanned(code)
+            notPlannedActivities.value = res.results ?: listOf()
+            errorMessage.value = res.error?.desc
+            isLoading.value = false
+        }
     }
 
     fun setQuery(value: String) {

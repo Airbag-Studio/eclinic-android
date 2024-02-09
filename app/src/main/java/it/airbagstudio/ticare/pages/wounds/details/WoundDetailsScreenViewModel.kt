@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.CloseWound
+import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.Wound
 import ch.ticare.eclinic.library.entity.WoundSave
 import ch.ticare.eclinic.library.network.AuthRepository
@@ -37,6 +38,7 @@ class WoundDetailsScreenViewModel @Inject constructor(
     var wound by mutableStateOf<Wound?>(null)
     var errorMessage by mutableStateOf<String?>(null)
     var isOnline by mutableStateOf(false)
+    var modifiedIds by mutableStateOf<List<String>>(listOf())
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         errorMessage = throwable.localizedMessage
@@ -53,6 +55,7 @@ class WoundDetailsScreenViewModel @Inject constructor(
 
     fun reloadWound() {
         viewModelScope.launch(coroutineExceptionHandler) {
+            modifiedIds = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.WoundChecks)
             offlineOnlineRepository.restore()
             isOnline = offlineOnlineRepository.isOnline
             val res = woundRepository.getWound(patientCod,woundId.toInt())
