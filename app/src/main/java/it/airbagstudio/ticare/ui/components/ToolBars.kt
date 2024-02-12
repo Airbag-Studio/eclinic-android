@@ -21,123 +21,6 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerButton
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
-enum class SyncButtonState {
-    ONLINE, SYNCING, OFFLINE
-}
-/*
-@Composable
-private fun SyncButton(state: SyncButtonState) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
-        TextButton(onClick = {
-            expanded = !expanded
-        }) {
-            val message = when (state) {
-                SyncButtonState.ONLINE -> stringResource(id = R.string.online)
-                SyncButtonState.SYNCING -> stringResource(id = R.string.syncing)
-                SyncButtonState.OFFLINE -> stringResource(id = R.string.offline)
-            }
-            val icon = when (state) {
-                SyncButtonState.ONLINE -> painterResource(id = R.drawable.ic_online)
-                SyncButtonState.SYNCING -> painterResource(id = R.drawable.ic_syncing)
-                SyncButtonState.OFFLINE -> painterResource(id = R.drawable.ic_offline)
-            }
-            /*
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyLarge,
-                color = if (state == SyncButtonState.OFFLINE) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-
-             */
-            Image(painter = icon, contentDescription = message)
-        }
-        MaterialTheme(
-            shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(16.dp))
-        ) {
-
-            DropdownMenu(
-                expanded = expanded,
-                modifier = Modifier
-                    .wrapContentSize(Alignment.TopEnd)
-                    .background(MaterialTheme.colorScheme.secondaryContainer),
-                onDismissRequest = { expanded = false },
-            ) {
-                val dropdownIcon = when (state) {
-                    SyncButtonState.ONLINE -> painterResource(id = R.drawable.ic_check)
-                    SyncButtonState.SYNCING -> painterResource(id = R.drawable.ic_check)
-                    SyncButtonState.OFFLINE -> painterResource(id = R.drawable.ic_error)
-                }
-
-                DropdownMenuItem(
-                    text = {
-                        Row() {
-                            Image(
-                                painter = dropdownIcon,
-                                contentDescription = state.name,
-                                alignment = Alignment.TopCenter,
-                                contentScale = ContentScale.Inside,
-                                modifier = Modifier.size(width = 40.dp, height = 40.dp)
-                            )
-                            Column(
-                                verticalArrangement = Arrangement.Top,
-                                modifier = Modifier.padding(bottom = 8.dp)
-
-                            ) {
-                                Text(
-                                    text = stringResource(id = R.string.last_sync),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = stringResource(id = R.string.just_now),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                /*
-                                Text(
-                                    text = stringResource(id = R.string.sync_problem),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
-
-                                 */
-                            }
-                        }
-
-
-                    }, onClick = { /*TODO*/ }
-                )
-                Divider()
-                DropdownMenuItem(
-                    text = {
-                        Button(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = seed
-                            ),
-                            onClick = { /*TODO*/ }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_sync),
-                                contentDescription = stringResource(id = R.string.sync_now),
-                                modifier = Modifier.size(ButtonDefaults.IconSize)
-                            )
-                            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                            Text(text = stringResource(id = R.string.sync_now))
-                        }
-
-                    }, onClick = { /*TODO*/ }
-                )
-            }
-        }
-    }
-}
-*/
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToolbarWithSyncAndSettings(title: String, onSettingsClick: () -> Unit,isOnline: Boolean,onDownloadPatientDataClick:()->Unit) {
@@ -154,10 +37,12 @@ fun ToolbarWithSyncAndSettings(title: String, onSettingsClick: () -> Unit,isOnli
                 enabled = isOnline,
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                 ),
                 onClick = { onSettingsClick() }) {
-                Image(
+                Icon(
                     painter = painterResource(id = R.drawable.ic_hamburger),
                     contentDescription = "settings"
                 )
@@ -168,7 +53,9 @@ fun ToolbarWithSyncAndSettings(title: String, onSettingsClick: () -> Unit,isOnli
                 enabled = isOnline,
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                 ),
                 onClick = {
                 onDownloadPatientDataClick()
