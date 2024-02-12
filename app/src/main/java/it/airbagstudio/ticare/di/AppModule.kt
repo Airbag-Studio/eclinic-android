@@ -75,8 +75,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideOfflineOnlineRepository(database: Database): OfflineOnlineRepository{
-        return OfflineOnlineRepository(database)
+    fun provideOfflineOnlineRepository(database: Database,logger: ECLogger): OfflineOnlineRepository{
+        return OfflineOnlineRepository(database,logger)
     }
 
     @Provides
