@@ -138,5 +138,6 @@ class SelectPatientsDataViewModel @Inject constructor(
         progress.value = 0f
         isCompleted.value = false
         isDownloading.value = false
+        selectedPatients.value = listOf()
     }
 }

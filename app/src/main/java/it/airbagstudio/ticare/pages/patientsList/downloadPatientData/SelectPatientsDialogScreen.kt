@@ -116,7 +116,10 @@ fun SelectPatientsDialogScreen(
 
 
     Dialog(
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = {
+                           viewModel.resetData()
+            onDismissRequest()
+        },
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Scaffold(modifier = Modifier.fillMaxSize(),
@@ -130,7 +133,10 @@ fun SelectPatientsDialogScreen(
                     },
                     actions = {
                         if (!uiState.syncState.isDownloading) {
-                            IconButton(onClick = { onDismissRequest() }) {
+                            IconButton(onClick = {
+                                viewModel.resetData()
+                                onDismissRequest()
+                            }) {
                                 Icon(imageVector = Icons.Default.Close, contentDescription = "")
                             }
                         }
@@ -271,6 +277,7 @@ fun SelectPatientsDialogScreen(
                 message = viewModel.errorMessage!!,
                 onDismissRequest = {
                     viewModel.errorMessage = null
+                    viewModel.resetData()
                     onDismissRequest()
                 })
         }
