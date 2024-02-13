@@ -124,7 +124,7 @@ fun AddPhotoButton(modifier: Modifier = Modifier,onSuccess: (List<Bitmap>) -> Un
                     // Request a permission
                     cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                 }
-            }else{
+            }else if(it == ImageSource.GALLERY){
                 galleryLauncher.launch("image/*")
             }
         }
