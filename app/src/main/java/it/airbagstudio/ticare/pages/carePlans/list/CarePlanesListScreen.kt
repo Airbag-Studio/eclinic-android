@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.airbagstudio.ticare.LocalActivity
 import it.airbagstudio.ticare.R
@@ -46,6 +47,13 @@ fun CarePlanesListScreen(
     }
     var selectedId by remember {
         mutableIntStateOf(0)
+    }
+    LifecycleResumeEffect(Unit) {
+        // Do something on resume or launch effect
+        viewModel.checkModifiedIds()
+        onPauseOrDispose {
+
+        }
     }
     Scaffold(
         topBar = {

@@ -95,4 +95,10 @@ class CarePlanesListScreenViewModel @Inject constructor(
     fun clearError(){
         errorMessage.value = null
     }
+
+    fun checkModifiedIds(){
+        viewModelScope.launch(coroutineExceptionHandler) {
+            modifiedIds.value = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.HomeCarePlans)
+        }
+    }
 }

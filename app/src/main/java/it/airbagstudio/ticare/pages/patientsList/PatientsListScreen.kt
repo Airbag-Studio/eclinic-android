@@ -140,7 +140,7 @@ fun PatientListScreen(
                     if (viewModel.shouldUploadData){
                         openSyncSheet = true
                     }else{
-                        viewModel.setOnline()
+                        viewModel.syncOfflineData()
                     }
 
                 }
@@ -338,9 +338,6 @@ fun PatientListScreen(
         if (openSyncSheet){
             SyncDataSheetView(caseList = uiState.caseList) { success ->
                 openSyncSheet = false
-                if (success){
-                    viewModel.setOnline()
-                }
                 viewModel.updatePatients()
             }
         }

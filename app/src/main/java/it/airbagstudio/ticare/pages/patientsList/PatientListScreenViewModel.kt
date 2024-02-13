@@ -11,6 +11,7 @@ import ch.ticare.eclinic.library.entity.WoundPhoto
 import ch.ticare.eclinic.library.entity.Zone
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
+import ch.ticare.eclinic.library.repository.SyncDataRepository
 import ch.ticare.eclinic.library.repository.UserListRepository
 import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,7 +64,8 @@ class PatientListScreenViewModel @Inject constructor(
     private val userListRepository: UserListRepository,
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
-    private val onlineRepository: OfflineOnlineRepository
+    private val onlineRepository: OfflineOnlineRepository,
+    private val syncDataRepository: SyncDataRepository
 ) : ViewModel() {
 
     var isLoading by mutableStateOf(false)
@@ -87,6 +89,7 @@ class PatientListScreenViewModel @Inject constructor(
     var coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading = false
         errorMessage = throwable.localizedMessage
+        throwable.printStackTrace()
     }
 
     private val caseList = combine(selectedZone,selectedMicroZone,isOnline,patientsDownloaded,patientsModified) { selectedZone, selectedMicroZone,isOnline,patientsDownloaded,patientsModified ->
@@ -184,6 +187,7 @@ class PatientListScreenViewModel @Inject constructor(
     }
 
     fun updatePatients(){
+        isOnline.value = onlineRepository.isOnline
         patientsModified.value = onlineRepository.patientsModified
         patientsDownloaded.value = onlineRepository.patientsDownloaded
         viewModelScope.launch {
@@ -210,12 +214,10 @@ class PatientListScreenViewModel @Inject constructor(
         selectedMicroZone.value = microzone
     }
 
-    fun setOnline(){
+    fun syncOfflineData(){
         viewModelScope.launch(coroutineExceptionHandler) {
-            onlineRepository.clearDownloadedAndModifiedPatients()
-            onlineRepository.setOnline()
+            syncDataRepository.syncOfflineCreatedData().collect()
             updatePatients()
-            isOnline.value = true
         }
     }
 
