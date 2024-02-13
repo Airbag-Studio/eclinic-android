@@ -128,7 +128,7 @@ fun CarePlanDetailsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(0.dp, max = 150.dp)
+                    .heightIn(0.dp, max = 155.dp)
                     .background(MaterialTheme.colorScheme.surface)
 
             ) {
