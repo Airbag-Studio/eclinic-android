@@ -104,6 +104,9 @@ fun SyncDataSheetView(
     var showScreenShootAlert by remember {
         mutableStateOf(false)
     }
+    var screenshotError by remember {
+        mutableStateOf<String?>(null)
+    }
     Dialog(
         onDismissRequest = {
             viewModel.resetData()
@@ -146,6 +149,9 @@ fun SyncDataSheetView(
             if(showScreenShootAlert){
                 ErrorAlert(message = stringResource(id = R.string.screenshot_saved), onDismissRequest = {showScreenShootAlert = false })
             }
+            if(screenshotError != null){
+                ErrorAlert(message = screenshotError!!, onDismissRequest = { screenshotError = null })
+            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -172,7 +178,6 @@ fun SyncDataSheetView(
                     Spacer(modifier = Modifier.weight(1.2f))
                 } else if (uiState.isCompleted && uiState.syncDataError.isNotEmpty()) {
                     ErrorMessageContainer() {
-                        showScreenShootAlert = true
                         val bitmapAsync = captureController.captureAsync()
                         scope.launch {
                             try {
@@ -186,6 +191,7 @@ fun SyncDataSheetView(
                                 showScreenShootAlert = true
                             } catch (error: Throwable) {
                                 error.printStackTrace()
+                                screenshotError = error.localizedMessage
                                 // Error occurred, do something.
                             }
                         }
