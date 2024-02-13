@@ -29,6 +29,7 @@ val LocalActivity = staticCompositionLocalOf<ComponentActivity> {
 class MainActivity : ComponentActivity() {
 
     private val myViewModel: TimeTrackerViewModel by viewModels()
+    private val mainActivityViewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,5 +41,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mainActivityViewModel.checkIfDataIsExpired()
     }
 }
