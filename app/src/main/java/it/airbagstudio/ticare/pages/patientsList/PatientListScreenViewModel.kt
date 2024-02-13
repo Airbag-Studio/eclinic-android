@@ -212,10 +212,14 @@ class PatientListScreenViewModel @Inject constructor(
 
     fun setOnline(){
         viewModelScope.launch(coroutineExceptionHandler) {
+            onlineRepository.clearDownloadedAndModifiedPatients()
             onlineRepository.setOnline()
+            updatePatients()
             isOnline.value = true
         }
     }
+
+
 
     fun setOffline(){
         viewModelScope.launch(coroutineExceptionHandler) {

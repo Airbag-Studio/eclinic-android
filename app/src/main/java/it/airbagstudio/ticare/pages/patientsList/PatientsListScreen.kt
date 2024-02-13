@@ -103,7 +103,7 @@ fun PatientListScreen(
         }
     }
 
-    val isOfflineDataSheetVisible = uiState.downloadCount > 0 && uiState.expireDate != null
+    val isOfflineDataSheetVisible = !uiState.isOnline || (uiState.downloadCount > 0 && uiState.expireDate != null)
     val sheetState = rememberModalBottomSheetState()
 
     BottomSheetScaffold(

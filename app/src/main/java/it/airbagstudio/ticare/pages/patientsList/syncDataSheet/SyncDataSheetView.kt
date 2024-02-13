@@ -42,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -73,6 +74,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.util.Date
 
 @OptIn(
@@ -86,6 +88,7 @@ fun SyncDataSheetView(
     onDismissRequest: (Boolean) -> Unit
 ) {
     LaunchedEffect(key1 = Unit, block = {
+        viewModel.resetData()
         viewModel.caseList = caseList
         viewModel.startUpload()
     })
@@ -93,8 +96,10 @@ fun SyncDataSheetView(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val contentResolver = LocalContext.current.contentResolver
+    val scope = rememberCoroutineScope()
     Dialog(
         onDismissRequest = {
+            viewModel.resetData()
             onDismissRequest(false)
         },
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -159,7 +164,7 @@ fun SyncDataSheetView(
                     ErrorMessageContainer() {
 // Capture content
                         val bitmapAsync = captureController.captureAsync()
-                        GlobalScope.async {
+                        scope.launch {
                             try {
                                 val bitmap = bitmapAsync.await().asAndroidBitmap()
                                 MediaStore.Images.Media.insertImage(
@@ -185,6 +190,7 @@ fun SyncDataSheetView(
                             containerColor = seed
                         ),
                         onClick = {
+                            viewModel.resetData()
                             removePendingNotifications(context)
                             onDismissRequest(true)
                         }
