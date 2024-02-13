@@ -168,4 +168,5 @@
     <string name="take_screenshot">Effettua uno screenshot</string>
     <string name="not_sync_data_present">Sono presenti dati locali non sincronizzati.</string>
     <string name="image">Immagine</string>
+    <string name="screenshot_saved">Screenshot salvato nella libreria immagini</string>
 </resources>

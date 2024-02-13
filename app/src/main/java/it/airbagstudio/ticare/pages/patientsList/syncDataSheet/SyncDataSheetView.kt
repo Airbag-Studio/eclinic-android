@@ -42,7 +42,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -66,6 +69,7 @@ import dev.shreyaspatil.capturable.controller.CaptureController
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.patientsList.PatientListUiState
+import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.seed
 import it.airbagstudio.ticare.utils.LocalNotificationReceiver
@@ -97,6 +101,9 @@ fun SyncDataSheetView(
     val context = LocalContext.current
     val contentResolver = LocalContext.current.contentResolver
     val scope = rememberCoroutineScope()
+    var showScreenShootAlert by remember {
+        mutableStateOf(false)
+    }
     Dialog(
         onDismissRequest = {
             viewModel.resetData()
@@ -136,6 +143,9 @@ fun SyncDataSheetView(
                     }
                 )
             }
+            if(showScreenShootAlert){
+                ErrorAlert(message = stringResource(id = R.string.screenshot_saved), onDismissRequest = {showScreenShootAlert = false })
+            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -162,7 +172,7 @@ fun SyncDataSheetView(
                     Spacer(modifier = Modifier.weight(1.2f))
                 } else if (uiState.isCompleted && uiState.syncDataError.isNotEmpty()) {
                     ErrorMessageContainer() {
-// Capture content
+                        showScreenShootAlert = true
                         val bitmapAsync = captureController.captureAsync()
                         scope.launch {
                             try {
@@ -173,11 +183,13 @@ fun SyncDataSheetView(
                                     "erroy_sync_${Date().format("dd_MM_yyyy_HH_mm")}",
                                     ""
                                 );
+                                showScreenShootAlert = true
                             } catch (error: Throwable) {
                                 error.printStackTrace()
                                 // Error occurred, do something.
                             }
                         }
+
 
                     }
                     ListErrorContainer(captureController, uiState.syncDataError)
