@@ -46,7 +46,7 @@ class CheckDetailsViewModel @Inject constructor(
     init {
         viewModelScope.launch(coroutineExceptionHandler) {
             offlineOnlineRepository.restore()
-            isOnline = offlineOnlineRepository.isOnline
+            isOnline = offlineOnlineRepository.state.value.isOnline
             val res = woundRepository.getWounds(patientCod)
             errorMessage = res.error?.desc
             val wound = res.results?.firstOrNull { it.iD == woundId.toInt() }

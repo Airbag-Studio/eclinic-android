@@ -73,7 +73,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
         patientCod?.let { code ->
 
             viewModelScope.launch(coroutineExceptionHandler) {
-                isOnline = offlineOnlineRepository.isOnline
+                isOnline = offlineOnlineRepository.state.value.isOnline
                 caseDetails = userDetailRepository.getCase(code).results?.firstOrNull()
 
                 caseDetails?.let { userDetailRepository.setCurrentCase(it) }
@@ -87,8 +87,8 @@ class PatientDetailsScreenViewModel @Inject constructor(
                 shifts = userDetailRepository.getOperatingShifts().results
                 downloadBadges()
 
-                isDownloaded = offlineOnlineRepository.patientsDownloaded.contains(patientCod)
-                isModified = offlineOnlineRepository.patientsModified.contains(patientCod)
+                isDownloaded = offlineOnlineRepository.state.value.patientsDownloaded.contains(patientCod)
+                isModified = offlineOnlineRepository.state.value.patientsModified.contains(patientCod)
 
                 isLoading = false
             }

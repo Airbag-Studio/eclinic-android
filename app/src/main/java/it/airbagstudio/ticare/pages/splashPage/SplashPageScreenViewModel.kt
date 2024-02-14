@@ -43,10 +43,11 @@ class SplashPageScreenViewModel @Inject constructor(
         }
         viewModelScope.launch(coroutineExceptionHandler) {
             offlineOnlineRepository.restore()
+            offlineOnlineRepository.checkIfDataIsExpired()
             val _isLoggedIn =
                 authRepository.getToken() != null && authRepository.getRefreshToken() != null
             if (_isLoggedIn) {
-                if (offlineOnlineRepository.isOnline){
+                if (offlineOnlineRepository.state.value.isOnline){
                     authRepository.getCompanyName()?.let { company ->
                         val res = syncDataRepository.syncPersistentData(company)
                         if (isLoggedIn == null && res.isSuccess) {

@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.patientsList
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -72,7 +73,6 @@ class PatientListScreenViewModel @Inject constructor(
     var query by mutableStateOf("")
     var shouldUploadData by mutableStateOf(false)
 
-    private var isOnline = MutableStateFlow(true)
     private var companyName = MutableStateFlow("")
     var errorMessage by mutableStateOf<String?>(null)
     private var zones = userListRepository.getZones()
@@ -81,8 +81,6 @@ class PatientListScreenViewModel @Inject constructor(
     private var selectedZone = MutableStateFlow<Zone?>(null)
     private var selectedMicroZone = MutableStateFlow<Microzone?>(null)
     private var isRequestAllCasesAccessOn = userRepository.isRequestAllCasesAccessOn()
-    private val  patientsDownloaded = MutableStateFlow<Set<String>>(setOf())
-    private val  patientsModified = MutableStateFlow<Set<String>>(setOf())
 
     lateinit var requestImageRequestData: ImageRequestData
 
@@ -92,20 +90,20 @@ class PatientListScreenViewModel @Inject constructor(
         throwable.printStackTrace()
     }
 
-    private val caseList = combine(selectedZone,selectedMicroZone,isOnline,patientsDownloaded,patientsModified) { selectedZone, selectedMicroZone,isOnline,patientsDownloaded,patientsModified ->
+    private val caseList = combine(selectedZone,selectedMicroZone,onlineRepository.state) { selectedZone, selectedMicroZone, onlineRepositoryState ->
         requestImageRequestData = ImageRequestData(
             authRepository.getBaseURL(),
             authRepository.getToken() ?: ""
         )
-         userListRepository.getCaseList(selectedZone?.id,selectedMicroZone?.id).results?.map {
+        userListRepository.getCaseList(selectedZone?.id,selectedMicroZone?.id).results?.map {
                 PatientListUiState.PatientUIState(
                     patientCode = it.code,
                     birthDate = "${it.birthday} (${it.age})",
                     completeName = it.getCompleteName(),
                     address = "${it.address}\n${it.cap} ${it.locality}",
                     photo = it.photo,
-                    hasDownloadedData = patientsDownloaded.contains(it.code),
-                    hasModifiedData = patientsModified.contains(it.code)
+                    hasDownloadedData = onlineRepositoryState.patientsDownloaded.contains(it.code),
+                    hasModifiedData = onlineRepositoryState.patientsModified.contains(it.code)
                 )
             } ?: listOf<PatientListUiState.PatientUIState>()
 
@@ -142,7 +140,7 @@ class PatientListScreenViewModel @Inject constructor(
         }
 
         isLoading = false
-        val syncDate = onlineRepository.syncDate?.toDate(ISO_DATE_TIME)
+        val syncDate = onlineRepository.state.value.syncDate?.toDate(ISO_DATE_TIME)
         val expireDate = if (syncDate != null){
             val calendar = Calendar.getInstance()
             calendar.time = syncDate
@@ -153,9 +151,9 @@ class PatientListScreenViewModel @Inject constructor(
         }
 
         PatientListUiState(
-            isOnline = onlineRepository.isOnline,
-            downloadCount = onlineRepository.patientsDownloaded.filter { it.isNotEmpty() }.size,
-            modifiedCount = onlineRepository.patientsModified.filter { it.isNotEmpty() }.size,
+            isOnline = onlineRepository.state.value.isOnline,
+            downloadCount = onlineRepository.state.value.patientsDownloaded.filter { it.isNotEmpty() }.size,
+            modifiedCount = onlineRepository.state.value.patientsModified.filter { it.isNotEmpty() }.size,
             expireDate = expireDate,
             companyName = companyName,
             zones = _zones,
@@ -181,15 +179,9 @@ class PatientListScreenViewModel @Inject constructor(
             authRepository.getBaseURL(),
             authRepository.getToken() ?: ""
         )
-        isOnline.value = onlineRepository.isOnline
-        patientsModified.value = onlineRepository.patientsModified
-        patientsDownloaded.value = onlineRepository.patientsDownloaded
     }
 
     fun updatePatients(){
-        isOnline.value = onlineRepository.isOnline
-        patientsModified.value = onlineRepository.patientsModified
-        patientsDownloaded.value = onlineRepository.patientsDownloaded
         viewModelScope.launch {
             shouldUploadData = onlineRepository.shouldUploadData()
         }
@@ -226,7 +218,6 @@ class PatientListScreenViewModel @Inject constructor(
     fun setOffline(){
         viewModelScope.launch(coroutineExceptionHandler) {
             onlineRepository.setOffline()
-            isOnline.value = false
         }
     }
 

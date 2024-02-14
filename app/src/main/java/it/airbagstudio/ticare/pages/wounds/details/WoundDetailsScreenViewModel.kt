@@ -57,7 +57,7 @@ class WoundDetailsScreenViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             modifiedIds = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.WoundChecks)
             offlineOnlineRepository.restore()
-            isOnline = offlineOnlineRepository.isOnline
+            isOnline = offlineOnlineRepository.state.value.isOnline
             val res = woundRepository.getWound(patientCod,woundId.toInt())
             wound = res.results?.firstOrNull()
             errorMessage = res.error?.desc
