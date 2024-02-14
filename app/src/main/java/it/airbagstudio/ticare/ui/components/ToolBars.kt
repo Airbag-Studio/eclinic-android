@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerButton
 import it.airbagstudio.ticare.ui.theme.AppTheme
+import it.airbagstudio.ticare.utils.debounced
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,7 +78,7 @@ fun ToolbarWithBackAndSync(title: String, onBack: () -> Unit) {
         },
         navigationIcon = {
             IconButton(
-                onClick = onBack
+                onClick = debounced(onBack)
             ) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
             }
@@ -98,7 +99,7 @@ fun ToolbarWithBack(title: String,actions: @Composable() (RowScope.() -> Unit) =
         },
         navigationIcon = {
             IconButton(
-                onClick = onBack
+                onClick = debounced(onBack)
             ) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
             }
