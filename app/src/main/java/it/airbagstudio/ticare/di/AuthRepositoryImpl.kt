@@ -17,7 +17,7 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
     private val userValueKey = "USER_VALUE_KEY"
 
     override fun getBaseURL(): String {
-        return sharedPreferences.getString(baseUrlKey,"") ?: ""
+        return sharedPreferences.getString(baseUrlKey,"")?.replace("/v1","") ?: ""
     }
 
     override fun getCompanyGroup(): String? {

@@ -111,7 +111,7 @@ class LoginViewModel @Inject constructor(
     fun downloadCompanies() {
         viewModelScope.launch(exceptionHandler) {
             buildValidUrl(server)?.let { validUrl ->
-                authRepository.setBaseURL("$validUrl/api/v1")
+                authRepository.setBaseURL("$validUrl/api")
                 companies = userRepository.getCompaniesList().results ?: listOf()
             }
         }

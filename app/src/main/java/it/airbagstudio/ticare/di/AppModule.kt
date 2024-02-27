@@ -135,8 +135,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providesNursingCourseRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository,authRepository: AuthRepository): NursingCourseRepository {
-        return NursingCourseRepository(apiClient,database, offlineOnlineRepository,authRepository)
+    fun providesNursingCourseRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository,authRepository: AuthRepository,localStorageImpl: LocalStorageImpl): NursingCourseRepository {
+        return NursingCourseRepository(apiClient,database, offlineOnlineRepository,authRepository,localStorageImpl)
     }
 
     @Provides

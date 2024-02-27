@@ -21,5 +21,6 @@ fun OfflineCreatedDataType.getCategoryName(): Int {
         OfflineCreatedDataType.PLANS_CREATE ->  R.string.care_planes
         OfflineCreatedDataType.PLANS_UPDATE ->  R.string.care_planes
         OfflineCreatedDataType.USER_MARKING_ADD -> R.string.working_hours_title
+        OfflineCreatedDataType.NURSING_ADD_IMAGE -> R.string.image
     }
 }
