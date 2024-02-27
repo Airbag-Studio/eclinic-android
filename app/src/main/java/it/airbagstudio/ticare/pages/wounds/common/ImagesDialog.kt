@@ -36,6 +36,7 @@ import coil.ImageLoader
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import it.airbagstudio.ticare.BuildConfig
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.ImageDetailsDialog
 import it.airbagstudio.ticare.ui.components.ImageRequestData
@@ -135,6 +136,7 @@ private fun getPainter(photo: WoundPhoto, requestData: ImageRequestData, imageLo
             .data(url)
             .addHeader("Authorization", "Bearer ${requestData.token}")
             .addHeader("auth-timestamp", authTimestampHeader)
+            .addHeader("api-version", BuildConfig.API_VERSION)
             .build()
         return rememberAsyncImagePainter(
             model = imageRequest,

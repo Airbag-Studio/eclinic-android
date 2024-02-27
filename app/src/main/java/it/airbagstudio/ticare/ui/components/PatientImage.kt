@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import it.airbagstudio.ticare.BuildConfig
 import it.airbagstudio.ticare.R
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
@@ -82,6 +83,7 @@ private fun getPainter(code: String, photo: String, requestData: ImageRequestDat
         val imageRequest = ImageRequest.Builder(LocalContext.current)
             .data(url)
             .addHeader("Authorization", "Bearer ${requestData.token}")
+            .addHeader("api-version", BuildConfig.API_VERSION)
             .addHeader("auth-timestamp", authTimestampHeader)
             .build()
         val imageLoader = ImageLoader.Builder(LocalContext.current)
