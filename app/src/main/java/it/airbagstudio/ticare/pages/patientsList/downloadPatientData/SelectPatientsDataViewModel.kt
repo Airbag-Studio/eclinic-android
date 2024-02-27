@@ -1,21 +1,13 @@
 package it.airbagstudio.ticare.pages.patientsList.downloadPatientData
 
-import android.app.AlarmManager
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Intent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ch.ticare.eclinic.library.entity.CaseInfo
 import ch.ticare.eclinic.library.repository.SyncDataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.pages.patientsList.PatientListUiState
-import it.airbagstudio.ticare.utils.getCompleteName
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

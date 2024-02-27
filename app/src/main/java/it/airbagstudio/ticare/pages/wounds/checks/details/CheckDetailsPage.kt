@@ -23,17 +23,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.ImageLoader
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.wounds.common.ImagesDialog
 import it.airbagstudio.ticare.pages.wounds.common.TitleValueView
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.ui.components.okHttpClient
 import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.getPainter
 import it.airbagstudio.ticare.utils.toDate
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -116,11 +122,18 @@ fun CheckDetailsPage(
         }
         if (showImagesDialog) {
             val woundDate = viewModel.check?.dateTime?.toDate("dd.MM.yyyy HH:mm")?.format("dd MMMM yyyy, HH:mm") ?: ""
+            val imageLoader = ImageLoader.Builder(LocalContext.current)
+                .okHttpClient(okHttpClient)
+                .build()
+
+            val painters = viewModel.photos?.filter { it.iDCheck == viewModel.checkId.toInt() }?.map {
+                it.getPainter(requestData = viewModel.requestImageRequestData, imageLoader = imageLoader, authTimestampHeader = DateTimeFormatter.ISO_INSTANT.format(
+                    Instant.now()), isOnline = viewModel.isOnline)
+            } ?: listOf()
+
             ImagesDialog(
                 date = woundDate,
-                photos = viewModel.photos?.filter { it.iDCheck == viewModel.checkId.toInt() } ?: listOf(),
-                requestData = viewModel.requestImageRequestData,
-                isOnline = viewModel.isOnline
+                painters = painters
             ) {
                 showImagesDialog = false
             }

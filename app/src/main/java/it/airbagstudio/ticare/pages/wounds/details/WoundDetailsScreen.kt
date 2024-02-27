@@ -39,11 +39,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.ImageLoader
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.wounds.checks.create.CheckCreateDialogScreen
@@ -54,10 +56,14 @@ import it.airbagstudio.ticare.pages.wounds.create.CreateWoundDialogScreen
 import it.airbagstudio.ticare.ui.components.ConfirmWithNoteDialog
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.ui.components.okHttpClient
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.seed
 import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.getPainter
 import it.airbagstudio.ticare.utils.toDate
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun WoundDetailsScreen(
@@ -250,13 +256,18 @@ fun WoundDetailsScreen(
     }
 
     if (showImagesDialog) {
+        val imageLoader = ImageLoader.Builder(LocalContext.current)
+            .okHttpClient(okHttpClient)
+            .build()
         val woundDate = viewModel.wound?.appearanceDate?.toDate("dd.MM.yyyy")
             ?.format("dd/MM/yyyy") ?: ""
+        val painters = viewModel.wound?.photos?.map {
+            it.getPainter(requestData = viewModel.requestImageRequestData, imageLoader = imageLoader, authTimestampHeader = DateTimeFormatter.ISO_INSTANT.format(
+                Instant.now()), isOnline = viewModel.isOnline)
+        } ?: listOf()
         ImagesDialog(
             date = woundDate,
-            photos = viewModel.wound?.photos?.filter { it.iDCheck < 0 } ?: listOf(),
-            requestData = viewModel.requestImageRequestData,
-            isOnline = viewModel.isOnline
+            painters = painters
         ) {
             showImagesDialog = false
         }

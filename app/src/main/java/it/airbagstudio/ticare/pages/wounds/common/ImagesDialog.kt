@@ -49,30 +49,16 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ImagesDialog(
     date: String,
-    photos: List<WoundPhoto>,
-    requestData: ImageRequestData,
-    authTimestampHeader: String = DateTimeFormatter.ISO_INSTANT.format(Instant.now()),
-    isOnline: Boolean,
+   painters: List<AsyncImagePainter>,
     onDismissRequest: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val imageLoader = ImageLoader.Builder(LocalContext.current)
-        .okHttpClient(okHttpClient)
-        .build()
+
 
     var selectedPainter by remember {
         mutableStateOf<Painter?>(null)
     }
 
-    val painters = photos.map {
-        getPainter(
-            photo = it,
-            requestData = requestData,
-            imageLoader = imageLoader,
-            authTimestampHeader = authTimestampHeader,
-            isOnline = isOnline
-        )
-    }
 
     ModalBottomSheet(
         sheetState = sheetState,

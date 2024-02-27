@@ -65,6 +65,7 @@ import it.airbagstudio.ticare.pages.patientsList.PatientListUiState
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.theme.seed
 import it.airbagstudio.ticare.utils.LocalNotificationReceiver
+import it.airbagstudio.ticare.utils.scheduleNotification
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -283,12 +284,4 @@ fun SelectPatientsDialogScreen(
         }
 
     }
-}
-
-private fun scheduleNotification(context: Context){
-    val alarmManager = ContextCompat.getSystemService(context, AlarmManager::class.java) as AlarmManager
-    val alarmIntent = Intent(context, LocalNotificationReceiver::class.java)
-    val pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent,
-        PendingIntent.FLAG_IMMUTABLE)
-    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + TimeUnit.HOURS.toMillis(22), pendingIntent)
 }

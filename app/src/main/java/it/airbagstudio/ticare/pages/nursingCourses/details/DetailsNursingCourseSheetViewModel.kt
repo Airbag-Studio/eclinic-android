@@ -1,16 +1,27 @@
 package it.airbagstudio.ticare.pages.nursingCourses.details
 
+import android.graphics.Bitmap
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AddHomeCareCourse
 import ch.ticare.eclinic.library.entity.EditHomeCareCourse
 import ch.ticare.eclinic.library.entity.HomeCareCourse
 import ch.ticare.eclinic.library.entity.HomeCareCourseCategory
+import ch.ticare.eclinic.library.entity.HomeCareCourseImage
+import ch.ticare.eclinic.library.entity.HomeCareCourseImageRequest
+import ch.ticare.eclinic.library.entity.WoundImageUploadRequest
+import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.NursingCourseRepository
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import it.airbagstudio.ticare.di.AuthRepositoryImpl
+import it.airbagstudio.ticare.ui.components.ImageRequestData
 import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT_ITA
 import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.toByteArray
 import it.airbagstudio.ticare.utils.toDate
 import java.util.Date
 import javax.inject.Inject
@@ -22,12 +33,16 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @HiltViewModel
 class EditNursingCourseSheetViewModel @Inject constructor(
     private val nursingCourseRepository: NursingCourseRepository,
+    private val authRepository: AuthRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository,
 ) : ViewModel() {
 
+    var isOnline by mutableStateOf(false)
     private val selectedCategoryStateFlow = MutableStateFlow<HomeCareCourseCategory?>(null)
     private val selectedCategoryId = MutableStateFlow<Int?>(null)
     private var listOfCategories: MutableStateFlow<List<HomeCareCourseCategory>?> = MutableStateFlow(emptyList())
@@ -40,6 +55,13 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     private val errorMessage = MutableStateFlow<String?>(null)
     private var screenType = mutableStateOf<ScreenType>(ScreenType.Add)
     private var editNursingCourseId: Int = 0
+    private val imagesUri = MutableStateFlow<List<Bitmap>>(listOf())
+    private val homeCareCourseImages = MutableStateFlow<List<HomeCareCourseImage>>(listOf())
+
+    var requestImageRequestData: ImageRequestData = ImageRequestData(
+        authRepository.getBaseURL(),
+        authRepository.getToken() ?: ""
+    )
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading.value = false
@@ -59,9 +81,18 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         selectedDate,
         description,
         duration,
-        showInDiary
-    ) { category, date, description, duration, showInDiary ->
-        DetailsNursingCourseScreenUiState.NewNursingCourse(category, date, duration, description, showInDiary)
+        showInDiary,
+        imagesUri,
+        homeCareCourseImages
+    ) { items ->
+      val category = items[0] as HomeCareCourseCategory?
+        val date = items[1] as Date
+        val description = items[2] as String
+        val duration = items[3] as Int?
+        val showInDiary = items[4] as Boolean
+        val imagesUri = items[5] as List<Bitmap>
+        val homeCareCourseImages = items[6] as List<HomeCareCourseImage>
+        DetailsNursingCourseScreenUiState.NewNursingCourse(category, date, duration, description, showInDiary,imagesUri,homeCareCourseImages)
     }
 
     val uiState = combine(
@@ -76,7 +107,8 @@ class EditNursingCourseSheetViewModel @Inject constructor(
             categories ?: emptyList(),
             isLoading,
             isSuccess,
-            errorMessage
+            errorMessage,
+            screenType.value is ScreenType.Edit
         )
 
     }.catch {
@@ -85,7 +117,8 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = DetailsNursingCourseScreenUiState(
-            newNursingCourse = DetailsNursingCourseScreenUiState.NewNursingCourse(selectedCategoryStateFlow.value, selectedDate.value, duration.value, description.value, showInDiary.value)
+            newNursingCourse = DetailsNursingCourseScreenUiState.NewNursingCourse(selectedCategoryStateFlow.value, selectedDate.value, duration.value, description.value, showInDiary.value),
+            isEditing = false
         )
     )
 
@@ -100,6 +133,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     }
 
     fun setScreenType(type: ScreenType) {
+        isOnline = offlineOnlineRepository.state.value.isOnline
         screenType.value = type
         when(type) {
             ScreenType.Add -> setDefaultParams()
@@ -133,6 +167,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     fun clearState() {
         errorMessage.value = null
         isSuccess.value = false
+        imagesUri.value = listOf()
     }
 
 
@@ -143,7 +178,17 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         }
     }
 
+    fun addImages(uriList: List<Bitmap>) {
+        imagesUri.value = imagesUri.value.plus(uriList)
+    }
+
+    fun removeImage(uri: Bitmap) {
+        imagesUri.value = imagesUri.value.minus(uri)
+    }
+
+
     private fun setPreviousCategory(actualCourse: HomeCareCourse) {
+        homeCareCourseImages.value = actualCourse.photos
         editNursingCourseId = actualCourse.id
         selectedCategoryId.value = actualCourse.categoryID
         duration.value = actualCourse.duration
@@ -176,6 +221,16 @@ class EditNursingCourseSheetViewModel @Inject constructor(
             val res = nursingCourseRepository.addNursingCourse(newCourse)
 
             if (res.status == "success") {
+                res.results?.firstOrNull()?.id?.let { lastCreatedId ->
+                    imagesUri.value.forEach { bitmap ->
+                        val request = HomeCareCourseImageRequest(
+                            courseId = lastCreatedId,
+                            name = "${UUID.randomUUID()}.jpeg",
+                            ecImage = bitmap.toByteArray()
+                        )
+                        nursingCourseRepository.uploadImage(patientCode,request)
+                    }
+                }
                 isSuccess.value = true
             } else if (res.status == "error") {
                 errorMessage.value = res.error?.desc ?: ""

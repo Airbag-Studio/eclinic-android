@@ -74,6 +74,7 @@ import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.seed
 import it.airbagstudio.ticare.utils.LocalNotificationReceiver
 import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.removePendingNotifications
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -223,17 +224,6 @@ fun SyncDataSheetView(
             }
         }
     }
-}
-
-private fun removePendingNotifications(context: Context) {
-    val alarmManager =
-        ContextCompat.getSystemService(context, AlarmManager::class.java) as AlarmManager
-    val alarmIntent = Intent(context, LocalNotificationReceiver::class.java)
-    val pendingIntent = PendingIntent.getBroadcast(
-        context, 0, alarmIntent,
-        PendingIntent.FLAG_IMMUTABLE
-    )
-    alarmManager.cancel(pendingIntent)
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

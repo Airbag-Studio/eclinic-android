@@ -44,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -65,6 +66,7 @@ import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.PatientListItemView
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
 import it.airbagstudio.ticare.ui.components.ToolbarWithSyncAndSettings
+import it.airbagstudio.ticare.utils.removePendingNotifications
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -79,6 +81,7 @@ fun PatientListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var searchActive by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
     var showZonesPopup by remember {
         mutableStateOf(false)
     }
@@ -141,8 +144,8 @@ fun PatientListScreen(
                         openSyncSheet = true
                     }else{
                         viewModel.syncOfflineData()
+                        removePendingNotifications(context)
                     }
-
                 }
             }
         }
