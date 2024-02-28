@@ -248,7 +248,7 @@ fun PatientListScreen(
                             modifier = Modifier.weight(1f),
                             value = uiState.selectedZone?.name
                                 ?: stringResource(id = R.string.zones),
-                            isEnabled = uiState.isOnline && !viewModel.isLoading && uiState.isRequestAllCasesAccessOn
+                            isEnabled = uiState.isOnline && !viewModel.isLoading && (uiState.isRequestAllCasesAccessOn || uiState.userZones.size > 1)
                         ) {
 
                             showZonesPopup = true
