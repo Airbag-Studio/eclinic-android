@@ -164,8 +164,11 @@ class EditNursingCourseSheetViewModel @Inject constructor(
 
     fun getShowInDiary(): Boolean = showInDiary.value
 
-    fun clearState() {
+    fun clearError(){
         errorMessage.value = null
+    }
+
+    fun clearState() {
         isSuccess.value = false
         imagesUri.value = listOf()
     }

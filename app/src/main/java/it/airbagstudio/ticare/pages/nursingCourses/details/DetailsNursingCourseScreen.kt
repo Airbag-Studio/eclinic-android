@@ -143,7 +143,10 @@ private fun BuildSheetContent(
 
                 },
                 actions = {
-                    IconButton(onClick = { onDismissRequest() }) {
+                    IconButton(onClick = {
+                        viewModel.clearState()
+                        onDismissRequest()
+                    }) {
                         Icon(imageVector = Icons.Default.Close, contentDescription = "")
                     }
                 }
@@ -306,7 +309,7 @@ private fun BuildSheetContent(
             ErrorAlert(
                 message = uiState.error!!,
                 onDismissRequest = {
-                    viewModel.clearState()
+                    viewModel.clearError()
                 })
         }
         if (showCategoryPopup) {
