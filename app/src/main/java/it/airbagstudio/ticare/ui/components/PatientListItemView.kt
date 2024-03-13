@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -11,13 +12,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ch.ticare.eclinic.library.entity.CaseInfo
@@ -26,7 +30,11 @@ import it.airbagstudio.ticare.pages.patientsList.PatientListUiState
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
-fun PatientListItemView(patient: PatientListUiState.PatientUIState, requestImageRequestData: ImageRequestData, onClick: () -> Unit) {
+fun PatientListItemView(
+    patient: PatientListUiState.PatientUIState,
+    requestImageRequestData: ImageRequestData,
+    onClick: () -> Unit
+) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .clickable {
@@ -41,7 +49,10 @@ fun PatientListItemView(patient: PatientListUiState.PatientUIState, requestImage
             Column() {
                 PatientImage(patient.patientCode, patient.photo ?: "", requestImageRequestData)
                 Spacer(modifier = Modifier.height(8.dp))
-                OfflineSyncImage(hasOfflineData = patient.hasDownloadedData, hasDataToSync = patient.hasModifiedData)
+                OfflineSyncImage(
+                    hasOfflineData = patient.hasDownloadedData,
+                    hasDataToSync = patient.hasModifiedData
+                )
             }
 
             Column(
@@ -49,21 +60,57 @@ fun PatientListItemView(patient: PatientListUiState.PatientUIState, requestImage
                     .padding(start = 16.dp)
                     .weight(1f)
             ) {
-                Text(
-                    text = patient.birthDate,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row {
+                    Text(
+                        text = patient.birthDate,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_agender),
+                        contentDescription = ""
+                    )
+                }
+
                 Text(
                     text = patient.completeName,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Text(
-                    text = patient.address,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                if (true) {
+                    Row(
+                        modifier = Modifier.background(
+                            MaterialTheme.colorScheme.surfaceVariant,
+                            RoundedCornerShape(50.dp)
+                        ).padding(horizontal = 8.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_bed),
+                            contentDescription = "",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "54",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight(700),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = " - 2",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    Text(
+                        text = patient.address,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
             Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_right),
@@ -78,7 +125,7 @@ fun PatientListItemView(patient: PatientListUiState.PatientUIState, requestImage
 
 @Composable
 @Preview
-fun PatientListItemViewLoading(){
+fun PatientListItemViewLoading() {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier

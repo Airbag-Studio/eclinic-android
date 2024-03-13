@@ -50,7 +50,7 @@ fun PatientImage(code: String, photo: String, requestData: ImageRequestData,isOn
             .height(56.dp)
             .background(
                 MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(4.dp)
+                shape = RoundedCornerShape(8.dp)
             )
     ) {
         Image(
@@ -63,7 +63,7 @@ fun PatientImage(code: String, photo: String, requestData: ImageRequestData,isOn
                 modifier = Modifier
                     .width(56.dp)
                     .height(56.dp)
-                    .clip(RoundedCornerShape(4.dp)),
+                    .clip(RoundedCornerShape(8.dp)),
                 painter = getPainter(code,photo,requestData,isOnline),
                 contentDescription = "",
                 contentScale = ContentScale.Crop

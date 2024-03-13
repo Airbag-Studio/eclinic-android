@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.pages.patientsList
 
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
@@ -45,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -106,11 +109,15 @@ fun PatientListScreen(
         }
     }
 
-    val isOfflineDataSheetVisible = !uiState.isOnline || (uiState.downloadCount > 0 && uiState.expireDate != null)
+    val isOfflineDataSheetVisible =
+        !uiState.isOnline || (uiState.downloadCount > 0 && uiState.expireDate != null)
     val sheetState = rememberModalBottomSheetState()
 
     BottomSheetScaffold(
-        scaffoldState = BottomSheetScaffoldState(sheetState, snackbarHostState = SnackbarHostState()),
+        scaffoldState = BottomSheetScaffoldState(
+            sheetState,
+            snackbarHostState = SnackbarHostState()
+        ),
         modifier = Modifier.consumeWindowInsets(
             WindowInsets.systemBars.only(WindowInsetsSides.Vertical)
         ),
@@ -126,23 +133,23 @@ fun PatientListScreen(
                 }
             )
         },
-        sheetPeekHeight = if(isOfflineDataSheetVisible) 100.dp else 0.dp,
+        sheetPeekHeight = if (isOfflineDataSheetVisible) 100.dp else 0.dp,
         sheetContent = {
             OfflineDataSheet(
                 itemsToSync = uiState.modifiedCount,
                 localItems = uiState.downloadCount,
                 isOffline = !uiState.isOnline,
                 expireDate = uiState.expireDate
-            ){
+            ) {
                 scope.launch {
                     sheetState.partialExpand()
                 }
-                if (uiState.isOnline){
+                if (uiState.isOnline) {
                     viewModel.setOffline()
-                }else{
-                    if (viewModel.shouldUploadData){
+                } else {
+                    if (viewModel.shouldUploadData) {
                         openSyncSheet = true
-                    }else{
+                    } else {
                         viewModel.syncOfflineData()
                         removePendingNotifications(context)
                     }
@@ -245,7 +252,9 @@ fun PatientListScreen(
                             .padding(8.dp)
                     ) {
                         DropDownButton(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp),
                             value = uiState.selectedZone?.name
                                 ?: stringResource(id = R.string.zones),
                             isEnabled = uiState.isOnline && !viewModel.isLoading && (uiState.isRequestAllCasesAccessOn || uiState.userZones.size > 1)
@@ -257,7 +266,9 @@ fun PatientListScreen(
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         DropDownButton(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp),
                             value = uiState.selectedMicrozone?.name
                                 ?: stringResource(id = R.string.micro_zones),
                             isEnabled = uiState.isOnline && !viewModel.isLoading && uiState.selectedZone != null
@@ -338,7 +349,7 @@ fun PatientListScreen(
                 viewModel.updatePatients()
             }
         }
-        if (openSyncSheet){
+        if (openSyncSheet) {
             SyncDataSheetView(caseList = uiState.caseList) { success ->
                 openSyncSheet = false
                 viewModel.updatePatients()

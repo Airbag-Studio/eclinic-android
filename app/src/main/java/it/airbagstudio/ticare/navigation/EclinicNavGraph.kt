@@ -12,7 +12,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import it.airbagstudio.ticare.LoginRedirect
-import it.airbagstudio.ticare.pages.allergies.AllergiesScreen
 import it.airbagstudio.ticare.pages.carePlans.details.CarePlanDetailsScreen
 import it.airbagstudio.ticare.pages.carePlans.list.CarePlanesListScreen
 import it.airbagstudio.ticare.pages.consumptions.ConsumptionListScreen
@@ -22,6 +21,7 @@ import it.airbagstudio.ticare.pages.login.LoginScreen
 import it.airbagstudio.ticare.pages.nursingCourses.NursingCoursesScreen
 import it.airbagstudio.ticare.pages.otherTreatments.OtherTreatmentScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
+import it.airbagstudio.ticare.pages.patientDetails.alertsAllergies.AlertAllergiesScreen
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
 import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
 import it.airbagstudio.ticare.pages.settings.SettingsPage
@@ -96,11 +96,6 @@ fun EclinicNavGraph(
                 navController.popBackStack()
             }
         }
-        composable(Destinations.ALLERGIES_ROUTE) {
-            AllergiesScreen(navigationActions = navActions) {
-                navController.popBackStack()
-            }
-        }
         composable(Destinations.OTHER_SERVICE_ROUTE){
             OtherTreatmentScreen {
                 navController.popBackStack()
@@ -172,6 +167,11 @@ fun EclinicNavGraph(
 
         composable(Destinations.WORKING_HOURS_LIST_ROUTE){
             WorkingHoursListScreen {
+                navController.popBackStack()
+            }
+        }
+        composable(Destinations.PATIENT_ALERT_ALLERGIES_ROUTE){
+            AlertAllergiesScreen(navigationActions = navActions) {
                 navController.popBackStack()
             }
         }
