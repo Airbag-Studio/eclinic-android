@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.WorkingHoursType
 import it.airbagstudio.ticare.LocalActivity
 import it.airbagstudio.ticare.R
@@ -78,31 +79,33 @@ fun WorkingHoursListScreen(
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                contentColor = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                    .fillMaxWidth(),
-                content = {
-                    Icon(
-                        imageVector = Icons.Default.Add, contentDescription = stringResource(
-                            id = R.string.new_treatment
+            if (uiState.clinicType == ClinicType.SPITEX) {
+                ExtendedFloatingActionButton(
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .fillMaxWidth(),
+                    content = {
+                        Icon(
+                            imageVector = Icons.Default.Add, contentDescription = stringResource(
+                                id = R.string.new_treatment
+                            )
                         )
-                    )
-                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                    Text(
-                        text = stringResource(
-                            id = R.string.new_treatment
+                        Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                        Text(
+                            text = stringResource(
+                                id = R.string.new_treatment
+                            )
                         )
-                    )
-                },
-                onClick = {
-                    if (trackingUiState.isEnabled) {
-                        showSearchDialog = true
-                    }else{
-                        showTrackingAlert = true
-                    }
-                })
+                    },
+                    onClick = {
+                        if (trackingUiState.isEnabled) {
+                            showSearchDialog = true
+                        } else {
+                            showTrackingAlert = true
+                        }
+                    })
+            }
         }
     ) {
         Column(Modifier.padding(it)) {

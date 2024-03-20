@@ -62,6 +62,12 @@ fun PatientInfoScreen(
                 caseInfo.otherInfo.forEach { otherInfo ->
                     PatientInfoCard(tile = otherInfo.name, text = otherInfo.value)
                 }
+                caseInfo.contacts.otherContacts.forEach {
+                    PatientInfoCard(
+                        tile = "${it.relationship} ${it.fullname}",
+                        phones = it.phoneNumbers.split(" | " )
+                    )
+                }
             }
 
         }

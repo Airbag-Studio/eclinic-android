@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.Microzone
 import ch.ticare.eclinic.library.entity.Zone
 import it.airbagstudio.ticare.R
@@ -68,6 +69,7 @@ import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.PatientListItemView
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
+import it.airbagstudio.ticare.ui.components.PopupTextField
 import it.airbagstudio.ticare.ui.components.ToolbarWithSyncAndSettings
 import it.airbagstudio.ticare.utils.removePendingNotifications
 import kotlinx.coroutines.GlobalScope
@@ -125,6 +127,7 @@ fun PatientListScreen(
             ToolbarWithSyncAndSettings(
                 title = uiState.companyName,
                 isOnline = uiState.isOnline,
+                showTimeTrackerButton = uiState.clinicType == ClinicType.SPITEX,
                 onDownloadPatientDataClick = {
                     showDownloadPatientDataPopup = true
                 },
@@ -247,35 +250,75 @@ fun PatientListScreen(
                     }
                 }
                 Column(modifier = Modifier.padding(top = 70.dp)) {
-                    Row(
-                        modifier = Modifier
-                            .padding(8.dp)
-                    ) {
-                        DropDownButton(
+                    if (uiState.clinicType == ClinicType.CPA) {
+                        Row(
                             modifier = Modifier
+                                .padding(8.dp)
+                        ) {
+                            PopupTextField(modifier = Modifier
                                 .weight(1f)
                                 .height(56.dp),
-                            value = uiState.selectedZone?.name
-                                ?: stringResource(id = R.string.zones),
-                            isEnabled = uiState.isOnline && !viewModel.isLoading && (uiState.isRequestAllCasesAccessOn || uiState.userZones.size > 1)
-                        ) {
-
-                            showZonesPopup = true
-
-
+                                label = "",
+                                showLabel = false,
+                                value = uiState.selectedDivision?.name
+                                    ?: stringResource(id = R.string.divisions),
+                                items = uiState.divisions.map {
+                                    ListPopupItem(
+                                        label = it.name,
+                                        it
+                                    )
+                                }) {
+                                viewModel.setSelectedDivision(it.item)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            PopupTextField(modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp),
+                                label = "",
+                                showLabel = false,
+                                value = uiState.selectedSector?.name
+                                    ?: stringResource(id = R.string.sectors),
+                                items = uiState.sectors.map {
+                                    ListPopupItem(
+                                        label = it.name,
+                                        it
+                                    )
+                                }) {
+                                viewModel.setSelectedSector(it.item)
+                            }
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        DropDownButton(
+                    } else {
+                        Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .height(56.dp),
-                            value = uiState.selectedMicrozone?.name
-                                ?: stringResource(id = R.string.micro_zones),
-                            isEnabled = uiState.isOnline && !viewModel.isLoading && uiState.selectedZone != null
+                                .padding(8.dp)
                         ) {
-                            showMicrozonesPopup = true
+                            DropDownButton(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(56.dp),
+                                value = uiState.selectedZone?.name
+                                    ?: stringResource(id = R.string.zones),
+                                isEnabled = uiState.isOnline && !viewModel.isLoading && (uiState.isRequestAllCasesAccessOn || uiState.userZones.size > 1)
+                            ) {
+
+                                showZonesPopup = true
+
+
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            DropDownButton(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(56.dp),
+                                value = uiState.selectedMicrozone?.name
+                                    ?: stringResource(id = R.string.micro_zones),
+                                isEnabled = uiState.isOnline && !viewModel.isLoading && uiState.selectedZone != null
+                            ) {
+                                showMicrozonesPopup = true
+                            }
                         }
                     }
+
                     if (viewModel.isLoading) {
                         repeat(8) {
                             PatientListItemViewLoading()
@@ -284,6 +327,7 @@ fun PatientListScreen(
                         LazyColumn(modifier = Modifier.fillMaxHeight()) {
                             items(uiState.caseList) { patientListItem ->
                                 PatientListItemView(
+                                    clinicType = uiState.clinicType,
                                     patient = patientListItem,
                                     viewModel.requestImageRequestData
                                 ) {

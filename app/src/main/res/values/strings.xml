@@ -171,4 +171,6 @@
     <string name="screenshot_saved">Screenshot salvato nella libreria immagini</string>
     <string name="calendar_shifts">Calendario Turni</string>
     <string name="alert_allergies">Alert e Allergie</string>
+    <string name="divisions">Reparti</string>
+    <string name="sectors">Settori</string>
 </resources>

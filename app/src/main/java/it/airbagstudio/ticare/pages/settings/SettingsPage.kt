@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -32,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.ClinicType
 import it.airbagstudio.ticare.LocalActivity
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
@@ -72,33 +74,35 @@ fun SettingsPage(
             )) {
                 navigationActions.navigateToConsumptionList()
             }
-            Divider(Modifier.padding(start = 16.dp))
+            HorizontalDivider(Modifier.padding(start = 16.dp))
             SettingsListItem(title = stringResource(id = R.string.working_hours_title), subtitle = stringResource(
                 id = R.string.working_hours_subtitle
             )) {
                 navigationActions.navigateToWorkingHours()
             }
-            Divider()
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            ) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = stringResource(id = R.string.show_all_patient),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Switch(
-                    enabled = uiState.canRequestAllCases,
-                    checked = uiState.isAllCaseActive,
-                    onCheckedChange = { selected ->
-                        if (selected) {
-                            showNotesDialog = true
-                        } else {
-                            viewModel.clearAllCasesRequest()
-                        }
+            HorizontalDivider()
+            if (uiState.clinicType == ClinicType.SPITEX) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = stringResource(id = R.string.show_all_patient),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Switch(
+                        enabled = uiState.canRequestAllCases,
+                        checked = uiState.isAllCaseActive,
+                        onCheckedChange = { selected ->
+                            if (selected) {
+                                showNotesDialog = true
+                            } else {
+                                viewModel.clearAllCasesRequest()
+                            }
 
-                    })
+                        })
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
             Button(

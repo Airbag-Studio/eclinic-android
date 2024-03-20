@@ -10,16 +10,19 @@ import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AgendaTask
 import ch.ticare.eclinic.library.entity.Badge
 import ch.ticare.eclinic.library.entity.CaseDetail
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.OperatingShift
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
+import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.data.AlertItem
 import it.airbagstudio.ticare.navigation.DestinationsArgs
 import it.airbagstudio.ticare.ui.components.ImageRequestData
 import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
 import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.isCurrent
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -31,7 +34,8 @@ class PatientDetailsScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val userDetailRepository: UserDetailRepository,
     private val authRepository: AuthRepository,
-    private val offlineOnlineRepository: OfflineOnlineRepository
+    private val offlineOnlineRepository: OfflineOnlineRepository,
+    private val userRepository: UserRepository
 ): ViewModel() {
 
 
@@ -39,6 +43,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
     var isModified by mutableStateOf(false)
 
     var isOnline by mutableStateOf(false)
+    var clinicType = userRepository.getClinicType()
 
     var badges by mutableStateOf<List<Badge>>(listOf())
     var isLoading by mutableStateOf(true)
@@ -85,6 +90,9 @@ class PatientDetailsScreenViewModel @Inject constructor(
                 ) } ?: listOf()
 
                 shifts = userDetailRepository.getOperatingShifts().results
+                shifts?.firstOrNull { it.isCurrent() }?.let {
+                    selectedShift = it
+                }
                 downloadBadges()
 
                 isDownloaded = offlineOnlineRepository.state.value.patientsDownloaded.contains(patientCod)

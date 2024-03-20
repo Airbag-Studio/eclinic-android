@@ -26,18 +26,30 @@ import it.airbagstudio.ticare.ui.theme.AppTheme
 @Composable
 fun <T> PopupTextField(
     modifier: Modifier = Modifier,
+    showLabel: Boolean = true,
+    enabled: Boolean = true,
     label: String,
     value: String,
     items: List<ListPopupItem<T>>,
     onItemSelected: (ListPopupItem<T>) -> Unit
 ) {
     var showPopup by remember { mutableStateOf(false) }
+
+    val labelComposable: @Composable() (() -> Unit)? =
+        if (showLabel) {
+            {
+                Text(text = label)
+            }
+        } else {
+            null
+        }
+
+
     Box(modifier = modifier) {
         OutlinedTextField(
+            enabled = enabled,
             modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text(text = label)
-            },
+            label = labelComposable,
             value = value,
             onValueChange = { },
             trailingIcon = {
@@ -65,22 +77,28 @@ fun <T> PopupTextField(
 
 @Composable
 @Preview
-private fun PreviewPopupTextField(){
+private fun PreviewPopupTextField() {
     val items = listOf(
-        ListPopupItem("Prova",Zone(id = 0, name = "Test")),
-        ListPopupItem("Prova 2",Zone(id = 1, name = "Test 2")),
-        ListPopupItem("Prova 3",Zone(id = 2, name = "Test 3")),
-        ListPopupItem("Prova 4",Zone(id = 3, name = "Test 4")),
+        ListPopupItem("Prova", Zone(id = 0, name = "Test")),
+        ListPopupItem("Prova 2", Zone(id = 1, name = "Test 2")),
+        ListPopupItem("Prova 3", Zone(id = 2, name = "Test 3")),
+        ListPopupItem("Prova 4", Zone(id = 3, name = "Test 4")),
     )
-    var value by remember {mutableStateOf("")}
+    var value by remember { mutableStateOf("") }
     AppTheme {
         Column(
             Modifier
                 .background(Color.White)
-                .padding(16.dp)) {
-            PopupTextField(modifier = Modifier.fillMaxWidth(),label = "Prova", value = value, items = items, onItemSelected = {
-                value = it.item?.name ?: ""
-            })
+                .padding(16.dp)
+        ) {
+            PopupTextField(
+                modifier = Modifier.fillMaxWidth(),
+                label = "Prova",
+                value = value,
+                items = items,
+                onItemSelected = {
+                    value = it.item?.name ?: ""
+                })
         }
     }
 

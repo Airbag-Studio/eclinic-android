@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.Article
+import ch.ticare.eclinic.library.entity.ClinicType
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.consumptions.create.ConsumptionCreateScreen
 import it.airbagstudio.ticare.pages.consumptions.search.ConsumptionArticleSearch
@@ -73,27 +74,29 @@ fun ConsumptionListScreen(
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                    .fillMaxWidth(),
-                contentColor = MaterialTheme.colorScheme.primary,
-                content = {
-                    Icon(
-                        imageVector = Icons.Default.Add, contentDescription = stringResource(
-                            id = R.string.new_treatment
+            if (uiState.clinicType == ClinicType.SPITEX) {
+                ExtendedFloatingActionButton(
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .fillMaxWidth(),
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    content = {
+                        Icon(
+                            imageVector = Icons.Default.Add, contentDescription = stringResource(
+                                id = R.string.new_treatment
+                            )
                         )
-                    )
-                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                    Text(
-                        text = stringResource(
-                            id = R.string.new_consumption
+                        Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                        Text(
+                            text = stringResource(
+                                id = R.string.new_consumption
+                            )
                         )
-                    )
-                },
-                onClick = {
-                    showSearchDialog = true
-                })
+                    },
+                    onClick = {
+                        showSearchDialog = true
+                    })
+            }
         }
     ) { values ->
 

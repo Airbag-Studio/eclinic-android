@@ -115,7 +115,7 @@ fun WorkingHoursItemCreate(
                 ) {
                     Row {
                         CalendarTextField(
-                            enabled = employeeWorkingHour != null,
+                            enabled = employeeWorkingHour != null && uiState.item.editable,
                             modifier = Modifier.weight(1f),
                             date = uiState.item.date,
                             showTime = false,
@@ -128,7 +128,7 @@ fun WorkingHoursItemCreate(
                         Spacer(modifier = Modifier.width(16.dp))
 
                         OutlinedTextField(
-                            enabled = employeeWorkingHour != null,
+                            enabled = employeeWorkingHour != null && uiState.item.editable,
                             singleLine = true,
                             modifier = Modifier.width(120.dp),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -146,28 +146,30 @@ fun WorkingHoursItemCreate(
                         )
 
                     }
-                    Spacer(modifier = Modifier.weight(1f))
-                    Button(
-                        enabled = !uiState.isLoading && uiState.isValid,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            viewModel.saveWorkingHour()
-                        }) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = stringResource(id = R.string.execute)
-                        )
-                        Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                        Text(text = stringResource(id = R.string.save))
-                        if (uiState.isLoading) {
-                            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                            CircularProgressIndicator(
-                                strokeWidth = 2.dp,
-                                modifier = Modifier.size(20.dp)
+                    if(uiState.item.editable) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        Button(
+                            enabled = !uiState.isLoading && uiState.isValid,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                viewModel.saveWorkingHour()
+                            }) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = stringResource(id = R.string.execute)
                             )
+                            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                            Text(text = stringResource(id = R.string.save))
+                            if (uiState.isLoading) {
+                                Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                                CircularProgressIndicator(
+                                    strokeWidth = 2.dp,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         }
+                        Spacer(modifier = Modifier.height(24.dp))
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
             }

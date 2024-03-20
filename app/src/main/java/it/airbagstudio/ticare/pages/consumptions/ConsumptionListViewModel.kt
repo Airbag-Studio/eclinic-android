@@ -6,8 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.EmployeeConsumption
 import ch.ticare.eclinic.library.repository.ConsumptionRepository
+import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.toDate
@@ -24,17 +26,19 @@ data class ConsumptionListUIState(
     val consumptions: Map<String, List<EmployeeConsumption>> = mapOf(),
     val errorMessage: String? = null,
     val isLoading: Boolean = false,
+    val clinicType: ClinicType? = null
 )
 
 @HiltViewModel
 class ConsumptionListViewModel @Inject constructor(
     private val consumptionRepository: ConsumptionRepository,
-    savedStateHandle: SavedStateHandle
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val consumptions = MutableStateFlow<List<EmployeeConsumption>>(listOf())
     private val throwable = MutableStateFlow<Throwable?>(null)
     private val isLoading = MutableStateFlow<Boolean>(false)
+    private val clinicType = userRepository.getClinicType()
 
     var selectedConsumption by mutableStateOf<EmployeeConsumption?>(null)
 
@@ -43,14 +47,15 @@ class ConsumptionListViewModel @Inject constructor(
         isLoading.value = false
     }
 
-    val uiState: StateFlow<ConsumptionListUIState> = combine(consumptions,throwable,isLoading){ consumptions, throwable, isLoading ->
+    val uiState: StateFlow<ConsumptionListUIState> = combine(consumptions,throwable,isLoading,clinicType){ consumptions, throwable, isLoading,clinicType ->
         ConsumptionListUIState(
             consumptions = consumptions.groupBy {
                 val date = it.date.toDate("dd.MM.yyyy")
                 date?.format("EEE dd MMMM") ?: it.date
             },
             errorMessage = throwable?.localizedMessage,
-            isLoading = isLoading
+            isLoading = isLoading,
+            clinicType = clinicType
         )
     }.stateIn(
         scope = viewModelScope,

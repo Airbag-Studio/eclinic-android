@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -20,7 +21,8 @@ data class SettingsPageUIState(
     val canRequestAllCases: Boolean,
     val isAllCaseActive: Boolean,
     val isDoingLogout: Boolean,
-    val isLoggedOut: Boolean
+    val isLoggedOut: Boolean,
+    val clinicType: ClinicType? = null
 )
 
 @HiltViewModel
@@ -32,6 +34,7 @@ class SettingsPageViewModel @Inject constructor(
     private val isAllCaseActive = userRepository.isRequestAllCasesAccessOn()
     private val isDoingLogout = MutableStateFlow(false)
     private val isLoggedOut = MutableStateFlow(false)
+    private val clinicType = userRepository.getClinicType()
 
     var errorMessage by mutableStateOf<String?>(null)
 
@@ -39,12 +42,13 @@ class SettingsPageViewModel @Inject constructor(
         errorMessage = throwable.localizedMessage
     }
 
-    val uiState = combine(canRequestAllCases,isAllCaseActive,isDoingLogout,isLoggedOut){ canRequestAllCases,isAllCaseActive,isDoingLogout,isLoggedOut ->
+    val uiState = combine(canRequestAllCases,isAllCaseActive,isDoingLogout,isLoggedOut,clinicType){ canRequestAllCases,isAllCaseActive,isDoingLogout,isLoggedOut,clinicType ->
         SettingsPageUIState(
             canRequestAllCases,
             isAllCaseActive,
             isDoingLogout,
-            isLoggedOut
+            isLoggedOut,
+            clinicType
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly,SettingsPageUIState(false,false,false,false))
 

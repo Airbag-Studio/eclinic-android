@@ -6,8 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.EmployeeConsumption
 import ch.ticare.eclinic.library.entity.EmployeeWorkingHour
+import ch.ticare.eclinic.library.repository.UserRepository
 import ch.ticare.eclinic.library.repository.WorkingHourRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.utils.format
@@ -25,17 +27,19 @@ data class WorkingHoursListScreenUIState(
     val workingHours: Map<String, List<EmployeeWorkingHour>> = mapOf(),
     val errorMessage: String? = null,
     val isLoading: Boolean = false,
+    val clinicType: ClinicType? = null
 )
 
 @HiltViewModel
 class WorkingHoursListScreenViewModel @Inject constructor(
     private val workingHourRepository: WorkingHourRepository,
-    savedStateHandle: SavedStateHandle
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val workingHours = MutableStateFlow<List<EmployeeWorkingHour>>(listOf())
     private val throwable = MutableStateFlow<Throwable?>(null)
     private val isLoading = MutableStateFlow<Boolean>(false)
+    private val clinicType = userRepository.getClinicType()
 
     var selectedWorkingHour by mutableStateOf<EmployeeWorkingHour?>(null)
 
@@ -44,14 +48,15 @@ class WorkingHoursListScreenViewModel @Inject constructor(
         isLoading.value = false
     }
 
-    val uiState: StateFlow<WorkingHoursListScreenUIState> = combine(workingHours,throwable,isLoading){ workingHours, throwable, isLoading ->
+    val uiState: StateFlow<WorkingHoursListScreenUIState> = combine(workingHours,throwable,isLoading,clinicType){ workingHours, throwable, isLoading,clinicType ->
         WorkingHoursListScreenUIState(
             workingHours = workingHours.groupBy {
                 val date = it.date.toDate("dd.MM.yyyy")
                 date?.format("EEE dd MMMM") ?: it.date
             },
             errorMessage = throwable?.localizedMessage,
-            isLoading = isLoading
+            isLoading = isLoading,
+            clinicType = clinicType
         )
     }.stateIn(
         scope = viewModelScope,

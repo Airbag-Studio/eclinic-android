@@ -2,8 +2,10 @@ package it.airbagstudio.ticare.pages.workinghours.create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.SaveEmployeeWorkingHour
 import ch.ticare.eclinic.library.repository.UserMarkingRepository
+import ch.ticare.eclinic.library.repository.UserRepository
 import ch.ticare.eclinic.library.repository.WorkingHourRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.utils.format
@@ -28,14 +30,16 @@ data class WorkingHoursItemCreateUiState(
 ) {
     data class Item(
         val date: Date,
-        val duration: Int?
+        val duration: Int?,
+        val editable: Boolean = false
     )
 }
 
 @HiltViewModel
 class WorkingHoursItemCreateViewModel @Inject constructor(
     private val workingHourRepository: WorkingHourRepository,
-    private val userMarkingRepository: UserMarkingRepository
+    private val userMarkingRepository: UserMarkingRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val isSuccess = MutableStateFlow<Boolean>(false)
@@ -45,6 +49,7 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
     private val selectedTypeId = MutableStateFlow<Int?>(null)
     private val date = MutableStateFlow<Date>(Date())
     private val duration = MutableStateFlow<String>("")
+    private val clinicType = userRepository.getClinicType()
 
     private val isLoading = MutableStateFlow<Boolean>(false)
     private val errorMessage = MutableStateFlow<String?>(null)
@@ -55,8 +60,8 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
     }
 
     private val workingHour =
-        combine(date, duration) { _date, _duration ->
-            WorkingHoursItemCreateUiState.Item(_date,_duration.toIntOrNull())
+        combine(date, duration,clinicType) { _date, _duration,clinicType ->
+            WorkingHoursItemCreateUiState.Item(_date,_duration.toIntOrNull(),clinicType == ClinicType.SPITEX)
         }
 
     val uiState = combine(workingHour, isLoading, errorMessage,selectedType,isSuccess) { workingHour, isLoading, errorMessage, selectedArticle, isSuccess ->

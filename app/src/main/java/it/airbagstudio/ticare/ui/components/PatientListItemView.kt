@@ -25,12 +25,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ch.ticare.eclinic.library.entity.CaseInfo
+import ch.ticare.eclinic.library.entity.ClinicType
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.patientsList.PatientListUiState
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
 fun PatientListItemView(
+    clinicType: ClinicType,
     patient: PatientListUiState.PatientUIState,
     requestImageRequestData: ImageRequestData,
     onClick: () -> Unit
@@ -68,7 +70,7 @@ fun PatientListItemView(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Image(
-                        painter = painterResource(id = R.drawable.ic_agender),
+                        painter = painterResource(id = patient.genderIconId),
                         contentDescription = ""
                     )
                 }
@@ -78,7 +80,7 @@ fun PatientListItemView(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                if (true) {
+                if (clinicType == ClinicType.CPA) {
                     Row(
                         modifier = Modifier.background(
                             MaterialTheme.colorScheme.surfaceVariant,
@@ -93,16 +95,19 @@ fun PatientListItemView(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "54",
+                            text = patient.bed ?: "",
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight(700),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        /*
                         Text(
                             text = " - 2",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+
+                         */
                     }
                 } else {
                     Text(

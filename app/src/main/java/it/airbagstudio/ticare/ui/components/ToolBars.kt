@@ -14,17 +14,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.ClinicType
+import it.airbagstudio.ticare.LocalActivity
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerButton
+import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerViewModel
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.debounced
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ToolbarWithSyncAndSettings(title: String, onSettingsClick: () -> Unit,isOnline: Boolean,onDownloadPatientDataClick:()->Unit) {
+fun ToolbarWithSyncAndSettings(
+    title: String,
+    onSettingsClick: () -> Unit,
+    isOnline: Boolean,
+    showTimeTrackerButton: Boolean,
+    onDownloadPatientDataClick: () -> Unit
+) {
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
         title = {
@@ -59,18 +71,28 @@ fun ToolbarWithSyncAndSettings(title: String, onSettingsClick: () -> Unit,isOnli
                     disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                 ),
                 onClick = {
-                onDownloadPatientDataClick()
-            }) {
-                Icon(painter = painterResource(id = R.drawable.ic_downalod_patient_data), contentDescription = "Downalod")
+                    onDownloadPatientDataClick()
+                }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_downalod_patient_data),
+                    contentDescription = "Downalod"
+                )
             }
-            TimeTrackerButton()
+            if (showTimeTrackerButton) {
+                TimeTrackerButton()
+            }
         }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ToolbarWithBackAndSync(title: String, onBack: () -> Unit) {
+fun ToolbarWithBackAndSync(
+    title: String, trackerViewModel: TimeTrackerViewModel = hiltViewModel(
+        LocalActivity.current
+    ), onBack: () -> Unit
+) {
+    val clinicType by trackerViewModel.clinicType.collectAsStateWithLifecycle()
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
         title = {
@@ -84,14 +106,20 @@ fun ToolbarWithBackAndSync(title: String, onBack: () -> Unit) {
             }
         },
         actions = {
-            TimeTrackerButton()
+            if (clinicType == ClinicType.SPITEX) {
+                TimeTrackerButton()
+            }
         }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ToolbarWithBack(title: String,actions: @Composable() (RowScope.() -> Unit) = {}, onBack: () -> Unit, ) {
+fun ToolbarWithBack(
+    title: String,
+    actions: @Composable() (RowScope.() -> Unit) = {},
+    onBack: () -> Unit,
+) {
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
         title = {
@@ -115,7 +143,7 @@ fun ToolbarWithBack(title: String,actions: @Composable() (RowScope.() -> Unit) =
 private fun PreviewToolbar() {
     AppTheme() {
         ToolbarWithSyncAndSettings(title = "Casa Delle Rose", onDownloadPatientDataClick = {},
-            isOnline = true,onSettingsClick = {})
+            isOnline = true, showTimeTrackerButton = true, onSettingsClick = {})
     }
 
 }

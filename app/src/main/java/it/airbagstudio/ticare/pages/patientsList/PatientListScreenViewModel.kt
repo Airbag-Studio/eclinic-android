@@ -7,7 +7,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.CaseInfo
+import ch.ticare.eclinic.library.entity.ClinicType
+import ch.ticare.eclinic.library.entity.Division
 import ch.ticare.eclinic.library.entity.Microzone
+import ch.ticare.eclinic.library.entity.Sector
 import ch.ticare.eclinic.library.entity.WoundPhoto
 import ch.ticare.eclinic.library.entity.Zone
 import ch.ticare.eclinic.library.network.AuthRepository
@@ -19,6 +22,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.ui.components.ImageRequestData
 import it.airbagstudio.ticare.utils.ISO_DATE_TIME
 import it.airbagstudio.ticare.utils.getCompleteName
+import it.airbagstudio.ticare.utils.getIconId
 import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,10 +48,15 @@ data class PatientListUiState(
     val caseList: List<PatientUIState> = listOf(),
     val zones: List<Zone> = listOf(),
     val microZones: List<Microzone> = listOf(),
+    val divisions: List<Division> = listOf(),
+    val sectors: List<Sector> = listOf(),
     val selectedZone: Zone? = null,
     val selectedMicrozone: Microzone? = null,
+    val selectedDivision: Division? = null,
+    val selectedSector: Sector? = null,
     val isRequestAllCasesAccessOn: Boolean,
-    val userZones: List<Zone> = listOf()
+    val userZones: List<Zone> = listOf(),
+    val clinicType: ClinicType = ClinicType.SPITEX
 ){
     data class PatientUIState(
         val patientCode: String,
@@ -56,6 +65,8 @@ data class PatientListUiState(
         val address: String,
         val hasDownloadedData: Boolean,
         val hasModifiedData:Boolean,
+        val bed: String?,
+        val genderIconId: Int,
         val photo: String?
     )
 }
@@ -78,8 +89,12 @@ class PatientListScreenViewModel @Inject constructor(
     private var zones = userListRepository.getZones()
     private var userZones = userListRepository.getUserZones()
     private var microzones = userListRepository.getMicrozones()
+    private var sectors = userListRepository.getSectors()
+    private var divisions = userListRepository.getDivisions()
     private var selectedZone = MutableStateFlow<Zone?>(null)
     private var selectedMicroZone = MutableStateFlow<Microzone?>(null)
+    private var selectedSector = MutableStateFlow<Sector?>(null)
+    private var selectedDivision = MutableStateFlow<Division?>(null)
     private var isRequestAllCasesAccessOn = userRepository.isRequestAllCasesAccessOn()
 
     lateinit var requestImageRequestData: ImageRequestData
@@ -90,12 +105,17 @@ class PatientListScreenViewModel @Inject constructor(
         throwable.printStackTrace()
     }
 
-    private val caseList = combine(selectedZone,selectedMicroZone,onlineRepository.state) { selectedZone, selectedMicroZone, onlineRepositoryState ->
+    private val caseList = combine(selectedZone,selectedMicroZone,selectedDivision,selectedSector,onlineRepository.state) { selectedZone, selectedMicroZone,selectedDivision,selectedSector, onlineRepositoryState ->
         requestImageRequestData = ImageRequestData(
             authRepository.getBaseURL(),
             authRepository.getToken() ?: ""
         )
-        userListRepository.getCaseList(selectedZone?.id,selectedMicroZone?.id).results?.map {
+        userListRepository.getCaseList(
+            zone = selectedZone?.id,
+            microzone = selectedMicroZone?.id,
+            sector = selectedSector?.iD,
+            division = selectedDivision?.iD
+            ).results?.map {
                 PatientListUiState.PatientUIState(
                     patientCode = it.code,
                     birthDate = "${it.birthday} (${it.age})",
@@ -103,7 +123,9 @@ class PatientListScreenViewModel @Inject constructor(
                     address = "${it.address}\n${it.cap} ${it.locality}",
                     photo = it.photo,
                     hasDownloadedData = onlineRepositoryState.patientsDownloaded.contains(it.code),
-                    hasModifiedData = onlineRepositoryState.patientsModified.contains(it.code)
+                    hasModifiedData = onlineRepositoryState.patientsModified.contains(it.code),
+                    bed = it.bed,
+                    genderIconId = it.gender.getIconId()
                 )
             } ?: listOf<PatientListUiState.PatientUIState>()
 
@@ -124,7 +146,9 @@ class PatientListScreenViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly,Unit)
 
-    val uiState: StateFlow<PatientListUiState> = combine(zones,microzones,selectedZone,selectedMicroZone,isRequestAllCasesAccessOn,userZones,companyName,caseList){ values ->
+    val clinicType = userRepository.getClinicType()
+
+    val uiState: StateFlow<PatientListUiState> = combine(zones,microzones,selectedZone,selectedMicroZone,isRequestAllCasesAccessOn,userZones,companyName,caseList,clinicType,divisions,sectors,selectedDivision,selectedSector){ values ->
         val _zones = values[0] as List<Zone>
         val _microzones = values[1] as List<Microzone>
         val _selectedZone = values[2] as? Zone
@@ -132,6 +156,11 @@ class PatientListScreenViewModel @Inject constructor(
         val isRequestAllCasesAccessOn = values[4] as Boolean
         val userZones = values[5]  as List<Zone>
         val companyName = values[6] as String
+        val clinicType = values[8] as ClinicType
+        val sectors = values[10] as List<Sector>
+        val divisions = values[9] as List<Division>
+        val selectedDivision = values[11] as Division?
+        val selectedSector = values[12] as Sector?
         isLoading = true
         val filteredMicrozones = if (_selectedZone != null){
             _microzones.filter { it.idZone == _selectedZone.id }
@@ -158,11 +187,16 @@ class PatientListScreenViewModel @Inject constructor(
             companyName = companyName,
             zones = _zones,
             microZones = filteredMicrozones,
+            divisions = divisions,
+            sectors = sectors,
             selectedMicrozone = _selectedMicrozone,
             selectedZone = _selectedZone,
+            selectedDivision = selectedDivision,
+            selectedSector = selectedSector,
             caseList = values[7] as List<PatientListUiState.PatientUIState>,
             isRequestAllCasesAccessOn = isRequestAllCasesAccessOn,
-            userZones = userZones
+            userZones = userZones,
+            clinicType = clinicType
         )
     }.catch {
         isLoading = false
@@ -204,6 +238,15 @@ class PatientListScreenViewModel @Inject constructor(
 
     fun setSelectedMicrozone(microzone: Microzone?) {
         selectedMicroZone.value = microzone
+    }
+
+    fun setSelectedDivision(division: Division?){
+        selectedDivision.value = division
+        selectedSector.value = null
+    }
+
+    fun setSelectedSector(sector: Sector?){
+        selectedSector.value = sector
     }
 
     fun syncOfflineData(){

@@ -2,8 +2,10 @@ package it.airbagstudio.ticare.pages.consumptions.create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.SaveEmployeeConsumption
 import ch.ticare.eclinic.library.repository.ConsumptionRepository
+import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -23,18 +25,19 @@ data class ConsumptionCreateUiState(
     val isLoading: Boolean,
     val item: Item,
     val isValid: Boolean
-
 ) {
     data class Item(
         val date: Date,
         val quantity: String,
-        val notes: String
+        val notes: String,
+        val editable: Boolean
     )
 }
 
 @HiltViewModel
 class ConsumptionCreateViewModel @Inject constructor(
-    private val consumptionRepository: ConsumptionRepository
+    private val consumptionRepository: ConsumptionRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val isSuccess = MutableStateFlow<Boolean>(false)
@@ -45,21 +48,29 @@ class ConsumptionCreateViewModel @Inject constructor(
     private val date = MutableStateFlow<Date>(Date())
     private val quantity = MutableStateFlow<String>("")
     private val notes = MutableStateFlow<String>("")
+    private val clinicType = userRepository.getClinicType()
 
     private val isLoading = MutableStateFlow<Boolean>(false)
     private val errorMessage = MutableStateFlow<String?>(null)
 
-    private val selectedArticle = combine(articles, selectedArticleId){ _articles, _id ->
+    private val selectedArticle = combine(articles, selectedArticleId) { _articles, _id ->
         _articles.firstOrNull { it.id == _id }
     }
 
     private val consumption =
-        combine(date, quantity, notes) { date, quantity, notes ->
-            ConsumptionCreateUiState.Item(date, quantity, notes)
+        combine(date, quantity, notes, clinicType) { date, quantity, notes, clinicType ->
+            ConsumptionCreateUiState.Item(date, quantity, notes, clinicType == ClinicType.SPITEX)
         }
 
-    val uiState = combine(consumption, isLoading, errorMessage,selectedArticle,isSuccess) { consumption, isLoading, errorMessage,selectedArticle,isSuccess ->
-        val isValid = consumption.notes.isNotEmpty() && (consumption.quantity.toDoubleOrNull() != null && consumption.quantity.toDouble() > 0 )
+    val uiState = combine(
+        consumption,
+        isLoading,
+        errorMessage,
+        selectedArticle,
+        isSuccess
+    ) { consumption, isLoading, errorMessage, selectedArticle, isSuccess ->
+        val isValid =
+            consumption.notes.isNotEmpty() && (consumption.quantity.toDoubleOrNull() != null && consumption.quantity.toDouble() > 0)
         ConsumptionCreateUiState(
             title = selectedArticle?.desc ?: "",
             errorMessage = errorMessage,
@@ -78,7 +89,7 @@ class ConsumptionCreateViewModel @Inject constructor(
             title = "",
             errorMessage = null,
             isLoading = false,
-            item = ConsumptionCreateUiState.Item(Date(), "", ""),
+            item = ConsumptionCreateUiState.Item(Date(), "", "", false),
             isSuccess = false,
             isValid = false
         )
@@ -90,23 +101,23 @@ class ConsumptionCreateViewModel @Inject constructor(
         isLoading.value = false
     }
 
-    fun setSelectedArticleId(id: Int?){
+    fun setSelectedArticleId(id: Int?) {
         this.selectedArticleId.value = id
     }
 
-    fun setConsumptionId(id: Int?){
+    fun setConsumptionId(id: Int?) {
         this.consumptionId.value = id
     }
 
-    fun setDate(date: Date){
+    fun setDate(date: Date) {
         this.date.value = date
     }
 
-    fun setNotes(value:String){
+    fun setNotes(value: String) {
         this.notes.value = value
     }
 
-    fun setQuantity(value: String){
+    fun setQuantity(value: String) {
         this.quantity.value = value
     }
 
@@ -137,14 +148,14 @@ class ConsumptionCreateViewModel @Inject constructor(
                 val res = consumptionRepository.editConsumption(item)
                 res.error?.desc?.let {
                     errorMessage.value = it
-                } ?: run{
+                } ?: run {
                     isSuccess.value = true
                 }
             } else {
                 val res = consumptionRepository.addConsumption(item)
                 res.error?.desc?.let {
                     errorMessage.value = it
-                } ?: run{
+                } ?: run {
                     isSuccess.value = true
                 }
             }

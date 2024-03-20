@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -48,11 +49,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.OperatingShift
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.data.AlertItem
@@ -65,7 +69,9 @@ import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.components.PatientImage
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.md_theme_dark_secondaryContainer
+import it.airbagstudio.ticare.utils.getIconId
 import java.util.Calendar
 import java.util.Date
 
@@ -85,7 +91,7 @@ fun PatientDetailsScreen(
         }
     }
     var showShiftsPopup by remember { mutableStateOf(false) }
-
+    val clinicType by viewModel.clinicType.collectAsStateWithLifecycle(initialValue = ClinicType.SPITEX)
 
     var showDatePicker by remember {
         mutableStateOf(false)
@@ -145,7 +151,7 @@ fun PatientDetailsScreen(
         SectionListItem(
             R.string.care_planes,
             R.drawable.ic_care_planes,
-            viewModel.badges.firstOrNull { it.carePlan.badgeNumber > 0 }?.carePlan?.badgeNumber
+            viewModel.badges.firstOrNull { it.carePlan != null && it.carePlan!!.badgeNumber > 0 }?.carePlan?.badgeNumber
                 ?: 0
         ) {
             navActions.navigateToCarePlans(Uri.encode(viewModel.patientCod))
@@ -197,258 +203,240 @@ fun PatientDetailsScreen(
             }
 
         } else {
-            val caseDetail = viewModel.caseDetails
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(values)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.Top,
+            viewModel.caseDetails?.let { caseDetail ->
+                Column(
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .fillMaxWidth()
+                        .padding(values)
                 ) {
-                    Column {
-                        PatientImage(
-                            viewModel.patientCod ?: "",
-                            caseDetail?.photo ?: "",
-                            viewModel.requestImageRequestData
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        OfflineSyncImage(
-                            hasOfflineData = viewModel.isDownloaded,
-                            hasDataToSync = viewModel.isModified
-                        )
-                    }
-
-                    Column(
+                    Row(
+                        verticalAlignment = Alignment.Top,
                         modifier = Modifier
-                            .padding(start = 8.dp)
+                            .padding(horizontal = 16.dp)
                             .fillMaxWidth()
-                            .clip(
-                                RoundedCornerShape(12.dp)
-                            )
-                            .background(MaterialTheme.colorScheme.inverseOnSurface)
-                            .clickable {
-                                viewModel.patientCod?.let {
-                                    navActions.navigateToPatientInfo(Uri.encode(it))
-                                }
-                            }
-                            .padding(8.dp)
                     ) {
-                        Row {
-                            Text(
-                                modifier = Modifier.weight(1f),
-                                text = "${caseDetail?.surname} ${caseDetail?.name}",
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = MaterialTheme.colorScheme.onSurface
+                        Column {
+                            PatientImage(
+                                viewModel.patientCod ?: "",
+                                caseDetail.photo ?: "",
+                                viewModel.requestImageRequestData
                             )
-                            Icon(painter = painterResource(id = R.drawable.ic_arrow_right), contentDescription = "")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OfflineSyncImage(
+                                hasOfflineData = viewModel.isDownloaded,
+                                hasDataToSync = viewModel.isModified
+                            )
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Row {
-                            Column {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = "${caseDetail?.birthday} (${caseDetail?.age})",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_agender),
-                                        contentDescription = ""
-                                    )
+
+                        Column(
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .fillMaxWidth()
+                                .clip(
+                                    RoundedCornerShape(12.dp)
+                                )
+                                .background(MaterialTheme.colorScheme.inverseOnSurface)
+                                .clickable {
+                                    viewModel.patientCod?.let {
+                                        navActions.navigateToPatientInfo(Uri.encode(it))
+                                    }
                                 }
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_bed),
-                                        contentDescription = ""
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = "",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
+                                .padding(8.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    modifier = Modifier.weight(1f),
+                                    text = "${caseDetail.surname} ${caseDetail.name}",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Icon(painter = painterResource(id = R.drawable.ic_arrow_right), contentDescription = "")
                             }
-                            Spacer(modifier = Modifier.weight(1f))
-                            Button(
-                                modifier = Modifier.height(32.dp),
-                                shape = RoundedCornerShape(8.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    contentColor = md_theme_dark_secondaryContainer,
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                                ),
-                                onClick = {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row {
+                                Column() {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = "${caseDetail.birthday} (${caseDetail.age})",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Image(
+                                            painter = painterResource(id = caseDetail.gender.getIconId()),
+                                            contentDescription = ""
+                                        )
+                                    }
+                                    if (clinicType == ClinicType.CPA) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.ic_bed),
+                                                contentDescription = ""
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = caseDetail.bed,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    }else{
+                                        Text(
+                                            text = "${caseDetail.address}\n${caseDetail.cap} ${caseDetail.locality}",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            minLines = 2
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.weight(1f))
+                                DiaryButton(){
                                     viewModel.patientCod?.let {
                                         navActions.navigateToDiary(Uri.encode(it))
                                     }
-                                }) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_bed),
-                                    contentDescription = ""
-                                )
-                                Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                                Text(
-                                    text = stringResource(id = R.string.diary),
-                                    style = MaterialTheme.typography.labelLarge
+                                }
+                            }
+                        }
+                    }
+                    Column(
+                        modifier = Modifier.clickable {
+                            viewModel.patientCod?.let {
+                                navActions.navigateToAlertAndAllergies(
+                                    Uri.encode(
+                                        it
+                                    )
                                 )
                             }
                         }
+                    ) {
+                        HeaderIconText(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            iconId = R.drawable.ic_icon_alert,
+                            textId = R.string.alert_allergies,
+                            showArrow = true
+                        )
 
-
-                    }
-                }
-                Column(
-                    modifier = Modifier.clickable {
-                        viewModel.patientCod?.let {
-                            navActions.navigateToAlertAndAllergies(
-                                Uri.encode(
-                                    it
+                        AlertsChips(alerts = viewModel.alerts) {
+                            viewModel.patientCod?.let {
+                                navActions.navigateToAlertAndAllergies(
+                                    Uri.encode(
+                                        it
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
-                ) {
+
                     HeaderIconText(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        iconId = R.drawable.ic_icon_alert,
-                        textId = R.string.alert_allergies,
-                        showArrow = true
+                        iconId = R.drawable.ic_calendar_shift,
+                        textId = R.string.calendar_shifts
                     )
-
-                    AlertsChips(alerts = viewModel.alerts) {
-                        viewModel.patientCod?.let {
-                            navActions.navigateToAlertAndAllergies(
-                                Uri.encode(
-                                    it
-                                )
+                    Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        val dateButtonValue: String =
+                            if (DateUtils.isToday(viewModel.selectedDate)) stringResource(id = R.string.today) else DateFormat.format(
+                                "dd.MM.yyyy",
+                                Date(viewModel.selectedDate)
+                            ).toString()
+                        DropDownButton(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(32.dp),
+                            value = dateButtonValue,
+                            isEnabled = !viewModel.isLoading && viewModel.isOnline
+                        ) {
+                            showDatePicker = true
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        DropDownButton(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(32.dp),
+                            value = viewModel.selectedShift?.name ?: stringResource(id = R.string.all),
+                            isEnabled = !viewModel.isLoading && viewModel.isOnline
+                        ) {
+                            showShiftsPopup = true
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                    ) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LazyColumn(
+                            content = {
+                                items(sections) { sectionListItem ->
+                                    SectionListItemView(item = sectionListItem)
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                            })
+                    }
+                    if (showDatePicker) {
+                        DatePickerDialog(
+                            onDismissRequest = {
+                                showDatePicker = false
+                            },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    showDatePicker = false
+                                    viewModel.selectedDate = datePickerState.selectedDateMillis!!
+                                    viewModel.downloadBadges()
+                                }) {
+                                    Text(text = "Conferma")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = {
+                                    showDatePicker = false
+                                }) {
+                                    Text(text = "Annulla")
+                                }
+                            }
+                        ) {
+                            DatePicker(
+                                state = datePickerState
                             )
                         }
                     }
-                }
-
-                HeaderIconText(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    iconId = R.drawable.ic_calendar_shift,
-                    textId = R.string.calendar_shifts
-                )
-                Row(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    val dateButtonValue: String =
-                        if (DateUtils.isToday(viewModel.selectedDate)) stringResource(id = R.string.today) else DateFormat.format(
-                            "dd.MM.yyyy",
-                            Date(viewModel.selectedDate)
-                        ).toString()
-                    DropDownButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(32.dp),
-                        value = dateButtonValue,
-                        isEnabled = !viewModel.isLoading && viewModel.isOnline
-                    ) {
-                        showDatePicker = true
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    DropDownButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(32.dp),
-                        value = viewModel.selectedShift?.name ?: stringResource(id = R.string.all),
-                        isEnabled = !viewModel.isLoading && viewModel.isOnline
-                    ) {
-                        showShiftsPopup = true
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                ) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    LazyColumn(
-                        content = {
-                            items(sections) { sectionListItem ->
-                                SectionListItemView(item = sectionListItem)
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
+                    if (showShiftsPopup && (viewModel.shifts?.isNotEmpty() == true)) {
+                        val popupItems = mutableListOf<ListPopupItem<OperatingShift>>(
+                            ListPopupItem(
+                                label = stringResource(id = R.string.all), item = null
+                            )
+                        )
+                        popupItems.addAll(viewModel.shifts!!.map {
+                            ListPopupItem(
+                                label = it.name,
+                                item = it
+                            )
                         })
-                }
-                if (showDatePicker) {
-                    DatePickerDialog(
-                        onDismissRequest = {
-                            showDatePicker = false
-                        },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                showDatePicker = false
-                                viewModel.selectedDate = datePickerState.selectedDateMillis!!
+                        ListPopup(
+                            title = stringResource(id = R.string.selectShift),
+                            items = popupItems,
+                            setShowDialog = {
+                                showShiftsPopup = false
+                            },
+                            onItemSelected = {
+                                showShiftsPopup = false
+                                viewModel.selectedShift = it.item
                                 viewModel.downloadBadges()
-                            }) {
-                                Text(text = "Conferma")
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = {
-                                showDatePicker = false
-                            }) {
-                                Text(text = "Annulla")
-                            }
-                        }
-                    ) {
-                        DatePicker(
-                            state = datePickerState
-                        )
+                            })
                     }
-                }
-                if (showShiftsPopup && (viewModel.shifts?.isNotEmpty() == true)) {
-                    val popupItems = mutableListOf<ListPopupItem<OperatingShift>>(
-                        ListPopupItem(
-                            label = stringResource(id = R.string.all), item = null
-                        )
-                    )
-                    popupItems.addAll(viewModel.shifts!!.map {
-                        ListPopupItem(
-                            label = it.name,
-                            item = it
-                        )
-                    })
-                    ListPopup(
-                        title = stringResource(id = R.string.selectShift),
-                        items = popupItems,
-                        setShowDialog = {
-                            showShiftsPopup = false
-                        },
-                        onItemSelected = {
-                            showShiftsPopup = false
-                            viewModel.selectedShift = it.item
-                            viewModel.downloadBadges()
+                    if (viewModel.errorMessage != null) {
+                        ErrorAlert(message = viewModel.errorMessage!!, onDismissRequest = {
+                            viewModel.errorMessage = null
+                        }, onRetry = {
+                            viewModel.errorMessage = null
+                            viewModel.downloadData()
                         })
-                }
-                if (viewModel.errorMessage != null) {
-                    ErrorAlert(message = viewModel.errorMessage!!, onDismissRequest = {
-                        viewModel.errorMessage = null
-                    }, onRetry = {
-                        viewModel.errorMessage = null
-                        viewModel.downloadData()
-                    })
+                    }
                 }
             }
+
         }
     }
-}
-
-@Composable
-fun VerticalDivider() {
-    Divider(
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier
-            .fillMaxHeight()  //fill the max height
-            .width(1.dp)
-    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -499,3 +487,30 @@ private fun AlertsChips(alerts: List<AlertItem>, onClick: () -> Unit) {
 }
 
 
+@Composable
+private fun DiaryButton(onClick: () -> Unit){
+    Button(
+        contentPadding = PaddingValues(vertical = 0.dp, horizontal = 20.dp),
+        modifier = Modifier.height(32.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            contentColor = md_theme_dark_secondaryContainer,
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        onClick = onClick) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_diary),
+                contentDescription = ""
+            )
+            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+            Text(
+                text = stringResource(id = R.string.diary),
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+
+    }
+}

@@ -5,14 +5,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.UserMarking
 import ch.ticare.eclinic.library.repository.UserMarkingRepository
+import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -32,12 +37,16 @@ data class TimeTrackerViewUIState(
 
 @HiltViewModel
 class TimeTrackerViewModel @Inject constructor(
-    private val userMarkingRepository: UserMarkingRepository
+    private val userMarkingRepository: UserMarkingRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     var errorMessage by mutableStateOf<String?>(null)
 
     private val DATE_FORMAT_PATTERN_FROM_SERVER = "dd.MM.yyyy HH:mm"
+
+    private val _clinicType = userRepository.getClinicType()
+    val clinicType: StateFlow<ClinicType?> = _clinicType.stateIn(viewModelScope, SharingStarted.Eagerly,null)
 
     private var startTime = MutableStateFlow<Date?>(null)
     private val trackingTime = MutableStateFlow<String?>(null)
