@@ -2,6 +2,8 @@ package it.airbagstudio.ticare.pages.patientInfo
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,6 +32,7 @@ fun PatientInfoScreen(
         }
     }) { values ->
         Column(modifier = Modifier
+            .verticalScroll(rememberScrollState())
             .padding(values)
             .padding(horizontal = 16.dp)) {
             Text(
@@ -54,7 +57,7 @@ fun PatientInfoScreen(
                 caseInfo.externalMedics.forEach { externalMedic ->
                     if (externalMedic.phoneNumbers.isNotEmpty()) {
                         PatientInfoCard(
-                            tile = externalMedic.operator,
+                            tile = "${externalMedic.label}\n${externalMedic.operator}",
                             phones = externalMedic.phoneNumbers.split(" | " )
                         )
                     }
