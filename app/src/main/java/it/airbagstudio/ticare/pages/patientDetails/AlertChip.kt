@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import it.airbagstudio.ticare.R
@@ -32,6 +33,8 @@ fun AlertChip(alert: AlertItem,onClick:()-> Unit) {
         label = {
             Text(
                 text = alert.label,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodySmall
             )
         },
@@ -60,6 +63,8 @@ fun AllergyChip(item: AllergiesItem) {
                 }
                 Text(
                     text = item.name,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
