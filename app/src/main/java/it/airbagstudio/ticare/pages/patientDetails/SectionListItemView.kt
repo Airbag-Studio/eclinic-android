@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.AbsoluteCutCornerShape
+import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
@@ -16,15 +19,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import it.airbagstudio.ticare.R
@@ -70,19 +76,26 @@ fun SectionListItemView(item: SectionListItem) {
             color = MaterialTheme.colorScheme.onSurface
         )
         if (item.badge > 0) {
-            Text(
-                modifier = Modifier
-                    .size(25.dp)
-                    .background(
-                        md_theme_dark_error,
-                        RoundedCornerShape(15.dp)
-                    ),
-                text = "${item.badge}",
-                lineHeight = 25.sp,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium,
-                color = md_theme_dark_onError
-            )
+            CompositionLocalProvider(
+                LocalDensity provides Density(
+                    LocalDensity.current.density,
+                    1f // - we set here default font scale instead of system one
+                )
+            ) {
+                Text(
+                    modifier = Modifier
+                        .size(25.dp)
+                        .background(
+                            md_theme_dark_error,
+                            RoundedCornerShape(15.dp)
+                        ),
+                    text = "${item.badge}",
+                    lineHeight = 25.sp,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = md_theme_dark_onError
+                )
+            }
         }
         Icon(
             tint = MaterialTheme.colorScheme.outline,

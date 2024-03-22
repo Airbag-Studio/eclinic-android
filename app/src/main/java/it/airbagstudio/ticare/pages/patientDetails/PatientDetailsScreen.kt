@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,24 +47,39 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import ch.ticare.eclinic.library.entity.CaseContacts
+import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.ClinicType
+import ch.ticare.eclinic.library.entity.Gender
 import ch.ticare.eclinic.library.entity.OperatingShift
+import ch.ticare.eclinic.library.network.APIClient
+import ch.ticare.eclinic.library.network.AuthRepository
+import ch.ticare.eclinic.library.network.CredentialsListener
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
+import ch.ticare.eclinic.library.repository.UserDetailRepository
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.data.AlertItem
+import it.airbagstudio.ticare.di.AuthRepositoryImpl
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.HeaderIconText
+import it.airbagstudio.ticare.ui.components.ImageRequestData
 import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.OfflineSyncImage
@@ -209,95 +225,15 @@ fun PatientDetailsScreen(
                         .fillMaxWidth()
                         .padding(values)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.Top,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Column {
-                            PatientImage(
-                                viewModel.patientCod ?: "",
-                                caseDetail.photo ?: "",
-                                viewModel.requestImageRequestData
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            OfflineSyncImage(
-                                hasOfflineData = viewModel.isDownloaded,
-                                hasDataToSync = viewModel.isModified
-                            )
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .padding(start = 8.dp)
-                                .fillMaxWidth()
-                                .clip(
-                                    RoundedCornerShape(12.dp)
-                                )
-                                .background(MaterialTheme.colorScheme.inverseOnSurface)
-                                .clickable {
-                                    viewModel.patientCod?.let {
-                                        navActions.navigateToPatientInfo(Uri.encode(it))
-                                    }
-                                }
-                                .padding(8.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    modifier = Modifier.weight(1f),
-                                    text = "${caseDetail.surname} ${caseDetail.name}",
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Icon(painter = painterResource(id = R.drawable.ic_arrow_right), contentDescription = "")
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Row {
-                                Column() {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(
-                                            text = "${caseDetail.birthday} (${caseDetail.age})",
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Image(
-                                            painter = painterResource(id = caseDetail.gender.getIconId()),
-                                            contentDescription = ""
-                                        )
-                                    }
-                                    if (clinicType == ClinicType.CPA) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(
-                                                painter = painterResource(id = R.drawable.ic_bed),
-                                                contentDescription = ""
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(
-                                                text = caseDetail.bed,
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                        }
-                                    }else{
-                                        Text(
-                                            text = "${caseDetail.address}\n${caseDetail.cap} ${caseDetail.locality}",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            minLines = 2
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.weight(1f))
-                                DiaryButton(){
-                                    viewModel.patientCod?.let {
-                                        navActions.navigateToDiary(Uri.encode(it))
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    CaseInfoView(
+                        imageRequestData = viewModel.requestImageRequestData,
+                        patientCode = viewModel.patientCod ?: "",
+                        caseDetail = caseDetail,
+                        navActions = navActions,
+                        clinicType = clinicType,
+                        hasOfflineData = viewModel.isDownloaded,
+                        hasDataToSync = viewModel.isModified
+                    )
                     Column(
                         modifier = Modifier.clickable {
                             viewModel.patientCod?.let {
@@ -486,6 +422,155 @@ private fun AlertsChips(alerts: List<AlertItem>, onClick: () -> Unit) {
     }
 }
 
+@Composable
+private fun CaseInfoView(imageRequestData: ImageRequestData,patientCode: String,caseDetail: CaseDetail,navActions: NavigationActions,clinicType: ClinicType?, hasOfflineData: Boolean,hasDataToSync: Boolean){
+
+    CompositionLocalProvider(
+        LocalDensity provides Density(
+            LocalDensity.current.density,
+            1f // - we set here default font scale instead of system one
+        )
+    ) {
+        Row(
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+        ) {
+            Column {
+                PatientImage(
+                    patientCode,
+                    caseDetail.photo ?: "",
+                    imageRequestData
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OfflineSyncImage(
+                    hasOfflineData = hasOfflineData,
+                    hasDataToSync = hasDataToSync
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .fillMaxWidth()
+                    .clip(
+                        RoundedCornerShape(12.dp)
+                    )
+                    .background(MaterialTheme.colorScheme.inverseOnSurface)
+                    .clickable {
+                        navActions.navigateToPatientInfo(Uri.encode(patientCode))
+                    }
+                    .padding(8.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = "${caseDetail.surname} ${caseDetail.name}",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_arrow_right),
+                        contentDescription = ""
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Row {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "${caseDetail.birthday} (${caseDetail.age})",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Image(
+                                painter = painterResource(id = caseDetail.gender.getIconId()),
+                                contentDescription = ""
+                            )
+                        }
+                        if (clinicType == ClinicType.CPA) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_bed),
+                                    contentDescription = ""
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = caseDetail.bed,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        } else {
+                            Text(
+                                text = caseDetail.address,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    DiaryButton() {
+                        navActions.navigateToDiary(Uri.encode(patientCode))
+                    }
+                }
+                if (clinicType == ClinicType.SPITEX) {
+                    Text(
+                        text = "${caseDetail.cap} ${caseDetail.locality}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@Preview(
+    fontScale = 2f
+)
+private fun PreviewCaseInfoView(){
+    AppTheme {
+        Scaffold {
+            Column(Modifier.padding(it)) {
+                CaseInfoView(
+                    imageRequestData = ImageRequestData("",""),
+                    patientCode = "",
+                    caseDetail = CaseDetail(
+                        address = "Via Calanchi 2 test indirizzo lunghissimo che on sc",
+                        age = 97,
+                        birthday = "28.12.1926",
+                        cap = "6900",
+                        contacts = CaseContacts("", listOf(),""),
+                        externalMedics = listOf(),
+                        gender = Gender("M", "Male",1),
+                        id = 1,
+                        internalMedics = listOf(),
+                        locality = "Lugano da dsa da d ada dada d sa d ad dad dad",
+                        name = "Elisa",
+                        surname = "Santoro",
+                        otherInfo = listOf(),
+                        photo = null,
+                        alerts = listOf(),
+                        bed = "345"
+                    ),
+                    clinicType = ClinicType.CPA,
+                    hasDataToSync = false,
+                    hasOfflineData = false,
+                    navActions = NavigationActions(NavController(LocalContext.current))
+                )
+            }
+        }
+    }
+}
 
 @Composable
 private fun DiaryButton(onClick: () -> Unit){
