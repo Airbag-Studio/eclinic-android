@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ch.ticare.eclinic.library.entity.ToolTag
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.md_theme_dark_error
@@ -43,6 +44,7 @@ data class SectionListItem(
     val nameId: Int,
     val iconId: Int,
     val badge: Int = 0,
+    val toolTag: ToolTag,
     val onClick: () -> Unit
 )
 
@@ -118,7 +120,8 @@ private fun PreviewSectionListItemView() {
                     SectionListItem(
                         R.string.vital_parameters,
                         R.drawable.ic_vital_parameters,
-                        1
+                        1,
+                        ToolTag.OtherServices
                     ) {
 
                     })

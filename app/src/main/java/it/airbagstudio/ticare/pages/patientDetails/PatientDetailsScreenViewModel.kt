@@ -12,6 +12,7 @@ import ch.ticare.eclinic.library.entity.Badge
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.OperatingShift
+import ch.ticare.eclinic.library.entity.Tool
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
@@ -24,6 +25,9 @@ import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.isCurrent
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
@@ -47,7 +51,6 @@ class PatientDetailsScreenViewModel @Inject constructor(
 
     var badges by mutableStateOf<List<Badge>>(listOf())
     var isLoading by mutableStateOf(true)
-    var isLoadingActivities by mutableStateOf(false)
 
     val patientCod: String? = savedStateHandle[DestinationsArgs.PATIENT_COD]
     var caseDetails by mutableStateOf<CaseDetail?>(null)
@@ -59,6 +62,9 @@ class PatientDetailsScreenViewModel @Inject constructor(
         authRepository.getToken() ?: ""
     )
 
+    private val _tools = userDetailRepository.getTools()
+    val tools = _tools.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
+
     val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         isLoading = false
         throwable.printStackTrace()
@@ -67,8 +73,6 @@ class PatientDetailsScreenViewModel @Inject constructor(
     var selectedDate by mutableLongStateOf(Calendar.getInstance().timeInMillis)
 
     var alerts by mutableStateOf<List<AlertItem>>(listOf())
-
-    private var allTasksForDay by mutableStateOf<List<AgendaTask>>(listOf())
 
     fun downloadData(){
         requestImageRequestData = ImageRequestData(

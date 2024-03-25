@@ -67,6 +67,7 @@ import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.Gender
 import ch.ticare.eclinic.library.entity.OperatingShift
+import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.network.APIClient
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.network.CredentialsListener
@@ -88,6 +89,7 @@ import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.md_theme_dark_secondaryContainer
 import it.airbagstudio.ticare.utils.getIconId
+import kotlinx.coroutines.flow.stateIn
 import java.util.Calendar
 import java.util.Date
 
@@ -116,13 +118,15 @@ fun PatientDetailsScreen(
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = calendar.timeInMillis)
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
-
-    val sections = listOf(
+    val tools by viewModel.tools.collectAsStateWithLifecycle()
+    
+    val menuItems = listOf(
         SectionListItem(
             R.string.vital_parameters,
             R.drawable.ic_vital_parameters,
             viewModel.badges.firstOrNull { it.vitalSign.badgeNumber > 0 }?.vitalSign?.badgeNumber
-                ?: 0
+                ?: 0,
+            ToolTag.VitalSignTask
         ) {
             navActions.navigateToVitalParameters(Uri.encode(viewModel.patientCod))
         },
@@ -130,7 +134,8 @@ fun PatientDetailsScreen(
             R.string.drug_administration,
             R.drawable.ic_pills,
             viewModel.badges.firstOrNull { it.pharmacological.badgeNumber > 0 }?.pharmacological?.badgeNumber
-                ?: 0
+                ?: 0,
+            ToolTag.PharmacologicalTask
         ) {
             viewModel.selectedShift?.let { shift ->
                 navActions.navigateToDrugAdministration(
@@ -151,6 +156,7 @@ fun PatientDetailsScreen(
         SectionListItem(
             R.string.nursing_courses,
             R.drawable.ic_nursing_courses,
+            toolTag = ToolTag.HomeCareCourse
         ) {
             navActions.navigateToNursingCourses(
                 Uri.encode(viewModel.patientCod),
@@ -161,6 +167,7 @@ fun PatientDetailsScreen(
         SectionListItem(
             R.string.wounds,
             R.drawable.ic_wounds,
+            toolTag = ToolTag.Wounds
         ) {
             navActions.navigateToWounds(Uri.encode(viewModel.patientCod))
         },
@@ -168,18 +175,23 @@ fun PatientDetailsScreen(
             R.string.care_planes,
             R.drawable.ic_care_planes,
             viewModel.badges.firstOrNull { it.carePlan != null && it.carePlan!!.badgeNumber > 0 }?.carePlan?.badgeNumber
-                ?: 0
+                ?: 0,
+            toolTag = ToolTag.CarePlan
         ) {
             navActions.navigateToCarePlans(Uri.encode(viewModel.patientCod))
         },
         SectionListItem(
             R.string.other_prescriptions,
             R.drawable.ic_other_prescriptions,
+            toolTag = ToolTag.OtherServices
         ) {
             navActions.navigateToOtherServices(Uri.encode(viewModel.patientCod))
         }
     )
 
+    val sections = tools.filter { it.isActive }.mapNotNull { tool ->
+        menuItems.firstOrNull { it.toolTag == tool.toolTag }
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { source, event ->
