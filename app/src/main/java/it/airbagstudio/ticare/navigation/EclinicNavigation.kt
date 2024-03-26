@@ -2,6 +2,7 @@ package it.airbagstudio.ticare.navigation
 
 import androidx.navigation.NavController
 import it.airbagstudio.ticare.navigation.DestinationsArgs.CHECK_ID
+import it.airbagstudio.ticare.navigation.DestinationsArgs.COURSE_TYPE
 import it.airbagstudio.ticare.navigation.DestinationsArgs.DATE_TIME
 import it.airbagstudio.ticare.navigation.DestinationsArgs.GENDER_ID
 import it.airbagstudio.ticare.navigation.DestinationsArgs.ID
@@ -13,6 +14,7 @@ import it.airbagstudio.ticare.navigation.Screens.CARE_PLANS_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.CARE_PLAN_DETAILS_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.CHECK_DETAILS_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.CONSUMPTION_LIST_SCREEN
+import it.airbagstudio.ticare.navigation.Screens.COURSES_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.DIARY_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.DRUG_ADMINISTRATION_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.LOGIN_SCREEN
@@ -49,9 +51,11 @@ private object Screens{
     const val SETTINGS_SCREEN = "settingsScreen"
     const val CONSUMPTION_LIST_SCREEN = "consumptionListScreen"
     const val WORKING_HOURS_LIST_SCREEN = "workingHoursListScreen"
+    const val COURSES_SCREEN = "coursesScreen"
 }
 
 object DestinationsArgs{
+    const val COURSE_TYPE: String = "courseType"
     const val CHECK_ID: String = "checkId"
     const val ID: String = "id"
     const val PATIENT_COD = "patientCod"
@@ -85,6 +89,7 @@ object Destinations{
     const val SETTING_ROUTE = SETTINGS_SCREEN
     const val CONSUMPTION_LIST_ROUTE = CONSUMPTION_LIST_SCREEN
     const val WORKING_HOURS_LIST_ROUTE = WORKING_HOURS_LIST_SCREEN
+    const val COURSES_ROUTE = "$COURSES_SCREEN/{$PATIENT_COD}/{$COURSE_TYPE}"
 }
 
 class NavigationActions(private val navController: NavController){
@@ -167,5 +172,9 @@ class NavigationActions(private val navController: NavController){
 
     fun navigateToWorkingHours(){
         navController.navigate(WORKING_HOURS_LIST_SCREEN)
+    }
+
+    fun navigateToCourses(patientCod: String,courseType: String){
+        navController.navigate("$COURSES_SCREEN/$patientCod/$courseType")
     }
 }

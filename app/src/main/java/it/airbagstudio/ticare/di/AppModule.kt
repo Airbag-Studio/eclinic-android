@@ -11,6 +11,7 @@ import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.CaseAllergiesRepository
 import ch.ticare.eclinic.library.repository.ConsumptionRepository
+import ch.ticare.eclinic.library.repository.CoursesRepository
 import ch.ticare.eclinic.library.repository.DiaryRepository
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import ch.ticare.eclinic.library.repository.LocalStorageApi
@@ -155,6 +156,12 @@ class AppModule {
     @Singleton
     fun providesWorkingHoursRepository(apiClient: APIClient,database: Database): WorkingHourRepository {
         return WorkingHourRepository(apiClient, database)
+    }
+
+    @Provides
+    @Singleton
+    fun providesCoursesRepository(apiClient: APIClient,database: Database): CoursesRepository {
+        return CoursesRepository(apiClient, database)
     }
 
 }

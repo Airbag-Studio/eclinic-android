@@ -119,7 +119,7 @@ fun PatientDetailsScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val tools by viewModel.tools.collectAsStateWithLifecycle()
-    
+
     val menuItems = listOf(
         SectionListItem(
             R.string.vital_parameters,
@@ -186,10 +186,40 @@ fun PatientDetailsScreen(
             toolTag = ToolTag.OtherServices
         ) {
             navActions.navigateToOtherServices(Uri.encode(viewModel.patientCod))
-        }
+        },
+        SectionListItem(
+            R.string.ergotherapy_course,
+            R.drawable.ic_ergoterapia,
+            toolTag = ToolTag.ErgotherapyCourse
+        ) {
+            navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.ErgotherapyCourse.name)
+        },
+        SectionListItem(
+            R.string.atelier_course,
+            R.drawable.ic_animatori,
+            toolTag = ToolTag.AtelierCourse
+        ) {
+            navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.AtelierTask.name)
+        },
+        SectionListItem(
+            R.string.activator_course,
+            R.drawable.ic_specialisti_attivazione,
+            toolTag = ToolTag.ActivatorCourse
+        ) {
+            navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.ActivatorCourse.name)
+        },
+        SectionListItem(
+            R.string.physiotherapy_course,
+            R.drawable.ic_physical_therapy,
+            viewModel.badges.firstOrNull { it.physiotherapy != null && it.physiotherapy!!.badgeNumber > 0 }?.physiotherapy?.badgeNumber
+                ?: 0,
+            toolTag = ToolTag.PhysiotherapyCourse
+        ) {
+            navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.PhysiotherapyCourse.name)
+        },
     )
 
-    val sections = tools.filter { it.isActive }.mapNotNull { tool ->
+    val sections = tools.filter { it.isActive }.sortedBy { it.priority }.mapNotNull { tool ->
         menuItems.firstOrNull { it.toolTag == tool.toolTag }
     }
 

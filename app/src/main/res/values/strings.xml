@@ -173,4 +173,13 @@
     <string name="alert_allergies">Alert e Allergie</string>
     <string name="divisions">Reparti</string>
     <string name="sectors">Settori</string>
+    <string name="physiotherapy_course">Decorsi di Fisioterapia</string>
+    <string name="empty" />
+    <string name="new_physiotherapy_course">Nuovo Decorso Fisioterapia</string>
+    <string name="ergotherapy_course">Attività Ergoterapia</string>
+    <string name="atelier_course">Attività Animatori</string>
+    <string name="activator_course">Attività Specialisti in Attivazione</string>
+    <string name="new_ergotherapy_course">Nuovo Decorso Ergoterapia</string>
+    <string name="new_atelier_course">Nuovo Decorso Animazione</string>
+    <string name="new_activator_course">Nuovo Decorso Spec. in Attivazione</string>
 </resources>
