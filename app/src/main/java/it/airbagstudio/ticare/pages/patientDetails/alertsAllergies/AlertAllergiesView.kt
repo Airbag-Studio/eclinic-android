@@ -58,7 +58,7 @@ fun AlertAllergiesScreen(
                     ) {
 
                         uiState.alerts.forEach { alert ->
-                            AlertChip(alert){}
+                            AlertChip(alert, maxLines = 10){}
                         }
                     }
                 }
@@ -75,7 +75,7 @@ fun AlertAllergiesScreen(
                     ) {
 
                         uiState.allergies.forEach { item ->
-                            AllergyChip(item)
+                            AllergyChip(item, maxLines = 10)
                         }
                     }
                 }

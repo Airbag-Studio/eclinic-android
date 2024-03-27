@@ -431,13 +431,13 @@ private fun AlertsChips(alerts: List<AlertItem>, onClick: () -> Unit) {
 
         if (alerts.count() > 4) {
             alerts.take(3).forEach { alert ->
-                AlertChip(alert = alert) {
+                AlertChip(alert = alert, maxLines = 1, fraction = 0.45f) {
                     onClick()
                 }
             }
         } else {
             alerts.forEach { alert ->
-                AlertChip(alert = alert) {
+                AlertChip(alert = alert, maxLines = 1, fraction = 0.45f) {
                     onClick()
                 }
             }

@@ -3,7 +3,9 @@ package it.airbagstudio.ticare.pages.patientDetails
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Icon
@@ -13,17 +15,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.core.graphics.toColorInt
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.data.AlertItem
 
-data class AllergiesItem(val name: String, val isDrug:Boolean)
+data class AllergiesItem(val name: String, val isDrug: Boolean)
+
 @Composable
-fun AlertChip(alert: AlertItem,onClick:()-> Unit) {
+fun AlertChip(
+    alert: AlertItem,
+    maxLines: Int,
+    fraction: Float? = null,
+    onClick: () -> Unit
+) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
     AssistChip(
+        modifier = if (fraction != null) Modifier.widthIn(min = 0.dp, max =  screenWidth * fraction) else Modifier,
         border = null,
         colors = AssistChipDefaults.assistChipColors(
             containerColor = Color(alert.colorBg.toColorInt()),
@@ -33,7 +47,7 @@ fun AlertChip(alert: AlertItem,onClick:()-> Unit) {
         label = {
             Text(
                 text = alert.label,
-                maxLines = 1,
+                maxLines = maxLines,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -43,9 +57,16 @@ fun AlertChip(alert: AlertItem,onClick:()-> Unit) {
 }
 
 @Composable
-fun AllergyChip(item: AllergiesItem) {
+fun AllergyChip(
+    item: AllergiesItem,
+    maxLines: Int,
+    fraction: Float? = null
+) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
     AssistChip(
-        border = BorderStroke(1.dp,MaterialTheme.colorScheme.onSurfaceVariant),
+        modifier = if (fraction != null) Modifier.widthIn(min = 0.dp, max =  screenWidth * fraction) else Modifier,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant),
         colors = AssistChipDefaults.assistChipColors(
             containerColor = MaterialTheme.colorScheme.surface,
             labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -63,7 +84,7 @@ fun AllergyChip(item: AllergiesItem) {
                 }
                 Text(
                     text = item.name,
-                    maxLines = 1,
+                    maxLines = maxLines,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodySmall
                 )
