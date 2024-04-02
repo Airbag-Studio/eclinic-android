@@ -56,7 +56,7 @@ class NursingCoursesScreenViewModel @Inject constructor(
     }
 
     private suspend fun downloadTasks(){
-        modifiedIds = offlineOnlineRepository.getModifiedIdForSection(patientCode,OfflineSection.NursingCourses)
+        modifiedIds = offlineOnlineRepository.getModifiedIdForSection(patientCode,OfflineSection.NursingCourse)
         val dateParam =  DateFormat.format("yyyy.MM.dd", date).toString()
         tasks = nursingCourseRepository.getNursingCourses(patientCode, date = dateParam).results ?: emptyList()
     }

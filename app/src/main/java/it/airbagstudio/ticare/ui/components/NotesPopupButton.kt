@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,6 +46,7 @@ fun NotesPopupButton(text: String, enabled: Boolean,editable:Boolean, onTextChan
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer
             ),
+
             onClick = {
                 showNotesPopup = true
             }
@@ -74,7 +76,9 @@ fun NotesPopupButton(text: String, enabled: Boolean,editable:Boolean, onTextChan
 }
 @Composable
 private fun ButtonContent(text:String){
-    Column() {
+    Column(
+        verticalArrangement = Arrangement.Top
+    ) {
         Row() {
             Text(
                 text = stringResource(id = R.string.notes),
@@ -92,6 +96,7 @@ private fun ButtonContent(text:String){
         Text(
             text = text,
             maxLines = 2,
+            minLines = 2,
             style = MaterialTheme.typography.bodySmall,
             overflow = TextOverflow.Ellipsis
         )

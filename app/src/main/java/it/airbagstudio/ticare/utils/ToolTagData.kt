@@ -1,4 +1,4 @@
-package it.airbagstudio.ticare.pages.coursesGeneric.data
+package it.airbagstudio.ticare.utils
 
 import ch.ticare.eclinic.library.entity.AddHomeCareCourse
 import ch.ticare.eclinic.library.entity.EditHomeCareCourse
@@ -48,19 +48,19 @@ fun ToolTag.getLabelId(): Int{
     return when(this){
         ToolTag.PharmacologicalTask -> TODO()
         ToolTag.VitalSignTask -> TODO()
-        ToolTag.BloodExamTask -> TODO()
-        ToolTag.PhysiotherapyTask -> TODO()
-        ToolTag.NursingTask -> TODO()
-        ToolTag.EducatorTask -> TODO()
-        ToolTag.ErgotherapyTask -> TODO()
-        ToolTag.AtelierTask -> TODO()
-        ToolTag.ActivatorTask -> TODO()
-        ToolTag.GenericTask -> TODO()
+        ToolTag.BloodExamTask -> R.string.blood_exam_task
+        ToolTag.PhysiotherapyTask -> R.string.physiotherapy_task
+        ToolTag.NursingTask -> R.string.nursing_task
+        ToolTag.EducatorTask -> R.string.educator_task
+        ToolTag.ErgotherapyTask -> R.string.ergotherapy_task
+        ToolTag.AtelierTask -> R.string.atelier_task
+        ToolTag.ActivatorTask -> R.string.activator_task
+        ToolTag.GenericTask -> R.string.generic_task
         ToolTag.HomeCareCourse -> R.string.care_planes
         ToolTag.PhysiotherapyCourse -> R.string.physiotherapy_course
         ToolTag.ErgotherapyCourse -> R.string.ergotherapy_course
         ToolTag.AtelierCourse -> R.string.atelier_course
-        ToolTag.EducatorCourse -> TODO()
+        ToolTag.EducatorCourse -> R.string.educator_course
         ToolTag.ActivatorCourse -> R.string.activator_course
         ToolTag.NursingCourse -> R.string.nursing_courses
         ToolTag.Diary -> TODO()
@@ -74,14 +74,14 @@ fun ToolTag.getCreateLabelId(): Int{
     return when(this){
         ToolTag.PharmacologicalTask -> TODO()
         ToolTag.VitalSignTask -> TODO()
-        ToolTag.BloodExamTask -> TODO()
-        ToolTag.PhysiotherapyTask -> TODO()
-        ToolTag.NursingTask -> TODO()
-        ToolTag.EducatorTask -> TODO()
-        ToolTag.ErgotherapyTask -> TODO()
-        ToolTag.AtelierTask -> TODO()
-        ToolTag.ActivatorTask -> TODO()
-        ToolTag.GenericTask -> TODO()
+        ToolTag.BloodExamTask -> R.string.new_blood_exam_task
+        ToolTag.PhysiotherapyTask -> R.string.new_physiotherapy_task
+        ToolTag.NursingTask -> R.string.new_nursing_task
+        ToolTag.EducatorTask -> R.string.new_educator_task
+        ToolTag.ErgotherapyTask -> R.string.new_ergotherapy_task
+        ToolTag.AtelierTask -> R.string.new_atelier_task
+        ToolTag.ActivatorTask -> R.string.new_activator_task
+        ToolTag.GenericTask -> R.string.new_generic_task
         ToolTag.HomeCareCourse -> TODO()
         ToolTag.PhysiotherapyCourse ->  R.string.new_physiotherapy_course
         ToolTag.ErgotherapyCourse ->  R.string.new_ergotherapy_course

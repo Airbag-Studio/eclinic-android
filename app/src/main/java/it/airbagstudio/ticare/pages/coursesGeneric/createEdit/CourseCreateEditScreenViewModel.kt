@@ -1,7 +1,6 @@
 package it.airbagstudio.ticare.pages.coursesGeneric.createEdit
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AddHomeCareCourse
@@ -11,7 +10,7 @@ import ch.ticare.eclinic.library.entity.HomeCareCourseCategory
 import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.repository.CoursesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import it.airbagstudio.ticare.pages.coursesGeneric.data.getType
+import it.airbagstudio.ticare.utils.getType
 import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT_ITA
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.toDate
@@ -159,7 +158,7 @@ class CourseCreateEditScreenViewModel @Inject constructor(
 
     fun downloadData(){
         viewModelScope.launch(coroutineExceptionHandler) {
-            val res = coursesRepository.getCourseCategories(courseType.getType())
+            val res = coursesRepository.getCourseCategories(patientCode,courseType.getType())
             errorMessage.value = res.error?.desc
             categories.value = res.results ?: listOf()
 

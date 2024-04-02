@@ -160,8 +160,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providesCoursesRepository(apiClient: APIClient,database: Database): CoursesRepository {
-        return CoursesRepository(apiClient, database)
+    fun providesCoursesRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository,authRepository: AuthRepository): CoursesRepository {
+        return CoursesRepository(apiClient, database,offlineOnlineRepository,authRepository)
     }
 
 }

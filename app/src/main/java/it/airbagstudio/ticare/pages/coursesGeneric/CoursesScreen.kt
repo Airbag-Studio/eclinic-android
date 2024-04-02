@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -34,10 +33,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.HomeCareCourse
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.coursesGeneric.createEdit.CourseCreateEditScreen
-import it.airbagstudio.ticare.pages.coursesGeneric.data.getCreateLabelId
-import it.airbagstudio.ticare.pages.coursesGeneric.data.getLabelId
+import it.airbagstudio.ticare.utils.getCreateLabelId
+import it.airbagstudio.ticare.utils.getLabelId
 import it.airbagstudio.ticare.pages.nursingCourses.NursingCoursesItemViewLoading
-import it.airbagstudio.ticare.pages.nursingCourses.details.CreateNursingCourseScreen
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 
 @Composable

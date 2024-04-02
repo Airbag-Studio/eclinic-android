@@ -27,6 +27,7 @@ import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
 import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
 import it.airbagstudio.ticare.pages.settings.SettingsPage
 import it.airbagstudio.ticare.pages.splashPage.SplashPageScreen
+import it.airbagstudio.ticare.pages.tasksGeneric.TaskListScreen
 import it.airbagstudio.ticare.pages.vitalParameters.list.VitalParametersScreen
 import it.airbagstudio.ticare.pages.workinghours.list.WorkingHoursListScreen
 import it.airbagstudio.ticare.pages.wounds.checks.details.CheckDetailsPage
@@ -179,6 +180,12 @@ fun EclinicNavGraph(
 
         composable(Destinations.COURSES_ROUTE){
             CoursesScreen {
+                navController.popBackStack()
+            }
+        }
+
+        composable(Destinations.TASKS_ROUTE){
+            TaskListScreen {
                 navController.popBackStack()
             }
         }

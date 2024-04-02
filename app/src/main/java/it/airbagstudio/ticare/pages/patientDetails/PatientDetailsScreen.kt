@@ -28,7 +28,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -58,7 +57,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -68,14 +66,8 @@ import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.Gender
 import ch.ticare.eclinic.library.entity.OperatingShift
 import ch.ticare.eclinic.library.entity.ToolTag
-import ch.ticare.eclinic.library.network.APIClient
-import ch.ticare.eclinic.library.network.AuthRepository
-import ch.ticare.eclinic.library.network.CredentialsListener
-import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
-import ch.ticare.eclinic.library.repository.UserDetailRepository
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.data.AlertItem
-import it.airbagstudio.ticare.di.AuthRepositoryImpl
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.ui.components.DropDownButton
 import it.airbagstudio.ticare.ui.components.ErrorAlert
@@ -89,7 +81,6 @@ import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.md_theme_dark_secondaryContainer
 import it.airbagstudio.ticare.utils.getIconId
-import kotlinx.coroutines.flow.stateIn
 import java.util.Calendar
 import java.util.Date
 
@@ -156,7 +147,7 @@ fun PatientDetailsScreen(
         SectionListItem(
             R.string.nursing_courses,
             R.drawable.ic_nursing_courses,
-            toolTag = ToolTag.HomeCareCourse
+            toolTag = ToolTag.NursingCourse
         ) {
             navActions.navigateToNursingCourses(
                 Uri.encode(viewModel.patientCod),
@@ -189,33 +180,97 @@ fun PatientDetailsScreen(
         },
         SectionListItem(
             R.string.ergotherapy_course,
-            R.drawable.ic_ergoterapia,
+            R.drawable.ic_ergotherapy_course,
             toolTag = ToolTag.ErgotherapyCourse
         ) {
             navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.ErgotherapyCourse.name)
         },
         SectionListItem(
             R.string.atelier_course,
-            R.drawable.ic_animatori,
+            R.drawable.ic_atelier_course,
             toolTag = ToolTag.AtelierCourse
         ) {
-            navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.AtelierTask.name)
+            navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.AtelierCourse.name)
         },
         SectionListItem(
             R.string.activator_course,
-            R.drawable.ic_specialisti_attivazione,
+            R.drawable.ic_activator_course,
             toolTag = ToolTag.ActivatorCourse
         ) {
             navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.ActivatorCourse.name)
         },
         SectionListItem(
+            R.string.educator_course,
+            R.drawable.ic_educator_course,
+            toolTag = ToolTag.EducatorCourse
+        ) {
+            navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.EducatorCourse.name)
+        },
+
+        SectionListItem(
             R.string.physiotherapy_course,
-            R.drawable.ic_physical_therapy,
+            R.drawable.ic_physiotherapy_course,
             viewModel.badges.firstOrNull { it.physiotherapy != null && it.physiotherapy!!.badgeNumber > 0 }?.physiotherapy?.badgeNumber
                 ?: 0,
             toolTag = ToolTag.PhysiotherapyCourse
         ) {
             navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.PhysiotherapyCourse.name)
+        },
+        SectionListItem(
+            R.string.nursing_task,
+            R.drawable.ic_nursing_task,
+            toolTag = ToolTag.NursingTask
+        ) {
+            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.NursingTask.name)
+        },
+        SectionListItem(
+            R.string.educator_task,
+            R.drawable.ic_educator_task ,
+            toolTag = ToolTag.EducatorTask
+        ) {
+            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.EducatorTask.name)
+        },
+        SectionListItem(
+            R.string.physiotherapy_task,
+            R.drawable.ic_physiotherapy_task ,
+            toolTag = ToolTag.PhysiotherapyTask
+        ) {
+            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.PhysiotherapyTask.name)
+        },
+        SectionListItem(
+            R.string.ergotherapy_task,
+            R.drawable.ic_ergotherapy_task ,
+            toolTag = ToolTag.ErgotherapyTask
+        ) {
+            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.ErgotherapyTask.name)
+        },
+        SectionListItem(
+            R.string.atelier_task,
+            R.drawable.ic_atelier_task ,
+            toolTag = ToolTag.AtelierTask
+        ) {
+            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.AtelierTask.name)
+        },
+        SectionListItem(
+            R.string.activator_task,
+            R.drawable.ic_activator_task ,
+            toolTag = ToolTag.ActivatorTask
+        ) {
+            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.ActivatorTask.name)
+        },
+        SectionListItem(
+            R.string.generic_task,
+            R.drawable.ic_generic_task ,
+            toolTag = ToolTag.GenericTask
+        ) {
+            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.GenericTask.name)
+        },
+        SectionListItem(
+            R.string.blood_exam_task,
+            R.drawable.ic_blood_exam_task ,
+            toolTag = ToolTag.BloodExamTask
+        ) {
+            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.BloodExamTask.name)
         },
     )
 

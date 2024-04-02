@@ -4,7 +4,6 @@ import android.text.format.DateFormat
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,9 +12,7 @@ import ch.ticare.eclinic.library.repository.CoursesRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.DestinationsArgs
-import it.airbagstudio.ticare.pages.coursesGeneric.data.getLabelId
 import it.airbagstudio.ticare.utils.DATE_ONLY_TIME_FORMAT
 import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
 import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT_ITA
