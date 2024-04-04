@@ -11,6 +11,7 @@ import ch.ticare.eclinic.library.entity.AgendaTask
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.OperatingShift
+import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository.Companion.PHARMACOLOGICAL_TYPE
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
@@ -72,7 +73,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
 
         val dateParam =  DateFormat.format("yyyy.MM.dd", date).toString()
         val expDate =  DateFormat.format("yyyy-MM-dd", date).toString()
-        val allTasks = agendaTaskRepository.getAgendaTasks(PHARMACOLOGICAL_TYPE,date = dateParam,patientCod).results
+        val allTasks = agendaTaskRepository.getAgendaTasks(ToolTag.PharmacologicalTask,date = dateParam,patientCod).results
         tasks = allTasks?.filter { task ->
             if(task.expTime != null){
                 val taskTime = LocalTime.parse(task.expTime)

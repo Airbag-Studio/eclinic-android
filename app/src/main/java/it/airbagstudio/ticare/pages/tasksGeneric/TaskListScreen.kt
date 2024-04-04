@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.AgendaTask
 import ch.ticare.eclinic.library.entity.TaskType
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.tasksGeneric.createEdit.TaskCreateEditScreen
@@ -36,6 +37,7 @@ import it.airbagstudio.ticare.utils.getCreateLabelId
 import it.airbagstudio.ticare.utils.getLabelId
 import it.airbagstudio.ticare.ui.components.BuildPageHeader
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.utils.canCreateNew
 
 @Composable
 fun TaskListScreen(
@@ -53,6 +55,10 @@ fun TaskListScreen(
         mutableStateOf<TaskType?>(null)
     }
 
+    var taskToEdit by remember {
+        mutableStateOf<AgendaTask?>(null)
+    }
+
     var openCreateEditScreen by remember {
         mutableStateOf(false)
     }
@@ -65,27 +71,29 @@ fun TaskListScreen(
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                    .fillMaxWidth(),
-                contentColor = MaterialTheme.colorScheme.primary,
-                content = {
-                    Icon(
-                        imageVector = Icons.Default.Add, contentDescription = stringResource(
-                            id = uiState.taskType.getCreateLabelId()
+            if (uiState.taskType.canCreateNew()) {
+                ExtendedFloatingActionButton(
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .fillMaxWidth(),
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    content = {
+                        Icon(
+                            imageVector = Icons.Default.Add, contentDescription = stringResource(
+                                id = uiState.taskType.getCreateLabelId()
+                            )
                         )
-                    )
-                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                    Text(
-                        text = stringResource(
-                            id = uiState.taskType.getCreateLabelId()
+                        Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                        Text(
+                            text = stringResource(
+                                id = uiState.taskType.getCreateLabelId()
+                            )
                         )
-                    )
-                },
-                onClick = {
-                    showSearchBottomSheet = true
-                })
+                    },
+                    onClick = {
+                        showSearchBottomSheet = true
+                    })
+            }
         }
     ) { values ->
 
@@ -99,12 +107,14 @@ fun TaskListScreen(
                 content = {
                     items(uiState.services){
                         TaskListItemView(item = it) {
-
+                            taskToEdit = it.task
+                            openCreateEditScreen = true
                         }
                     }
                 })
         }
         if (showSearchBottomSheet){
+            taskToEdit = null
             TypeSelectScreen(taskTypes = uiState.typesForTask) {
                 showSearchBottomSheet = false
                 it?.let { taskType ->
@@ -117,10 +127,12 @@ fun TaskListScreen(
             TaskCreateEditScreen(
                 taskType = selectedType,
                 toolTag = uiState.taskType,
-                patientCode = uiState.patientCode
+                patientCode = uiState.patientCode,
+                taskToEdit = taskToEdit
             ) {
                 selectedType = null
                 openCreateEditScreen = false
+                taskToEdit = null
                 if (it){
                     viewModel.downloadData()
                 }

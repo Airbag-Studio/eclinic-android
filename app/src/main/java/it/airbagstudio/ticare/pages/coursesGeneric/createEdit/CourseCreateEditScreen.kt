@@ -69,7 +69,7 @@ fun CourseCreateEditScreen(
 
 
     val uiState by viewModel.uiState.collectAsState()
-    LaunchedEffect(key1 = viewModel.isSuccess) {
+    LaunchedEffect(key1 = viewModel.isSuccess.value) {
         if (viewModel.isSuccess.value){
             viewModel.clearState()
             onDismissRequest(true)

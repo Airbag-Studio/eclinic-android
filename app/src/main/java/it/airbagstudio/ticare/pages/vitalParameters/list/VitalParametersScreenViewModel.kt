@@ -10,6 +10,7 @@ import ch.ticare.eclinic.library.entity.AgendaTask
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.OperatingShift
+import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository.Companion.VITAL_SIGN_TYPE
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
@@ -127,7 +128,7 @@ class VitalParametersScreenViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             modifiedIds.value = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.VitalSign)
             val _tasks = agendaTaskRepository.getAgendaTasks(
-                VITAL_SIGN_TYPE,
+                ToolTag.VitalSignTask,
                 date?.format("yyyy.MM.dd") ?: "",
                 patientCod
             ).results ?: listOf()

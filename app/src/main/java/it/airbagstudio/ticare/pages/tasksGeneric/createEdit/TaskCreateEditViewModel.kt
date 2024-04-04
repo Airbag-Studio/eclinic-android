@@ -9,6 +9,7 @@ import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.entity.UnscheduledTask
 import ch.ticare.eclinic.library.entity.UnscheduledTaskFields
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
+import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -38,13 +39,13 @@ data class TaskCreateEditScreenUIState(
 
 @HiltViewModel
 class TaskCreateEditViewModel @Inject constructor(
-    private val agendaTaskRepository: AgendaTaskRepository
+    private val agendaTaskRepository: AgendaTaskRepository,
+    private val userRepository: UserRepository
 ): ViewModel() {
 
     var agendaTask: AgendaTask? = null
     lateinit var caseCode: String
     lateinit var taskType: ToolTag
-    var taskActivityTypeId: Int = 0
     var userId: Int = 0
 
 
@@ -87,14 +88,26 @@ class TaskCreateEditViewModel @Inject constructor(
         TaskCreateEditScreenUIState(task = TaskCreateEditScreenUIState.TaskUiState())
     )
 
-
-    fun setAgendaTask(agendaTask: AgendaTask){
+    init {
+        viewModelScope.launch {
+            userRepository.getCurrentUserID().collect(){
+                userId = it
+            }
+        }
 
     }
 
-    fun downloadData(){
+    fun setAgendaTaskTypeCode(code: String){
         viewModelScope.launch {
-            agendaTaskRepository.getActivityTypeTypes(taskType.name).firstOrNull { it.id == taskActivityTypeId }?.let {
+            agendaTaskRepository.getActivityTypeTypes(taskType.name).firstOrNull { it.code == code }?.let {
+                taskActivityType.value = it
+            }
+        }
+    }
+
+    fun setAgendaTaskTypeId(id: Int){
+        viewModelScope.launch {
+            agendaTaskRepository.getActivityTypeTypes(taskType.name).firstOrNull { it.id == id }?.let {
                 taskActivityType.value = it
             }
         }
@@ -148,14 +161,13 @@ class TaskCreateEditViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             val newTask = UnscheduledTask(
                 index = 1,
-                taskType = AgendaTaskRepository.VITAL_SIGN_TYPE,
+                taskType = taskType.name,
                 taskFields = UnscheduledTaskFields(
                     codCase = caseCode ,
                     idType = taskActivityType.value?.id ?: 0,
                     idUser = userId,
                     showInDiary = showInDiary.value,
                     duration = duration.value ?: 0,
-                    value = "",
                     notes = notes.value,
                     excDateTime = dateTime.value.format("yyyy.MM.dd HH:mm"),
                     skipped = notExecuted.value
@@ -185,7 +197,6 @@ class TaskCreateEditViewModel @Inject constructor(
                         idUser = userId,
                         showInDiary = showInDiary.value,
                         duration = duration.value ?: 0,
-                        value = "",
                         notes = notes.value,
                         excDateTime = dateTime.value.format("yyyy.MM.dd HH:mm"),
                         skipped = notExecuted.value,
@@ -211,7 +222,6 @@ class TaskCreateEditViewModel @Inject constructor(
                     execDate = execDate,
                     execTime = execTime,
                     alertLevel = 1,
-                    value = "",
                     isSkipped = notExecuted.value
                 )
 

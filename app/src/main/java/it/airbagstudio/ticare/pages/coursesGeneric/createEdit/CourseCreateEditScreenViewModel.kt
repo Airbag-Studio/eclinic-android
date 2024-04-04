@@ -1,6 +1,8 @@
 package it.airbagstudio.ticare.pages.coursesGeneric.createEdit
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AddHomeCareCourse
@@ -158,7 +160,7 @@ class CourseCreateEditScreenViewModel @Inject constructor(
 
     fun downloadData(){
         viewModelScope.launch(coroutineExceptionHandler) {
-            val res = coursesRepository.getCourseCategories(patientCode,courseType.getType())
+            val res = coursesRepository.getCourseCategories(patientCode,courseType)
             errorMessage.value = res.error?.desc
             categories.value = res.results ?: listOf()
 

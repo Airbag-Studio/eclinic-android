@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ch.ticare.eclinic.library.entity.HomeCareCourse
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.LabelValueRow
 import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 
 data class CourseListItem(
@@ -74,7 +75,7 @@ fun CourseListItemView(item: CourseListItem,onClick: () -> Unit){
                 modifier = Modifier.padding(end = 24.dp)
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
-                LabelValueRow(label = stringResource(id = R.string.duration), value = "$item.duration")
+                LabelValueRow(label = stringResource(id = R.string.duration), value = "${item.duration}")
                 Spacer(modifier = Modifier.width(8.dp))
                 LabelValueRow(
                     label = stringResource(id = R.string.time),

@@ -136,6 +136,9 @@ fun CoursesScreen(
                 course = null
             ) {
                 showCreateBottomSheet = false
+                if (it){
+                    viewModel.downloadData()
+                }
             }
         }
         if (selectedTasks != null){

@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -44,13 +43,10 @@ import ch.ticare.eclinic.library.entity.ToolTag
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
-import it.airbagstudio.ticare.ui.components.NotesPopup
 import it.airbagstudio.ticare.ui.components.NotesPopupButton
 import it.airbagstudio.ticare.ui.components.SwitchItem
-import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
 import it.airbagstudio.ticare.utils.getExecDateTime
-import it.airbagstudio.ticare.utils.isValidVitalParameterValue
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,19 +61,19 @@ fun TaskCreateEditScreen(
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(key1 = Unit) {
-        if (taskType != null){
-            viewModel.taskActivityTypeId = taskType.id
-        }
+
         viewModel.taskType = toolTag
         viewModel.caseCode = patientCode
+        if (taskType != null){
+            viewModel.setAgendaTaskTypeId(taskType.id)
+        }
         if (taskToEdit != null){
             viewModel.setDate(taskToEdit.getExecDateTime() ?: Date())
             viewModel.setDuration(taskToEdit.duration)
             viewModel.setNotes(taskToEdit.notes)
             viewModel.setShowInDiary(taskToEdit.showInDiary)
-            viewModel.taskActivityTypeId = taskToEdit.itemPKey
+            viewModel.setAgendaTaskTypeCode(taskToEdit.typeCode)
         }
-        viewModel.downloadData()
     }
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -145,7 +141,7 @@ fun TaskCreateEditScreen(
                     enabled = !uiState.isLoading,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        viewModel.saveTask()
+                        viewModel.saveTask(task = taskToEdit)
                     }) {
                     Icon(imageVector = Icons.Default.Check, contentDescription = "")
                     Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))

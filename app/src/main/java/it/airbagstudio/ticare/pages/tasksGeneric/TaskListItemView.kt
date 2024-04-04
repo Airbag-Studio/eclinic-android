@@ -21,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ch.ticare.eclinic.library.entity.AgendaTask
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.LabelValueRow
 import it.airbagstudio.ticare.ui.components.OfflineSyncImage
@@ -31,7 +32,8 @@ data class TaskListItem(
     val name: String,
     val time: String,
     val executed:Boolean,
-    val hasDataToUpload: Boolean
+    val hasDataToUpload: Boolean,
+    val task: AgendaTask
 )
 
 @Composable
@@ -81,25 +83,5 @@ fun TaskListItemView(item: TaskListItem, onClick: () -> Unit) {
 
         Spacer(modifier = Modifier.height(12.dp))
         HorizontalDivider()
-    }
-}
-
-@Composable
-@Preview
-private fun PreviewTaskListItemView() {
-    AppTheme() {
-        Surface() {
-            TaskListItemView(
-                item = TaskListItem(
-                    name = "Musicoterapia di Gruppo",
-                    time = "8:00",
-                    executed = true,
-                    hasDataToUpload = true,
-                )
-            ) {
-
-            }
-        }
-
     }
 }

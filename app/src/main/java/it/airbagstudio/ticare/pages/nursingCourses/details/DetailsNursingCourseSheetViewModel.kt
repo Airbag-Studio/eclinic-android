@@ -12,8 +12,10 @@ import ch.ticare.eclinic.library.entity.HomeCareCourse
 import ch.ticare.eclinic.library.entity.HomeCareCourseCategory
 import ch.ticare.eclinic.library.entity.HomeCareCourseImage
 import ch.ticare.eclinic.library.entity.HomeCareCourseImageRequest
+import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.entity.WoundImageUploadRequest
 import ch.ticare.eclinic.library.network.AuthRepository
+import ch.ticare.eclinic.library.repository.CoursesRepository
 import ch.ticare.eclinic.library.repository.NursingCourseRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,6 +42,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     private val nursingCourseRepository: NursingCourseRepository,
     private val authRepository: AuthRepository,
     private val offlineOnlineRepository: OfflineOnlineRepository,
+    private val coursesRepository: CoursesRepository
 ) : ViewModel() {
 
     var isOnline by mutableStateOf(false)
@@ -124,7 +127,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
 
     fun loadCategory(patientCode: String) {
         viewModelScope.launch(coroutineExceptionHandler) {
-            listOfCategories.value = nursingCourseRepository.getNursingCourseCategory(patientCode).results.also {
+            listOfCategories.value = coursesRepository.getCourseCategories(patientCode,ToolTag.NursingCourse).results.also {
                 if(screenType.value == ScreenType.Add) {
                 selectedCategoryId.value = it?.find { cat -> cat.useAsDefault }?.id
                 }

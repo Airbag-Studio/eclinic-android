@@ -67,6 +67,8 @@ class CoursesViewModel @Inject constructor(
             val courseType = ToolTag.valueOf(courseTypeName)
             val patient = userDetailRepository.getCurrentCase()
             val shift = userDetailRepository.getCurrentShift()
+            val modifiedIds = offlineOnlineRepository.getModifiedIdForSection(patientCode,
+                courseType.getOfflineSection())
             val date = userDetailRepository.getSelectedDate()?.toDate(SERVER_DATE_FORMAT) ?: Date()
             val dateParam = DateFormat.format("yyyy.MM.dd", date).toString()
             _uiState.value = CoursesUiState(
@@ -88,7 +90,7 @@ class CoursesViewModel @Inject constructor(
                     ) ?: "",
                     duration = it.duration,
                     description = it.desc,
-                    hasDataToUpload = false,
+                    hasDataToUpload = modifiedIds.contains(it.id.toString()),
                     it
                 )
             }

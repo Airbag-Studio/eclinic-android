@@ -261,9 +261,9 @@ fun PatientDetailsScreen(
         SectionListItem(
             R.string.generic_task,
             R.drawable.ic_generic_task ,
-            toolTag = ToolTag.GenericTask
+            toolTag = ToolTag.GenericServiceTask
         ) {
-            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.GenericTask.name)
+            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.GenericServiceTask.name)
         },
         SectionListItem(
             R.string.blood_exam_task,
@@ -595,7 +595,7 @@ private fun CaseInfoView(imageRequestData: ImageRequestData,patientCode: String,
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = caseDetail.bed,
+                                    text = caseDetail.bed ?: "",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
