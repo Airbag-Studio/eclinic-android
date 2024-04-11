@@ -115,7 +115,8 @@ fun DiaryScreen(
                                     description = item.schedulerLbl ?: "",
                                     isPlanned = item.isScheduledTask ?: true,
                                     time = item.time,
-                                    note = item.taskNotes ?: ""
+                                    note = item.taskNotes ?: "",
+                                    duration = item.duration?.toString() ?: "-"
                                 )
                             } else if (item.entityName == "Wound"){
                                 DiaryWoundItemView(

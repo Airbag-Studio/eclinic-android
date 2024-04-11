@@ -141,7 +141,7 @@ fun DiaryNursingCourseItemView(
                     category = stringResource(id = R.string.nursing_courses),
                     title = title
                 )
-                //LabelValueRow(label = stringResource(id = R.string.duration), value = duration)
+                LabelValueRow(label = stringResource(id = R.string.duration), value = duration)
                 if (!isPlanned) {
                     FlowRow(
                         modifier = Modifier
@@ -168,7 +168,8 @@ fun DiaryCarePlaneItemView(
     description: String,
     time: String,
     note: String,
-    isPlanned: Boolean
+    isPlanned: Boolean,
+    duration: String
 ) {
     Column {
         Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
@@ -199,6 +200,7 @@ fun DiaryCarePlaneItemView(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                LabelValueRow(label = stringResource(id = R.string.duration), value = duration)
                 if (!isPlanned) {
                     FlowRow(
                         modifier = Modifier
