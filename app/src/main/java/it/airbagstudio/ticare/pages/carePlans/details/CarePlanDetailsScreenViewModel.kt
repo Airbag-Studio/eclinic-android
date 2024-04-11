@@ -92,7 +92,7 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                 )
             }
             val plannedInfo = planndeActivities.map {
-                var data = "${it.type}\n${it.number} ${it.timeUnit}\n${getWeekDays(it.weekDays)}"
+                var data = "${it.type}\n${if(it.number > 0) it.number.toString() else "Su Necessità"} ${it.timeUnit}\n${getWeekDays(it.weekDays)}"
                 if(it.qualMin.isNotEmpty()){
                     data+= "\n${it.qualMin}"
                 }
@@ -166,8 +166,10 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
 
     private fun getWeekDays(string: String): String {
         val chars = string.toCharArray().map { it.digitToInt() }
-        if (chars.all { it == 1 } || chars.all { it == 0 }) {
+        if (chars.all { it == 1 }) {
             return "Tutti i giorni"
+        } else if (chars.all { it == 0 }) {
+            return ""
         } else {
             val concatDays: MutableList<String> = mutableListOf()
             chars.forEachIndexed { index, element ->
