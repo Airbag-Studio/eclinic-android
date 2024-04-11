@@ -46,13 +46,11 @@ fun PatientInfoScreen(
                 if (caseInfo.contacts.phoneNumbers.isNotEmpty()) {
                     PatientInfoCard(tile = "Telefono", phones = caseInfo.contacts.phoneNumbers.split(" | "))
                 }
-                caseInfo.internalMedics.forEach { internalMedic ->
-                    if (internalMedic.phoneNumbers.isNotEmpty()) {
+                caseInfo.internalMedics?.forEach { internalMedic ->
                         PatientInfoCard(
-                            tile = internalMedic.label,
-                            phones = internalMedic.phoneNumbers.split(" | " )
+                            tile = "${internalMedic.label}\n${internalMedic.operator}",
+                            text = internalMedic.function
                         )
-                    }
                 }
                 caseInfo.externalMedics.forEach { externalMedic ->
                     if (externalMedic.phoneNumbers.isNotEmpty()) {
