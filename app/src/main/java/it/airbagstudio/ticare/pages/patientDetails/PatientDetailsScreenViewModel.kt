@@ -47,7 +47,6 @@ class PatientDetailsScreenViewModel @Inject constructor(
     var isModified by mutableStateOf(false)
 
     var isOnline by mutableStateOf(false)
-    var clinicType = userRepository.getClinicType()
 
     var badges by mutableStateOf<List<Badge>>(listOf())
     var isLoading by mutableStateOf(true)
@@ -61,6 +60,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
         authRepository.getBaseURL(),
         authRepository.getToken() ?: ""
     )
+    var clinicType by mutableStateOf(ClinicType.SPITEX)
 
     private val _tools = userDetailRepository.getTools()
     val tools = _tools.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
@@ -73,6 +73,14 @@ class PatientDetailsScreenViewModel @Inject constructor(
     var selectedDate by mutableLongStateOf(Calendar.getInstance().timeInMillis)
 
     var alerts by mutableStateOf<List<AlertItem>>(listOf())
+
+    init {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            userRepository.getClinicType().collect {
+                if (it != null) clinicType = it
+            }
+        }
+    }
 
     fun downloadData(){
         requestImageRequestData = ImageRequestData(
@@ -94,8 +102,10 @@ class PatientDetailsScreenViewModel @Inject constructor(
                 ) } ?: listOf()
 
                 shifts = userDetailRepository.getOperatingShifts().results
-                shifts?.firstOrNull { it.isCurrent() }?.let {
-                    selectedShift = it
+                if (clinicType == ClinicType.CPA) {
+                    shifts?.firstOrNull { it.isCurrent() }?.let {
+                        selectedShift = it
+                    }
                 }
                 downloadBadges()
 

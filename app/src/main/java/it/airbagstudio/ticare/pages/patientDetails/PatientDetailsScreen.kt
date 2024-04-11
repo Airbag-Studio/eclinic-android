@@ -100,7 +100,6 @@ fun PatientDetailsScreen(
         }
     }
     var showShiftsPopup by remember { mutableStateOf(false) }
-    val clinicType by viewModel.clinicType.collectAsStateWithLifecycle(initialValue = ClinicType.SPITEX)
 
     var showDatePicker by remember {
         mutableStateOf(false)
@@ -115,7 +114,7 @@ fun PatientDetailsScreen(
         SectionListItem(
             R.string.vital_parameters,
             R.drawable.ic_vital_parameters,
-            viewModel.badges.firstOrNull { it.vitalSign.badgeNumber > 0 }?.vitalSign?.badgeNumber
+            viewModel.badges.firstOrNull { it.vitalSign != null && it.vitalSign!!.badgeNumber > 0 }?.vitalSign?.badgeNumber
                 ?: 0,
             ToolTag.VitalSignTask
         ) {
@@ -124,7 +123,7 @@ fun PatientDetailsScreen(
         SectionListItem(
             R.string.drug_administration,
             R.drawable.ic_pills,
-            viewModel.badges.firstOrNull { it.pharmacological.badgeNumber > 0 }?.pharmacological?.badgeNumber
+            viewModel.badges.firstOrNull { it.pharmacological != null && it.pharmacological!!.badgeNumber > 0 }?.pharmacological?.badgeNumber
                 ?: 0,
             ToolTag.PharmacologicalTask
         ) {
@@ -172,6 +171,17 @@ fun PatientDetailsScreen(
             navActions.navigateToCarePlans(Uri.encode(viewModel.patientCod))
         },
         SectionListItem(
+            R.string.nursing_courses,
+            R.drawable.ic_nursing_courses,
+            toolTag = ToolTag.HomeCareCourse
+        ) {
+            navActions.navigateToNursingCourses(
+                Uri.encode(viewModel.patientCod),
+                viewModel.selectedDate,
+                shiftName = context.getString(R.string.all)
+            )
+        },
+        SectionListItem(
             R.string.other_prescriptions,
             R.drawable.ic_other_prescriptions,
             toolTag = ToolTag.OtherServices
@@ -202,6 +212,8 @@ fun PatientDetailsScreen(
         SectionListItem(
             R.string.educator_course,
             R.drawable.ic_educator_course,
+            viewModel.badges.firstOrNull { it.educator != null && it.educator!!.badgeNumber > 0 }?.educator?.badgeNumber
+                ?: 0,
             toolTag = ToolTag.EducatorCourse
         ) {
             navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.EducatorCourse.name)
@@ -219,6 +231,8 @@ fun PatientDetailsScreen(
         SectionListItem(
             R.string.nursing_task,
             R.drawable.ic_nursing_task,
+            viewModel.badges.firstOrNull { it.nursing != null && it.nursing!!.badgeNumber > 0 }?.nursing?.badgeNumber
+                ?: 0,
             toolTag = ToolTag.NursingTask
         ) {
             navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.NursingTask.name)
@@ -239,35 +253,45 @@ fun PatientDetailsScreen(
         },
         SectionListItem(
             R.string.ergotherapy_task,
-            R.drawable.ic_ergotherapy_task ,
+            R.drawable.ic_ergotherapy_task,
+            viewModel.badges.firstOrNull { it.ergotherapy != null && it.ergotherapy!!.badgeNumber > 0 }?.ergotherapy?.badgeNumber
+                ?: 0,
             toolTag = ToolTag.ErgotherapyTask
         ) {
             navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.ErgotherapyTask.name)
         },
         SectionListItem(
             R.string.atelier_task,
-            R.drawable.ic_atelier_task ,
+            R.drawable.ic_atelier_task,
+            viewModel.badges.firstOrNull { it.atelier != null && it.atelier!!.badgeNumber > 0 }?.atelier?.badgeNumber
+                ?: 0,
             toolTag = ToolTag.AtelierTask
         ) {
             navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.AtelierTask.name)
         },
         SectionListItem(
             R.string.activator_task,
-            R.drawable.ic_activator_task ,
+            R.drawable.ic_activator_task,
+            viewModel.badges.firstOrNull { it.activator != null && it.activator!!.badgeNumber > 0 }?.activator?.badgeNumber
+                ?: 0,
             toolTag = ToolTag.ActivatorTask
         ) {
             navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.ActivatorTask.name)
         },
         SectionListItem(
             R.string.generic_task,
-            R.drawable.ic_generic_task ,
+            R.drawable.ic_generic_task,
+            viewModel.badges.firstOrNull { it.genericService != null && it.genericService!!.badgeNumber > 0 }?.genericService?.badgeNumber
+                ?: 0,
             toolTag = ToolTag.GenericServiceTask
         ) {
             navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.GenericServiceTask.name)
         },
         SectionListItem(
             R.string.blood_exam_task,
-            R.drawable.ic_blood_exam_task ,
+            R.drawable.ic_blood_exam_task,
+            viewModel.badges.firstOrNull { it.bloodExam != null && it.bloodExam!!.badgeNumber > 0 }?.bloodExam?.badgeNumber
+                ?: 0,
             toolTag = ToolTag.BloodExamTask
         ) {
             navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.BloodExamTask.name)
@@ -327,7 +351,7 @@ fun PatientDetailsScreen(
                         patientCode = viewModel.patientCod ?: "",
                         caseDetail = caseDetail,
                         navActions = navActions,
-                        clinicType = clinicType,
+                        clinicType = viewModel.clinicType,
                         hasOfflineData = viewModel.isDownloaded,
                         hasDataToSync = viewModel.isModified
                     )
