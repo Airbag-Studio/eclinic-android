@@ -130,7 +130,8 @@ class VitalParametersScreenViewModel @Inject constructor(
             val _tasks = agendaTaskRepository.getAgendaTasks(
                 ToolTag.VitalSignTask,
                 date?.format("yyyy.MM.dd") ?: "",
-                patientCod
+                patientCod,
+                null
             ).results ?: listOf()
             tasks.value = _tasks
             isLoading.value = false

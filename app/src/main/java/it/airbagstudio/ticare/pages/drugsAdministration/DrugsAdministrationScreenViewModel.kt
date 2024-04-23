@@ -73,7 +73,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
 
         val dateParam =  DateFormat.format("yyyy.MM.dd", date).toString()
         val expDate =  DateFormat.format("yyyy-MM-dd", date).toString()
-        val allTasks = agendaTaskRepository.getAgendaTasks(ToolTag.PharmacologicalTask,date = dateParam,patientCod).results
+        val allTasks = agendaTaskRepository.getAgendaTasks(ToolTag.PharmacologicalTask,date = dateParam,patientCod, null).results
         tasks = allTasks?.filter { task ->
             if(task.expTime != null){
                 val taskTime = LocalTime.parse(task.expTime)

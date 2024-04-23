@@ -73,7 +73,6 @@ fun CreateNewVitalParameterSheet(
             viewModel.setVitalSignCode(task.typeCode)
             viewModel.setValue(task.value ?: "")
             viewModel.setShowInDiary(task.showInDiary)
-
         }
 
     }
@@ -184,6 +183,19 @@ private fun BuildSheetContent(
                     onCheckedChange = {
                     viewModel.setShowInDiary(it)
                 })
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = stringResource(id = R.string.not_performed)
+                )
+                Switch(
+                    enabled = uiState.isScheduled,
+                    checked = uiState.notExecuted,
+                    onCheckedChange = {
+                        viewModel.setNotExecuted(it)
+                    })
             }
             Spacer(modifier = Modifier.weight(1f))
             Button(

@@ -172,7 +172,7 @@ fun PatientDetailsScreen(
         },
         SectionListItem(
             R.string.nursing_courses,
-            R.drawable.ic_nursing_courses,
+            R.drawable.ic_home_care_course,
             toolTag = ToolTag.HomeCareCourse
         ) {
             navActions.navigateToNursingCourses(
@@ -212,8 +212,6 @@ fun PatientDetailsScreen(
         SectionListItem(
             R.string.educator_course,
             R.drawable.ic_educator_course,
-            viewModel.badges.firstOrNull { it.educator != null && it.educator!!.badgeNumber > 0 }?.educator?.badgeNumber
-                ?: 0,
             toolTag = ToolTag.EducatorCourse
         ) {
             navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.EducatorCourse.name)
@@ -222,8 +220,6 @@ fun PatientDetailsScreen(
         SectionListItem(
             R.string.physiotherapy_course,
             R.drawable.ic_physiotherapy_course,
-            viewModel.badges.firstOrNull { it.physiotherapy != null && it.physiotherapy!!.badgeNumber > 0 }?.physiotherapy?.badgeNumber
-                ?: 0,
             toolTag = ToolTag.PhysiotherapyCourse
         ) {
             navActions.navigateToCourses(Uri.encode(viewModel.patientCod),ToolTag.PhysiotherapyCourse.name)
@@ -235,21 +231,50 @@ fun PatientDetailsScreen(
                 ?: 0,
             toolTag = ToolTag.NursingTask
         ) {
-            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.NursingTask.name)
+            viewModel.getSelectedShiftId()?.let { shiftId ->
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.NursingTask.name
+                )
+            } ?: run {
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.NursingTask.name
+                )
+            }
         },
         SectionListItem(
             R.string.educator_task,
-            R.drawable.ic_educator_task ,
+            R.drawable.ic_educator_task,
+            viewModel.badges.firstOrNull { it.educator != null && it.educator!!.badgeNumber > 0 }?.educator?.badgeNumber
+                ?: 0,
             toolTag = ToolTag.EducatorTask
         ) {
-            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.EducatorTask.name)
+            viewModel.getSelectedShiftId()?.let { shiftId ->
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.EducatorTask.name,
+                    shiftId
+                )
+            } ?: run {
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.EducatorTask.name
+                )
+            }
         },
         SectionListItem(
             R.string.physiotherapy_task,
-            R.drawable.ic_physiotherapy_task ,
+            R.drawable.ic_physiotherapy_task,
+            viewModel.badges.firstOrNull { it.physiotherapy != null && it.physiotherapy!!.badgeNumber > 0 }?.physiotherapy?.badgeNumber
+                ?: 0,
             toolTag = ToolTag.PhysiotherapyTask
         ) {
-            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.PhysiotherapyTask.name)
+            viewModel.getSelectedShiftId()?.let { shiftId ->
+                navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.PhysiotherapyTask.name, shiftId)
+            } ?: run {
+                navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.PhysiotherapyTask.name)
+            }
         },
         SectionListItem(
             R.string.ergotherapy_task,
@@ -258,7 +283,17 @@ fun PatientDetailsScreen(
                 ?: 0,
             toolTag = ToolTag.ErgotherapyTask
         ) {
-            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.ErgotherapyTask.name)
+            viewModel.getSelectedShiftId()?.let { shiftId ->
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.ErgotherapyTask.name
+                )
+            } ?: run {
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.ErgotherapyTask.name
+                )
+            }
         },
         SectionListItem(
             R.string.atelier_task,
@@ -267,7 +302,17 @@ fun PatientDetailsScreen(
                 ?: 0,
             toolTag = ToolTag.AtelierTask
         ) {
-            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.AtelierTask.name)
+            viewModel.getSelectedShiftId()?.let { shiftId ->
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.AtelierTask.name
+                )
+            } ?: run {
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.AtelierTask.name
+                )
+            }
         },
         SectionListItem(
             R.string.activator_task,
@@ -276,7 +321,17 @@ fun PatientDetailsScreen(
                 ?: 0,
             toolTag = ToolTag.ActivatorTask
         ) {
-            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.ActivatorTask.name)
+            viewModel.getSelectedShiftId()?.let { shiftId ->
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.ActivatorTask.name
+                )
+            } ?: run {
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.ActivatorTask.name
+                )
+            }
         },
         SectionListItem(
             R.string.generic_task,
@@ -285,7 +340,17 @@ fun PatientDetailsScreen(
                 ?: 0,
             toolTag = ToolTag.GenericServiceTask
         ) {
-            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.GenericServiceTask.name)
+            viewModel.getSelectedShiftId()?.let { shiftId ->
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.GenericServiceTask.name
+                )
+            } ?: run {
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.GenericServiceTask.name
+                )
+            }
         },
         SectionListItem(
             R.string.blood_exam_task,
@@ -294,7 +359,17 @@ fun PatientDetailsScreen(
                 ?: 0,
             toolTag = ToolTag.BloodExamTask
         ) {
-            navActions.navigateToTasksScreen(Uri.encode(viewModel.patientCod),ToolTag.BloodExamTask.name)
+            viewModel.getSelectedShiftId()?.let { shiftId ->
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.BloodExamTask.name
+                )
+            } ?: run {
+                navActions.navigateToTasksScreen(
+                    Uri.encode(viewModel.patientCod),
+                    ToolTag.BloodExamTask.name
+                )
+            }
         },
     )
 

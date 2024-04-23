@@ -163,7 +163,7 @@ class TaskCreateEditViewModel @Inject constructor(
                 index = 1,
                 taskType = taskType.name,
                 taskFields = UnscheduledTaskFields(
-                    codCase = caseCode ,
+                    codCase = caseCode,
                     idType = taskActivityType.value?.id ?: 0,
                     idUser = userId,
                     showInDiary = showInDiary.value,

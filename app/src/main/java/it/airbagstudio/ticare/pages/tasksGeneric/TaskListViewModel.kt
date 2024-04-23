@@ -47,6 +47,7 @@ class TaskListViewModel @Inject constructor(
 ) : ViewModel() {
     val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
     val taskType: String = savedStateHandle[DestinationsArgs.TASK_TYPE]!!
+    val shiftId: String = savedStateHandle[DestinationsArgs.SHIFT_ID]!!
 
 
     private val _uiState =
@@ -65,7 +66,8 @@ class TaskListViewModel @Inject constructor(
                 patientCod,
                 toolTag.getOfflineSection()
             )
-            val tasks = agendaTaskRepository.getAgendaTasks(toolTag, dateParam, patientCod).results
+            val shift = if (shiftId != "-1") shiftId.toInt() else null
+            val tasks = agendaTaskRepository.getAgendaTasks(toolTag, dateParam, patientCod, shift).results
                 ?: listOf()
             val taskListItems = tasks.map {
                 val time = it.getExecTime() ?: it.getExpectedTime()
@@ -82,7 +84,7 @@ class TaskListViewModel @Inject constructor(
             }
             _uiState.value = TaskListUIState(
                 taskType = toolTag,
-                patientName = patient?.name ?: "",
+                patientName = if (patient?.name != null) "${patient.surname} ${patient.name}" else "",
                 selectedDate = DateFormat.format("dd/MM/yyyy", date).toString(),
                 selectedShift = null,
                 sectionTitleId = toolTag.getLabelId(),

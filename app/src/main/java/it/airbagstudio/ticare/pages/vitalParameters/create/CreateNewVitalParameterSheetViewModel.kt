@@ -4,6 +4,7 @@ import android.text.format.DateFormat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AgendaTask
+import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.entity.UnscheduledTask
 import ch.ticare.eclinic.library.entity.UnscheduledTaskFields
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
@@ -29,12 +30,14 @@ data class NewVitalParameterUIState(
     val duration: Int,
     val value: String,
     val showInDiary: Boolean,
+    val notExecuted: Boolean,
     val mUSymbol: String,
     val description: String,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isSuccess: Boolean = false,
     val isEditingEnabled: Boolean = true,
+    val isScheduled: Boolean = true
 )
 
 private data class ItemValues(
@@ -43,6 +46,7 @@ private data class ItemValues(
     val duration: Int,
     val value: String,
     val showInDiary: Boolean,
+    val notExecuted: Boolean
 )
 
 @HiltViewModel
@@ -61,6 +65,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
     private val isSuccess = MutableStateFlow<Boolean>(false)
     private val errorMessage = MutableStateFlow<String?>(null)
     private val vitalSignCode = MutableStateFlow<String?>(null)
+    private val notExecuted = MutableStateFlow(false)
     private val vitalSignTypes = agendaTaskRepository.getVitalSignTypes()
     private val vitalSignType = combine(vitalSignTypes, vitalSignCode) { types, code ->
         val type = types.firstOrNull { it.code == code }
@@ -74,14 +79,28 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
     private val value = MutableStateFlow<String>("")
     private val showInDiary = MutableStateFlow<Boolean>(true)
 
-    private val itemValues = combine(
+    private val topValues = combine(
         date,
         notes,
-        duration,
+        duration
+    ) { date, notes, duration ->
+        Triple(date, notes, duration)
+    }
+
+    private val bottomValues = combine(
         value,
-        showInDiary
-    ) { date, notes, duration, value, showInDiary ->
-        ItemValues(date, notes, duration, value, showInDiary)
+        showInDiary,
+        notExecuted
+    ) { value, showInDiary, notExecuted ->
+        Triple(value, showInDiary, notExecuted)
+    }
+
+    private val itemValues = combine(
+        topValues,
+        bottomValues
+    ) { topValues, bottomValues ->
+        ItemValues(topValues.first, topValues.second, topValues.third,
+            bottomValues.first, bottomValues.second, bottomValues.third)
 
     }
 
@@ -105,12 +124,14 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
             itemValues.duration,
             itemValues.value,
             itemValues.showInDiary,
+            itemValues.notExecuted,
             vitalSignType?.muSymbol ?: "",
             vitalSignType?.desc ?: "",
             isLoading,
             errorMessage,
             isSuccess,
-            agendaTask?.validated() ?: true
+            agendaTask?.validated() ?: true,
+            agendaTask?.execDate != null
         )
     }.stateIn(
         scope = viewModelScope,
@@ -121,6 +142,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
             0,
             "",
             true,
+            false,
             "",
             "",
         )
@@ -151,6 +173,10 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
         this.showInDiary.value = value
     }
 
+    fun setNotExecuted(value: Boolean){
+        notExecuted.value = value
+    }
+
     fun setNotes(value: String) {
         this.notes.value = value
     }
@@ -172,7 +198,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             val newTask = UnscheduledTask(
                 index = 1,
-                taskType = AgendaTaskRepository.VITAL_SIGN_TYPE,
+                taskType = ToolTag.VitalSignTask.name,
                 taskFields = UnscheduledTaskFields(
                     codCase = caseCode ?: "",
                     idType = vitalSingId ?: 0,
@@ -182,7 +208,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
                     value = value.value,
                     notes = notes.value,
                     excDateTime = date.value.format("yyyy.MM.dd HH:mm"),
-                    skipped = false
+                    skipped = notExecuted.value
                 )
             )
             val res = agendaTaskRepository.addUnscheduledVitalSign(newTask)
@@ -201,7 +227,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
             if (task.expDate.isNullOrEmpty()){
                 val newTask = UnscheduledTask(
                     index = 1,
-                    taskType = AgendaTaskRepository.VITAL_SIGN_TYPE,
+                    taskType = ToolTag.VitalSignTask.name,
                     taskFields = UnscheduledTaskFields(
                         codCase = caseCode ?: "",
                         idType = vitalSingId ?: 0,
@@ -211,7 +237,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
                         value = value.value,
                         notes = notes.value,
                         excDateTime = date.value.format("yyyy.MM.dd HH:mm"),
-                        skipped = false,
+                        skipped = notExecuted.value,
                         id = task.pkey
                     )
                 )

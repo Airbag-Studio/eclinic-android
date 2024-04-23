@@ -136,4 +136,12 @@ class PatientDetailsScreenViewModel @Inject constructor(
 
         }
     }
+
+    fun getSelectedShiftId(): Int? {
+        return if (selectedShift != null && !shifts.isNullOrEmpty()) {
+            shifts!!.indexOf(selectedShift)
+        } else {
+            null
+        }
+    }
 }

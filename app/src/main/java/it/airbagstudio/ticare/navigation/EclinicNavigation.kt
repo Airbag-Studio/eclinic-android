@@ -8,6 +8,7 @@ import it.airbagstudio.ticare.navigation.DestinationsArgs.GENDER_ID
 import it.airbagstudio.ticare.navigation.DestinationsArgs.ID
 import it.airbagstudio.ticare.navigation.DestinationsArgs.PATIENT_COD
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_END
+import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_ID
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_NAME
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_START
 import it.airbagstudio.ticare.navigation.DestinationsArgs.TASK_TYPE
@@ -69,6 +70,7 @@ object DestinationsArgs{
     const val DATE_TIME = "dateTime"
     const val NOTE_CONTENT = "noteContent"
     const val GENDER_ID = "genderId"
+    const val SHIFT_ID = "shiftId"
 }
 
 object Destinations{
@@ -94,7 +96,7 @@ object Destinations{
     const val CONSUMPTION_LIST_ROUTE = CONSUMPTION_LIST_SCREEN
     const val WORKING_HOURS_LIST_ROUTE = WORKING_HOURS_LIST_SCREEN
     const val COURSES_ROUTE = "$COURSES_SCREEN/{$PATIENT_COD}/{$COURSE_TYPE}"
-    const val TASKS_ROUTE = "$TASKS_SCREEN/{$PATIENT_COD}/{$TASK_TYPE}"
+    const val TASKS_ROUTE = "$TASKS_SCREEN/{$PATIENT_COD}/{$TASK_TYPE}/{$SHIFT_ID}"
 }
 
 class NavigationActions(private val navController: NavController){
@@ -182,7 +184,7 @@ class NavigationActions(private val navController: NavController){
     fun navigateToCourses(patientCod: String,courseType: String){
         navController.navigate("$COURSES_SCREEN/$patientCod/$courseType")
     }
-    fun navigateToTasksScreen(patientCod: String,taskType: String){
-        navController.navigate("$TASKS_SCREEN/$patientCod/$taskType")
+    fun navigateToTasksScreen(patientCod: String,taskType: String, taskId: Int = -1){
+        navController.navigate("$TASKS_SCREEN/$patientCod/$taskType/$taskId")
     }
 }

@@ -109,7 +109,7 @@ fun ToolTag.getDiaryIconId(): Int{
         ToolTag.AtelierTask ->  R.drawable.ic_atelier_task
         ToolTag.ActivatorTask -> R.drawable.ic_activator_task
         ToolTag.GenericServiceTask ->  R.drawable.ic_generic_task
-        ToolTag.HomeCareCourse -> TODO()
+        ToolTag.HomeCareCourse -> R.drawable.ic_home_care_course
         ToolTag.PhysiotherapyCourse ->   R.drawable.ic_physiotherapy_course
         ToolTag.ErgotherapyCourse ->   R.drawable.ic_ergotherapy_course
         ToolTag.AtelierCourse ->  R.drawable.ic_atelier_course
