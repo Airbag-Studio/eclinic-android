@@ -73,6 +73,7 @@ fun CreateNewVitalParameterSheet(
             viewModel.setVitalSignCode(task.typeCode)
             viewModel.setValue(task.value ?: "")
             viewModel.setShowInDiary(task.showInDiary)
+            viewModel.setNotExecuted(task.isSkipped)
         }
 
     }

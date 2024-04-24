@@ -259,7 +259,8 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
                     execDate = execDate,
                     execTime = execTime,
                     alertLevel = 1,
-                    value = value.value
+                    value = value.value,
+                    isSkipped = notExecuted.value
                 )
                 val res = agendaTaskRepository.updateAgendaTasks(newTask)
                 res.error?.let {

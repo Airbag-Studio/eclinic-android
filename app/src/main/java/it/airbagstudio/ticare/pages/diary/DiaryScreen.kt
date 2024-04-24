@@ -87,7 +87,8 @@ fun DiaryScreen(
                                     title = item.typeLbl ?: "",
                                     value = item.value ?: "",
                                     time = item.time,
-                                    note = item.taskNotes ?: ""
+                                    note = item.taskNotes ?: "",
+                                    notExecuted = item.isSkipped ?: false,
                                 )
                             } else if (item.entityName == "PharmacologicalTask") {
                                 DiaryDrugAdministrationItemView(
@@ -132,7 +133,8 @@ fun DiaryScreen(
                                     duration = item.duration?.toString() ?: "-",
                                     time = item.time,
                                     note = item.taskNotes,
-                                    color = if (item.taskNotes != null) seed else Color(0xFFCF4500)
+                                    color = if (item.taskNotes != null) seed else Color(0xFFCF4500),
+                                    notExecuted = item.isSkipped ?: false
                                 )
                             }
                             

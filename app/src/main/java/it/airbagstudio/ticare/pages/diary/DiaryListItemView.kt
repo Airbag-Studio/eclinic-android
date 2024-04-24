@@ -195,8 +195,9 @@ fun DiaryCarePlaneItemView(
 
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DiaryVitaLParameterItemView(title: String, value: String, time: String, note: String) {
+fun DiaryVitaLParameterItemView(title: String, value: String, time: String, note: String, notExecuted: Boolean) {
     Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -216,6 +217,14 @@ fun DiaryVitaLParameterItemView(title: String, value: String, time: String, note
                 LabelValueRow(label = stringResource(id = R.string.value), value = value)
                 Spacer(modifier = Modifier.weight(1f))
                 LabelValueRow(label = stringResource(id = R.string.time), value = time)
+            }
+            if (notExecuted) {
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    DrugChip(label = stringResource(id = R.string.not_performed))
+                }
             }
             if (note.isNotEmpty()) {
                 NoteView(note = note)
@@ -248,6 +257,7 @@ fun DiaryWoundItemView(title: String, note: String) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun GenericDiaryListItemView(
     iconId: Int,
@@ -256,7 +266,8 @@ fun GenericDiaryListItemView(
     duration: String,
     time: String,
     note: String?,
-    color: Color
+    color: Color,
+    notExecuted: Boolean
 ) {
     Row(Modifier.padding(16.dp)) {
         Image(
@@ -272,6 +283,14 @@ fun GenericDiaryListItemView(
                 LabelValueRow(label = stringResource(id = R.string.duration), value = duration)
                 Spacer(modifier = Modifier.weight(1f))
                 LabelValueRow(label = stringResource(id = R.string.time), value = time)
+            }
+            if (notExecuted) {
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    DrugChip(label = stringResource(id = R.string.not_performed))
+                }
             }
             if (!note.isNullOrEmpty()) {
                 NoteView(note = note)
@@ -389,7 +408,8 @@ private fun DiaryPreview() {
                     duration = "12",
                     time = "8:30",
                     note = "Test note",
-                    color = seed
+                    color = seed,
+                    notExecuted = false
                 )
 
                 DiaryCarePlaneItemView(
