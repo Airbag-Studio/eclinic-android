@@ -226,26 +226,24 @@ fun DiaryVitaLParameterItemView(title: String, value: String, time: String, note
 
 @Composable
 fun DiaryWoundItemView(title: String, note: String) {
-    Column {
-        Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_diary_wound),
-                    contentDescription = ""
-                )
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                BuildHeader(
-                    category = stringResource(id = R.string.wounds_protocol),
-                    title = title
-                )
-            }
+    Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_diary_wound),
+                contentDescription = ""
+            )
         }
-        if (note.isNotEmpty()) {
-            NoteView(note = note)
+        Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            BuildHeader(
+                category = stringResource(id = R.string.wounds_protocol),
+                title = title
+            )
+            if (note.isNotEmpty()) {
+                NoteView(note = note)
+            }
         }
     }
 }
