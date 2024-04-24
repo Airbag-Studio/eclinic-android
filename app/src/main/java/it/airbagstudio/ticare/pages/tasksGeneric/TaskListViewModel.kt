@@ -86,7 +86,7 @@ class TaskListViewModel @Inject constructor(
                 taskType = toolTag,
                 patientName = if (patient?.name != null) "${patient.surname} ${patient.name}" else "",
                 selectedDate = DateFormat.format("dd/MM/yyyy", date).toString(),
-                selectedShift = null,
+                selectedShift = userDetailRepository.getCurrentShift(),
                 sectionTitleId = toolTag.getLabelId(),
                 services = taskListItems,
                 patientCode = patientCod,
