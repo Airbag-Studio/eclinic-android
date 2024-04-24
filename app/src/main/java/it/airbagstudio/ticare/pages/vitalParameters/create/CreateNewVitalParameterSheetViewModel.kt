@@ -131,7 +131,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
             errorMessage,
             isSuccess,
             agendaTask?.validated() ?: true,
-            agendaTask?.execDate != null
+            agendaTask?.expDate != null
         )
     }.stateIn(
         scope = viewModelScope,
