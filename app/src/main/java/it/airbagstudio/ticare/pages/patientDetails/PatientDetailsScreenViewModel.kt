@@ -102,7 +102,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
                 ) } ?: listOf()
 
                 shifts = userDetailRepository.getOperatingShifts().results
-                if (clinicType == ClinicType.CPA) {
+                if (clinicType == ClinicType.CPA && selectedShift == null) {
                     shifts?.firstOrNull { it.isCurrent() }?.let {
                         selectedShift = it
                     }
