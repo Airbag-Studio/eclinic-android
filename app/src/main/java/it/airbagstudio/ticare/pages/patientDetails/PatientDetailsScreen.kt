@@ -234,7 +234,8 @@ fun PatientDetailsScreen(
             viewModel.getSelectedShiftId()?.let { shiftId ->
                 navActions.navigateToTasksScreen(
                     Uri.encode(viewModel.patientCod),
-                    ToolTag.NursingTask.name
+                    ToolTag.NursingTask.name,
+                    shiftId
                 )
             } ?: run {
                 navActions.navigateToTasksScreen(
@@ -286,7 +287,8 @@ fun PatientDetailsScreen(
             viewModel.getSelectedShiftId()?.let { shiftId ->
                 navActions.navigateToTasksScreen(
                     Uri.encode(viewModel.patientCod),
-                    ToolTag.ErgotherapyTask.name
+                    ToolTag.ErgotherapyTask.name,
+                    shiftId
                 )
             } ?: run {
                 navActions.navigateToTasksScreen(
@@ -305,7 +307,8 @@ fun PatientDetailsScreen(
             viewModel.getSelectedShiftId()?.let { shiftId ->
                 navActions.navigateToTasksScreen(
                     Uri.encode(viewModel.patientCod),
-                    ToolTag.AtelierTask.name
+                    ToolTag.AtelierTask.name,
+                    shiftId
                 )
             } ?: run {
                 navActions.navigateToTasksScreen(
@@ -324,7 +327,8 @@ fun PatientDetailsScreen(
             viewModel.getSelectedShiftId()?.let { shiftId ->
                 navActions.navigateToTasksScreen(
                     Uri.encode(viewModel.patientCod),
-                    ToolTag.ActivatorTask.name
+                    ToolTag.ActivatorTask.name,
+                    shiftId
                 )
             } ?: run {
                 navActions.navigateToTasksScreen(
@@ -343,7 +347,8 @@ fun PatientDetailsScreen(
             viewModel.getSelectedShiftId()?.let { shiftId ->
                 navActions.navigateToTasksScreen(
                     Uri.encode(viewModel.patientCod),
-                    ToolTag.GenericServiceTask.name
+                    ToolTag.GenericServiceTask.name,
+                    shiftId
                 )
             } ?: run {
                 navActions.navigateToTasksScreen(
@@ -362,7 +367,8 @@ fun PatientDetailsScreen(
             viewModel.getSelectedShiftId()?.let { shiftId ->
                 navActions.navigateToTasksScreen(
                     Uri.encode(viewModel.patientCod),
-                    ToolTag.BloodExamTask.name
+                    ToolTag.BloodExamTask.name,
+                    shiftId
                 )
             } ?: run {
                 navActions.navigateToTasksScreen(
@@ -552,6 +558,7 @@ fun PatientDetailsScreen(
                             },
                             onItemSelected = {
                                 showShiftsPopup = false
+                                viewModel.modifiedShift = true
                                 viewModel.selectedShift = it.item
                                 viewModel.downloadBadges()
                             })
@@ -579,7 +586,7 @@ private fun AlertsChips(alerts: List<AlertItem>, onClick: () -> Unit) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.Top),
+        verticalArrangement = Arrangement.spacedBy(-10.dp, Alignment.Top),
         maxItemsInEachRow = 2
     ) {
 
@@ -671,7 +678,7 @@ private fun CaseInfoView(imageRequestData: ImageRequestData,patientCode: String,
                         contentDescription = ""
                     )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Row {
                     Column(modifier = Modifier.weight(1f)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {

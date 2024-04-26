@@ -87,7 +87,7 @@ fun ToolTag.getCreateLabelId(): Int{
         ToolTag.PhysiotherapyCourse ->  R.string.new_physiotherapy_course
         ToolTag.ErgotherapyCourse ->  R.string.new_ergotherapy_course
         ToolTag.AtelierCourse -> R.string.new_atelier_course
-        ToolTag.EducatorCourse -> R.string.new_educator_task
+        ToolTag.EducatorCourse -> R.string.new_educator_course
         ToolTag.ActivatorCourse ->  R.string.new_activator_course
         ToolTag.NursingCourse -> R.string.new_nursing_course
         ToolTag.Diary -> TODO()

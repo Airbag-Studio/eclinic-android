@@ -148,7 +148,7 @@ fun CourseCreateEditScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 OutlinedTextField(
                     modifier = Modifier
-                        .height((screenHeight - 500).dp)
+                        .height((screenHeight - 500).coerceAtLeast(50).dp)
                         .fillMaxWidth(),
                     label = {
                         Text(text = stringResource(id = R.string.description))

@@ -56,6 +56,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
     var shifts by mutableStateOf<List<OperatingShift>?>(null)
     var selectedShift by mutableStateOf<OperatingShift?>(null)
+    var modifiedShift: Boolean = false
     var requestImageRequestData: ImageRequestData = ImageRequestData(
         authRepository.getBaseURL(),
         authRepository.getToken() ?: ""
@@ -102,7 +103,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
                 ) } ?: listOf()
 
                 shifts = userDetailRepository.getOperatingShifts().results
-                if (clinicType == ClinicType.CPA && selectedShift == null) {
+                if (clinicType == ClinicType.CPA && !modifiedShift) {
                     shifts?.firstOrNull { it.isCurrent() }?.let {
                         selectedShift = it
                     }

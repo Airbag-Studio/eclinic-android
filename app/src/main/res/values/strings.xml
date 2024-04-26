@@ -188,6 +188,7 @@
     <string name="new_nursing_task">Registra Attività Infermieristica</string>
     <string name="educator_task">Attività Educatori</string>
     <string name="new_educator_task">Registra Attività Educatori</string>
+    <string name="new_educator_course">Registra Decorso Educatori</string>
     <string name="physiotherapy_task">Attività Fisioterapia</string>
     <string name="new_physiotherapy_task">Registra Attività Fisioterapia</string>
     <string name="ergotherapy_task">Attività Ergoterapia</string>
