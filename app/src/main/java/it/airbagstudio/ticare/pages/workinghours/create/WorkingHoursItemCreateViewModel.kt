@@ -31,6 +31,7 @@ data class WorkingHoursItemCreateUiState(
     data class Item(
         val date: Date,
         val duration: Int?,
+        val notes: String,
         val editable: Boolean = false
     )
 }
@@ -49,6 +50,7 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
     private val selectedTypeId = MutableStateFlow<Int?>(null)
     private val date = MutableStateFlow<Date>(Date())
     private val duration = MutableStateFlow<String>("")
+    private val notes = MutableStateFlow<String>("")
     private val clinicType = userRepository.getClinicType()
 
     private val isLoading = MutableStateFlow<Boolean>(false)
@@ -60,8 +62,8 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
     }
 
     private val workingHour =
-        combine(date, duration,clinicType) { _date, _duration,clinicType ->
-            WorkingHoursItemCreateUiState.Item(_date,_duration.toIntOrNull(),clinicType == ClinicType.SPITEX)
+        combine(date, duration, notes, clinicType) { _date, _duration, _notes, clinicType ->
+            WorkingHoursItemCreateUiState.Item(_date,_duration.toIntOrNull(),_notes, clinicType == ClinicType.SPITEX)
         }
 
     val uiState = combine(workingHour, isLoading, errorMessage,selectedType,isSuccess) { workingHour, isLoading, errorMessage, selectedArticle, isSuccess ->
@@ -84,7 +86,7 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
             title = "",
             errorMessage = null,
             isLoading = false,
-            item = WorkingHoursItemCreateUiState.Item(Date(), 0),
+            item = WorkingHoursItemCreateUiState.Item(Date(), 0, ""),
             isSuccess = false,
             isValid = false
         )
@@ -108,6 +110,10 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
         this.duration.value = value
     }
 
+    fun setNotes(value: String) {
+        this.notes.value = value
+    }
+
     fun clearErrors() {
         errorMessage.value = null
     }
@@ -128,6 +134,7 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
         this.selectedTypeId.value = null
         date.value = Date()
         duration.value = ""
+        notes.value = ""
     }
 
     fun saveWorkingHour() {
@@ -137,9 +144,9 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
             val item = SaveEmployeeWorkingHour(
                 id = workingHourId.value,
                 idType = selectedTypeId.value!!,
+                remarks = notes.value,
                 totalHours = totalHours,
                 date = date.value.format("yyyy.MM.dd")
-
             )
             if (item.id != null) {
                 val res = workingHourRepository.editWorkingHour(item)

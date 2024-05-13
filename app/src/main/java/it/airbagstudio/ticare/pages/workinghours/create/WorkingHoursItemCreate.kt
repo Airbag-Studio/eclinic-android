@@ -71,6 +71,7 @@ fun WorkingHoursItemCreate(
             }
             viewModel.setDuration(duration.toString())
             viewModel.setDate(employeeWorkingHour.date.toDate("dd.MM.yyyy") ?: Date())
+            viewModel.setNotes(employeeWorkingHour.remarks ?: "")
         }
     }
     Dialog(
@@ -146,6 +147,20 @@ fun WorkingHoursItemCreate(
                         )
 
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        enabled = uiState.item.editable,
+                        label = {
+                            Text(text = stringResource(id = R.string.notes))
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(0.5f),
+                        value = uiState.item.notes,
+                        onValueChange = {
+                            viewModel.setNotes(it)
+                        }
+                    )
                     if(uiState.item.editable) {
                         Spacer(modifier = Modifier.weight(1f))
                         Button(
