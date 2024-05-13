@@ -85,6 +85,7 @@ fun PatientListItemView(
                     color = MaterialTheme.colorScheme.outline
                 )
                 if (clinicType == ClinicType.CPA) {
+                    Spacer(modifier = Modifier.height(4.dp))
                     Row(
                         modifier = Modifier
                             .background(
