@@ -126,7 +126,7 @@ private fun BuildSheetContent(
                     label = {
                         Text(uiState.mUSymbol)
                     },
-                    isError = !uiState.value.isValidVitalParameterValue(),
+                    isError = !uiState.value.isValidVitalParameterValue() && !uiState.notExecuted,
                     value = uiState.value,
                     visualTransformation = if (uiState.value.isEmpty()) PlaceholderTransformation("0") else VisualTransformation.None,
                     onValueChange = {
@@ -200,7 +200,7 @@ private fun BuildSheetContent(
             }
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                enabled = (!uiState.isLoading && uiState.value.isValidVitalParameterValue() && uiState.isEditingEnabled),
+                enabled = (!uiState.isLoading && (uiState.value.isValidVitalParameterValue() || uiState.notExecuted) && uiState.isEditingEnabled),
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     viewModel.saveTask()
