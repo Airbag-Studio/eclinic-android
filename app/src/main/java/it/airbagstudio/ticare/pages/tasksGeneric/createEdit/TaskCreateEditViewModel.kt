@@ -131,6 +131,7 @@ class TaskCreateEditViewModel @Inject constructor(
 
     fun setNotExecuted(value: Boolean){
         notExecuted.value = value
+        if (value && taskType == ToolTag.BloodExamTask) showInDiary.value = true
     }
 
     fun clearError(){

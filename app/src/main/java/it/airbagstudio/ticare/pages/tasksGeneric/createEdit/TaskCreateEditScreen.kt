@@ -71,9 +71,10 @@ fun TaskCreateEditScreen(
             viewModel.setDate(taskToEdit.getExecDateTime() ?: Date())
             viewModel.setDuration(taskToEdit.duration)
             viewModel.setNotes(taskToEdit.notes)
+            viewModel.setNotExecuted(taskToEdit.isSkipped)
             viewModel.setShowInDiary(taskToEdit.showInDiary)
             viewModel.setAgendaTaskTypeCode(taskToEdit.typeCode)
-            viewModel.setNotExecuted(taskToEdit.isSkipped)
+
         }
     }
     Dialog(
