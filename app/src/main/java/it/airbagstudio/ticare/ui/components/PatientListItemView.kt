@@ -80,12 +80,18 @@ fun PatientListItemView(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
+                Text(text = "# ${patient.patientCode}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
                 if (clinicType == ClinicType.CPA) {
                     Row(
-                        modifier = Modifier.background(
-                            MaterialTheme.colorScheme.surfaceVariant,
-                            RoundedCornerShape(50.dp)
-                        ).padding(horizontal = 8.dp, vertical = 2.dp),
+                        modifier = Modifier
+                            .background(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                RoundedCornerShape(50.dp)
+                            )
+                            .padding(horizontal = 8.dp, vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(

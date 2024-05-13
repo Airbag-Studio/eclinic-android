@@ -77,7 +77,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
     private val notes = MutableStateFlow<String>("")
     private val duration = MutableStateFlow<Int>(0)
     private val value = MutableStateFlow<String>("")
-    private val showInDiary = MutableStateFlow<Boolean>(true)
+    private val showInDiary = MutableStateFlow<Boolean>(false)
 
     private val topValues = combine(
         date,
@@ -141,7 +141,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
             "",
             0,
             "",
-            true,
+            false,
             false,
             "",
             "",
