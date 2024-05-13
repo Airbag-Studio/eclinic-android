@@ -670,7 +670,7 @@ private fun CaseInfoView(imageRequestData: ImageRequestData,patientCode: String,
                     Text(
                         modifier = Modifier.weight(1f),
                         text = "${caseDetail.surname} ${caseDetail.name}",
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Icon(
@@ -678,6 +678,11 @@ private fun CaseInfoView(imageRequestData: ImageRequestData,patientCode: String,
                         contentDescription = ""
                     )
                 }
+                Text(
+                    text = "# ${patientCode}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row {
                     Column(modifier = Modifier.weight(1f)) {
@@ -746,7 +751,7 @@ private fun PreviewCaseInfoView(){
             Column(Modifier.padding(it)) {
                 CaseInfoView(
                     imageRequestData = ImageRequestData("",""),
-                    patientCode = "",
+                    patientCode = "22/2023",
                     caseDetail = CaseDetail(
                         address = "Via Calanchi 2 test indirizzo lunghissimo che on sc",
                         age = 97,
