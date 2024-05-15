@@ -15,7 +15,6 @@ import ch.ticare.eclinic.library.repository.CoursesRepository
 import ch.ticare.eclinic.library.repository.DiaryRepository
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import ch.ticare.eclinic.library.repository.LocalStorageApi
-import ch.ticare.eclinic.library.repository.NursingCourseRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.OtherServiceRepository
 import ch.ticare.eclinic.library.repository.SyncDataRepository
@@ -136,12 +135,6 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providesNursingCourseRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository,authRepository: AuthRepository,localStorageImpl: LocalStorageImpl): NursingCourseRepository {
-        return NursingCourseRepository(apiClient,database, offlineOnlineRepository,authRepository,localStorageImpl)
-    }
-
-    @Provides
-    @Singleton
     fun providesUserMarkingRepositoryRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): UserMarkingRepository {
         return UserMarkingRepository(apiClient,database,offlineOnlineRepository)
     }
@@ -160,8 +153,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providesCoursesRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository,authRepository: AuthRepository): CoursesRepository {
-        return CoursesRepository(apiClient, database,offlineOnlineRepository,authRepository)
+    fun providesCoursesRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository,authRepository: AuthRepository, localStorage: LocalStorageImpl): CoursesRepository {
+        return CoursesRepository(apiClient, database,offlineOnlineRepository,authRepository, localStorage)
     }
 
 }

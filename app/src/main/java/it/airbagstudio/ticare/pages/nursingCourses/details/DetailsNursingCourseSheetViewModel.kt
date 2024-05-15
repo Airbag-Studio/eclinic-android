@@ -16,7 +16,6 @@ import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.entity.WoundImageUploadRequest
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.CoursesRepository
-import ch.ticare.eclinic.library.repository.NursingCourseRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.di.AuthRepositoryImpl
@@ -39,7 +38,6 @@ import java.util.UUID
 
 @HiltViewModel
 class EditNursingCourseSheetViewModel @Inject constructor(
-    private val nursingCourseRepository: NursingCourseRepository,
     private val authRepository: AuthRepository,
     private val offlineOnlineRepository: OfflineOnlineRepository,
     private val coursesRepository: CoursesRepository
@@ -60,6 +58,8 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     private var editNursingCourseId: Int = 0
     private val imagesUri = MutableStateFlow<List<Bitmap>>(listOf())
     private val homeCareCourseImages = MutableStateFlow<List<HomeCareCourseImage>>(listOf())
+
+    private var courseTypeName = ""
 
     var requestImageRequestData: ImageRequestData = ImageRequestData(
         authRepository.getBaseURL(),
@@ -126,8 +126,9 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     )
 
     fun loadCategory(patientCode: String) {
+        if (courseTypeName.isEmpty()) return
         viewModelScope.launch(coroutineExceptionHandler) {
-            listOfCategories.value = coursesRepository.getCourseCategories(patientCode,ToolTag.HomeCareCourse).results.also {
+            listOfCategories.value = coursesRepository.getCourseCategories(patientCode,ToolTag.valueOf(courseTypeName)).results.also {
                 if(screenType.value == ScreenType.Add) {
                 selectedCategoryId.value = it?.find { cat -> cat.useAsDefault }?.id
                 }
@@ -224,7 +225,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
                 showInDiary = showInDiary.value
             )
 
-            val res = nursingCourseRepository.addNursingCourse(newCourse)
+            val res = coursesRepository.addCourse(newCourse, courseTypeName)
 
             if (res.status == "success") {
                 res.results?.firstOrNull()?.id?.let { lastCreatedId ->
@@ -232,9 +233,10 @@ class EditNursingCourseSheetViewModel @Inject constructor(
                         val request = HomeCareCourseImageRequest(
                             courseId = lastCreatedId,
                             name = "${UUID.randomUUID()}.jpeg",
-                            ecImage = bitmap.toByteArray()
+                            ecImage = bitmap.toByteArray(),
+                            t = courseTypeName
                         )
-                        nursingCourseRepository.uploadImage(patientCode,request)
+                        coursesRepository.uploadImage(patientCode,request)
                     }
                 }
                 isSuccess.value = true
@@ -259,7 +261,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
                 showInDiary = showInDiary.value
             )
 
-            val res = nursingCourseRepository.updateNursingCourse(newCourse)
+            val res = coursesRepository.updateCourse(newCourse, courseTypeName)
             if (res.status == "success") {
                 isSuccess.value = true
             } else if (res.status == "error") {
@@ -268,6 +270,10 @@ class EditNursingCourseSheetViewModel @Inject constructor(
             isLoading.value = false
 
         }
+    }
+
+    fun setCourseTypeName(courseTypeName: String) {
+        this.courseTypeName = courseTypeName
     }
 }
 

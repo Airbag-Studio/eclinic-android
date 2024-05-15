@@ -74,12 +74,14 @@ import java.time.format.DateTimeFormatter
 fun CreateNursingCourseScreen(
     viewModel: EditNursingCourseSheetViewModel = hiltViewModel(),
     patientCode: String,
+    courseTypeName: String,
     onDismissRequest: () -> Unit
 ) {
 
         LaunchedEffect(Unit) {
             run {
                 viewModel.setScreenType(ScreenType.Add)
+                viewModel.setCourseTypeName(courseTypeName)
                 viewModel.loadCategory(patientCode = patientCode)
                 viewModel.setShowInDiary(true)
             }
@@ -93,6 +95,7 @@ fun CreateNursingCourseScreen(
 fun EditNursingCourseScreen(
     viewModel: EditNursingCourseSheetViewModel = hiltViewModel(),
     patientCode: String,
+    courseTypeName: String,
     homeCareCourse: HomeCareCourse?,
     onDismissRequest: () -> Unit,
 ) {
@@ -108,6 +111,7 @@ fun EditNursingCourseScreen(
                 } else {
                     viewModel.setScreenType(ScreenType.Add)
                 }
+                viewModel.setCourseTypeName(courseTypeName)
                 viewModel.loadCategory(patientCode)
             }
         }

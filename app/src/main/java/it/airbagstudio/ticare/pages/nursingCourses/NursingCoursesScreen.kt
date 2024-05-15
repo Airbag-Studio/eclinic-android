@@ -102,7 +102,7 @@ fun NursingCoursesScreen(
                         "dd/MM/yyyy",
                         viewModel.date
                     )
-                } - ${viewModel.shiftName}",
+                } - ${viewModel.shiftName ?: stringResource(id = R.string.all)}",
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -146,7 +146,8 @@ fun NursingCoursesScreen(
 
     if(showCreateBottomSheet) {
         CreateNursingCourseScreen(
-            patientCode = viewModel.patientCode
+            patientCode = viewModel.patientCode,
+            courseTypeName = viewModel.courseTypeName
         ) {
             showCreateBottomSheet = false
             viewModel.reloadTasks()
@@ -155,6 +156,7 @@ fun NursingCoursesScreen(
     if(selectedTasks != null) {
         EditNursingCourseScreen(
             patientCode = viewModel.patientCode,
+            courseTypeName = viewModel.courseTypeName,
             homeCareCourse = selectedTasks
         ) {
             selectedTasks = null

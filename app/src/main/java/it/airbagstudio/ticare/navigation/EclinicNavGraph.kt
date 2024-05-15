@@ -125,12 +125,6 @@ fun EclinicNavGraph(
             }
         }
 
-        composable(Destinations.NURSING_COURSES_ROUTE_NO_SHIFT) {
-            NursingCoursesScreen {
-                navController.popBackStack()
-            }
-        }
-
         composable(Destinations.CARE_PLANE_DETAILS_ROUTE){
             CarePlanDetailsScreen {
                 navController.popBackStack()

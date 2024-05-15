@@ -9,7 +9,6 @@ import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.entity.WrapperResponse
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
-import ch.ticare.eclinic.library.repository.NursingCourseRepository
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.utils.format
 import java.time.Duration

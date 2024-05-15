@@ -168,6 +168,12 @@ class PatientListScreenViewModel @Inject constructor(
             _microzones
         }
 
+        val filteredSectors = if (selectedDivision != null) {
+            sectors.filter { it.iDDivision == selectedDivision.iD }
+        } else {
+            sectors
+        }
+
         isLoading = false
         val syncDate = onlineRepository.state.value.syncDate?.toDate(ISO_DATE_TIME)
         val expireDate = if (syncDate != null){
@@ -188,7 +194,7 @@ class PatientListScreenViewModel @Inject constructor(
             zones = _zones,
             microZones = filteredMicrozones,
             divisions = divisions,
-            sectors = sectors,
+            sectors = filteredSectors,
             selectedMicrozone = _selectedMicrozone,
             selectedZone = _selectedZone,
             selectedDivision = selectedDivision,

@@ -150,8 +150,7 @@ fun PatientDetailsScreen(
         ) {
             navActions.navigateToNursingCourses(
                 Uri.encode(viewModel.patientCod),
-                viewModel.selectedDate,
-                shiftName = context.getString(R.string.all)
+                ToolTag.NursingCourse.name
             )
         },
         SectionListItem(
@@ -177,8 +176,7 @@ fun PatientDetailsScreen(
         ) {
             navActions.navigateToNursingCourses(
                 Uri.encode(viewModel.patientCod),
-                viewModel.selectedDate,
-                shiftName = context.getString(R.string.all)
+                ToolTag.HomeCareCourse.name
             )
         },
         SectionListItem(

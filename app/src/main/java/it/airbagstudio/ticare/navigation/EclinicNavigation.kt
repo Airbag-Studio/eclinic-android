@@ -86,8 +86,7 @@ object Destinations{
     const val VITAL_PARAMETERS_ROUTE = "$VITAL_PARAMETERS_SCREEN/{$PATIENT_COD}"
     const val DIARY_ROUTE = "$DIARY_SCREEN/{$PATIENT_COD}"
     const val CARE_PLANS_ROUTE = "$CARE_PLANS_SCREEN/{$PATIENT_COD}"
-    const val NURSING_COURSES_ROUTE = "$NURSING_COURSES_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{${SHIFT_START}}/{$SHIFT_END}/{$SHIFT_NAME}"
-    const val NURSING_COURSES_ROUTE_NO_SHIFT = "$NURSING_COURSES_SCREEN/{$PATIENT_COD}/{$DATE_TIME}/{$SHIFT_NAME}"
+    const val NURSING_COURSES_ROUTE = "$NURSING_COURSES_SCREEN/{$PATIENT_COD}/{$COURSE_TYPE}"
     const val CARE_PLANE_DETAILS_ROUTE = "$CARE_PLAN_DETAILS_SCREEN/{$PATIENT_COD}/{$ID}"
     const val WOUNDS_ROUTE = "$WOUNDS_SCREEN/{$PATIENT_COD}"
     const val WOUND_DETAILS_ROUTE = "$WOUND_DETAILS_SCREEN/{$PATIENT_COD}/{$ID}/{$GENDER_ID}"
@@ -141,12 +140,8 @@ class NavigationActions(private val navController: NavController){
         navController.navigate("$CARE_PLANS_SCREEN/$patientCod")
     }
 
-    fun navigateToNursingCourses(patientCod: String,dateTime:Long,shiftStart:String,shiftEnd:String, shiftName:String){
-        navController.navigate("$NURSING_COURSES_SCREEN/$patientCod/$dateTime/$shiftStart/$shiftEnd/$shiftName")
-    }
-
-    fun navigateToNursingCourses(patientCod: String,dateTime:Long, shiftName:String){
-        navController.navigate("$NURSING_COURSES_SCREEN/$patientCod/$dateTime/$shiftName")
+    fun navigateToNursingCourses(patientCod: String,courseType: String){
+        navController.navigate("$NURSING_COURSES_SCREEN/$patientCod/$courseType")
     }
 
     fun navigateToCarePlanDetailsScreen(patientCod: String,id: String){

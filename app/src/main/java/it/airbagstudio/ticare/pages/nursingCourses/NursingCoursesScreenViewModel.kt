@@ -10,11 +10,14 @@ import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.HomeCareCourse
 import ch.ticare.eclinic.library.entity.OfflineSection
-import ch.ticare.eclinic.library.repository.NursingCourseRepository
+import ch.ticare.eclinic.library.entity.ToolTag
+import ch.ticare.eclinic.library.repository.CoursesRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
+import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
+import it.airbagstudio.ticare.utils.toDate
 import java.util.Date
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -23,19 +26,19 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class NursingCoursesScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
-    private val nursingCourseRepository: NursingCourseRepository,
+    private val coursesRepository: CoursesRepository,
     private val offlineOnlineRepository: OfflineOnlineRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     val patientCode: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
-    private val dateTime: String = savedStateHandle[DestinationsArgs.DATE_TIME]!!
-    val shiftName: String = savedStateHandle[DestinationsArgs.SHIFT_NAME]!!
+    val courseTypeName: String = savedStateHandle[DestinationsArgs.COURSE_TYPE]!!
 
     var isLoading by mutableStateOf(false)
     var tasks by mutableStateOf<List<HomeCareCourse>>(listOf())
     var errorMessage by mutableStateOf<String?>(null)
     var patient by mutableStateOf<CaseDetail?>(null)
+    var shiftName by mutableStateOf<String?>(null)
 
     var date by mutableStateOf<Date?>(null)
     var modifiedIds by mutableStateOf<List<String>>(listOf())
@@ -46,7 +49,8 @@ class NursingCoursesScreenViewModel @Inject constructor(
     }
 
     init {
-        date = Date(dateTime.toLong())
+        date = userDetailRepository.getSelectedDate()?.toDate(SERVER_DATE_FORMAT) ?: Date()
+        shiftName = userDetailRepository.getCurrentShift()?.name
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading = true
             patient = userDetailRepository.getCase(patientCode).results?.firstOrNull()
@@ -58,7 +62,7 @@ class NursingCoursesScreenViewModel @Inject constructor(
     private suspend fun downloadTasks(){
         modifiedIds = offlineOnlineRepository.getModifiedIdForSection(patientCode,OfflineSection.NursingCourse)
         val dateParam =  DateFormat.format("yyyy.MM.dd", date).toString()
-        tasks = nursingCourseRepository.getNursingCourses(patientCode, date = dateParam).results ?: emptyList()
+        tasks = coursesRepository.getCourses(patientCode, date = dateParam, courseTypeName).results ?: emptyList()
     }
 
     fun reloadTasks(){
