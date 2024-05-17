@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -41,6 +42,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.ImageLoader
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.wounds.common.AddingImagesGallery
 import it.airbagstudio.ticare.ui.components.AddPhotoButton
@@ -49,20 +51,28 @@ import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.MultiselectPopupTextField
 import it.airbagstudio.ticare.ui.components.PopupTextField
+import it.airbagstudio.ticare.ui.components.okHttpClient
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
+import it.airbagstudio.ticare.utils.format
+import it.airbagstudio.ticare.utils.getPainter
 import it.airbagstudio.ticare.utils.rememberImeState
+import it.airbagstudio.ticare.utils.toDate
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateWoundDialogScreen(
     codCase: String,
+    woundId: Int?= null,
     onDismissRequest: (Boolean) -> Unit,
     viewModel: CreateWoundDialogScreenViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit) {
         viewModel.clearData()
         viewModel.codCase = codCase
+        viewModel.downloadData(woundId)
     }
     val imeState = rememberImeState()
     val scrollState = rememberScrollState()
@@ -209,8 +219,15 @@ fun CreateWoundDialogScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Divider(Modifier.padding(horizontal = 16.dp))
                 Spacer(modifier = Modifier.height(16.dp))
-                if (uiState.wound.images.isNotEmpty()) {
-                    AddingImagesGallery(uiState.wound.images) {
+                if (uiState.wound.images.isNotEmpty() || uiState.woundPhotos.isNotEmpty()) {
+                    val imageLoader = ImageLoader.Builder(LocalContext.current)
+                        .okHttpClient(okHttpClient)
+                        .build()
+                    val painters = uiState.woundPhotos.map {
+                        it.getPainter(requestData = viewModel.requestImageRequestData, imageLoader = imageLoader, authTimestampHeader = DateTimeFormatter.ISO_INSTANT.format(
+                            Instant.now()), isOnline = uiState.isOnline)
+                    }
+                    AddingImagesGallery(painters = painters, images = uiState.wound.images) {
                         viewModel.removeImage(it)
                     }
                     Spacer(modifier = Modifier.height(16.dp))

@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -39,6 +40,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.ImageLoader
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.wounds.common.AddingImagesGallery
 import it.airbagstudio.ticare.pages.wounds.create.CreateWoundDialogScreen
@@ -46,12 +48,17 @@ import it.airbagstudio.ticare.pages.wounds.create.CreateWoundDialogScreenViewMod
 import it.airbagstudio.ticare.ui.components.AddPhotoButton
 import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
+import it.airbagstudio.ticare.ui.components.ImageRequestData
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.MultiselectPopupTextField
 import it.airbagstudio.ticare.ui.components.PopupTextField
+import it.airbagstudio.ticare.ui.components.okHttpClient
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
+import it.airbagstudio.ticare.utils.getPainter
 import it.airbagstudio.ticare.utils.rememberImeState
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +66,7 @@ fun CheckCreateDialogScreen(
     codCase: String,
     idWound: Int,
     idGender: Int,
+    idCheck: Int?,
     onDismissRequest: (Boolean) -> Unit,
     viewModel: CheckCreateDialogScreenViewModel = hiltViewModel()
 ) {
@@ -67,6 +75,7 @@ fun CheckCreateDialogScreen(
         viewModel.codCase = codCase
         viewModel.idWound = idWound
         viewModel.idGender = idGender
+        viewModel.downloadData(checkId = idCheck)
     }
     val scrollState = rememberScrollState()
 
@@ -77,6 +86,7 @@ fun CheckCreateDialogScreen(
             scrollState.scrollTo(scrollState.maxValue)
         }
     })
+
 
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -221,8 +231,15 @@ fun CheckCreateDialogScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Divider(Modifier.padding(horizontal = 16.dp))
                 Spacer(modifier = Modifier.height(16.dp))
-                if (uiState.check.images.isNotEmpty()) {
-                    AddingImagesGallery(uiState.check.images) {
+                if (uiState.check.images.isNotEmpty() || viewModel.checkImages.value.isNotEmpty()) {
+                    val imageLoader = ImageLoader.Builder(LocalContext.current)
+                        .okHttpClient(okHttpClient)
+                        .build()
+                    val painters = viewModel.checkImages.value.map {
+                        it.getPainter(requestData = viewModel.requestImageRequestData, imageLoader = imageLoader, authTimestampHeader = DateTimeFormatter.ISO_INSTANT.format(
+                            Instant.now()), isOnline = uiState.isOnline)
+                    }
+                    AddingImagesGallery(painters = painters, images = uiState.check.images) {
                         viewModel.removeImage(it)
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -272,6 +289,6 @@ fun CheckCreateDialogScreen(
 @Preview
 private fun CheckCreateDialogScreenPreview() {
     AppTheme {
-        CheckCreateDialogScreen("", 0, 0, onDismissRequest = {})
+        CheckCreateDialogScreen("", 0, 0,0, onDismissRequest = {})
     }
 }

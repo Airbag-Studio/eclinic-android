@@ -7,17 +7,24 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.BodyPart
+import ch.ticare.eclinic.library.entity.Wound
 import ch.ticare.eclinic.library.entity.WoundImageUploadRequest
 import ch.ticare.eclinic.library.entity.WoundOrigin
+import ch.ticare.eclinic.library.entity.WoundPhoto
 import ch.ticare.eclinic.library.entity.WoundSave
 import ch.ticare.eclinic.library.entity.WoundType
+import ch.ticare.eclinic.library.network.AuthRepository
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import it.airbagstudio.ticare.ui.components.ImageRequestData
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.toByteArray
+import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
@@ -35,6 +42,8 @@ data class CreateWoundDialogScreenUIState(
     val isSuccess: Boolean,
     val isValid: Boolean,
     val dropdownSelections: DropDownSelections,
+    val isOnline: Boolean,
+    val woundPhotos: List<WoundPhoto> = listOf()
 ) {
 
     data class DropDownSelections(
@@ -61,8 +70,9 @@ data class CreateWoundDialogScreenUIState(
 @HiltViewModel
 class CreateWoundDialogScreenViewModel @Inject constructor(
     private val woundRepository: WoundRepository,
-    private val userDetailRepository: UserDetailRepository
-
+    private val userDetailRepository: UserDetailRepository,
+    private val authRepository: AuthRepository,
+    private val offlineOnlineRepository: OfflineOnlineRepository
 ) : ViewModel() {
 
     lateinit var codCase: String
@@ -73,6 +83,7 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
 
     private val date = MutableStateFlow<Date>(Date())
     private val imagesUri = MutableStateFlow<List<Bitmap>>(listOf())
+    private val woundPhotos = MutableStateFlow<List<WoundPhoto>>(listOf())
     private val length = MutableStateFlow<String>("")
     private val width = MutableStateFlow<String>("")
     private val depth = MutableStateFlow<String>("")
@@ -82,7 +93,12 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
     private val selectedWoundOrigin = MutableStateFlow<WoundOrigin?>(null)
     private val isLoading = MutableStateFlow(false)
     private val isSuccess = MutableStateFlow(false)
+    private var woundId: Int? = null
 
+    var requestImageRequestData: ImageRequestData = ImageRequestData(
+        authRepository.getBaseURL(),
+        authRepository.getToken() ?: ""
+    )
 
     var errorMessage by mutableStateOf<String?>(null)
 
@@ -137,8 +153,9 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
         newWound,
         _selections,
         isLoading,
-        isSuccess
-    ) { newWound, selections, isLoading, isSuccess ->
+        isSuccess,
+        woundPhotos
+    ) { newWound, selections, isLoading, isSuccess, woundPhoto ->
         val isValid =
             selections.selectedWoundOrigin != null &&
                     selections.selectedWoundType != null &&
@@ -153,7 +170,9 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
             wound = newWound,
             isLoading = isLoading,
             isSuccess = isSuccess,
-            isValid = isValid
+            isValid = isValid,
+            woundPhotos = woundPhoto,
+            isOnline = offlineOnlineRepository.state.value.isOnline
         )
     }.catch {
         errorMessage = it.localizedMessage
@@ -177,20 +196,54 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
             ),
             isLoading = false,
             isSuccess = false,
-            isValid = false
+            isValid = false,
+            isOnline = false
         )
     )
 
-    init {
+    fun downloadData(woundId: Int?) {
+        this.woundId = woundId
         viewModelScope.launch(coroutineExceptionHandler) {
+            offlineOnlineRepository.restore()
             val genderId = userDetailRepository.getCurrentCase()?.gender?.id ?: 0
-            combine(woundRepository.getWoundTypes(),woundRepository.getBodyParts(),woundRepository.getWoundPositions()){_woundTypes,bodyParts,woundPositions ->
-                woundTypes.value = _woundTypes.map { ListPopupItem(it.name,it) }
-                woundBodyParts.value = bodyParts.filter { it.idGender == genderId || it.idGender == null}.map { ListPopupItem(it.name,it) }
-                woundOrigins.value = woundPositions.map { ListPopupItem(it.name,it) }
-            }.collect()
+            launch {
+                combine(
+                    woundRepository.getWoundTypes(),
+                    woundRepository.getBodyParts(),
+                    woundRepository.getWoundPositions()
+                ) { _woundTypes, bodyParts, woundPositions ->
+                    woundTypes.value = _woundTypes.map { ListPopupItem(it.name, it) }
+                    woundBodyParts.value =
+                        bodyParts.filter { it.idGender == genderId || it.idGender == null }
+                            .map { ListPopupItem(it.name, it) }
+                    woundOrigins.value = woundPositions.map { ListPopupItem(it.name, it) }
+                }.collect()
+            }
+            delay(1000)
+            launch {
+                woundId?.let {
+                    woundRepository.getWound(codCase, woundId).results?.firstOrNull()
+                        ?.let { wound: Wound ->
+                            setDate(wound.appearanceDate.toDate("dd.MM.yyyy") ?: Date())
+                            setWidth(wound.width.toString())
+                            setDepth(wound.depth.toString())
+                            setLength(wound.length.toString())
+                            setNotes(wound.appearanceDescription)
+                            setWoundBodyParts(wound.parts.map {
+                                BodyPart(
+                                    id = it.iD,
+                                    name = it.name
+                                )
+                            })
+                            setWoundOrigin(woundOrigins.value.mapNotNull { it.item }
+                                .firstOrNull { it.id == wound.iDWoundOrigin })
+                            setWoundType(woundTypes.value.mapNotNull { it.item }
+                                .firstOrNull { it.id == wound.iDWoundType })
+                            woundPhotos.value = wound.photos
+                        }
+                }
+            }
         }
-
     }
 
     fun setDate(date: Date) {
@@ -234,6 +287,52 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
     }
 
     fun saveWound() {
+        woundId?.let {
+            patchWound(it)
+        } ?: run {
+            postWound()
+        }
+
+    }
+
+    private fun patchWound(woundId: Int) {
+        viewModelScope.launch(coroutineExceptionHandler) {
+
+            val bodyPartsId = selectedWoundBodyParts.value?.map { it.id } ?: listOf()
+            val woundSave = WoundSave(
+                id = woundId,
+                appearanceDate = date.value.format("yyyy.MM.dd"),
+                appearanceDescription = notes.value,
+                bodyParts = bodyPartsId,
+                cODCase = codCase ?: "",
+                depth = depth.value.toInt(),
+                iDWoundOrigin = selectedWoundOrigin.value!!.id,
+                iDWoundType = selectedWoundType.value!!.id,
+                length = length.value.toInt(),
+                width = width.value.toInt()
+            )
+
+            val res = woundRepository.updateWound(woundSave)
+            errorMessage = res.error?.desc
+            res.results?.firstOrNull()?.id?.let { lastCreatedId ->
+                imagesUri.value.forEach { bitmap ->
+                    val request = WoundImageUploadRequest(
+                        desc = "",
+                        type = "AP",
+                        woundId = lastCreatedId,
+                        name = "${UUID.randomUUID()}.jpeg",
+                        ecImage = bitmap.toByteArray()
+                    )
+                    woundRepository.uploadImage(codCase, request)
+                }
+                isSuccess.value = true
+            } ?: run {
+                isSuccess.value = false
+            }
+        }
+    }
+
+    private fun postWound() {
         viewModelScope.launch(coroutineExceptionHandler) {
 
             val bodyPartsId = selectedWoundBodyParts.value?.map { it.id } ?: listOf()
@@ -251,8 +350,8 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
 
             val res = woundRepository.addWound(woundSave)
             errorMessage = res.error?.desc
-            val isSaved = res.status?.equals("success",true) == true
-            if(isSaved){
+            val isSaved = res.status?.equals("success", true) == true
+            if (isSaved) {
                 res.results?.firstOrNull()?.id?.let { lastCreatedId ->
                     imagesUri.value.forEach { bitmap ->
                         val request = WoundImageUploadRequest(
@@ -262,17 +361,17 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
                             name = "${UUID.randomUUID()}.jpeg",
                             ecImage = bitmap.toByteArray()
                         )
-                        woundRepository.uploadImage(codCase,request)
+                        woundRepository.uploadImage(codCase, request)
                     }
                 }
             }
             isSuccess.value = isSaved
 
         }
-
     }
 
-    fun clearData(){
+
+    fun clearData() {
         selectedWoundType.value = null
         selectedWoundOrigin.value = null
         selectedWoundBodyParts.value = null

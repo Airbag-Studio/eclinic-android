@@ -16,16 +16,21 @@ import ch.ticare.eclinic.library.entity.WoundFibrin
 import ch.ticare.eclinic.library.entity.WoundGranulation
 import ch.ticare.eclinic.library.entity.WoundImageUploadRequest
 import ch.ticare.eclinic.library.entity.WoundNecrosis
+import ch.ticare.eclinic.library.entity.WoundPhoto
 import ch.ticare.eclinic.library.entity.WoundSecretion
 import ch.ticare.eclinic.library.entity.WoundSmell
 import ch.ticare.eclinic.library.entity.WoundSurroundingSkin
 import ch.ticare.eclinic.library.network.AuthRepository
+import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import it.airbagstudio.ticare.ui.components.ImageRequestData
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.toByteArray
+import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
@@ -42,6 +47,7 @@ data class CheckCreateDialogScreenUIState(
     val isLoading: Boolean,
     val isSuccess: Boolean,
     val isValid: Boolean,
+    val isOnline: Boolean,
     val dropDownSelections1: DropDownSelections1,
     val dropDownSelections2: DropDownSelections2
 ) {
@@ -84,12 +90,13 @@ data class CheckCreateDialogScreenUIState(
 class CheckCreateDialogScreenViewModel @Inject constructor(
     private val woundRepository: WoundRepository,
     private val authRepository: AuthRepository,
-    savedStateHandle: SavedStateHandle
+    private val offlineOnlineRepository: OfflineOnlineRepository
 ): ViewModel() {
 
     lateinit var codCase: String
     var idWound: Int? = null
     var idGender: Int? = null
+    private var checkId: Int? = null
 
     val woundArea = mutableStateOf<List<ListPopupItem<WoundArea>>>(listOf())
     val woundDepth = mutableStateOf<List<ListPopupItem<WoundDepth>>>(listOf())
@@ -101,6 +108,7 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
     val woundSurroundingSkin = mutableStateOf<List<ListPopupItem<WoundSurroundingSkin>>>(listOf())
     val woundPainType = mutableStateOf<List<ListPopupItem<PainType>>>(listOf())
     val woundPainIntensite = mutableStateOf<List<ListPopupItem<PainIntensite>>>(listOf())
+    val checkImages = mutableStateOf<List<WoundPhoto>>(listOf())
 
     private val date = MutableStateFlow<Date>(Date())
     private val imagesUri = MutableStateFlow<List<Bitmap>>(listOf())
@@ -117,6 +125,12 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
     private val selectedWoundPainIntensite = MutableStateFlow<PainIntensite?>(null)
     private val isLoading = MutableStateFlow(false)
     private val isSuccess = MutableStateFlow(false)
+
+
+    var requestImageRequestData: ImageRequestData = ImageRequestData(
+        authRepository.getBaseURL(),
+        authRepository.getToken() ?: ""
+    )
 
 
     var errorMessage by mutableStateOf<String?>(null)
@@ -223,7 +237,8 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
             check = newCheck,
             isLoading = stateLoading[0],
             isSuccess = stateLoading[1],
-            isValid = isValid
+            isValid = isValid,
+            isOnline = offlineOnlineRepository.state.value.isOnline
         )
     }.catch {
         errorMessage = it.localizedMessage
@@ -260,12 +275,15 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
             ),
             isLoading = false,
             isSuccess = false,
-            isValid = false
+            isValid = false,
+            isOnline = false
         )
     )
 
-    init {
+    fun downloadData(checkId: Int?){
+        this.checkId = checkId
         viewModelScope.launch(coroutineExceptionHandler) {
+            offlineOnlineRepository.restore()
             launch {
                 combine(
                     woundRepository.getWoundAreas(),
@@ -305,6 +323,27 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
                     woundPainIntensite.value =
                         _woundPainIntensite.map { ListPopupItem(it.name, it) }
                 }.collect()
+            }
+            delay(1000)
+            launch {
+                val checkId = checkId ?: return@launch
+                val woundId = idWound ?: return@launch
+                val wound = woundRepository.getWound(codCase, woundId).results?.firstOrNull() ?: return@launch
+                val check = wound.checks.firstOrNull { it.iD == checkId }
+                    ?: return@launch
+                setWoundArea(woundArea.value.mapNotNull { it.item }.firstOrNull { check.area.endsWith(it.name) })
+                setWoundDepth(woundDepth.value.mapNotNull { it.item }.firstOrNull { check.depth.endsWith(it.name) })
+                setWoundNecrosis(woundNecrosis.value.mapNotNull { it.item }.firstOrNull { check.necrosis.endsWith(it.name) })
+                setWoundFibrin(woundFibrin.value.mapNotNull { it.item }.firstOrNull { check.fibrin.endsWith(it.name) })
+                setWoundGranulation(woundGranulation.value.mapNotNull { it.item }.firstOrNull { check.granulationTissue.endsWith(it.name) })
+                setWoundSmell(woundSmell.value.mapNotNull { it.item }.firstOrNull { check.smell.endsWith(it.name) })
+                setWoundSecretion(woundSecretion.value.mapNotNull { it.item }.firstOrNull { check.secretion.endsWith(it.name) })
+                setWoundSurroundingSkin(woundSurroundingSkin.value.mapNotNull { it.item }.firstOrNull { check.surroundingSkin.endsWith(it.name) })
+                setWoundPainType(woundPainType.value.mapNotNull { it.item }.firstOrNull { check.pain.endsWith(it.name) })
+                setWoundPainIntensite(woundPainIntensite.value.mapNotNull { it.item }.firstOrNull { check.painIntensity.endsWith(it.name) })
+                setMedicationType(check.medicationType)
+                setDate(check.dateTime.toDate("dd.MM.yyyy HH:mm") ?: Date())
+                checkImages.value = wound.photos.filter { it.iDCheck == checkId }
             }
         }
     }
@@ -366,6 +405,7 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading.value = true
             val woundCheck = AddWoundCheck(
+                id = checkId,
                 codArea = selectedWoundArea.value!!.cod,
                 codDepth = selectedWoundDepth.value!!.cod.toString(),
                 codNecrosis = selectedWoundNecrosis.value!!.cod,
@@ -380,7 +420,11 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
                 iDWoundPainIntensity = selectedWoundPainIntensite.value!!.id,
                 medicationType = medicationType.value
             )
-            val res = woundRepository.addCheck(codCase,woundCheck)
+            val res = if (checkId != null) {
+                woundRepository.updateCheck(codCase,woundCheck)
+            }else{
+                woundRepository.addCheck(codCase,woundCheck)
+            }
 
             errorMessage = res.error?.desc
             val isSaved = res.status?.equals("success",true) == true
@@ -407,6 +451,7 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
     }
 
     fun clearData(){
+        checkId = null
         selectedWoundArea.value = null
         selectedWoundDepth.value = null
         selectedWoundNecrosis.value = null

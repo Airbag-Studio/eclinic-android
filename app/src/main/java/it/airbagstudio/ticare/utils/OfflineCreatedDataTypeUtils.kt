@@ -7,9 +7,9 @@ import it.airbagstudio.ticare.R
 
 fun OfflineCreatedDataType.getCategoryName(): Int {
     return when (this) {
-        OfflineCreatedDataType.WOUND_CREATE -> R.string.wounds
+        OfflineCreatedDataType.WOUND_CREATE, OfflineCreatedDataType.WOUND_UPDATE -> R.string.wounds
         OfflineCreatedDataType.WOUND_ADD_IMAGE -> R.string.image
-        OfflineCreatedDataType.WOUND_ADD_CHECK -> R.string.check
+        OfflineCreatedDataType.WOUND_ADD_CHECK, OfflineCreatedDataType.WOUND_UPDATE_CHECK -> R.string.check
         OfflineCreatedDataType.WOUND_CLOSE -> R.string.close_wound
         OfflineCreatedDataType.AGENDA_UPDATE_TASK -> R.string.drug_administration
         OfflineCreatedDataType.AGENDA_ADD_UNSCHEDULED -> R.string.vital_parameters

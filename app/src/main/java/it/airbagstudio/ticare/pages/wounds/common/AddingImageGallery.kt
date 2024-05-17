@@ -5,6 +5,8 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,14 +21,28 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import it.airbagstudio.ticare.R
 
 @Composable
-fun AddingImagesGallery(images: List<Bitmap>, onDelete: (Bitmap) -> Unit) {
+fun AddingImagesGallery(painters: List<AsyncImagePainter> = listOf(), images: List<Bitmap>, onDelete: (Bitmap) -> Unit) {
     LazyHorizontalGrid(
         modifier = Modifier.height(128.dp),
         rows = GridCells.FixedSize(128.dp), content = {
+            items(painters) {
+                Image(
+                    modifier = Modifier
+                        .size(128.dp)
+                        .padding(end = 8.dp)
+                        .clip(
+                            RoundedCornerShape(24.dp)
+                        ),
+                    painter = it,
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop,
+                )
+            }
             items(images) {
                 Box(
                     modifier = Modifier

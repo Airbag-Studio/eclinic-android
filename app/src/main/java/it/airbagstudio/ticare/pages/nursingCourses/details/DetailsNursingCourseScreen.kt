@@ -269,7 +269,7 @@ private fun BuildSheetContent(
                 Divider()
             }else {
                 if (uiState.newNursingCourse.images.isNotEmpty()) {
-                    AddingImagesGallery(uiState.newNursingCourse.images) {
+                    AddingImagesGallery(images = uiState.newNursingCourse.images) {
                         viewModel.removeImage(it)
                     }
                     Spacer(modifier = Modifier.height(16.dp))

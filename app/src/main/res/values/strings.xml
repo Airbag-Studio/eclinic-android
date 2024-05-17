@@ -200,4 +200,5 @@
     <string name="educator_course">Decorsi degli Educatori</string>
     <string name="blood_exam_task">Esami somatici</string>
     <string name="new_blood_exam_task">Registra Esame Somatico</string>
+    <string name="edit">Modifica</string>
 </resources>

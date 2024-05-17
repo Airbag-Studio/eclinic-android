@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -83,6 +84,14 @@ fun WoundDetailsScreen(
     }
     var showCloseDialog by remember {
         mutableStateOf(false)
+    }
+
+    var showEditScreen by remember {
+        mutableStateOf(false)
+    }
+
+    var lastCheckIdToEdit by remember {
+        mutableStateOf<Int?>(null)
     }
     Scaffold(
         topBar = {
@@ -232,7 +241,9 @@ fun WoundDetailsScreen(
                         Spacer(modifier = Modifier.height(80.dp))
                     }
                 }
-                Column {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Spacer(modifier = Modifier.weight(1f))
                     Button(
                         modifier = Modifier
@@ -240,6 +251,17 @@ fun WoundDetailsScreen(
                             .padding(16.dp),
                         onClick = { showCloseDialog = true }) {
                         Text(text = stringResource(id = R.string.close_wound))
+                    }
+
+                    TextButton(onClick = {
+                        if (viewModel.wound?.checks?.isNullOrEmpty() == true) {
+                            showEditScreen = true
+                        }else{
+                            lastCheckIdToEdit = viewModel.wound?.checks?.lastOrNull()?.iD
+                            showCheckCreateBottomSheet = true
+                        }
+                    }) {
+                        Text(text = stringResource(id = R.string.edit))
                     }
                 }
             }
@@ -253,6 +275,15 @@ fun WoundDetailsScreen(
             }
 
         }
+    }
+
+    if (showEditScreen){
+        CreateWoundDialogScreen(codCase = viewModel.patientCod, woundId = viewModel.woundId.toInt(), onDismissRequest = {
+            showEditScreen = false
+            if (it){
+                viewModel.reloadWound()
+            }
+        })
     }
 
     if (showImagesDialog) {
@@ -286,7 +317,9 @@ fun WoundDetailsScreen(
             codCase = viewModel.patientCod,
             idWound = viewModel.woundId.toInt(),
             idGender = viewModel.genderId,
+            idCheck = lastCheckIdToEdit,
             onDismissRequest = { success ->
+                lastCheckIdToEdit = null
                 if (success) viewModel.reloadWound()
                 showCheckCreateBottomSheet = false
             })
