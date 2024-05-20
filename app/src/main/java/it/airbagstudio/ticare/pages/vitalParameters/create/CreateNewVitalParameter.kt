@@ -200,7 +200,7 @@ private fun BuildSheetContent(
             }
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                enabled = (!uiState.isLoading && (uiState.value.isValidVitalParameterValue() || (uiState.notExecuted && uiState.notes.isNotEmpty())) && uiState.isEditingEnabled),
+                enabled = (!uiState.isLoading && uiState.value.isValidVitalParameterValue() && (!uiState.notExecuted || uiState.notes.isNotEmpty()) && uiState.isEditingEnabled),
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     viewModel.saveTask()

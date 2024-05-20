@@ -33,7 +33,8 @@ data class TaskCreateEditScreenUIState(
         val duration: Int? = null,
         val notes: String = "",
         val showInDiary: Boolean = false,
-        val notExecuted: Boolean = false
+        val notExecuted: Boolean = false,
+        val isValid: Boolean = false
     )
 }
 
@@ -72,7 +73,8 @@ class TaskCreateEditViewModel @Inject constructor(
             duration = duration,
             notes = notes,
             showInDiary = showInDiary,
-            notExecuted = notExecuted
+            notExecuted = notExecuted,
+            isValid = !notExecuted || notes.isNotEmpty()
         )
     }
 

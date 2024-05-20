@@ -107,6 +107,7 @@ private fun BuildContent(
     val task = viewModel.task.value
     val isReserve = task?.isReserve ?: false
     val focusManager = LocalFocusManager.current
+    val isValid = task != null && (!task.isSkipped || task.notes.isNotEmpty())
     Scaffold(
         containerColor = if (task?.isReserve == true) tertiary95 else MaterialTheme.colorScheme.surface,
 
@@ -234,7 +235,7 @@ private fun BuildContent(
                     viewModel.setNotExecuted(it)
                 }
                 Button(
-                    enabled = !viewModel.isLoading && viewModel.isEditingEnable.invoke(),
+                    enabled = !viewModel.isLoading && viewModel.isEditingEnable.invoke() && isValid,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 24.dp),

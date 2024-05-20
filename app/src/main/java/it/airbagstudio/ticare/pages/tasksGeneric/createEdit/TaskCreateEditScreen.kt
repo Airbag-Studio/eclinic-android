@@ -140,7 +140,7 @@ fun TaskCreateEditScreen(
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
-                    enabled = !uiState.isLoading,
+                    enabled = !uiState.isLoading && uiState.task.isValid,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         viewModel.saveTask(task = taskToEdit)
