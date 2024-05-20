@@ -132,7 +132,7 @@ fun DiaryScreen(
                                     activityName = item.typeLbl ?: item.title,
                                     duration = item.duration?.toString() ?: "-",
                                     time = item.time,
-                                    note = item.taskNotes,
+                                    note = if(toolTag.name.endsWith("Course")) item.desc else item.taskNotes,
                                     color = if (item.taskNotes != null) seed else Color(0xFFCF4500),
                                     notExecuted = item.isSkipped ?: false
                                 )
