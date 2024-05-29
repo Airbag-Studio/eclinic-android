@@ -68,7 +68,7 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
     private val modifiedIds = MutableStateFlow<List<String>>(listOf())
 
     private val coroutineExceptionHandler =
-        CoroutineExceptionHandler { coroutineContext, throwable ->
+        CoroutineExceptionHandler { _, throwable ->
             isLoading.value = false
             errorMessage.value = throwable.localizedMessage
         }

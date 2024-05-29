@@ -68,7 +68,7 @@ fun SettingsPage(
             mutableStateOf(false)
         }
         Column(Modifier.padding(it)) {
-            Divider()
+            HorizontalDivider()
             SettingsListItem(title = stringResource(id = R.string.consumption_title), subtitle = stringResource(
                 id = R.string.consumption_subtitle
             )) {
@@ -214,7 +214,7 @@ private fun PreviewSettingsListItem(){
                 SettingsListItem("Consumi e rimborsi","Registrazione note spese"){
 
                 }
-                Divider(modifier = Modifier.padding(start = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(start = 16.dp))
             }
         }
     }

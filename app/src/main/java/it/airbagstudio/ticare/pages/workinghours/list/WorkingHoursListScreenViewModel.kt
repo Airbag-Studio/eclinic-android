@@ -43,7 +43,7 @@ class WorkingHoursListScreenViewModel @Inject constructor(
 
     var selectedWorkingHour by mutableStateOf<EmployeeWorkingHour?>(null)
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, _throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, _throwable ->
         throwable.value = _throwable
         isLoading.value = false
     }

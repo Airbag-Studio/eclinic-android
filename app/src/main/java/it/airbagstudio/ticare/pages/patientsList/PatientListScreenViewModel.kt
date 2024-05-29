@@ -97,9 +97,9 @@ class PatientListScreenViewModel @Inject constructor(
     private var selectedDivision = MutableStateFlow<Division?>(null)
     private var isRequestAllCasesAccessOn = userRepository.isRequestAllCasesAccessOn()
 
-    lateinit var requestImageRequestData: ImageRequestData
+    var requestImageRequestData: ImageRequestData
 
-    var coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    var coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading = false
         errorMessage = throwable.localizedMessage
         throwable.printStackTrace()
@@ -135,7 +135,7 @@ class PatientListScreenViewModel @Inject constructor(
         errorMessage = it.localizedMessage
     }
 
-    private val zonesState = combine(zones,microzones,isRequestAllCasesAccessOn,userListRepository.getUserZones()){ zones,microzones,isRequestAllCasesAccessOn,userZones ->
+    private val zonesState = combine(zones,microzones,isRequestAllCasesAccessOn,userListRepository.getUserZones()){ _,_,isRequestAllCasesAccessOn,userZones ->
         if (isRequestAllCasesAccessOn){
             setSelectedZone(null)
         }else{

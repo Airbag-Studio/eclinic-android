@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -111,7 +112,7 @@ fun CarePlanDetailsScreen(
             Modifier
                 .padding(values)
         ) {
-            Divider()
+            HorizontalDivider()
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = stringResource(id = R.string.title),
@@ -124,7 +125,7 @@ fun CarePlanDetailsScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            Divider()
+            HorizontalDivider()
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -151,7 +152,7 @@ fun CarePlanDetailsScreen(
                     properties = uiState.textItem
                 )
             }
-            Divider()
+            HorizontalDivider()
             Text(
                 modifier = Modifier.padding(16.dp),
                 text = stringResource(id = R.string.cares),

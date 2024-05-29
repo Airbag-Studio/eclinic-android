@@ -38,7 +38,7 @@ class DiaryViewModel @Inject constructor(
     private val isLoading = MutableStateFlow<Boolean>(false)
     private val items = MutableStateFlow<List<DiaryItem>>(listOf())
     val case = userDetailRepository.getCurrentCase()
-    val uiState = combine(items, isLoading) { items, isLoading ->
+    val uiState = combine(items, isLoading) { items, _ ->
 
 
         DiaryUIState(

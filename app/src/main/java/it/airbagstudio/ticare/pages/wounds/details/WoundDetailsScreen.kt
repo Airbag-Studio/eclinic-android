@@ -27,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -122,14 +123,14 @@ fun WoundDetailsScreen(
                             style = MaterialTheme.typography.headlineSmall
                         )
                     }
-                    Divider()
+                    HorizontalDivider()
                     Row(modifier = Modifier.height(IntrinsicSize.Min)) {
                         TitleValueView(
                             modifier = Modifier.weight(1f),
                             title = stringResource(id = R.string.origin),
                             value = viewModel.wound?.woundOrigin ?: ""
                         )
-                        Divider(
+                        HorizontalDivider(
                             modifier = Modifier
                                 .fillMaxHeight()//fill the max height
                                 .width(1.dp)
@@ -141,12 +142,12 @@ fun WoundDetailsScreen(
                                 ?.format("dd/MM/yyyy") ?: ""
                         )
                     }
-                    Divider()
+                    HorizontalDivider()
                     TitleValueView(
                         title = stringResource(id = R.string.position),
                         value = viewModel.wound?.parts?.map { it.name }?.joinToString(", ") ?: ""
                     )
-                    Divider()
+                    HorizontalDivider()
                     TitleValueView(
                         title = stringResource(id = R.string.dimensions),
                         value = stringResource(
@@ -156,7 +157,7 @@ fun WoundDetailsScreen(
                             viewModel.wound?.depth ?: 0
                         )
                     )
-                    Divider()
+                    HorizontalDivider()
                     TitleValueView(
                         title = stringResource(id = R.string.description),
                         value = viewModel.wound?.appearanceDescription ?: "",
@@ -165,7 +166,7 @@ fun WoundDetailsScreen(
                             showNotesDialog = true
                         }
                     )
-                    Divider()
+                    HorizontalDivider()
                     Row(verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .clickable {
@@ -183,7 +184,7 @@ fun WoundDetailsScreen(
                             contentDescription = ""
                         )
                     }
-                    Divider()
+                    HorizontalDivider()
                     Column(
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.surface)

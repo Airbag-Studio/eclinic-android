@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -170,7 +171,7 @@ private fun TimeTrackerPanel(uiState: TimeTrackerViewUIState, onButtonClick: () 
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        Divider()
+        HorizontalDivider()
         Column(Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
             Button(
                 modifier = Modifier.fillMaxWidth(),
@@ -246,7 +247,7 @@ private fun TimeTrackerButtonPreview() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { "Test timer" },
+                    title = { Text("Test timer") },
                     actions = {
                         TimeTrackerButton()
                     }

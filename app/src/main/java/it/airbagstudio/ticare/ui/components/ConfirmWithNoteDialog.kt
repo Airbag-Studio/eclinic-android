@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -73,7 +74,7 @@ fun ConfirmWithNoteDialog(title: String, body: String, onDismissRequest: (Boolea
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            Divider()
+            HorizontalDivider()
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Spacer(modifier = Modifier.weight(1f))
@@ -102,7 +103,7 @@ private fun PreviewConfirmWithNoteDialog() {
         ConfirmWithNoteDialog(
             title = stringResource(id = R.string.closing_protocol),
             body = stringResource(id = R.string.wound_closing_note),
-            onDismissRequest = { success, note ->
+            onDismissRequest = { _, _ ->
 
             })
     }

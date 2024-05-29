@@ -38,7 +38,7 @@ class SettingsPageViewModel @Inject constructor(
 
     var errorMessage by mutableStateOf<String?>(null)
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         errorMessage = throwable.localizedMessage
     }
 

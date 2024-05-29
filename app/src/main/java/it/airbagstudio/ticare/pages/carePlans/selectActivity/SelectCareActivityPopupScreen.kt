@@ -18,12 +18,11 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -44,7 +43,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -55,7 +53,6 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerViewModel
 import it.airbagstudio.ticare.ui.components.timeTracker.TravelTimeDialog
-import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,9 +110,10 @@ fun SelectCareActivityPopupScreen(
                     selectedTabIndex = tabIndex,
                     indicator = { tabPositions ->
                         if (tabIndex < tabPositions.size) {
-                            TabRowDefaults.Indicator(
+                            SecondaryIndicator(
                                 modifier = Modifier
                                     .tabIndicatorOffset(tabPositions[tabIndex]),
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     },
@@ -139,7 +137,7 @@ fun SelectCareActivityPopupScreen(
                 }
                 when (tabIndex){
                     0 -> {
-                        ItemsList(uiState.plannedActivities){ id,isTracking ->
+                        ItemsList(uiState.plannedActivities){ id,_ ->
                             onDismissRequest(Pair(true,id))
                         }
                     }

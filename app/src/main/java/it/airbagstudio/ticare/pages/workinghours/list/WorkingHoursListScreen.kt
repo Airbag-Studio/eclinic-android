@@ -16,6 +16,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -136,7 +137,7 @@ fun WorkingHoursListScreen(
                                     viewModel.setSelectedConsumption(item.id)
                                     showCreateDialog = true
                                 }
-                                Divider(modifier = Modifier.padding(start = if (items.lastOrNull() == item) 0.dp else 16.dp))
+                                HorizontalDivider(modifier = Modifier.padding(start = if (items.lastOrNull() == item) 0.dp else 16.dp))
                             }
                         }
                     })

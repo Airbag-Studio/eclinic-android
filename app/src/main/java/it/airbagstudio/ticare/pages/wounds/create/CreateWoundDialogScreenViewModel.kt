@@ -103,7 +103,7 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
 
     private val coroutineExceptionHandler =
-        CoroutineExceptionHandler { coroutineContext, throwable ->
+        CoroutineExceptionHandler { _, throwable ->
             errorMessage = throwable.localizedMessage
             throwable.printStackTrace()
         }
@@ -340,7 +340,7 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
                 appearanceDate = date.value.format("yyyy.MM.dd"),
                 appearanceDescription = notes.value,
                 bodyParts = bodyPartsId,
-                cODCase = codCase ?: "",
+                cODCase = codCase,
                 depth = depth.value.toInt(),
                 iDWoundOrigin = selectedWoundOrigin.value!!.id,
                 iDWoundType = selectedWoundType.value!!.id,

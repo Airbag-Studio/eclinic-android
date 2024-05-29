@@ -3,6 +3,7 @@ package it.airbagstudio.ticare.utils
 import android.graphics.Bitmap
 import java.io.ByteArrayOutputStream
 
+
 fun Bitmap.resized(maxSize: Int = 1000, compression: Int = 70): Bitmap {
     val sourceWidth: Int = this.width
     val sourceHeight: Int = this.height

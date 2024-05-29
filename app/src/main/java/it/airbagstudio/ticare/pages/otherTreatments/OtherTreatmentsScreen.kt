@@ -138,7 +138,7 @@ fun OtherTreatmentScreen(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 private fun PreviewOtherTreatmentScreen(){
     AppTheme {
-        Scaffold {  values ->
+        Scaffold {  _ ->
             OtherTreatmentScreen {
 
             }

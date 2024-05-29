@@ -90,7 +90,8 @@ data class CheckCreateDialogScreenUIState(
 class CheckCreateDialogScreenViewModel @Inject constructor(
     private val woundRepository: WoundRepository,
     private val authRepository: AuthRepository,
-    private val offlineOnlineRepository: OfflineOnlineRepository
+    private val offlineOnlineRepository: OfflineOnlineRepository,
+    savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
     lateinit var codCase: String
@@ -136,7 +137,7 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
 
     private val coroutineExceptionHandler =
-        CoroutineExceptionHandler { coroutineContext, throwable ->
+        CoroutineExceptionHandler { _, throwable ->
             errorMessage = throwable.localizedMessage
         }
 
@@ -219,7 +220,7 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
         _selections2,
         medicationType,
         _stateLoading
-    ) { newCheck, selections1, selections2, medicationType, stateLoading ->
+    ) { newCheck, selections1, selections2, _, stateLoading ->
         val isValid =
             selections1.selectedWoundArea != null &&
                     selections1.selectedWoundDepth != null &&

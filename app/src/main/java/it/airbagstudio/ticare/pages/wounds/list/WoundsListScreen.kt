@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -113,11 +114,11 @@ fun WoundListScreen(
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Divider()
+            HorizontalDivider()
             if (uiState.isLoading) {
                 repeat(8) {
                     DrugAdministrationItemViewLoading()
-                    Divider(modifier = Modifier.padding(start = 16.dp))
+                    HorizontalDivider(modifier = Modifier.padding(start = 16.dp))
                 }
             } else {
                 LazyColumn(
@@ -131,7 +132,7 @@ fun WoundListScreen(
                                 viewModel.genderId
                             )
                         }
-                        Divider(modifier = Modifier.padding(start = 16.dp))
+                        HorizontalDivider(modifier = Modifier.padding(start = 16.dp))
                     }
                 })
             }
@@ -143,7 +144,7 @@ fun WoundListScreen(
         }
 
         if (showCreateBottomSheet){
-            CreateWoundDialogScreen(codCase = viewModel.patientCod,onDismissRequest = {success ->
+            CreateWoundDialogScreen(codCase = viewModel.patientCod,onDismissRequest = {_ ->
                 showCreateBottomSheet = false
                 viewModel.downloadWounds()
             })

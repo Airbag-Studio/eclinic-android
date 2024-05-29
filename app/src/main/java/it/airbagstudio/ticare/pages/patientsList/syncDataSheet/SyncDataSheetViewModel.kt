@@ -53,7 +53,7 @@ class SyncDataSheetViewModel @Inject constructor(
         listOf()
     )
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         syncNetworkError = throwable.localizedMessage
     }
 

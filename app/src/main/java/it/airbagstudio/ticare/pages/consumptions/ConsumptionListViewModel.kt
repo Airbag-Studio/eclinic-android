@@ -42,7 +42,7 @@ class ConsumptionListViewModel @Inject constructor(
 
     var selectedConsumption by mutableStateOf<EmployeeConsumption?>(null)
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, _throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, _throwable ->
         throwable.value = _throwable
         isLoading.value = false
     }

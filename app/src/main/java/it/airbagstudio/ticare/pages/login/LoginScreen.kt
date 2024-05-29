@@ -148,7 +148,7 @@ fun LoginScreen(
                     },
                 label = {
                     Text(text = stringResource(id = R.string.structure))
-                }, onValueChange = { newValue ->
+                }, onValueChange = { _ ->
 
                 })
 

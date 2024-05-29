@@ -57,7 +57,7 @@ class WoundListScreenViewModel @Inject constructor(
 
     private var firstTime: Boolean = true
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         errorMessage = throwable.localizedMessage
         isLoading.value = false
     }

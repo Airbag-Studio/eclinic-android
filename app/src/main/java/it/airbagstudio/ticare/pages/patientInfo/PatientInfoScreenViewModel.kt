@@ -25,7 +25,7 @@ class PatientInfoScreenViewModel @Inject constructor(
 
     var errorMessage by mutableStateOf<String?>(null)
 
-    var coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    var coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         errorMessage = throwable.localizedMessage
     }
 
@@ -40,8 +40,8 @@ class PatientInfoScreenViewModel @Inject constructor(
             caseResponse.error?.let { errorResponse ->
                 errorMessage = errorResponse.desc
             }
-            caseResponse.results?.let { caseResponse ->
-                caseInfo = caseResponse.firstOrNull()
+            caseResponse.results?.let { results ->
+                caseInfo = results.firstOrNull()
             }
         }
     }

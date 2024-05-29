@@ -29,7 +29,7 @@ class SplashPageScreenViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
 
 
-    val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
         errorMessage = throwable.localizedMessage
         isLoggedIn = false

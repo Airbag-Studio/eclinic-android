@@ -112,7 +112,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
     )
 
     private val coroutineExceptionHandler =
-        CoroutineExceptionHandler { coroutineContext, throwable ->
+        CoroutineExceptionHandler { _, throwable ->
             errorMessage.value = throwable.localizedMessage
             isLoading.value = false
         }

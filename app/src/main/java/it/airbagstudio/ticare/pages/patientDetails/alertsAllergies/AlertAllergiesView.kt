@@ -30,7 +30,6 @@ import it.airbagstudio.ticare.ui.components.ToolbarWithBack
 @Composable
 fun AlertAllergiesScreen(
     viewModel: AlertAllergiesViewModel = hiltViewModel(),
-    navigationActions: NavigationActions,
     onBack: () -> Unit
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

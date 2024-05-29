@@ -104,7 +104,7 @@ fun DiaryScreen(
                                 )
                             } else if (item.entityName == "HomeCareCourse"){
                                 DiaryNursingCourseItemView(
-                                    title = item.title ?: "",
+                                    title = item.title,
                                     duration = if(item.duration != null) item.duration.toString() else "-",
                                     time = item.time,
                                     note = item.desc ?: "",
@@ -113,7 +113,7 @@ fun DiaryScreen(
                             } else if (item.entityName == "HomeCareServiceTask"){
                                 DiaryCarePlaneItemView(
                                     title = item.typeLbl ?: "",
-                                    description = item.schedulerLbl ?: "",
+                                    // description = item.schedulerLbl ?: "",
                                     isPlanned = item.isScheduledTask ?: true,
                                     time = item.time,
                                     note = item.taskNotes ?: "",

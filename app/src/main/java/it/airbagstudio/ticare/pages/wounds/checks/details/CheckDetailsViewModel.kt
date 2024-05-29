@@ -35,7 +35,7 @@ class CheckDetailsViewModel @Inject constructor(
 
     var isOnline by mutableStateOf(false)
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         errorMessage = throwable.localizedMessage
     }
     var requestImageRequestData: ImageRequestData = ImageRequestData(

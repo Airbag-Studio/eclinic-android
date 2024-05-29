@@ -31,7 +31,7 @@ class WorkingHoursSearchViewModel @Inject constructor(
     val uiState = combine(types,query){ _types, _query ->
         Log.d("types",_types.toString())
         var typeModels = _types
-        var filteredTypes = listOf<WorkingHoursType>()
+        var filteredTypes : List<WorkingHoursType>
         if (_query.count() > 2){
             filteredTypes = typeModels.filter { it.name.contains(_query,true) }
         }else{

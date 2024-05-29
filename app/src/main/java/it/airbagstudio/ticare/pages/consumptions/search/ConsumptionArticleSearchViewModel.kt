@@ -30,7 +30,7 @@ class ConsumptionArticleSearchViewModel @Inject constructor(
 
     val uiState = combine(articles,query){ _articles,_query ->
         var articleModels = _articles
-        var filteredArticles = listOf<Article>()
+        var filteredArticles: List<Article>
         if (_query.count() > 2){
             filteredArticles = articleModels.filter { it.desc.contains(_query,true) || it.code.contains(_query,true) }
         }else{

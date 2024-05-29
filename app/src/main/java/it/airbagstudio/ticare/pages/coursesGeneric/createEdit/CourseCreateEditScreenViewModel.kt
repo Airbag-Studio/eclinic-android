@@ -63,7 +63,7 @@ class CourseCreateEditScreenViewModel @Inject constructor(
     var errorMessage = mutableStateOf<String?>(null)
     var isSuccess = mutableStateOf(false)
 
-    private val coroutineExceptionHandler  = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val coroutineExceptionHandler  = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
         errorMessage.value = throwable.localizedMessage
         isLoading.value = false
@@ -163,6 +163,9 @@ class CourseCreateEditScreenViewModel @Inject constructor(
             val res = coursesRepository.getCourseCategories(patientCode,courseType)
             errorMessage.value = res.error?.desc
             categories.value = res.results ?: listOf()
+            if (selectedCategoryId.value == null && categories.value.isNotEmpty()){
+                selectedCategoryId.value = categories.value.firstOrNull { it.useAsDefault }?.id
+            }
 
         }
     }

@@ -55,6 +55,7 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getExecDateTime
+import java.util.Calendar
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,6 +73,7 @@ fun CalendarTextField(
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = date?.time
     )
+    val calendar = Calendar.getInstance()
     val timePickerState = rememberTimePickerState(
         initialHour = date?.hours ?: 0,
         initialMinute = date?.minutes ?: 0

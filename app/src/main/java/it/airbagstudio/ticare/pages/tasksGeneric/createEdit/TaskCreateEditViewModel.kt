@@ -61,7 +61,7 @@ class TaskCreateEditViewModel @Inject constructor(
     private val notExecuted = MutableStateFlow(false)
     private val taskActivityType = MutableStateFlow<TaskType?>(null)
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading.value = false
         errorMessage.value = throwable.localizedMessage
         throwable.printStackTrace()

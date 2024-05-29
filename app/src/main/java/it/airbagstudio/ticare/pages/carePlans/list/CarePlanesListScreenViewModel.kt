@@ -43,13 +43,13 @@ class CarePlanesListScreenViewModel @Inject constructor(
     private val plans = MutableStateFlow<List<HomeCarePlan>>(listOf())
     private val modifiedIds = MutableStateFlow<List<String>>(listOf())
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading.value = false
         errorMessage.value = throwable.localizedMessage
 
     }
 
-    var uiState = combine(isLoading, errorMessage,plans,modifiedIds) { isLoading, errorMessage,plans,modifiedIds ->
+    var uiState = combine(isLoading, errorMessage,plans,modifiedIds) { _, _, plans, modifiedIds ->
         val items = plans.map { CarePlanesListItem(
             title = it.title,
             date = it.openDate.toDate("dd.MM.yyyy")?.format("dd/MM/yyyy") ?: "",

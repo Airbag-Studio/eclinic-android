@@ -22,7 +22,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    @ApplicationContext context: Context,
     private val userRepository: UserRepository,
     private val authRepository: AuthRepository,
     private val syncDataRepository: SyncDataRepository
@@ -43,7 +42,7 @@ class LoginViewModel @Inject constructor(
     }
 
 
-    var exceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    var exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading = false
         errorMessage = throwable.localizedMessage
         throwable.printStackTrace()

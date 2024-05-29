@@ -79,7 +79,7 @@ class CreateTreatmentScreenViewModel @Inject constructor(
         _guarantors.firstOrNull { it.id == _id }
     }
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         errorMessage = throwable.localizedMessage
         isLoading.value = false
     }

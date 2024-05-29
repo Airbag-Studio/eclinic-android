@@ -65,7 +65,7 @@ class VitalParametersScreenViewModel @Inject constructor(
     private val throwable = MutableStateFlow<Throwable?>(null)
     private val tasks = MutableStateFlow<List<AgendaTask>>(listOf())
     private val coroutineExceptionHandler =
-        CoroutineExceptionHandler { coroutineContext, _throwable ->
+        CoroutineExceptionHandler { _, _throwable ->
             throwable.value = _throwable
         }
 
@@ -73,9 +73,9 @@ class VitalParametersScreenViewModel @Inject constructor(
         combine(isLoading, throwable, tasks,modifiedIds) { _isLoading, _throwable, _tasks,modifiedIds ->
             val filteredTasks = if (shift != null) {
                 _tasks.filter {
-                    shift?.includeTime(
+                    shift.includeTime(
                         it.getExpectedTime() ?: LocalTime.now()
-                    ) == true
+                    )
                 }
             } else {
                 _tasks

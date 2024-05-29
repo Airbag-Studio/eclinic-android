@@ -13,7 +13,6 @@ import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.OperatingShift
 import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
-import ch.ticare.eclinic.library.repository.AgendaTaskRepository.Companion.PHARMACOLOGICAL_TYPE
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,7 +49,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
 
     var date by mutableStateOf<Date?>(null)
 
-    val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading = false
         errorMessage = throwable.localizedMessage
     }
@@ -60,12 +59,12 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading = true
             patient = userDetailRepository.getCase(patientCod).results?.firstOrNull()
-            downloadTasks(true)
+            downloadTasks()
             isLoading = false
         }
     }
 
-    private suspend fun downloadTasks(fromCache: Boolean){
+    private suspend fun downloadTasks() {
         var shift : OperatingShift? = null
         if (shiftStart != null && shiftEnd != null){
             shift = OperatingShift(name = shiftName, publicName = shiftName, publicShortName = shiftName, shortName = shiftName, startTime = shiftStart, stopTime = shiftEnd)
@@ -98,7 +97,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     fun reloadTasks(){
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading = true
-            downloadTasks(false)
+            downloadTasks()
             isLoading = false
         }
     }
@@ -114,7 +113,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
                 }
             }
 
-            downloadTasks(false)
+            downloadTasks()
             isLoading = false
 
         }

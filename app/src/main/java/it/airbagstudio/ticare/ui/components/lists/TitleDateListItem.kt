@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -63,11 +64,11 @@ private fun PreviewTitleDateListItem(){
                 TitleDateListItem(name = "Rimborso chilometrico \n dadadsa \n dsdasd", date = "20/08/2023") {
 
                 }
-                Divider()
+                HorizontalDivider()
                 TitleDateListItem(name = "Rimborso chilometrico \n dadadsa \n dsdasd", date = "20/08/2023",isEnabled = false) {
 
                 }
-                Divider()
+                HorizontalDivider()
             }
         }
 

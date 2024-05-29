@@ -394,7 +394,7 @@ fun PatientListScreen(
             }
         }
         if (openSyncSheet) {
-            SyncDataSheetView(caseList = uiState.caseList) { success ->
+            SyncDataSheetView(caseList = uiState.caseList) { _ ->
                 openSyncSheet = false
                 viewModel.updatePatients()
             }

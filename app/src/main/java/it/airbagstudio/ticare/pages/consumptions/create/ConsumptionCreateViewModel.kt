@@ -95,7 +95,7 @@ class ConsumptionCreateViewModel @Inject constructor(
         )
     )
 
-    val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
         errorMessage.value = throwable.localizedMessage
         isLoading.value = false

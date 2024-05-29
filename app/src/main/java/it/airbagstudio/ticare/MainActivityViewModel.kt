@@ -13,7 +13,7 @@ class MainActivityViewModel @Inject constructor(
     private val offlineOnlineRepository: OfflineOnlineRepository
 ): ViewModel() {
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
     }
 

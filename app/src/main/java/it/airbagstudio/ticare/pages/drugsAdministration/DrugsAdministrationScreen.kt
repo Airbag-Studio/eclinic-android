@@ -13,12 +13,14 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -54,7 +56,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun DrugsAdministrationScreen(
     viewModel: DrugsAdministrationScreenViewModel = hiltViewModel(),
-    navigationActions: NavigationActions,
     onBack: () -> Unit
 ) {
     var tabIndex by remember { mutableIntStateOf(0) }
@@ -127,19 +128,15 @@ fun DrugsAdministrationScreen(
                 stringResource(id = R.string.reserves)
             )
 
-            val contentColor = {
-
-            }
-
             TabRow(
                 selectedTabIndex = tabIndex,
                 indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(
-                        color = if (tabIndex == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
+                    SecondaryIndicator(
                         modifier = Modifier
                             .tabIndicatorOffset(tabPositions[tabIndex])
                             .padding(horizontal = 50.dp)
-                            .clip(RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp))
+                            .clip(RoundedCornerShape(4.dp, 4.dp, 0.dp, 0.dp)),
+                        color = if (tabIndex == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
                     )
                 }
                 //contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -166,7 +163,7 @@ fun DrugsAdministrationScreen(
             if (viewModel.isLoading) {
                 repeat(8) {
                     DrugAdministrationItemViewLoading()
-                    Divider(modifier = Modifier.padding(start = 16.dp))
+                    HorizontalDivider(modifier = Modifier.padding(start = 16.dp))
                 }
             } else {
                 when (tabIndex) {

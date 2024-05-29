@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -112,11 +113,11 @@ fun NursingCoursesScreen(
         if (viewModel.isLoading) {
             repeat(8) {
                 NursingCoursesItemViewLoading()
-                Divider(modifier = Modifier.padding(start = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(start = 16.dp))
             }
         } else {
             Spacer(modifier = Modifier.height(16.dp))
-            Divider()
+            HorizontalDivider()
             LazyColumn(
                 contentPadding = PaddingValues(bottom = 124.dp),
                 content = {

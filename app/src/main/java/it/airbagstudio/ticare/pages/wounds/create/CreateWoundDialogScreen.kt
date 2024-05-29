@@ -21,6 +21,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -217,7 +218,7 @@ fun CreateWoundDialogScreen(
                 })
 
                 Spacer(modifier = Modifier.height(16.dp))
-                Divider(Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(Modifier.padding(horizontal = 16.dp))
                 Spacer(modifier = Modifier.height(16.dp))
                 if (uiState.wound.images.isNotEmpty() || uiState.woundPhotos.isNotEmpty()) {
                     val imageLoader = ImageLoader.Builder(LocalContext.current)

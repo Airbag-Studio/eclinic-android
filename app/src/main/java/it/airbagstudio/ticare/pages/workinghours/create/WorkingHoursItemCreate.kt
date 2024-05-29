@@ -22,6 +22,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -40,14 +41,11 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.EmployeeWorkingHour
-import com.google.android.datatransport.runtime.util.PriorityMapping.toInt
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
 import it.airbagstudio.ticare.utils.toDate
-import kotlinx.datetime.LocalTime
-import java.time.Duration
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,7 +105,7 @@ fun WorkingHoursItemCreate(
                     .fillMaxSize()
                     .padding(values)
             ) {
-                Divider()
+                HorizontalDivider()
                 Column(
                     Modifier
                         .fillMaxSize()

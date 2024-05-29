@@ -151,7 +151,6 @@ fun DiaryNursingCourseItemView(
 @Composable
 fun DiaryCarePlaneItemView(
     title: String,
-    description: String,
     time: String,
     note: String,
     isPlanned: Boolean,
@@ -414,7 +413,6 @@ private fun DiaryPreview() {
 
                 DiaryCarePlaneItemView(
                     title = "Decorsi Inferm.",
-                    description = "Decorso Prestazioni a Domicilio",
                     time = "08:00",
                     note = "Queste sono delle note di test",
                     isPlanned = true,

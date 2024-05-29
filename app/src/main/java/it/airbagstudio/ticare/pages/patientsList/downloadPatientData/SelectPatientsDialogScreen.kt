@@ -34,6 +34,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -169,10 +170,12 @@ fun SelectPatientsDialogScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         LinearProgressIndicator(
+                            progress = {
+                                uiState.syncState.progress
+                            },
                             modifier = Modifier
                                 .padding(top = 16.dp)
                                 .fillMaxWidth(),
-                            progress = uiState.syncState.progress
                         )
                     }
                     Spacer(modifier = Modifier.weight(1.2f))
@@ -229,7 +232,7 @@ fun SelectPatientsDialogScreen(
                                             Image(painter = painter, contentDescription = "")
                                         }
                                     )
-                                    Divider()
+                                    HorizontalDivider()
                                 }
                             })
                         if (uiState.patients.count { it.isSelected } > 0) {

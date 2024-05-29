@@ -57,7 +57,7 @@ class CoursesViewModel @Inject constructor(
     )
     val uiState = _uiState.asStateFlow()
 
-    val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
         error = throwable.localizedMessage ?: "Generic error"
     }

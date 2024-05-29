@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -88,7 +89,7 @@ fun WorkingHoursSearch(
                     .fillMaxSize()
                     .padding(values)
             ) {
-                Divider()
+                HorizontalDivider()
                 TextField(
                     singleLine = true,
                     shape = RectangleShape,
@@ -134,7 +135,7 @@ fun WorkingHoursSearch(
                                 headlineContent = {
                                     Text(text = it.name)
                                 })
-                            Divider()
+                            HorizontalDivider()
                         }
                     })
                 Spacer(modifier = Modifier.weight(1f))

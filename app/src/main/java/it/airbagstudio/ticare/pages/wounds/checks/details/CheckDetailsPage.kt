@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -70,29 +71,29 @@ fun CheckDetailsPage(
                     .verticalScroll(rememberScrollState())
             ) {
                 TitleValueView(title = stringResource(id = R.string.date_and_time), value =  check.dateTime.toDate("dd.MM.yyyy HH:mm")?.format("dd MMMM yyyy, HH:mm") ?: "")
-                Divider()
+                HorizontalDivider()
                 TitleValueView(title = stringResource(id = R.string.surface), value =  check.area)
-                Divider()
+                HorizontalDivider()
                 TitleValueView(title = stringResource(id = R.string.depth), value =  check.depth)
-                Divider()
+                HorizontalDivider()
                 TitleValueView(title = stringResource(id = R.string.necrosis_zones), value =  check.necrosis)
-                Divider()
+                HorizontalDivider()
                 TitleValueView(title = stringResource(id = R.string.fibrin), value =  check.fibrin)
-                Divider()
+                HorizontalDivider()
                 TitleValueView(title = stringResource(id = R.string.granulation_tissue), value =  check.granulationTissue)
-                Divider()
+                HorizontalDivider()
                 TitleValueView(title = stringResource(id = R.string.smell), value =  check.smell)
-                Divider()
+                HorizontalDivider()
                 TitleValueView(title = stringResource(id = R.string.secretion), value =  check.secretion)
-                Divider()
+                HorizontalDivider()
                 TitleValueView(title = stringResource(id = R.string.surrounding_skin), value =  check.surroundingSkin)
-                Divider()
+                HorizontalDivider()
                 TitleValueView(title = stringResource(id = R.string.pain), value =  check.pain)
-                Divider()
+                HorizontalDivider()
                 TitleValueView(title = stringResource(id = R.string.pain_intensity), value =  check.painIntensity)
-                Divider()
+                HorizontalDivider()
                 TitleValueView(title = stringResource(id = R.string.medication_type), value =  check.medicationType)
-                Divider()
+                HorizontalDivider()
                 Row(verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clickable {
@@ -110,7 +111,7 @@ fun CheckDetailsPage(
                         contentDescription = ""
                     )
                 }
-                Divider()
+                HorizontalDivider()
             }
         } ?: run {
             Row(
@@ -126,10 +127,10 @@ fun CheckDetailsPage(
                 .okHttpClient(okHttpClient)
                 .build()
 
-            val painters = viewModel.photos?.filter { it.iDCheck == viewModel.checkId.toInt() }?.map {
+            val painters = viewModel.photos.filter { it.iDCheck == viewModel.checkId.toInt() }.map {
                 it.getPainter(requestData = viewModel.requestImageRequestData, imageLoader = imageLoader, authTimestampHeader = DateTimeFormatter.ISO_INSTANT.format(
                     Instant.now()), isOnline = viewModel.isOnline)
-            } ?: listOf()
+            }
 
             ImagesDialog(
                 date = woundDate,

@@ -32,7 +32,7 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
     var messagesStringIdentifiers by mutableStateOf<List<Int>?>(null)
 
-    val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading = false
         errorMessage = throwable.localizedMessage
     }

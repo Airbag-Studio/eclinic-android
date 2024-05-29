@@ -23,7 +23,6 @@ import it.airbagstudio.ticare.ui.theme.AppTheme
 @Composable
 fun PatientInfoScreen(
     viewModel: PatientInfoScreenViewModel = hiltViewModel(),
-    navigationActions: NavigationActions,
     onBack:() -> Unit
 ){
     Scaffold(topBar = {
@@ -79,7 +78,7 @@ fun PatientInfoScreen(
 @Preview
 private fun PreviewPatientInfoScreen(){
     AppTheme {
-        PatientInfoScreen(navigationActions = NavigationActions(NavController(LocalContext.current))) {
+        PatientInfoScreen {
             
         }
     }

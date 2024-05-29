@@ -29,9 +29,7 @@ fun ErrorAlert(message:String,onDismissRequest: () -> Unit,onRetry:(() -> Unit)?
         title = { Text(text = stringResource(id = R.string.warning)) },
         text = { Text(text = message) },
         dismissButton = {
-            if (dismissButton != null) {
-                dismissButton()
-            }
+            dismissButton()
         },
         confirmButton = {
             TextButton(

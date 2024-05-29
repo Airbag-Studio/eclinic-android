@@ -23,6 +23,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -248,7 +249,7 @@ private fun BuildSheetContent(
             )
             Spacer(modifier = Modifier.height(16.dp))
             if (uiState.isEditing){
-                Divider()
+                HorizontalDivider()
                 Row(verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clickable {
@@ -266,7 +267,7 @@ private fun BuildSheetContent(
                         contentDescription = ""
                     )
                 }
-                Divider()
+                HorizontalDivider()
             }else {
                 if (uiState.newNursingCourse.images.isNotEmpty()) {
                     AddingImagesGallery(images = uiState.newNursingCourse.images) {

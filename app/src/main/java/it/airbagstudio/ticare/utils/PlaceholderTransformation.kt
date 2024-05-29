@@ -7,13 +7,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 
 class PlaceholderTransformation(val placeholder: String) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
-        return PlaceholderFilter(text, placeholder)
+        return PlaceholderFilter(placeholder)
     }
 }
 
-fun PlaceholderFilter(text: AnnotatedString, placeholder: String): TransformedText {
-
-    var out = placeholder
+fun PlaceholderFilter(placeholder: String): TransformedText {
 
     val numberOffsetTranslator = object : OffsetMapping {
         override fun originalToTransformed(offset: Int): Int {

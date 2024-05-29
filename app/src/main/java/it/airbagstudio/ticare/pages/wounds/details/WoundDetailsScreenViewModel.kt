@@ -40,7 +40,7 @@ class WoundDetailsScreenViewModel @Inject constructor(
     var isOnline by mutableStateOf(false)
     var modifiedIds by mutableStateOf<List<String>>(listOf())
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         errorMessage = throwable.localizedMessage
     }
     var requestImageRequestData: ImageRequestData = ImageRequestData(

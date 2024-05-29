@@ -66,7 +66,7 @@ class PatientDetailsScreenViewModel @Inject constructor(
     private val _tools = userDetailRepository.getTools()
     val tools = _tools.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
-    val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading = false
         throwable.printStackTrace()
         errorMessage = throwable.localizedMessage

@@ -169,7 +169,7 @@ fun CourseCreateEditScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = !uiState.isLoading,
+                    enabled = !uiState.isLoading && uiState.course.selectedCategory != null && uiState.course.description.isNotEmpty(),
                     onClick = {
                         viewModel.saveCourse()
                     }) {

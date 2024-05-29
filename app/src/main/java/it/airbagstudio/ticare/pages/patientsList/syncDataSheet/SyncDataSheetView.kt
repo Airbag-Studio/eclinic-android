@@ -170,10 +170,12 @@ fun SyncDataSheetView(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         LinearProgressIndicator(
+                            progress = {
+                                uiState.progress
+                            },
                             modifier = Modifier
                                 .padding(top = 16.dp)
                                 .fillMaxWidth(),
-                            progress = uiState.progress
                         )
                     }
                     Spacer(modifier = Modifier.weight(1.2f))

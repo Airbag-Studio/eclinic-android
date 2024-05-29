@@ -53,7 +53,7 @@ class TimeTrackerViewModel @Inject constructor(
     private val elapsedTimeFromLastActivity = MutableStateFlow<Long>(0)
 
     private val coroutineExceptionHandler =
-        CoroutineExceptionHandler { coroutineContext, throwable ->
+        CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
             errorMessage = throwable.localizedMessage
         }

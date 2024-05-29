@@ -36,8 +36,12 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             AppTheme {
-                CompositionLocalProvider(LocalActivity provides this@MainActivity) {
-                    EclinicNavGraph()
+                CompositionLocalProvider(
+                    androidx.lifecycle.compose.LocalLifecycleOwner provides androidx.compose.ui.platform.LocalLifecycleOwner.current,
+                ) {
+                    CompositionLocalProvider(LocalActivity provides this@MainActivity) {
+                        EclinicNavGraph()
+                    }
                 }
             }
         }

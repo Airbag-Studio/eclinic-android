@@ -51,7 +51,7 @@ class SelectPatientsDataViewModel @Inject constructor(
     private var selectedPatients = MutableStateFlow(listOf<String>())
     private var patients = MutableStateFlow<List<PatientListUiState.PatientUIState>>(listOf())
 
-    private var coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private var coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
         errorMessage = throwable.localizedMessage
     }

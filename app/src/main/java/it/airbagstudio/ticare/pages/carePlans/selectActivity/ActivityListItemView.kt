@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,7 +50,7 @@ fun ActivityListItemView(title:String,isTransferRow: Boolean = false,onClick: ()
             Spacer(modifier = Modifier.width(16.dp))
             Icon(painter = painterResource(id = R.drawable.ic_arrow_right), contentDescription = "")
         }
-        Divider()
+        HorizontalDivider()
     }
 }
 

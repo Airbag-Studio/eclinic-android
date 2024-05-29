@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -137,7 +138,7 @@ fun DrugAdministrationItemView(
                 DrugChip(label = stringResource(id = R.string.rejected_by_patient))
             }
         }
-        Divider(Modifier.padding(top = 12.dp))
+        HorizontalDivider(Modifier.padding(top = 12.dp))
     }
 }
 

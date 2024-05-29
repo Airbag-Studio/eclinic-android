@@ -40,14 +40,13 @@ import kotlinx.coroutines.CoroutineScope
 fun EclinicNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
     startDestination: String = Destinations.SPLASH_ROUTE,
     navActions: NavigationActions = remember(navController) {
         NavigationActions(navController)
     }
 ) {
     val currentNavBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = currentNavBackStackEntry?.destination?.route ?: startDestination
+    // val currentRoute = currentNavBackStackEntry?.destination?.route ?: startDestination
 
     LoginRedirect.onCredentialRefresh = {
         navActions.navigateToLogin()
@@ -84,17 +83,17 @@ fun EclinicNavGraph(
             }
         }
         composable(Destinations.PATIENT_INFO_ROUTE) {
-            PatientInfoScreen(navigationActions = navActions) {
+            PatientInfoScreen {
                 navController.popBackStack()
             }
         }
         composable(Destinations.DRUG_ADMINISTRATION_ROUTE) {
-            DrugsAdministrationScreen(navigationActions = navActions) {
+            DrugsAdministrationScreen {
                 navController.popBackStack()
             }
         }
         composable(Destinations.DRUG_ADMINISTRATION_ROUTE_NO_SHIFT) {
-            DrugsAdministrationScreen(navigationActions = navActions) {
+            DrugsAdministrationScreen {
                 navController.popBackStack()
             }
         }
@@ -167,7 +166,7 @@ fun EclinicNavGraph(
             }
         }
         composable(Destinations.PATIENT_ALERT_ALLERGIES_ROUTE){
-            AlertAllergiesScreen(navigationActions = navActions) {
+            AlertAllergiesScreen {
                 navController.popBackStack()
             }
         }
