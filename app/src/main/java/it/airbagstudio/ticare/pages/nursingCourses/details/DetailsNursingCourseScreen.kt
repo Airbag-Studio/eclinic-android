@@ -289,7 +289,7 @@ private fun BuildSheetContent(
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isLoading,
+                enabled = !uiState.isLoading && uiState.newNursingCourse.courseCategoryType != null && !uiState.newNursingCourse.description.isNullOrEmpty(),
                 onClick = {
                     viewModel.saveButtonClick(patientCode = patientCode)
                 }) {

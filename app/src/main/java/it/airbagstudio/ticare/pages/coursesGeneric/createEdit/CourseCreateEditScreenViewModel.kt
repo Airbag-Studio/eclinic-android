@@ -180,9 +180,9 @@ class CourseCreateEditScreenViewModel @Inject constructor(
     }
 
     fun clearState() {
-        duration.value = 0
+        duration.value = null
         description.value = ""
-        selectedCategoryId.value = -1
+        selectedCategoryId.value = null
         dateAndTime.value = Date()
         showInDiary.value = true
         isSuccess.value = false
