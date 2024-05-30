@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,7 +40,8 @@ data class VitalParameterItem(
     val executed:Boolean,
     val isConfirmed: Boolean,
     val item: AgendaTask?,
-    val hasDataToUpload: Boolean
+    val hasDataToUpload: Boolean,
+    val isSkipped: Boolean
 )
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -98,15 +97,20 @@ fun VitalParameterItemView(item: VitalParameterItem, onClick: () -> Unit) {
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                if (!item.isConfirmed) {
+                if (!item.isConfirmed || item.isSkipped) {
                     FlowRow(
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
-                        DrugChip(
-                            label = stringResource(id = R.string.not_confirmed),
-                            textColor = redColor
-                        )
+                        if (!item.isConfirmed) {
+                            DrugChip(
+                                label = stringResource(id = R.string.not_confirmed),
+                                textColor = redColor
+                            )
+                        }
+                        if (item.isSkipped) {
+                            DrugChip(label = stringResource(id = R.string.not_performed))
+                        }
                     }
                 }
             }
@@ -125,10 +129,10 @@ private fun PreviewVitalParameterItem(){
     AppTheme {
         Scaffold {
             Column(Modifier.padding(it)) {
-                VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = true,false,null,true)) {
+                VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = true,false,null,true, isSkipped = true)) {
 
                 }
-                VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = false,false,null,false)) {
+                VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = false,false,null,false, isSkipped = false)) {
 
                 }
             }

@@ -12,7 +12,6 @@ import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.OperatingShift
 import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
-import ch.ticare.eclinic.library.repository.AgendaTaskRepository.Companion.VITAL_SIGN_TYPE
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -92,7 +91,8 @@ class VitalParametersScreenViewModel @Inject constructor(
                     executed = executed,
                     isConfirmed = it.validated(),
                     item = it,
-                    hasDataToUpload = modifiedIds.contains(it.pkey.toString())
+                    hasDataToUpload = modifiedIds.contains(it.pkey.toString()),
+                    isSkipped = it.isSkipped
                 )
             }
             VitalParametersUIState(

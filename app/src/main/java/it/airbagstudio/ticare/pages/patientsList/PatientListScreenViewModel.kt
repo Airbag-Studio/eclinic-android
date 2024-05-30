@@ -71,6 +71,9 @@ data class PatientListUiState(
     )
 }
 
+val allDivision = Division(iD = -1, name = "Tutti", iDWarehouse = -1, ordering = -1)
+val allSector = Sector(iD = -1, iDDivision = -1, name = "Tutti", ordering = -1)
+
 @HiltViewModel
 class PatientListScreenViewModel @Inject constructor(
     private val userListRepository: UserListRepository,
@@ -113,8 +116,8 @@ class PatientListScreenViewModel @Inject constructor(
         userListRepository.getCaseList(
             zone = selectedZone?.id,
             microzone = selectedMicroZone?.id,
-            sector = selectedSector?.iD,
-            division = selectedDivision?.iD
+            sector = if (selectedSector != null && selectedSector.iD != -1) selectedSector.iD else null,
+            division = if (selectedDivision != null && selectedDivision.iD != -1) selectedDivision.iD else null
             ).results?.map {
                 PatientListUiState.PatientUIState(
                     patientCode = it.code,
@@ -168,10 +171,12 @@ class PatientListScreenViewModel @Inject constructor(
             _microzones
         }
 
+        val completeDivisions = listOf(allDivision) + divisions
+
         val filteredSectors = if (selectedDivision != null) {
-            sectors.filter { it.iDDivision == selectedDivision.iD }
+            listOf(allSector) + sectors.filter { it.iDDivision == selectedDivision.iD }
         } else {
-            sectors
+            listOf(allSector) + sectors
         }
 
         isLoading = false
@@ -193,7 +198,7 @@ class PatientListScreenViewModel @Inject constructor(
             companyName = companyName,
             zones = _zones,
             microZones = filteredMicrozones,
-            divisions = divisions,
+            divisions = completeDivisions,
             sectors = filteredSectors,
             selectedMicrozone = _selectedMicrozone,
             selectedZone = _selectedZone,
@@ -247,7 +252,7 @@ class PatientListScreenViewModel @Inject constructor(
     }
 
     fun setSelectedDivision(division: Division?){
-        selectedDivision.value = division
+        selectedDivision.value = if (division?.iD != -1) division else null
         selectedSector.value = null
     }
 

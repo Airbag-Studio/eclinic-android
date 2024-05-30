@@ -11,10 +11,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun DrugChip(label: String, textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant) {
+fun DrugChip(label: String, textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant, includePadding: Boolean = true) {
     Text(
         modifier = Modifier
-            .padding(horizontal = 4.dp, vertical = 2.dp)
+            .padding(
+                horizontal = if (includePadding) 4.dp else 0.dp,
+                vertical = if (includePadding) 2.dp else 0.dp
+            )
             .border(
                 width = 0.5.dp,
                 color = Color(0xFF41484D),

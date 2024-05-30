@@ -91,7 +91,7 @@ class CoursesViewModel @Inject constructor(
                     duration = it.duration,
                     description = it.desc,
                     hasDataToUpload = modifiedIds.contains(it.id.toString()),
-                    it
+                    it,
                 )
             }
             _uiState.value = CoursesUiState(

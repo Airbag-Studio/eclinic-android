@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ch.ticare.eclinic.library.entity.AgendaTask
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.DrugChip
 import it.airbagstudio.ticare.ui.components.LabelValueRow
 import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.theme.AppTheme
@@ -79,6 +80,12 @@ fun TaskListItemView(item: TaskListItem, onClick: () -> Unit) {
                     )
                 }
             }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        if (item.task.isSkipped) {
+            DrugChip(label = stringResource(id = R.string.not_performed), includePadding = false)
         }
 
         Spacer(modifier = Modifier.height(12.dp))
