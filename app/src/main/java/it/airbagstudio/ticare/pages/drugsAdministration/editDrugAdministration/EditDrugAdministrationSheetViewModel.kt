@@ -31,6 +31,7 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
     var isSucces by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
     var messagesStringIdentifiers by mutableStateOf<List<Int>?>(null)
+    var canWrite by mutableStateOf(false)
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading = false
@@ -38,7 +39,7 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
     }
 
     var isEditingEnable = {
-        task.value?.validated() ?: false
+        (task.value?.validated() ?: false) && canWrite
     }
 
     fun setDuration(value: Int?){
@@ -96,6 +97,12 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
                 messagesStringIdentifiers = listOf(R.string.over_max_quantity_error)
                 return
             }
+
+            if (updatedTask.quantity == 0.0 && updatedTask.isReserve) {
+                messagesStringIdentifiers = listOf(R.string.quantity_mandatory)
+                return
+            }
+
             if (updatedTask.quantity < updatedTask.maxQuantity && updatedTask.notes.isEmpty() && !updatedTask.isReserve){
                 messagesStringIdentifiers = listOf(R.string.notes_mandatory)
                 return

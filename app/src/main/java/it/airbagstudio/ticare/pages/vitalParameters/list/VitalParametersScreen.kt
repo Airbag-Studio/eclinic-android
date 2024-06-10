@@ -55,27 +55,29 @@ fun VitalParametersScreen(
             }
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                modifier = Modifier
-                    .padding(start = 32.dp, bottom = 24.dp)
-                    .fillMaxWidth(),
-                contentColor = MaterialTheme.colorScheme.primary,
-                content = {
-                    Icon(
-                        imageVector = Icons.Default.Add, contentDescription = stringResource(
-                            id = R.string.add_vital_parameter
+            if (viewModel.canWrite) {
+                ExtendedFloatingActionButton(
+                    modifier = Modifier
+                        .padding(start = 32.dp, bottom = 24.dp)
+                        .fillMaxWidth(),
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    content = {
+                        Icon(
+                            imageVector = Icons.Default.Add, contentDescription = stringResource(
+                                id = R.string.add_vital_parameter
+                            )
                         )
-                    )
-                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                    Text(
-                        text = stringResource(
-                            id = R.string.add_vital_parameter
+                        Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                        Text(
+                            text = stringResource(
+                                id = R.string.add_vital_parameter
+                            )
                         )
-                    )
-                },
-                onClick = {
-                    showSearchBottomSheet = true
-                })
+                    },
+                    onClick = {
+                        showSearchBottomSheet = true
+                    })
+            }
         }
     ) { values ->
 
@@ -84,7 +86,7 @@ fun VitalParametersScreen(
                 .padding(values)
         ) {
             BuildPageHeader(
-                title = stringResource(id = R.string.vital_parameters),
+                title = viewModel.title,
                 date = uiState.date?.format("dd/MM/yyyy") ?: "",
                 shiftName = uiState.shift?.name ?: stringResource(id = R.string.all)
             )
@@ -111,7 +113,7 @@ fun VitalParametersScreen(
         })
     }
     if (viewModel.selectedTask != null){
-        CreateNewVitalParameterSheet(task = viewModel.selectedTask, onDismissRequest = { success ->
+        CreateNewVitalParameterSheet(task = viewModel.selectedTask, canWrite = viewModel.canWrite, onDismissRequest = { success ->
             viewModel.selectedVitalSignCode = null
             viewModel.selectedTask = null
             if (success) {
@@ -120,7 +122,7 @@ fun VitalParametersScreen(
         })
     }
     if (viewModel.selectedVitalSignCode != null){
-        CreateNewVitalParameterSheet(vitalSignCode = viewModel.selectedVitalSignCode, caseCode = viewModel.patientCod, onDismissRequest = { success ->
+        CreateNewVitalParameterSheet(vitalSignCode = viewModel.selectedVitalSignCode, caseCode = viewModel.patientCod, canWrite = viewModel.canWrite, onDismissRequest = { success ->
             viewModel.selectedVitalSignCode = null
             if (success) {
                 viewModel.downloadData()

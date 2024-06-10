@@ -7,9 +7,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.OfflineSection
+import ch.ticare.eclinic.library.entity.Tool
 import ch.ticare.eclinic.library.entity.Wound
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
+import ch.ticare.eclinic.library.repository.VisibilityRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -40,6 +42,7 @@ class WoundListScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
     private val woundRepository: WoundRepository,
     private val offlineOnlineRepository: OfflineOnlineRepository,
+    private val visibilityRepository: VisibilityRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -49,11 +52,16 @@ class WoundListScreenViewModel @Inject constructor(
     private val currentCase = userDetailRepository.getCurrentCase()
     val genderId = userDetailRepository.getCurrentCase()?.gender?.id ?: 0
 
+    val selectedTool: Tool? = userDetailRepository.getSelectedTool()
+    val title = selectedTool?.name ?: ""
+
     var errorMessage by mutableStateOf<String?>(null)
     private val isLoading = MutableStateFlow<Boolean>(false)
     private val wounds = MutableStateFlow<List<Wound>>(listOf())
 
     private val modifiedIds = MutableStateFlow<List<String>>(listOf())
+
+    var canWrite by mutableStateOf(false)
 
     private var firstTime: Boolean = true
 
@@ -96,6 +104,11 @@ class WoundListScreenViewModel @Inject constructor(
     fun downloadWounds(){
         isLoading.value = true
         viewModelScope.launch(coroutineExceptionHandler) {
+            launch {
+                visibilityRepository.getPermissions().collect { permissions ->
+                    canWrite = permissions.firstOrNull { it.entity == selectedTool?.toolTag?.name }?.canWrite ?: false
+                }
+            }
             modifiedIds.value = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.Wounds)
             val res = woundRepository.getWounds(patientCod, fromCache = !firstTime && !woundRepository.needRefresh)
             wounds.value = res.results ?: listOf()

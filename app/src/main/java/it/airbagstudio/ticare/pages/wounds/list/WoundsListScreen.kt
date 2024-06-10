@@ -67,30 +67,32 @@ fun WoundListScreen(
     Scaffold(
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .fillMaxWidth(),
-                contentColor = MaterialTheme.colorScheme.primary,
-                onClick = {
-                    showCreateBottomSheet = true
-                },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Add, contentDescription = stringResource(
-                            id = R.string.wounds
+            if (viewModel.canWrite) {
+                ExtendedFloatingActionButton(
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .fillMaxWidth(),
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    onClick = {
+                        showCreateBottomSheet = true
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Add, contentDescription = stringResource(
+                                id = R.string.wounds
+                            )
                         )
-                    )
-                },
-                text = {
-                    Text(
-                        text = stringResource(
-                            id = R.string.new_wounds
-                        ),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                }
-            )
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(
+                                id = R.string.new_wounds
+                            ),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                )
+            }
         },
         topBar = {
             ToolbarWithBackAndSync(title = uiState.patientName ?: "") {
@@ -102,7 +104,7 @@ fun WoundListScreen(
 
         Column(modifier = Modifier.padding(values)) {
             Text(
-                text = stringResource(id = R.string.wounds),
+                text = viewModel.title,
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -144,7 +146,7 @@ fun WoundListScreen(
         }
 
         if (showCreateBottomSheet){
-            CreateWoundDialogScreen(codCase = viewModel.patientCod,onDismissRequest = {_ ->
+            CreateWoundDialogScreen(codCase = viewModel.patientCod, canWrite = viewModel.canWrite, onDismissRequest = {_ ->
                 showCreateBottomSheet = false
                 viewModel.downloadWounds()
             })

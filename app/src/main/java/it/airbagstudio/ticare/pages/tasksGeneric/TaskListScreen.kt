@@ -71,7 +71,7 @@ fun TaskListScreen(
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            if (uiState.taskType.canCreateNew()) {
+            if (uiState.taskType.canCreateNew() && viewModel.canWrite) {
                 ExtendedFloatingActionButton(
                     modifier = Modifier
                         .padding(horizontal = 24.dp)
@@ -128,7 +128,8 @@ fun TaskListScreen(
                 taskType = selectedType,
                 toolTag = uiState.taskType,
                 patientCode = uiState.patientCode,
-                taskToEdit = taskToEdit
+                taskToEdit = taskToEdit,
+                canWrite = viewModel.canWrite
             ) {
                 selectedType = null
                 openCreateEditScreen = false

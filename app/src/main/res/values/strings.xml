@@ -72,7 +72,6 @@
     <string name="not_planned">Non pianificato</string>
     <string name="cares">Prestazioni</string>
     <string name="new_care">Nuova Prestazione</string>
-    <string name="add_nursing_course">Nuovo decorso infermieristico</string>
     <string name="no_category">Nessuna categoria</string>
     <string name="category">Categoria</string>
     <string name="description">Descrizione</string>
@@ -201,4 +200,5 @@
     <string name="blood_exam_task">Esami somatici</string>
     <string name="new_blood_exam_task">Registra Esame Somatico</string>
     <string name="edit">Modifica</string>
+    <string name="quantity_mandatory">Quantità non valida</string>
 </resources>

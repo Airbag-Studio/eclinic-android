@@ -56,12 +56,13 @@ fun TaskCreateEditScreen(
     toolTag: ToolTag,
     patientCode: String,
     taskToEdit: AgendaTask?,
+    canWrite: Boolean,
     viewModel: TaskCreateEditViewModel = hiltViewModel(),
     onDismissRequest: (Boolean) -> Unit
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(key1 = Unit) {
-
+        viewModel.canWrite = canWrite
         viewModel.taskType = toolTag
         viewModel.caseCode = patientCode
         if (taskType != null){
@@ -112,7 +113,9 @@ fun TaskCreateEditScreen(
                     label = { Text(text = stringResource(id = R.string.actual_date_time)) },
                     onDateChanged = {
                         viewModel.setDate(it)
-                    })
+                    },
+                    enabled = viewModel.canWrite
+                )
                 Spacer(modifier = Modifier.height(24.dp))
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -125,22 +128,23 @@ fun TaskCreateEditScreen(
                     visualTransformation = if (uiState.task.duration == 0) PlaceholderTransformation("0") else VisualTransformation.None,
                     onValueChange = {
                         viewModel.setDuration(it.toIntOrNull() ?: 0)
-                    }
+                    },
+                    enabled = viewModel.canWrite
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                NotesPopupButton(text = uiState.task.notes, enabled = true, editable = true) {
+                NotesPopupButton(text = uiState.task.notes, enabled = viewModel.canWrite, editable = true) {
                     viewModel.setNotes(it)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                SwitchItem(label =stringResource(id = R.string.show_in_diary) , value = uiState.task.showInDiary, enabled = true) {
+                SwitchItem(label =stringResource(id = R.string.show_in_diary) , value = uiState.task.showInDiary, enabled = viewModel.canWrite) {
                     viewModel.setShowInDiary(it)
                 }
-                SwitchItem(label =stringResource(id = R.string.not_performed) , value = uiState.task.notExecuted, enabled = true) {
+                SwitchItem(label =stringResource(id = R.string.not_performed) , value = uiState.task.notExecuted, enabled = viewModel.canWrite) {
                     viewModel.setNotExecuted(it)
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
-                    enabled = !uiState.isLoading && uiState.task.isValid,
+                    enabled = !uiState.isLoading && uiState.task.isValid && viewModel.canWrite,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         viewModel.saveTask(task = taskToEdit)

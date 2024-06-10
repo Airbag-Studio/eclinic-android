@@ -96,7 +96,7 @@ fun WoundDetailsScreen(
     }
     Scaffold(
         topBar = {
-            ToolbarWithBackAndSync(title = stringResource(id = R.string.wounds)) {
+            ToolbarWithBackAndSync(title = viewModel.title) {
                 onBack()
             }
         }
@@ -196,14 +196,16 @@ fun WoundDetailsScreen(
                                 text = stringResource(id = R.string.controls),
                                 style = MaterialTheme.typography.titleLarge
                             )
-                            Button(
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = seed
-                                ),
-                                onClick = { showCheckCreateBottomSheet = true }) {
-                                Icon(imageVector = Icons.Default.Add, contentDescription = "")
-                                Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                                Text(text = stringResource(id = R.string.new_control))
+                            if (viewModel.canWrite) {
+                                Button(
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = seed
+                                    ),
+                                    onClick = { showCheckCreateBottomSheet = true }) {
+                                    Icon(imageVector = Icons.Default.Add, contentDescription = "")
+                                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                                    Text(text = stringResource(id = R.string.new_control))
+                                }
                             }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
@@ -250,11 +252,13 @@ fun WoundDetailsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp),
-                        onClick = { showCloseDialog = true }) {
+                        onClick = { showCloseDialog = true },
+                        enabled = viewModel.canWrite
+                    ) {
                         Text(text = stringResource(id = R.string.close_wound))
                     }
 
-                    TextButton(onClick = {
+                    TextButton(enabled = viewModel.canWrite, onClick = {
                         if (viewModel.wound?.checks?.isNullOrEmpty() == true) {
                             showEditScreen = true
                         }else{
@@ -279,7 +283,7 @@ fun WoundDetailsScreen(
     }
 
     if (showEditScreen){
-        CreateWoundDialogScreen(codCase = viewModel.patientCod, woundId = viewModel.woundId.toInt(), onDismissRequest = {
+        CreateWoundDialogScreen(codCase = viewModel.patientCod, woundId = viewModel.woundId.toInt(), canWrite = viewModel.canWrite, onDismissRequest = {
             showEditScreen = false
             if (it){
                 viewModel.reloadWound()

@@ -57,10 +57,12 @@ fun CreateNewVitalParameterSheet(
     vitalSignCode: String? = null,
     caseCode: String? = null,
     viewModel: CreateNewVitalParameterSheetViewModel = hiltViewModel(),
+    canWrite: Boolean,
     onDismissRequest: (Boolean) -> Unit
 ) {
     LaunchedEffect(Unit) {
         viewModel.clearData()
+        viewModel.canWrite = canWrite
         viewModel.agendaTask = task
         viewModel.caseCode = caseCode
         if (vitalSignCode != null) {
@@ -200,7 +202,7 @@ private fun BuildSheetContent(
             }
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                enabled = (!uiState.isLoading && uiState.value.isValidVitalParameterValue() && (!uiState.notExecuted || uiState.notes.isNotEmpty()) && uiState.isEditingEnabled),
+                enabled = (!uiState.isLoading && ((uiState.notExecuted && uiState.notes.isNotEmpty()) || uiState.value.isValidVitalParameterValue()) && uiState.isEditingEnabled),
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     viewModel.saveTask()

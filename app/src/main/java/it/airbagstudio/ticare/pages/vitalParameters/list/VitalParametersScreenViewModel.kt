@@ -10,10 +10,12 @@ import ch.ticare.eclinic.library.entity.AgendaTask
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.OperatingShift
+import ch.ticare.eclinic.library.entity.Tool
 import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
+import ch.ticare.eclinic.library.repository.VisibilityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
 import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
@@ -49,8 +51,12 @@ class VitalParametersScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
     private val agendaTaskRepository: AgendaTaskRepository,
     private val offlineOnlineRepository: OfflineOnlineRepository,
+    private val visibilityRepository: VisibilityRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    val selectedTool: Tool? = userDetailRepository.getSelectedTool()
+    val title = selectedTool?.name ?: ""
 
     var selectedTask by mutableStateOf<AgendaTask?>(null)
     var selectedVitalSignCode by mutableStateOf<String?>(null)
@@ -67,6 +73,7 @@ class VitalParametersScreenViewModel @Inject constructor(
         CoroutineExceptionHandler { _, _throwable ->
             throwable.value = _throwable
         }
+    var canWrite by mutableStateOf(false)
 
     val uiState: StateFlow<VitalParametersUIState> =
         combine(isLoading, throwable, tasks,modifiedIds) { _isLoading, _throwable, _tasks,modifiedIds ->
@@ -126,6 +133,11 @@ class VitalParametersScreenViewModel @Inject constructor(
     fun downloadData(){
         isLoading.value = false
         viewModelScope.launch(coroutineExceptionHandler) {
+            launch {
+                visibilityRepository.getPermissions().collect { permissions ->
+                    canWrite = permissions.firstOrNull { it.entity == selectedTool?.toolTag?.name }?.canWrite ?: false
+                }
+            }
             modifiedIds.value = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.VitalSign)
             val _tasks = agendaTaskRepository.getAgendaTasks(
                 ToolTag.VitalSignTask,

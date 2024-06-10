@@ -43,6 +43,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     private val coursesRepository: CoursesRepository
 ) : ViewModel() {
 
+    var canWrite = false
     var isOnline by mutableStateOf(false)
     private val selectedCategoryStateFlow = MutableStateFlow<HomeCareCourseCategory?>(null)
     private val selectedCategoryId = MutableStateFlow<Int?>(null)
@@ -111,7 +112,8 @@ class EditNursingCourseSheetViewModel @Inject constructor(
             isLoading,
             isSuccess,
             errorMessage,
-            screenType.value is ScreenType.Edit
+            screenType.value is ScreenType.Edit,
+            canWrite
         )
 
     }.catch {
@@ -121,7 +123,8 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = DetailsNursingCourseScreenUiState(
             newNursingCourse = DetailsNursingCourseScreenUiState.NewNursingCourse(selectedCategoryStateFlow.value, selectedDate.value, duration.value, description.value, showInDiary.value),
-            isEditing = false
+            isEditing = false,
+            isEditingEnabled = canWrite
         )
     )
 

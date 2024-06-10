@@ -140,7 +140,7 @@ class NavigationActions(private val navController: NavController){
         navController.navigate("$CARE_PLANS_SCREEN/$patientCod")
     }
 
-    fun navigateToNursingCourses(patientCod: String,courseType: String){
+    fun navigateToNursingCourses(patientCod: String, courseType: String){
         navController.navigate("$NURSING_COURSES_SCREEN/$patientCod/$courseType")
     }
 

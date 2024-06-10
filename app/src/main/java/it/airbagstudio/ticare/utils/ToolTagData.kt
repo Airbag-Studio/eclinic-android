@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.utils
 
+import android.net.Uri
 import ch.ticare.eclinic.library.entity.AddHomeCareCourse
 import ch.ticare.eclinic.library.entity.EditHomeCareCourse
 import ch.ticare.eclinic.library.entity.GenericSaveResponse
@@ -10,6 +11,7 @@ import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.entity.WrapperResponse
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.pages.patientDetails.SectionListItem
 import it.airbagstudio.ticare.utils.format
 import java.time.Duration
 import java.util.Date
@@ -64,9 +66,9 @@ fun ToolTag.getLabelId(): Int{
         ToolTag.ActivatorCourse -> R.string.activator_course
         ToolTag.NursingCourse -> R.string.nursing_courses
         ToolTag.Diary -> TODO()
-        ToolTag.CarePlan -> TODO()
-        ToolTag.Wounds -> TODO()
-        ToolTag.OtherServices -> TODO()
+        ToolTag.HomeCareServiceCarePlan -> TODO()
+        ToolTag.Wound -> TODO()
+        ToolTag.OtherService -> TODO()
     }
 }
 
@@ -90,16 +92,16 @@ fun ToolTag.getCreateLabelId(): Int{
         ToolTag.ActivatorCourse ->  R.string.new_activator_course
         ToolTag.NursingCourse -> R.string.new_nursing_course
         ToolTag.Diary -> TODO()
-        ToolTag.CarePlan -> TODO()
-        ToolTag.Wounds -> TODO()
-        ToolTag.OtherServices -> TODO()
+        ToolTag.HomeCareServiceCarePlan -> TODO()
+        ToolTag.Wound -> TODO()
+        ToolTag.OtherService -> TODO()
     }
 }
 
 fun ToolTag.getDiaryIconId(): Int{
     return when(this){
-        ToolTag.PharmacologicalTask -> TODO()
-        ToolTag.VitalSignTask -> TODO()
+        ToolTag.PharmacologicalTask -> R.drawable.ic_pills
+        ToolTag.VitalSignTask -> R.drawable.ic_vital_parameters
         ToolTag.BloodExamTask -> R.drawable.ic_blood_exam_task
         ToolTag.PhysiotherapyTask ->  R.drawable.ic_physiotherapy_task
         ToolTag.NursingTask ->  R.drawable.ic_nursing_task
@@ -116,9 +118,9 @@ fun ToolTag.getDiaryIconId(): Int{
         ToolTag.ActivatorCourse ->   R.drawable.ic_activator_course
         ToolTag.NursingCourse ->  R.drawable.ic_nursing_courses
         ToolTag.Diary -> TODO()
-        ToolTag.CarePlan -> TODO()
-        ToolTag.Wounds -> TODO()
-        ToolTag.OtherServices -> TODO()
+        ToolTag.HomeCareServiceCarePlan -> R.drawable.ic_care_planes
+        ToolTag.Wound -> R.drawable.ic_wounds
+        ToolTag.OtherService -> R.drawable.ic_other_prescriptions
     }
 }
 

@@ -31,6 +31,7 @@ fun <T> MultiselectPopupTextField(
     label: String,
     items: List<ListPopupItem<T>>,
     selectedItems: List<ListPopupItem<T>>,
+    enabled: Boolean = true,
     onClose: (List<ListPopupItem<T>>?) -> Unit
 ) {
     var showPopup by remember { mutableStateOf(false) }
@@ -48,7 +49,8 @@ fun <T> MultiselectPopupTextField(
                     painter = painterResource(id = R.drawable.id_dropdown),
                     contentDescription = ""
                 )
-            }
+            },
+            enabled = enabled
         )
         Text(
             modifier = Modifier
@@ -60,7 +62,7 @@ fun <T> MultiselectPopupTextField(
         Box(modifier = Modifier
             .matchParentSize()
             .clickable {
-                showPopup = true
+                if(enabled) showPopup = true
             })
     }
     if (showPopup) {

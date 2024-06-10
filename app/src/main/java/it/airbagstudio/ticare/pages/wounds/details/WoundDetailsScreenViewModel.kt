@@ -8,10 +8,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.CloseWound
 import ch.ticare.eclinic.library.entity.OfflineSection
+import ch.ticare.eclinic.library.entity.Tool
 import ch.ticare.eclinic.library.entity.Wound
 import ch.ticare.eclinic.library.entity.WoundSave
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
+import ch.ticare.eclinic.library.repository.UserDetailRepository
+import ch.ticare.eclinic.library.repository.VisibilityRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -28,6 +31,8 @@ class WoundDetailsScreenViewModel @Inject constructor(
     private val woundRepository: WoundRepository,
     private val authRepository: AuthRepository,
     private val offlineOnlineRepository: OfflineOnlineRepository,
+    private val userDetailRepository: UserDetailRepository,
+    private val visibilityRepository: VisibilityRepository,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
@@ -39,6 +44,11 @@ class WoundDetailsScreenViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
     var isOnline by mutableStateOf(false)
     var modifiedIds by mutableStateOf<List<String>>(listOf())
+
+    val selectedTool: Tool? = userDetailRepository.getSelectedTool()
+    val title = selectedTool?.name ?: ""
+
+    var canWrite by mutableStateOf(false)
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         errorMessage = throwable.localizedMessage
@@ -55,6 +65,11 @@ class WoundDetailsScreenViewModel @Inject constructor(
 
     fun reloadWound() {
         viewModelScope.launch(coroutineExceptionHandler) {
+            launch {
+                visibilityRepository.getPermissions().collect { permissions ->
+                    canWrite = permissions.firstOrNull { it.entity == selectedTool?.toolTag?.name }?.canWrite ?: false
+                }
+            }
             modifiedIds = offlineOnlineRepository.getModifiedIdForSection(patientCod,OfflineSection.WoundChecks)
             offlineOnlineRepository.restore()
             isOnline = offlineOnlineRepository.state.value.isOnline

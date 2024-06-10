@@ -26,6 +26,7 @@ data class TaskCreateEditScreenUIState(
     val errorMessage: String? = null,
     val isSuccess: Boolean = false,
     val taskActivityType: TaskType? = null,
+    val isEditingEnabled: Boolean,
     val task: TaskUiState
 ){
     data class TaskUiState(
@@ -44,6 +45,7 @@ class TaskCreateEditViewModel @Inject constructor(
     private val userRepository: UserRepository
 ): ViewModel() {
 
+    var canWrite = false
     var agendaTask: AgendaTask? = null
     lateinit var caseCode: String
     lateinit var taskType: ToolTag
@@ -84,10 +86,11 @@ class TaskCreateEditViewModel @Inject constructor(
             errorMessage = errorMessage,
             isSuccess = isSuccess,
             taskActivityType,
+            isEditingEnabled = canWrite,
             task = task
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly,
-        TaskCreateEditScreenUIState(task = TaskCreateEditScreenUIState.TaskUiState())
+        TaskCreateEditScreenUIState(isEditingEnabled = canWrite, task = TaskCreateEditScreenUIState.TaskUiState())
     )
 
     init {

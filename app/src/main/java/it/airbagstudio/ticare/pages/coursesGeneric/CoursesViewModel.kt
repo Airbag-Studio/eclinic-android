@@ -7,10 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.Tool
 import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.repository.CoursesRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
+import ch.ticare.eclinic.library.repository.VisibilityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
 import it.airbagstudio.ticare.utils.DATE_ONLY_TIME_FORMAT
@@ -41,8 +43,12 @@ class CoursesViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
     private val offlineOnlineRepository: OfflineOnlineRepository,
     private val coursesRepository: CoursesRepository,
+    private val visibilityRepository: VisibilityRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    val selectedTool: Tool? = userDetailRepository.getSelectedTool()
+    val title = selectedTool?.name ?: ""
 
     val patientCode: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
     val courseTypeName: String = savedStateHandle[DestinationsArgs.COURSE_TYPE]!!
@@ -55,6 +61,7 @@ class CoursesViewModel @Inject constructor(
             listOf()
         )
     )
+    var canWrite by mutableStateOf(false)
     val uiState = _uiState.asStateFlow()
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -64,6 +71,11 @@ class CoursesViewModel @Inject constructor(
 
     fun downloadData() {
         viewModelScope.launch(coroutineExceptionHandler) {
+            launch {
+                visibilityRepository.getPermissions().collect { permissions ->
+                    canWrite = permissions.firstOrNull { it.entity == selectedTool?.toolTag?.name }?.canWrite ?: false
+                }
+            }
             val courseType = ToolTag.valueOf(courseTypeName)
             val patient = userDetailRepository.getCurrentCase()
             val shift = userDetailRepository.getCurrentShift()

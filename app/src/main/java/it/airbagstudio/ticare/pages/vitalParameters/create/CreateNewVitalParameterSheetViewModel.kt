@@ -59,6 +59,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
     var agendaTask: AgendaTask? = null
     var caseCode: String? = null
     var vitalSingId: Int? = null
+    var canWrite: Boolean = false
 
     private var userId: Int? = null
     private val isLoading = MutableStateFlow<Boolean>(false)
@@ -130,7 +131,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
             isLoading,
             errorMessage,
             isSuccess,
-            agendaTask?.validated() ?: true,
+            (agendaTask?.validated() ?: true) && canWrite,
             agendaTask?.expDate != null
         )
     }.stateIn(
@@ -145,6 +146,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
             false,
             "",
             "",
+            isEditingEnabled = canWrite
         )
     )
 

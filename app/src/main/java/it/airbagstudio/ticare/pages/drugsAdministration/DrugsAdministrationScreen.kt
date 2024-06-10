@@ -78,7 +78,7 @@ fun DrugsAdministrationScreen(
                     modifier = Modifier.alpha(if (isFabEnabled) 1f else 0.5f),
                     contentColor = MaterialTheme.colorScheme.primary,
                     onClick = {
-                        if (isFabEnabled) {
+                        if (isFabEnabled && viewModel.canWrite) {
                             showExecuteAllAlert = true
                         }
                     },
@@ -109,7 +109,7 @@ fun DrugsAdministrationScreen(
 
         Column(modifier = Modifier.padding(values)) {
             Text(
-                text = stringResource(id = R.string.drug_administration),
+                text = viewModel.title,
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -228,7 +228,8 @@ fun DrugsAdministrationScreen(
     }
     if (showBottomSheet) {
         EditDrugAdministrationSheet(
-            task = selectedTasks
+            task = selectedTasks,
+            canWrite = viewModel.canWrite,
         ) {
             showBottomSheet = false
             viewModel.reloadTasks()

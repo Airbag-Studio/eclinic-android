@@ -144,7 +144,7 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
             val item = SaveEmployeeWorkingHour(
                 id = workingHourId.value,
                 idType = selectedTypeId.value!!,
-                remarks = notes.value,
+                remarks = notes.value.ifEmpty { null },
                 totalHours = totalHours,
                 date = date.value.format("yyyy.MM.dd")
             )

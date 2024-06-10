@@ -69,8 +69,7 @@ class ConsumptionCreateViewModel @Inject constructor(
         selectedArticle,
         isSuccess
     ) { consumption, isLoading, errorMessage, selectedArticle, isSuccess ->
-        val isValid =
-            consumption.notes.isNotEmpty() && (consumption.quantity.toDoubleOrNull() != null && consumption.quantity.toDouble() > 0)
+        val isValid = (consumption.quantity.toDoubleOrNull() != null && consumption.quantity.toDouble() > 0)
         ConsumptionCreateUiState(
             title = selectedArticle?.desc ?: "",
             errorMessage = errorMessage,

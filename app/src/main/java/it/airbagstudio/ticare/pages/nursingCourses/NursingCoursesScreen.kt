@@ -58,29 +58,31 @@ fun NursingCoursesScreen(
 
     Scaffold(
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                modifier = Modifier
-                    .padding(start = 24.dp, bottom = 24.dp)
-                    .fillMaxWidth(),
-                contentColor = MaterialTheme.colorScheme.primary,
-                onClick = {
-                    showCreateBottomSheet = true
-                },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Add, contentDescription = stringResource(
-                            id = R.string.add_nursing_course
+            if (viewModel.canWrite) {
+                ExtendedFloatingActionButton(
+                    modifier = Modifier
+                        .padding(start = 24.dp, bottom = 24.dp)
+                        .fillMaxWidth(),
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    onClick = {
+                        showCreateBottomSheet = true
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Add, contentDescription = stringResource(
+                                id = R.string.new_nursing_course
+                            )
                         )
-                    )
-                },
-                text = {
-                    Text(
-                        text = stringResource(
-                            id = R.string.add_nursing_course
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(
+                                id = R.string.new_nursing_course
+                            )
                         )
-                    )
-                }
-            )
+                    }
+                )
+            }
         },
         topBar = {
             ToolbarWithBackAndSync(title = viewModel.patient?.getCompleteName() ?: "") {
@@ -92,7 +94,7 @@ fun NursingCoursesScreen(
 
         Column(modifier = Modifier.padding(values)) {
             Text(
-                text = stringResource(id = R.string.nursing_courses_title),
+                text = viewModel.title,
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
@@ -148,7 +150,8 @@ fun NursingCoursesScreen(
     if(showCreateBottomSheet) {
         CreateNursingCourseScreen(
             patientCode = viewModel.patientCode,
-            courseTypeName = viewModel.courseTypeName
+            courseTypeName = viewModel.courseTypeName,
+            canWrite = viewModel.canWrite
         ) {
             showCreateBottomSheet = false
             viewModel.reloadTasks()
@@ -158,7 +161,8 @@ fun NursingCoursesScreen(
         EditNursingCourseScreen(
             patientCode = viewModel.patientCode,
             courseTypeName = viewModel.courseTypeName,
-            homeCareCourse = selectedTasks
+            homeCareCourse = selectedTasks,
+            canWrite = viewModel.canWrite
         ) {
             selectedTasks = null
             viewModel.reloadTasks()

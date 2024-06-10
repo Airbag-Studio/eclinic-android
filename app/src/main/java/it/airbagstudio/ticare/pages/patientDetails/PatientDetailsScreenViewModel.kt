@@ -13,10 +13,12 @@ import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.OperatingShift
 import ch.ticare.eclinic.library.entity.Tool
+import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.UserRepository
+import ch.ticare.eclinic.library.repository.VisibilityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.data.AlertItem
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -27,6 +29,7 @@ import it.airbagstudio.ticare.utils.isCurrent
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -39,7 +42,8 @@ class PatientDetailsScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
     private val authRepository: AuthRepository,
     private val offlineOnlineRepository: OfflineOnlineRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val visibilityRepository: VisibilityRepository
 ): ViewModel() {
 
 
@@ -65,6 +69,9 @@ class PatientDetailsScreenViewModel @Inject constructor(
 
     private val _tools = userDetailRepository.getTools()
     val tools = _tools.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
+
+    val permissions = visibilityRepository.getPermissions()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading = false
@@ -116,8 +123,23 @@ class PatientDetailsScreenViewModel @Inject constructor(
                 isLoading = false
             }
         }
+    }
 
-
+    fun getBadge(toolTag: ToolTag): Int? {
+        return when (toolTag) {
+            ToolTag.PharmacologicalTask -> badges.firstOrNull { it.pharmacological != null && it.pharmacological!!.badgeNumber > 0 }?.pharmacological?.badgeNumber
+            ToolTag.VitalSignTask -> badges.firstOrNull { it.vitalSign != null && it.vitalSign!!.badgeNumber > 0 }?.vitalSign?.badgeNumber
+            ToolTag.BloodExamTask -> badges.firstOrNull { it.bloodExam != null && it.bloodExam!!.badgeNumber > 0 }?.bloodExam?.badgeNumber
+            ToolTag.PhysiotherapyTask -> badges.firstOrNull { it.physiotherapy != null && it.physiotherapy!!.badgeNumber > 0 }?.physiotherapy?.badgeNumber
+            ToolTag.NursingTask -> badges.firstOrNull { it.nursing != null && it.nursing!!.badgeNumber > 0 }?.nursing?.badgeNumber
+            ToolTag.EducatorTask -> badges.firstOrNull { it.educator != null && it.educator!!.badgeNumber > 0 }?.educator?.badgeNumber
+            ToolTag.ErgotherapyTask -> badges.firstOrNull { it.ergotherapy != null && it.ergotherapy!!.badgeNumber > 0 }?.ergotherapy?.badgeNumber
+            ToolTag.AtelierTask -> badges.firstOrNull { it.atelier != null && it.atelier!!.badgeNumber > 0 }?.atelier?.badgeNumber
+            ToolTag.ActivatorTask -> badges.firstOrNull { it.activator != null && it.activator!!.badgeNumber > 0 }?.activator?.badgeNumber
+            ToolTag.GenericServiceTask -> badges.firstOrNull { it.genericService != null && it.genericService!!.badgeNumber > 0 }?.genericService?.badgeNumber
+            ToolTag.HomeCareServiceCarePlan -> badges.firstOrNull { it.carePlan != null && it.carePlan!!.badgeNumber > 0 }?.carePlan?.badgeNumber
+            else -> null
+        }
     }
 
     fun downloadBadges(){
@@ -136,6 +158,10 @@ class PatientDetailsScreenViewModel @Inject constructor(
             }
 
         }
+    }
+
+    fun setSelectedTool(tool: Tool) {
+        userDetailRepository.setSelectTool(tool)
     }
 
     fun getSelectedShiftId(): Int? {

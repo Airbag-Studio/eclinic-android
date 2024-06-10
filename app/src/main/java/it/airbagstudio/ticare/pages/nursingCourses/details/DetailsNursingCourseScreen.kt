@@ -76,11 +76,13 @@ fun CreateNursingCourseScreen(
     viewModel: EditNursingCourseSheetViewModel = hiltViewModel(),
     patientCode: String,
     courseTypeName: String,
+    canWrite: Boolean,
     onDismissRequest: () -> Unit
 ) {
 
         LaunchedEffect(Unit) {
             run {
+                viewModel.canWrite = canWrite
                 viewModel.setScreenType(ScreenType.Add)
                 viewModel.setCourseTypeName(courseTypeName)
                 viewModel.loadCategory(patientCode = patientCode)
@@ -98,6 +100,7 @@ fun EditNursingCourseScreen(
     patientCode: String,
     courseTypeName: String,
     homeCareCourse: HomeCareCourse?,
+    canWrite: Boolean,
     onDismissRequest: () -> Unit,
 ) {
 
@@ -107,6 +110,7 @@ fun EditNursingCourseScreen(
     ) {
         LaunchedEffect(Unit) {
             run {
+                viewModel.canWrite = canWrite
                 if (homeCareCourse != null) {
                     viewModel.setScreenType(ScreenType.Edit(homeCareCourse))
                 } else {
@@ -174,7 +178,7 @@ private fun BuildSheetContent(
                 OutlinedTextField(
                     modifier = Modifier
                         .clickable {
-                            showCategoryPopup = true
+                            if (uiState.isEditingEnabled) showCategoryPopup = true
                         }
                         .fillMaxWidth(),
                     maxLines = 1,
@@ -211,6 +215,7 @@ private fun BuildSheetContent(
                     modifier = Modifier.weight(column1Weight),
                     date = uiState.newNursingCourse.dateTime,
                     label = { Text(text = stringResource(id = R.string.actual_date_time)) },
+                    enabled = uiState.isEditingEnabled,
                     onDateChanged = {
                         viewModel.setDate(it)
                     }
@@ -224,6 +229,7 @@ private fun BuildSheetContent(
                     label = {
                         Text(text = stringResource(id = R.string.duration))
                     },
+                    enabled = uiState.isEditingEnabled,
                     onValueChange = {
                         val duration = it.toIntOrNull()
                         if (it.isEmpty()) {
@@ -245,6 +251,7 @@ private fun BuildSheetContent(
                 value = uiState.newNursingCourse.description ?: "", onValueChange = {
                     viewModel.setDescription(it)
                 },
+                enabled = uiState.isEditingEnabled,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -253,7 +260,7 @@ private fun BuildSheetContent(
                 Row(verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clickable {
-                            showImagesDialog = true
+                            if (uiState.isEditingEnabled) showImagesDialog = true
                         }
                         .padding(start = 16.dp, top = 8.dp, end = 24.dp, bottom = 8.dp)) {
                     Image(
@@ -281,7 +288,7 @@ private fun BuildSheetContent(
             }
             SwitchItem(
                 label = stringResource(id = R.string.show_in_diary),
-                enabled = true,
+                enabled = uiState.isEditingEnabled,
                 value = uiState.newNursingCourse.showInDiary
             ) {
                 viewModel.setShowInDiary(it)
@@ -289,7 +296,7 @@ private fun BuildSheetContent(
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isLoading && uiState.newNursingCourse.courseCategoryType != null && !uiState.newNursingCourse.description.isNullOrEmpty(),
+                enabled = !uiState.isLoading && uiState.newNursingCourse.courseCategoryType != null && !uiState.newNursingCourse.description.isNullOrEmpty() && uiState.isEditingEnabled,
                 onClick = {
                     viewModel.saveButtonClick(patientCode = patientCode)
                 }) {

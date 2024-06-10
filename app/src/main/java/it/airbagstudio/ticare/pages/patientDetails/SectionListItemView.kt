@@ -9,11 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.AbsoluteCutCornerShape
-import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -23,7 +19,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,7 +36,7 @@ import it.airbagstudio.ticare.ui.theme.md_theme_dark_onError
 
 
 data class SectionListItem(
-    val nameId: Int,
+    val name: String,
     val iconId: Int,
     val badge: Int = 0,
     val toolTag: ToolTag,
@@ -67,13 +62,13 @@ fun SectionListItemView(item: SectionListItem) {
                 .padding(horizontal = 8.dp)
                 .size(32.dp),
             painter = painterResource(id = item.iconId),
-            contentDescription = stringResource(id = item.nameId)
+            contentDescription = item.name
         )
         Text(
             modifier = Modifier.weight(1f),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
-            text = stringResource(id = item.nameId),
+            text = item.name,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -118,10 +113,10 @@ private fun PreviewSectionListItemView() {
                     .background(MaterialTheme.colorScheme.secondaryContainer)) {
                 SectionListItemView(
                     SectionListItem(
-                        R.string.vital_parameters,
+                        "Parametri vitali",
                         R.drawable.ic_vital_parameters,
                         1,
-                        ToolTag.OtherServices
+                        ToolTag.OtherService
                     ) {
 
                     })

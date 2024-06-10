@@ -62,12 +62,14 @@ import it.airbagstudio.ticare.utils.getExecDateTime
 fun EditDrugAdministrationSheet(
     viewModel: EditDrugAdministrationSheetViewModel = hiltViewModel(),
     task: AgendaTask?,
+    canWrite: Boolean,
     onDismissRequest: () -> Unit
 ) {
 
     LaunchedEffect(Unit) {
         viewModel.task.value = task?.copy(showInDiary = task.isReserve)
         viewModel.quantity.value = null
+        viewModel.canWrite = canWrite
         if (task?.execDate == null && task?.isReserve == false) {
             //viewModel.task.value = viewModel.task.value?.copy(quantity = task?.expQuantity ?: 0.0)
             viewModel.setQuantity(task.expQuantity.toString())

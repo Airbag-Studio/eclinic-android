@@ -67,10 +67,12 @@ import java.time.format.DateTimeFormatter
 fun CreateWoundDialogScreen(
     codCase: String,
     woundId: Int?= null,
+    canWrite: Boolean,
     onDismissRequest: (Boolean) -> Unit,
     viewModel: CreateWoundDialogScreenViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit) {
+        viewModel.canWrite = canWrite
         viewModel.clearData()
         viewModel.codCase = codCase
         viewModel.downloadData(woundId)
@@ -113,6 +115,7 @@ fun CreateWoundDialogScreen(
             ) {
                 CalendarTextField(
                     modifier = Modifier.fillMaxWidth(),
+                    enabled = uiState.isEditingEnabled,
                     date = uiState.wound.date, label = {
                         Text(text = stringResource(id = R.string.appearance_date))
                     }, onDateChanged = {
@@ -123,7 +126,8 @@ fun CreateWoundDialogScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(id = R.string.injury_type),
                     value = uiState.wound.woundType ?: "",
-                    items = viewModel.woundTypes.value
+                    items = viewModel.woundTypes.value,
+                    enabled = uiState.isEditingEnabled,
                 ){
                     viewModel.setWoundType(it.item)
                 }
@@ -132,7 +136,8 @@ fun CreateWoundDialogScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(id = R.string.position),
                     items = viewModel.woundBodyParts.value,
-                    selectedItems = uiState.dropdownSelections.selectedWoundBodyParts?.map { ListPopupItem(it.name,it) } ?: listOf()
+                    selectedItems = uiState.dropdownSelections.selectedWoundBodyParts?.map { ListPopupItem(it.name,it) } ?: listOf(),
+                    enabled = uiState.isEditingEnabled,
                 ){ selectedItems  ->
                     selectedItems?.mapNotNull { it.item }?.let { viewModel.setWoundBodyParts(it) } ?: run { viewModel.setWoundBodyParts(null) }
                 }
@@ -141,7 +146,8 @@ fun CreateWoundDialogScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(id = R.string.origin),
                     value = uiState.wound.origin ?: "",
-                    items = viewModel.woundOrigins.value
+                    items = viewModel.woundOrigins.value,
+                    enabled = uiState.isEditingEnabled,
                 ){
                     viewModel.setWoundOrigin(it.item)
                 }
@@ -163,7 +169,8 @@ fun CreateWoundDialogScreen(
                         },
                         supportingText = {
                             Text(text = stringResource(id = R.string.mm))
-                        }
+                        },
+                        enabled = uiState.isEditingEnabled,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     OutlinedTextField(
@@ -182,7 +189,8 @@ fun CreateWoundDialogScreen(
                         },
                         supportingText = {
                             Text(text = stringResource(id = R.string.mm))
-                        }
+                        },
+                        enabled = uiState.isEditingEnabled,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     OutlinedTextField(
@@ -201,7 +209,8 @@ fun CreateWoundDialogScreen(
                         },
                         supportingText = {
                             Text(text = stringResource(id = R.string.mm))
-                        }
+                        },
+                        enabled = uiState.isEditingEnabled,
                     )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
@@ -214,8 +223,10 @@ fun CreateWoundDialogScreen(
                         .height(140.dp),
                     value = uiState.wound.description ?: "",
                     onValueChange = {
-                    viewModel.setNotes(it)
-                })
+                        viewModel.setNotes(it)
+                    },
+                    enabled = uiState.isEditingEnabled,
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider(Modifier.padding(horizontal = 16.dp))
@@ -238,11 +249,12 @@ fun CreateWoundDialogScreen(
                 })
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
-                    enabled = uiState.isValid && !uiState.isLoading,
+                    enabled = uiState.isValid && uiState.isEditingEnabled && !uiState.isLoading,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         viewModel.saveWound()
-                    }) {
+                    }
+                ) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = stringResource(id = R.string.execute)
@@ -278,6 +290,6 @@ fun CreateWoundDialogScreen(
 @Preview
 private fun CreateWoundDialogScreenPreview() {
     AppTheme {
-        CreateWoundDialogScreen("",onDismissRequest = {})
+        CreateWoundDialogScreen("", canWrite = true, onDismissRequest = {})
     }
 }

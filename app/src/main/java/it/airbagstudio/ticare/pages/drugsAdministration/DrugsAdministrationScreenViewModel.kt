@@ -11,15 +11,19 @@ import ch.ticare.eclinic.library.entity.AgendaTask
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.OperatingShift
+import ch.ticare.eclinic.library.entity.Tool
 import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
+import ch.ticare.eclinic.library.repository.VisibilityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
 import it.airbagstudio.ticare.utils.includeTime
 import it.airbagstudio.ticare.utils.validated
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.util.Date
@@ -30,6 +34,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
     private val agendaTaskRepository: AgendaTaskRepository,
     private val offlineOnlineRepository: OfflineOnlineRepository,
+    private val visibilityRepository: VisibilityRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -38,12 +43,15 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     private val shiftStart: String? = savedStateHandle[DestinationsArgs.SHIFT_START]
     private val shiftEnd: String? = savedStateHandle[DestinationsArgs.SHIFT_END]
     val shiftName: String = savedStateHandle[DestinationsArgs.SHIFT_NAME]!!
+    val selectedTool: Tool? = userDetailRepository.getSelectedTool()
+    val title = selectedTool?.name ?: ""
 
     var isLoading by mutableStateOf(false)
     var tasks by mutableStateOf<List<AgendaTask>>(listOf())
     var reserves by mutableStateOf<List<AgendaTask>>(listOf())
     var errorMessage by mutableStateOf<String?>(null)
     var patient by mutableStateOf<CaseDetail?>(null)
+    var canWrite by mutableStateOf(false)
 
     var modifiedIds by mutableStateOf<List<String>>(listOf())
 
@@ -65,6 +73,14 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     }
 
     private suspend fun downloadTasks() {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            launch {
+                visibilityRepository.getPermissions().collect { permissions ->
+                    canWrite = permissions.firstOrNull { it.entity == selectedTool?.toolTag?.name }?.canWrite ?: false
+                }
+            }
+        }
+
         var shift : OperatingShift? = null
         if (shiftStart != null && shiftEnd != null){
             shift = OperatingShift(name = shiftName, publicName = shiftName, publicShortName = shiftName, shortName = shiftName, startTime = shiftStart, stopTime = shiftEnd)
@@ -105,7 +121,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     fun executeAll(){
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading = true
-            tasks.filter { it.validated() }.forEach {task ->
+            tasks.filter { it.validated() }.filter { it.execDate != null || it.expTime != null }.forEach {task ->
                 val newTask = task.copy(quantity = task.expQuantity)
                 val res = agendaTaskRepository.updateAgendaTasks(newTask)
                 res.error?.let {

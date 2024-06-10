@@ -29,7 +29,8 @@ import javax.inject.Inject
 data class CourseCreateEditScreenUIState(
     val course: CourseUIState,
     val categories: List<HomeCareCourseCategory> = listOf(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isEditingEnabled: Boolean
 ){
     data class CourseUIState(
         val showInDiary: Boolean = true,
@@ -46,6 +47,7 @@ class CourseCreateEditScreenViewModel @Inject constructor(
     private val coursesRepository: CoursesRepository
 ): ViewModel() {
 
+    var canWrite = false
     lateinit var patientCode: String
     var editingCourse: HomeCareCourse? = null
     lateinit var courseType: ToolTag
@@ -84,9 +86,9 @@ class CourseCreateEditScreenViewModel @Inject constructor(
     }
 
     val uiState = combine(course,categories,isLoading){ course,categories,isLoading ->
-        CourseCreateEditScreenUIState(course,categories,isLoading)
+        CourseCreateEditScreenUIState(course,categories,isLoading, canWrite)
     }.stateIn(viewModelScope, SharingStarted.Eagerly,
-        CourseCreateEditScreenUIState(CourseCreateEditScreenUIState.CourseUIState())
+        CourseCreateEditScreenUIState(CourseCreateEditScreenUIState.CourseUIState(), isEditingEnabled = canWrite)
     )
 
 

@@ -12,7 +12,8 @@ data class DetailsNursingCourseScreenUiState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val error: String? = null,
-    val isEditing: Boolean
+    val isEditing: Boolean,
+    val isEditingEnabled: Boolean,
     ) {
         data class NewNursingCourse constructor(
             val courseCategoryType: HomeCareCourseCategory?,

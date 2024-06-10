@@ -61,29 +61,31 @@ fun CoursesScreen(
     }
     Scaffold(
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                modifier = Modifier
-                    .padding(start = 24.dp, bottom = 24.dp)
-                    .fillMaxWidth(),
-                contentColor = MaterialTheme.colorScheme.primary,
-                onClick = {
-                    showCreateBottomSheet = true
-                },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.Add, contentDescription = stringResource(
-                            id = uiState.courseType.getLabelId()
+            if (viewModel.canWrite) {
+                ExtendedFloatingActionButton(
+                    modifier = Modifier
+                        .padding(start = 24.dp, bottom = 24.dp)
+                        .fillMaxWidth(),
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    onClick = {
+                        showCreateBottomSheet = true
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Add, contentDescription = stringResource(
+                                id = uiState.courseType.getLabelId()
+                            )
                         )
-                    )
-                },
-                text = {
-                    Text(
-                        text = stringResource(
-                            id = uiState.courseType.getCreateLabelId()
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(
+                                id = uiState.courseType.getCreateLabelId()
+                            )
                         )
-                    )
-                }
-            )
+                    }
+                )
+            }
         },
         topBar = {
             ToolbarWithBackAndSync(title = uiState.caseName) {
@@ -133,7 +135,8 @@ fun CoursesScreen(
             CourseCreateEditScreen(
                 patientCode = viewModel.patientCode,
                 courseType = viewModel.courseTypeName,
-                course = null
+                course = null,
+                canWrite = viewModel.canWrite
             ) {
                 showCreateBottomSheet = false
                 if (it){
@@ -145,7 +148,8 @@ fun CoursesScreen(
             CourseCreateEditScreen(
                 patientCode = viewModel.patientCode,
                 courseType = viewModel.courseTypeName,
-                course = selectedTasks
+                course = selectedTasks,
+                canWrite = viewModel.canWrite
             ) {
                 selectedTasks = null
                 viewModel.downloadData()

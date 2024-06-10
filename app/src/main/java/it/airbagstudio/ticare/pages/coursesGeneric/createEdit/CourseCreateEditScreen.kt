@@ -53,10 +53,11 @@ fun CourseCreateEditScreen(
     patientCode: String,
     courseType: String,
     course: HomeCareCourse?,
+    canWrite: Boolean,
     onDismissRequest: (Boolean) -> Unit,
 ) {
     LaunchedEffect(key1 = Unit) {
-
+        viewModel.canWrite = canWrite
         viewModel.patientCode = patientCode
         viewModel.courseType = ToolTag.valueOf(courseType)
         viewModel.downloadData()
@@ -112,7 +113,12 @@ fun CourseCreateEditScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
-                PopupTextField(label = stringResource(id = R.string.category), value = uiState.course.selectedCategory?.name ?: "", items = uiState.categories.map { ListPopupItem(it.name,it) }) {
+                PopupTextField(
+                    label = stringResource(id = R.string.category),
+                    value = uiState.course.selectedCategory?.name ?: "",
+                    items = uiState.categories.map { ListPopupItem(it.name,it) },
+                    enabled = uiState.isEditingEnabled
+                ) {
                     it.item?.let { it1 -> viewModel.setCategory(it1) }
                 }
                 Spacer(modifier = Modifier.height(24.dp))
@@ -123,7 +129,8 @@ fun CourseCreateEditScreen(
                         label = { Text(text = stringResource(id = R.string.actual_date_time)) },
                         onDateChanged = {
                             viewModel.setDateAndTime(it)
-                        }
+                        },
+                        enabled = uiState.isEditingEnabled
                     )
                     Spacer(modifier = Modifier.width(24.dp))
                     OutlinedTextField(
@@ -142,7 +149,9 @@ fun CourseCreateEditScreen(
                                 viewModel.setDuration(duration)
                             }
 
-                        })
+                        },
+                        enabled = uiState.isEditingEnabled
+                    )
 
                 }
                 Spacer(modifier = Modifier.height(24.dp))
@@ -156,12 +165,13 @@ fun CourseCreateEditScreen(
                     value = uiState.course.description, onValueChange = {
                         viewModel.setDescription(it)
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    enabled = uiState.isEditingEnabled
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 SwitchItem(
                     label = stringResource(id = R.string.show_in_diary),
-                    enabled = true,
+                    enabled = uiState.isEditingEnabled,
                     value = uiState.course.showInDiary
                 ) {
                     viewModel.setShowInDiary(it)
@@ -169,7 +179,7 @@ fun CourseCreateEditScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = !uiState.isLoading && uiState.course.selectedCategory != null && uiState.course.description.isNotEmpty(),
+                    enabled = !uiState.isLoading && uiState.course.selectedCategory != null && uiState.course.description.isNotEmpty() && uiState.isEditingEnabled,
                     onClick = {
                         viewModel.saveCourse()
                     }) {

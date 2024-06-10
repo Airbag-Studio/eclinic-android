@@ -22,6 +22,7 @@ import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.UserListRepository
 import ch.ticare.eclinic.library.repository.UserMarkingRepository
 import ch.ticare.eclinic.library.repository.UserRepository
+import ch.ticare.eclinic.library.repository.VisibilityRepository
 import ch.ticare.eclinic.library.repository.WorkingHourRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import dagger.Module
@@ -155,6 +156,12 @@ class AppModule {
     @Singleton
     fun providesCoursesRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository,authRepository: AuthRepository, localStorage: LocalStorageImpl): CoursesRepository {
         return CoursesRepository(apiClient, database,offlineOnlineRepository,authRepository, localStorage)
+    }
+
+    @Provides
+    @Singleton
+    fun providesVisibilityRepository(database: Database): VisibilityRepository {
+        return VisibilityRepository(database)
     }
 
 }
