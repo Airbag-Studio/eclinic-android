@@ -15,6 +15,7 @@ import ch.ticare.eclinic.library.repository.SyncDataRepository
 import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import it.airbagstudio.ticare.BuildConfig
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import java.net.URL
@@ -74,7 +75,8 @@ class LoginViewModel @Inject constructor(
                             password = password,
                             company = company.name,
                             group = company.group,
-                            uuid = uuid
+                            uuid = uuid,
+                            appVersion = BuildConfig.VERSION_NAME
                         )
 
                     } ?: run {
@@ -83,7 +85,8 @@ class LoginViewModel @Inject constructor(
                             password = password,
                             company = company.name,
                             group = company.group,
-                            uuid = ""
+                            uuid = "",
+                            appVersion = BuildConfig.VERSION_NAME
                         )
                     }
                 val loginResponse = userRepository.login(loginRequest, rememberMe)

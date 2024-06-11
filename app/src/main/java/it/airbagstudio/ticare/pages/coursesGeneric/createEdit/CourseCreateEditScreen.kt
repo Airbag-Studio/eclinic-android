@@ -57,6 +57,7 @@ fun CourseCreateEditScreen(
     onDismissRequest: (Boolean) -> Unit,
 ) {
     LaunchedEffect(key1 = Unit) {
+        viewModel.clearState()
         viewModel.canWrite = canWrite
         viewModel.patientCode = patientCode
         viewModel.courseType = ToolTag.valueOf(courseType)

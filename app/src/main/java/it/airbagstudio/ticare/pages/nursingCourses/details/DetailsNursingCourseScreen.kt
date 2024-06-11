@@ -260,7 +260,7 @@ private fun BuildSheetContent(
                 Row(verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .clickable {
-                            if (uiState.isEditingEnabled) showImagesDialog = true
+                            showImagesDialog = true
                         }
                         .padding(start = 16.dp, top = 8.dp, end = 24.dp, bottom = 8.dp)) {
                     Image(

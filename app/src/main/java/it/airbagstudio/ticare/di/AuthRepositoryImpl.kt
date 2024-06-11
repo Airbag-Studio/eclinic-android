@@ -2,6 +2,7 @@ package it.airbagstudio.ticare.di
 
 import android.content.Context
 import ch.ticare.eclinic.library.network.AuthRepository
+import it.airbagstudio.ticare.BuildConfig
 
 class AuthRepositoryImpl(context: Context): AuthRepository {
     private val sharedPreferences = context.getSharedPreferences("ticareshared",Context.MODE_PRIVATE)
@@ -55,6 +56,10 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
 
     override fun getRememberMe(): Boolean{
         return sharedPreferences.getBoolean(rememberKey,false)
+    }
+
+    override fun getAppVersion(): String {
+        return BuildConfig.VERSION_NAME
     }
 
     override fun setBaseURL(url: String) {
