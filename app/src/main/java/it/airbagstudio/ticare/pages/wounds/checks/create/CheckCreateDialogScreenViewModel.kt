@@ -468,6 +468,7 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
         isSuccess.value = false
         isLoading.value = false
         imagesUri.value = listOf()
+        checkImages.value = listOf()
     }
 
 }

@@ -102,7 +102,7 @@ fun CheckCreateDialogScreen(
                 CenterAlignedTopAppBar(
                     title = {
                         Column {
-                            Text(text = stringResource(id = R.string.new_check))
+                            Text(text = stringResource(id = R.string.wound_protocol))
                         }
                     },
                     actions = {
