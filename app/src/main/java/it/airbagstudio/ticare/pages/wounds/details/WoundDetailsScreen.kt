@@ -297,7 +297,7 @@ fun WoundDetailsScreen(
             .build()
         val woundDate = viewModel.wound?.appearanceDate?.toDate("dd.MM.yyyy")
             ?.format("dd/MM/yyyy") ?: ""
-        val painters = viewModel.wound?.photos?.map {
+        val painters = viewModel.wound?.photos?.filter { it.iDCheck < 0 }?.map {
             it.getPainter(requestData = viewModel.requestImageRequestData, imageLoader = imageLoader, authTimestampHeader = DateTimeFormatter.ISO_INSTANT.format(
                 Instant.now()), isOnline = viewModel.isOnline)
         } ?: listOf()

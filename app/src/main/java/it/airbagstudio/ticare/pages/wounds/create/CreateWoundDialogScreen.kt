@@ -72,8 +72,8 @@ fun CreateWoundDialogScreen(
     viewModel: CreateWoundDialogScreenViewModel = hiltViewModel()
 ) {
     LaunchedEffect(Unit) {
-        viewModel.canWrite = canWrite
         viewModel.clearData()
+        viewModel.canWrite = canWrite
         viewModel.codCase = codCase
         viewModel.downloadData(woundId)
     }

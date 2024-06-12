@@ -387,5 +387,6 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
         isSuccess.value = false
         isLoading.value = false
         imagesUri.value = listOf()
+        woundPhotos.value = listOf()
     }
 }
