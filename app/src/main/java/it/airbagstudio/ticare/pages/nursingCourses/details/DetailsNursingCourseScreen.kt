@@ -148,7 +148,7 @@ private fun BuildSheetContent(
             CenterAlignedTopAppBar(
                 title = {
                     Column {
-                        Text(text = stringResource(id = if(uiState.isEditing) R.string.new_nursing_course else R.string.edit_nursing_course))
+                        Text(text = stringResource(id = if(!uiState.isEditing) R.string.new_nursing_course else R.string.edit_nursing_course))
                     }
 
                 },
