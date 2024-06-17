@@ -278,6 +278,8 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     fun setCourseTypeName(courseTypeName: String) {
         this.courseTypeName = courseTypeName
     }
+
+    fun getCourseTypeName(): String = courseTypeName
 }
 
 sealed class ScreenType {

@@ -18,12 +18,13 @@ fun HomeCareCourseImage.getPainter(
     requestData: ImageRequestData,
     imageLoader: ImageLoader,
     authTimestampHeader: String,
-    isOnline: Boolean
+    isOnline: Boolean,
+    tool: String
 ): AsyncImagePainter {
     val context = LocalContext.current
     if (isOnline) {
 
-        val url = "${requestData.url}/homecare/courses/image?id=${this.id}"
+        val url = "${requestData.url}/courses/image?t=${tool}&id=${this.id}"
         val imageRequest = ImageRequest.Builder(context)
             .data(url)
             .addHeader("Authorization", "Bearer ${requestData.token}")

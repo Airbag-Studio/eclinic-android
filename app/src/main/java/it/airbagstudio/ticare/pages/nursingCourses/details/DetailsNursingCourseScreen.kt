@@ -148,7 +148,7 @@ private fun BuildSheetContent(
             CenterAlignedTopAppBar(
                 title = {
                     Column {
-                        Text(text = stringResource(id = R.string.new_nursing_course))
+                        Text(text = stringResource(id = if(uiState.isEditing) R.string.new_nursing_course else R.string.edit_nursing_course))
                     }
 
                 },
@@ -351,7 +351,7 @@ private fun BuildSheetContent(
             val date = uiState.newNursingCourse.dateTime.format("dd/MM/yyyy")
             val painters = uiState.newNursingCourse.photos.map {
                 it.getPainter(requestData = viewModel.requestImageRequestData, imageLoader = imageLoader, authTimestampHeader = DateTimeFormatter.ISO_INSTANT.format(
-                    Instant.now()), isOnline = viewModel.isOnline)
+                    Instant.now()), isOnline = viewModel.isOnline, viewModel.getCourseTypeName())
             }
             ImagesDialog(
                 date = date,
