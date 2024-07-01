@@ -1,6 +1,8 @@
 package it.airbagstudio.ticare.pages.login
 
 import android.content.Context
+import android.content.RestrictionsManager
+import android.util.Log
 import android.webkit.URLUtil
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,9 +19,36 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import it.airbagstudio.ticare.BuildConfig
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.net.URL
 import javax.inject.Inject
+
+data class LoginViewUIState(
+    val loginData: LoginData,
+   val pageState: PageState
+){
+   data class LoginData(
+       val isValid: Boolean = false,
+       val server: String?,
+       val company: String?,
+       val username: String,
+       val password: String,
+       val rememberMe: Boolean
+   )
+
+    data class PageState(
+        val companies: List<CompanyInfo> = listOf(),
+        val isLoading: Boolean = false,
+        val errorMessage: String? = null,
+        val successLogin: Boolean = false,
+        val showSecondStep: Boolean = false
+    )
+}
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -28,51 +57,109 @@ class LoginViewModel @Inject constructor(
     private val syncDataRepository: SyncDataRepository
 ) : ViewModel() {
 
-    var companies by mutableStateOf<List<CompanyInfo>>(listOf())
+    private val companies = MutableStateFlow<List<CompanyInfo>>(listOf())
 
-    var selectedCompany by mutableStateOf<CompanyInfo?>(null)
-    var server by mutableStateOf("")
-    var username by mutableStateOf("")
-    var password by mutableStateOf("")
-    var rememberMe by mutableStateOf(false)
-    var isLoading by mutableStateOf(false)
-    var errorMessage by mutableStateOf<String?>(null)
+    private val selectedCompany = MutableStateFlow<CompanyInfo?>(null)
+    private val server = MutableStateFlow<String?>(null)
+    private val username = MutableStateFlow("")
+    private val password = MutableStateFlow("")
+    private val rememberMe = MutableStateFlow(false)
+    private val isLoading = MutableStateFlow(false)
+    private val errorMessage = MutableStateFlow<String?>(null)
+    private val successLogin = MutableStateFlow(false)
+    private val showSecondStep = MutableStateFlow(false)
 
-    var isValid = {
-        selectedCompany != null && server.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty()
+    private val loginDataUiState = combine(server, selectedCompany, username, password, rememberMe){ server, selectedCompany, username, password, rememberMe ->
+        LoginViewUIState.LoginData(
+            isValid = selectedCompany != null && server?.isNotEmpty() == true && username.isNotEmpty() && password.isNotEmpty(),
+            server = server,
+            company = selectedCompany?.name,
+            username = username,
+            password = password,
+            rememberMe = rememberMe
+        )
     }
 
+    private val pageState = combine(companies, isLoading, errorMessage,successLogin, showSecondStep){ companies, isLoading, errorMessage,successLogin, showSecondStep ->
+        LoginViewUIState.PageState(
+            companies = companies,
+            isLoading = isLoading,
+            errorMessage = errorMessage,
+            successLogin = successLogin,
+            showSecondStep = showSecondStep
+        )
+    }
 
-    var exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        isLoading = false
-        errorMessage = throwable.localizedMessage
+    val uiState = combine(loginDataUiState, pageState) { loginData, pageState ->
+        LoginViewUIState(
+            loginData = loginData,
+            pageState = pageState
+        )
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, LoginViewUIState(pageState = LoginViewUIState.PageState(), loginData = LoginViewUIState.LoginData(false,null, null, "", "", false)))
+
+
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        isLoading.value = false
+        errorMessage.value = throwable.localizedMessage
         throwable.printStackTrace()
     }
 
-    var successLogin by mutableStateOf(false)
+
 
     init {
         userRepository.clearAllCasesRequest()
         if (authRepository.getRememberMe()){
             viewModelScope.launch(exceptionHandler) {
-                server = authRepository.getBaseURL().split("/api/").firstOrNull() ?: ""
-                companies = userRepository.getCompaniesList().results ?: listOf()
-                selectedCompany = companies.firstOrNull { it.name == authRepository.getCompanyName() && it.group == authRepository.getCompanyGroup() }
-                username = authRepository.getUsername() ?: ""
-                rememberMe = true
+                server.value = authRepository.getBaseURL().split("/api/").firstOrNull()
+                companies.value = userRepository.getCompaniesList().results ?: listOf()
+                selectedCompany.value = companies.value.firstOrNull { it.name == authRepository.getCompanyName() && it.group == authRepository.getCompanyGroup() }
+                username.value = authRepository.getUsername() ?: ""
+                rememberMe.value = true
+                if (selectedCompany.value != null && server.value != null){
+                    showSecondStep.value = true
+                }
             }
         }
     }
 
+    fun setServer(server: String?) {
+        this.server.value = server
+    }
+
+    fun setUserName(username: String) {
+        this.username.value = username
+    }
+
+    fun setPassword(password: String) {
+        this.password.value = password
+    }
+
+    fun setRememberMe(rememberMe: Boolean) {
+        this.rememberMe.value = rememberMe
+    }
+
+    fun setCompany(company: CompanyInfo) {
+        selectedCompany.value = company
+    }
+
+    fun reset(){
+        errorMessage.value = null
+        successLogin.value = false
+    }
+
+    fun setSecondStep(showSecondStep: Boolean) {
+        this.showSecondStep.value = showSecondStep
+    }
+
     fun loginUser() {
-        selectedCompany?.let { company ->
+        selectedCompany.value?.let { company ->
             viewModelScope.launch(exceptionHandler) {
-                isLoading = true
+                isLoading.value = true
                 val loginRequest =
                     authRepository.getUUID()?.let { uuid ->
                         LoginRequest(
-                            username = username,
-                            password = password,
+                            username = username.value,
+                            password = password.value,
                             company = company.name,
                             group = company.group,
                             uuid = uuid,
@@ -81,40 +168,43 @@ class LoginViewModel @Inject constructor(
 
                     } ?: run {
                         LoginRequest(
-                            username = username,
-                            password = password,
+                            username = username.value,
+                            password = password.value,
                             company = company.name,
                             group = company.group,
                             uuid = "",
                             appVersion = BuildConfig.VERSION_NAME
                         )
                     }
-                val loginResponse = userRepository.login(loginRequest, rememberMe)
+                val loginResponse = userRepository.login(loginRequest, rememberMe.value)
                 loginResponse.error?.let { errorResponse: ErrorResponse ->
-                    errorMessage = errorResponse.desc
+                    errorMessage.value = errorResponse.desc
                 }
                 loginResponse.token?.let { _ ->
                     authRepository.getCompanyName()?.let { company ->
                         val res = syncDataRepository.syncPersistentData(company)
                         if (res.isSuccess) {
-                            successLogin = true
+                            successLogin.value = true
                         } else if (res.isFailure){
                             authRepository.setToken(null)
                             authRepository.setRefreshToken(null)
-                            errorMessage = res.exceptionOrNull()?.localizedMessage
+                            errorMessage.value = res.exceptionOrNull()?.localizedMessage
                         }
                     }
                 }
-                isLoading = false
+                isLoading.value = false
             }
         }
     }
 
     fun downloadCompanies() {
+        companies.value = listOf()
+        val _server = server.value ?: return
         viewModelScope.launch(exceptionHandler) {
-            buildValidUrl(server)?.let { validUrl ->
+            buildValidUrl(_server)?.let { validUrl ->
+                Log.w("Restrictions", "valid url $validUrl")
                 authRepository.setBaseURL("$validUrl/api")
-                companies = userRepository.getCompaniesList().results ?: listOf()
+                companies.value = userRepository.getCompaniesList().results ?: listOf()
             }
         }
     }
@@ -135,5 +225,27 @@ class LoginViewModel @Inject constructor(
         return null
     }
 
+    fun resolveRestrictions(context: Context){
+
+        val manager =
+            context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
+        val restrictions = manager.applicationRestrictions
+        val entries = manager.getManifestRestrictions(
+            context.applicationContext.packageName
+        )
+        entries.firstOrNull { it.key == "base_url" }?.let { entry ->
+            val baseUrl =
+                if (restrictions == null || !restrictions.containsKey("base_url")) {
+                    entry.selectedString
+                } else {
+                    restrictions.getString("base_url")
+                }
+                setServer(baseUrl)
+                if (!baseUrl.isNullOrEmpty()) {
+                    downloadCompanies()
+                }
+
+        }
+    }
 
 }

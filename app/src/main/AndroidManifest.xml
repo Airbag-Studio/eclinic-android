@@ -23,6 +23,10 @@
 
         <receiver android:name=".utils.LocalNotificationReceiver" android:exported="false" />
 
+        <meta-data
+            android:name="android.content.APP_RESTRICTIONS"
+            android:resource="@xml/app_restrictions" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

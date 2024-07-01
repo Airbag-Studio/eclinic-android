@@ -202,4 +202,6 @@
     <string name="new_blood_exam_task">Registra Esame Somatico</string>
     <string name="edit">Modifica</string>
     <string name="quantity_mandatory">Quantità non valida</string>
+    <string name="enter">Entra</string>
+    <string name="base_url_description">Application server endpoint</string>
 </resources>
