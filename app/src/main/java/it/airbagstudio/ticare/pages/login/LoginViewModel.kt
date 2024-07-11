@@ -30,16 +30,16 @@ import javax.inject.Inject
 
 data class LoginViewUIState(
     val loginData: LoginData,
-   val pageState: PageState
-){
-   data class LoginData(
-       val isValid: Boolean = false,
-       val server: String?,
-       val company: String?,
-       val username: String,
-       val password: String,
-       val rememberMe: Boolean
-   )
+    val pageState: PageState
+) {
+    data class LoginData(
+        val isValid: Boolean = false,
+        val server: String?,
+        val company: String?,
+        val username: String,
+        val password: String,
+        val rememberMe: Boolean
+    )
 
     data class PageState(
         val companies: List<CompanyInfo> = listOf(),
@@ -68,8 +68,15 @@ class LoginViewModel @Inject constructor(
     private val errorMessage = MutableStateFlow<String?>(null)
     private val successLogin = MutableStateFlow(false)
     private val showSecondStep = MutableStateFlow(false)
+    private var serverFromConfig: String? = null
 
-    private val loginDataUiState = combine(server, selectedCompany, username, password, rememberMe){ server, selectedCompany, username, password, rememberMe ->
+    private val loginDataUiState = combine(
+        server,
+        selectedCompany,
+        username,
+        password,
+        rememberMe
+    ) { server, selectedCompany, username, password, rememberMe ->
         LoginViewUIState.LoginData(
             isValid = selectedCompany != null && server?.isNotEmpty() == true && username.isNotEmpty() && password.isNotEmpty(),
             server = server,
@@ -80,7 +87,13 @@ class LoginViewModel @Inject constructor(
         )
     }
 
-    private val pageState = combine(companies, isLoading, errorMessage,successLogin, showSecondStep){ companies, isLoading, errorMessage,successLogin, showSecondStep ->
+    private val pageState = combine(
+        companies,
+        isLoading,
+        errorMessage,
+        successLogin,
+        showSecondStep
+    ) { companies, isLoading, errorMessage, successLogin, showSecondStep ->
         LoginViewUIState.PageState(
             companies = companies,
             isLoading = isLoading,
@@ -95,7 +108,14 @@ class LoginViewModel @Inject constructor(
             loginData = loginData,
             pageState = pageState
         )
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, LoginViewUIState(pageState = LoginViewUIState.PageState(), loginData = LoginViewUIState.LoginData(false,null, null, "", "", false)))
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        LoginViewUIState(
+            pageState = LoginViewUIState.PageState(),
+            loginData = LoginViewUIState.LoginData(false, null, null, "", "", false)
+        )
+    )
 
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -105,17 +125,24 @@ class LoginViewModel @Inject constructor(
     }
 
 
-
-    init {
+    fun updateData() {
         userRepository.clearAllCasesRequest()
-        if (authRepository.getRememberMe()){
-            viewModelScope.launch(exceptionHandler) {
-                server.value = authRepository.getBaseURL().split("/api/").firstOrNull()
+        server.value = serverFromConfig
+        viewModelScope.launch(exceptionHandler) {
+            companies.value = userRepository.getCompaniesList().results ?: listOf()
+            if (authRepository.getRememberMe()) {
+                authRepository.getBaseURL().split("/api").firstOrNull()?.let {
+                    server.value = it
+                }
+                if (server.value.isNullOrEmpty()) {
+                    server.value = serverFromConfig
+                }
                 companies.value = userRepository.getCompaniesList().results ?: listOf()
-                selectedCompany.value = companies.value.firstOrNull { it.name == authRepository.getCompanyName() && it.group == authRepository.getCompanyGroup() }
+                selectedCompany.value =
+                    companies.value.firstOrNull { it.name == authRepository.getCompanyName() && it.group == authRepository.getCompanyGroup() }
                 username.value = authRepository.getUsername() ?: ""
                 rememberMe.value = true
-                if (selectedCompany.value != null && server.value != null){
+                if (selectedCompany.value != null && server.value != null) {
                     showSecondStep.value = true
                 }
             }
@@ -124,6 +151,7 @@ class LoginViewModel @Inject constructor(
 
     fun setServer(server: String?) {
         this.server.value = server
+        this.companies.value = listOf()
     }
 
     fun setUserName(username: String) {
@@ -142,7 +170,7 @@ class LoginViewModel @Inject constructor(
         selectedCompany.value = company
     }
 
-    fun reset(){
+    fun reset() {
         errorMessage.value = null
         successLogin.value = false
     }
@@ -185,7 +213,7 @@ class LoginViewModel @Inject constructor(
                         val res = syncDataRepository.syncPersistentData(company)
                         if (res.isSuccess) {
                             successLogin.value = true
-                        } else if (res.isFailure){
+                        } else if (res.isFailure) {
                             authRepository.setToken(null)
                             authRepository.setRefreshToken(null)
                             errorMessage.value = res.exceptionOrNull()?.localizedMessage
@@ -225,8 +253,7 @@ class LoginViewModel @Inject constructor(
         return null
     }
 
-    fun resolveRestrictions(context: Context){
-
+    fun resolveRestrictions(context: Context) {
         val manager =
             context.getSystemService(Context.RESTRICTIONS_SERVICE) as RestrictionsManager
         val restrictions = manager.applicationRestrictions
@@ -240,12 +267,10 @@ class LoginViewModel @Inject constructor(
                 } else {
                     restrictions.getString("base_url")
                 }
-                setServer(baseUrl)
-                if (!baseUrl.isNullOrEmpty()) {
-                    downloadCompanies()
-                }
+            serverFromConfig = baseUrl
 
         }
+        updateData()
     }
 
 }

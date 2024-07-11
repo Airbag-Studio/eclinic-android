@@ -176,7 +176,8 @@ fun PatientDetailsScreen(
                                 ToolTag.AtelierCourse,
                                 ToolTag.ActivatorCourse,
                                 ToolTag.EducatorCourse,
-                                ToolTag.PhysiotherapyCourse -> {
+                                ToolTag.PhysiotherapyCourse,
+                                ToolTag.MedicalCourse-> {
                                     navActions.navigateToCourses(
                                         Uri.encode(viewModel.patientCod),
                                         tool.toolTag.name

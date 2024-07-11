@@ -81,14 +81,11 @@ fun LoginScreen(
     val localContext = LocalContext.current
 
 
-
-
     val showStructuresDialog = remember { mutableStateOf(false) }
     val showFirstLoginDialog = remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     DisposableEffect(localContext) {
-
         val intentFilter = IntentFilter(Intent.ACTION_APPLICATION_RESTRICTIONS_CHANGED)
         viewModel.resolveRestrictions(localContext)
         val receiver = object : BroadcastReceiver() {
@@ -102,6 +99,7 @@ fun LoginScreen(
         onDispose {
             localContext.unregisterReceiver(receiver)
         }
+
     }
 
     Scaffold(topBar = {
