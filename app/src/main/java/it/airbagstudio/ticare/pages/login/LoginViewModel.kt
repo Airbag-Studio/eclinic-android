@@ -128,8 +128,9 @@ class LoginViewModel @Inject constructor(
     fun updateData() {
         userRepository.clearAllCasesRequest()
         server.value = serverFromConfig
+        if (server.value.isNullOrEmpty()) { return }
         viewModelScope.launch(exceptionHandler) {
-            companies.value = userRepository.getCompaniesList().results ?: listOf()
+            downloadCompanies()
             if (authRepository.getRememberMe()) {
                 authRepository.getBaseURL().split("/api").firstOrNull()?.let {
                     server.value = it
@@ -137,7 +138,7 @@ class LoginViewModel @Inject constructor(
                 if (server.value.isNullOrEmpty()) {
                     server.value = serverFromConfig
                 }
-                companies.value = userRepository.getCompaniesList().results ?: listOf()
+                downloadCompanies()
                 selectedCompany.value =
                     companies.value.firstOrNull { it.name == authRepository.getCompanyName() && it.group == authRepository.getCompanyGroup() }
                 username.value = authRepository.getUsername() ?: ""
