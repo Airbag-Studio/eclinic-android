@@ -127,7 +127,12 @@ class LoginViewModel @Inject constructor(
 
     fun updateData() {
         userRepository.clearAllCasesRequest()
-        server.value = serverFromConfig
+        authRepository.getBaseURL().split("/api").firstOrNull()?.let {
+            server.value = it
+        }
+        if (server.value.isNullOrEmpty()) {
+            server.value = serverFromConfig
+        }
         if (server.value.isNullOrEmpty()) { return }
         viewModelScope.launch(exceptionHandler) {
             downloadCompanies()
