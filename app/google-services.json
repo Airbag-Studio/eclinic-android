@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:165963429052:android:329d4ea4f4c1295d03ccb9",
+        "android_client_info": {
+          "package_name": "ch.ticare.eclinic.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKbTf38raoW1iLpN5Lvt4mPWn8hU99GpM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:165963429052:android:c392076b6ac9602303ccb9",
         "android_client_info": {
           "package_name": "ch.ticare.eclinic.app.dev"
