@@ -53,7 +53,7 @@ class SelectPatientsDataViewModel @Inject constructor(
 
     private var coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
-        errorMessage = throwable.localizedMessage
+        errorMessage = throwable.localizedMessage ?: ""
     }
 
 
