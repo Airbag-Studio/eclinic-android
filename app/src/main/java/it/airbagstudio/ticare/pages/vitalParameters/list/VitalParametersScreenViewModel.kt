@@ -23,6 +23,7 @@ import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getExecTime
 import it.airbagstudio.ticare.utils.getExpectedTime
 import it.airbagstudio.ticare.utils.includeTime
+import it.airbagstudio.ticare.utils.isSpecial
 import it.airbagstudio.ticare.utils.printTime
 import it.airbagstudio.ticare.utils.toDate
 import it.airbagstudio.ticare.utils.validated
@@ -99,7 +100,8 @@ class VitalParametersScreenViewModel @Inject constructor(
                     isConfirmed = it.validated(),
                     item = it,
                     hasDataToUpload = modifiedIds.contains(it.pkey.toString()),
-                    isSkipped = it.isSkipped
+                    isSkipped = it.isSkipped,
+                    isSpecial = it.isSpecial()
                 )
             }
             VitalParametersUIState(
