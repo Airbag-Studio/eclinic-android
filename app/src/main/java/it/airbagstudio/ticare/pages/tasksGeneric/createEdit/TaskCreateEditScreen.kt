@@ -76,7 +76,7 @@ fun TaskCreateEditScreen(
             viewModel.setNotExecuted(taskToEdit.isSkipped)
             viewModel.setShowInDiary(taskToEdit.showInDiary)
             viewModel.setAgendaTaskTypeCode(taskToEdit.typeCode)
-
+            viewModel.setGeneralNote(taskToEdit.schedulerNotes ?: "")
         }
     }
     Dialog(
@@ -132,6 +132,12 @@ fun TaskCreateEditScreen(
                     enabled = uiState.isEditingEnabled
                 )
                 Spacer(modifier = Modifier.height(16.dp))
+                NotesPopupButton(
+                    title = stringResource(id = R.string.general_note),
+                    text = uiState.task.generalNote,
+                    enabled = true,
+                    editable = false,
+                    onTextChanged = {})
                 NotesPopupButton(text = uiState.task.notes, enabled = uiState.isEditingEnabled, editable = uiState.isEditingEnabled) {
                     viewModel.setNotes(it)
                 }

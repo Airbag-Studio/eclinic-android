@@ -199,8 +199,17 @@ private fun BuildContent(
                     viewModel.setExecutedDate(it)
                 })
             Column(modifier = Modifier.padding(top = 16.dp)) {
+                var notes = ""
+                task?.sysSchedulingNotes?.let {
+                    if (it.isNotEmpty()) {
+                        notes += "$it\n\n"
+                    }
+                }
+                task?.schedulerNotes?.let {
+                    notes += it
+                }
                 NotesPopupButton(
-                    text = task?.sysSchedulingNotes ?: "",
+                    text = notes,
                     enabled = true,
                     editable = false,
                     onTextChanged = {})

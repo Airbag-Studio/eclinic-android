@@ -31,7 +31,7 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
-fun NotesPopupButton(text: String, enabled: Boolean,editable:Boolean, onTextChanged: (String) -> Unit) {
+fun NotesPopupButton(title: String = stringResource(id = R.string.notes),text: String, enabled: Boolean,editable:Boolean, onTextChanged: (String) -> Unit) {
     var showNotesPopup by remember {
         mutableStateOf(false)
     }
@@ -51,7 +51,7 @@ fun NotesPopupButton(text: String, enabled: Boolean,editable:Boolean, onTextChan
                 showNotesPopup = true
             }
         ) {
-            ButtonContent(text = if (text.isNotEmpty()) text else stringResource(id = R.string.no_notes))
+            ButtonContent(title = title, text = if (text.isNotEmpty()) text else stringResource(id = R.string.no_notes))
         }
     }else{
         TextButton(
@@ -61,12 +61,12 @@ fun NotesPopupButton(text: String, enabled: Boolean,editable:Boolean, onTextChan
             ),
             onClick = { showNotesPopup = true }
         ) {
-            ButtonContent(text = if (text.isNotEmpty()) text else stringResource(id = R.string.no_notes))
+            ButtonContent(title = title, text = if (text.isNotEmpty()) text else stringResource(id = R.string.no_notes))
         }
     }
 
     if (showNotesPopup){
-        NotesPopup(startingText = text, editable = editable, onDone = {newText ->
+        NotesPopup(title = title, startingText = text, editable = editable, onDone = {newText ->
             showNotesPopup = false
             newText?.let{
                 onTextChanged(it)
@@ -75,13 +75,13 @@ fun NotesPopupButton(text: String, enabled: Boolean,editable:Boolean, onTextChan
     }
 }
 @Composable
-private fun ButtonContent(text:String){
+private fun ButtonContent(title: String,text:String){
     Column(
         verticalArrangement = Arrangement.Top
     ) {
         Row() {
             Text(
-                text = stringResource(id = R.string.notes),
+                text = title,
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.weight(1f)
             )

@@ -32,7 +32,7 @@ import it.airbagstudio.ticare.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotesPopup(startingText: String, editable: Boolean, onDone: (String?) -> Unit) {
+fun NotesPopup(title: String,startingText: String, editable: Boolean, onDone: (String?) -> Unit) {
     var text by remember {
         mutableStateOf(startingText)
     }
@@ -44,7 +44,7 @@ fun NotesPopup(startingText: String, editable: Boolean, onDone: (String?) -> Uni
         }) {
         Scaffold(modifier = Modifier.fillMaxSize(),
             topBar = {
-                ToolbarWithBack(title = stringResource(id = R.string.notes), actions = {
+                ToolbarWithBack(title = title, actions = {
                     if (editable) {
                         TextButton(onClick = {
                             onDone(text)

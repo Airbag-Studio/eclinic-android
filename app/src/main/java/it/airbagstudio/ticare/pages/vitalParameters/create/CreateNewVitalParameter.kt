@@ -45,6 +45,7 @@ import ch.ticare.eclinic.library.entity.AgendaTask
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
+import it.airbagstudio.ticare.ui.components.NotesPopupButton
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
 import it.airbagstudio.ticare.utils.getExecDateTime
 import it.airbagstudio.ticare.utils.isValidVitalParameterValue
@@ -76,6 +77,7 @@ fun CreateNewVitalParameterSheet(
             viewModel.setValue(task.value ?: "")
             viewModel.setShowInDiary(task.showInDiary)
             viewModel.setNotExecuted(task.isSkipped)
+            viewModel.setGeneralNote(task.schedulerNotes ?: "")
         }
 
     }
@@ -152,7 +154,6 @@ private fun BuildSheetContent(
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
-            Log.d("uiState.date", uiState.date.toString())
             CalendarTextField(
                 enabled = uiState.isEditingEnabled,
                 modifier = Modifier.fillMaxWidth(),
@@ -161,6 +162,13 @@ private fun BuildSheetContent(
                 onDateChanged = {
                     viewModel.setDate(it)
                 })
+            Spacer(modifier = Modifier.height(24.dp))
+            NotesPopupButton(
+                title = stringResource(id = R.string.general_note),
+                text = uiState.generalNote,
+                enabled = true,
+                editable = false,
+                onTextChanged = {})
             Spacer(modifier = Modifier.height(24.dp))
             OutlinedTextField(
                 enabled = uiState.isEditingEnabled,

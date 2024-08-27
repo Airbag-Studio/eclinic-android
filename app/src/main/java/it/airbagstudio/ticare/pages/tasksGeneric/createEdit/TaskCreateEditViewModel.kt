@@ -35,7 +35,8 @@ data class TaskCreateEditScreenUIState(
         val notes: String = "",
         val showInDiary: Boolean = false,
         val notExecuted: Boolean = false,
-        val isValid: Boolean = false
+        val isValid: Boolean = false,
+        val generalNote: String = ""
     )
 }
 
@@ -59,6 +60,7 @@ class TaskCreateEditViewModel @Inject constructor(
     private val dateTime = MutableStateFlow(Date())
     private val duration = MutableStateFlow<Int?>(null)
     private val notes = MutableStateFlow<String>("")
+    private val generalNote = MutableStateFlow<String>("")
     private val showInDiary = MutableStateFlow(false)
     private val notExecuted = MutableStateFlow(false)
     private val taskActivityType = MutableStateFlow<TaskType?>(null)
@@ -69,14 +71,21 @@ class TaskCreateEditViewModel @Inject constructor(
         throwable.printStackTrace()
     }
 
-    private val task = combine(dateTime,duration,notes,showInDiary,notExecuted){ dateTime,duration,notes,showInDiary,notExecuted ->
+    private val task = combine(dateTime,duration,notes,showInDiary,notExecuted,generalNote){ data ->
+        val dateTime = data[0] as Date
+        val duration = data[1] as? Int
+        val notes = data[2] as String
+        val showInDiary = data[3] as Boolean
+        val notExecuted = data[4] as Boolean
+        val generalNote = data[5] as String
         TaskCreateEditScreenUIState.TaskUiState(
             dateTime = dateTime,
             duration = duration,
             notes = notes,
             showInDiary = showInDiary,
             notExecuted = notExecuted,
-            isValid = !notExecuted || notes.isNotEmpty()
+            isValid = !notExecuted || notes.isNotEmpty(),
+            generalNote = generalNote
         )
     }
 
@@ -128,6 +137,10 @@ class TaskCreateEditViewModel @Inject constructor(
 
     fun setNotes(value: String){
         notes.value = value
+    }
+
+    fun setGeneralNote(value: String){
+        generalNote.value = value
     }
 
     fun setShowInDiary(value: Boolean){

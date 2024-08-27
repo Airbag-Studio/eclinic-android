@@ -37,7 +37,8 @@ data class NewVitalParameterUIState(
     val errorMessage: String? = null,
     val isSuccess: Boolean = false,
     val isEditingEnabled: Boolean = true,
-    val isScheduled: Boolean = true
+    val isScheduled: Boolean = true,
+    val generalNote: String = ""
 )
 
 private data class ItemValues(
@@ -46,7 +47,8 @@ private data class ItemValues(
     val duration: Int,
     val value: String,
     val showInDiary: Boolean,
-    val notExecuted: Boolean
+    val notExecuted: Boolean,
+    val generalNote: String
 )
 
 @HiltViewModel
@@ -76,6 +78,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
 
     private val date = MutableStateFlow<Date>(Date())
     private val notes = MutableStateFlow<String>("")
+    private val generalNote = MutableStateFlow<String>("")
     private val duration = MutableStateFlow<Int>(0)
     private val value = MutableStateFlow<String>("")
     private val showInDiary = MutableStateFlow<Boolean>(false)
@@ -98,10 +101,12 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
 
     private val itemValues = combine(
         topValues,
-        bottomValues
-    ) { topValues, bottomValues ->
+        bottomValues,
+        generalNote,
+    ) { topValues, bottomValues,
+        generalNote, ->
         ItemValues(topValues.first, topValues.second, topValues.third,
-            bottomValues.first, bottomValues.second, bottomValues.third)
+            bottomValues.first, bottomValues.second, bottomValues.third,generalNote)
 
     }
 
@@ -132,7 +137,8 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
             errorMessage,
             isSuccess,
             (agendaTask?.validated() ?: true) && canWrite,
-            agendaTask?.expDate != null
+            agendaTask?.expDate != null,
+            generalNote = itemValues.generalNote
         )
     }.stateIn(
         scope = viewModelScope,
@@ -185,6 +191,10 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
 
     fun setDuration(value: Int) {
         this.duration.value = value
+    }
+
+    fun setGeneralNote(value: String){
+        generalNote.value = value
     }
 
     fun saveTask() {

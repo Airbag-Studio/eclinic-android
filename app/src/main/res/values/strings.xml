@@ -206,4 +206,5 @@
     <string name="base_url_description">Application server endpoint</string>
     <string name="medical_course">Decorsi Medici</string>
     <string name="new_medical_course">Nuovo Decorso Medici</string>
+    <string name="general_note">Note generali</string>
 </resources>
