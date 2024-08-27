@@ -38,6 +38,7 @@ import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.checkGreen
 import it.airbagstudio.ticare.ui.theme.redColor
+import it.airbagstudio.ticare.ui.theme.specialTaskBackground
 import it.airbagstudio.ticare.ui.theme.tertiary95
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -53,12 +54,13 @@ fun DrugAdministrationItemView(
     isCompleted: Boolean,
     isReserve: Boolean = false,
     hasDataToUpload: Boolean,
+    isSpecial: Boolean,
     onClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .clickable { onClick() }
-            .background(if (isReserve) tertiary95 else MaterialTheme.colorScheme.surface)
+            .background(if (isSpecial) specialTaskBackground else if (isReserve) tertiary95 else MaterialTheme.colorScheme.surface)
             .fillMaxWidth()
             .padding(start = 16.dp, top = 12.dp, end = 0.dp, bottom = 0.dp)
     ) {
@@ -208,7 +210,8 @@ private fun PreviewDrugAdministrationItem() {
             isConfirmed = false,
             notExecuted = true,
             reserves = 2.0,
-            hasDataToUpload = false
+            hasDataToUpload = false,
+            isSpecial = false
         ) {}
     }
 }
@@ -226,7 +229,8 @@ private fun PreviewDrugAdministrationItemCompleted() {
             isConfirmed = false,
             notExecuted = true,
             reserves = 2.2,
-            hasDataToUpload = true
+            hasDataToUpload = true,
+            isSpecial = true
         ) {}
     }
 }
@@ -247,7 +251,8 @@ private fun PreviewDrugAdministrationReserveItem() {
             isConfirmed = false,
             notExecuted = true,
             isReserve = true,
-            hasDataToUpload = true
+            hasDataToUpload = true,
+            isSpecial = true
         ) {}
     }
 }

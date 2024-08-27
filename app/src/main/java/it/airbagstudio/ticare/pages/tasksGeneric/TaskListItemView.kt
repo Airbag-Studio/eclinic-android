@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.pages.tasksGeneric
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,10 +14,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,24 +31,29 @@ import it.airbagstudio.ticare.ui.components.LabelValueRow
 import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.checkGreen
+import it.airbagstudio.ticare.ui.theme.specialTaskBackground
 
 data class TaskListItem(
     val name: String,
     val time: String,
     val executed:Boolean,
     val hasDataToUpload: Boolean,
-    val task: AgendaTask
+    val task: AgendaTask,
+    val isSpecial: Boolean
 )
 
 @Composable
 fun TaskListItemView(item: TaskListItem, onClick: () -> Unit) {
     Column(
         modifier = Modifier
+            .background(if (item.isSpecial) specialTaskBackground.copy(alpha = 0.5f) else Color.White)
             .clickable { onClick() }
             .fillMaxWidth()
             .padding(start = 16.dp, top = 12.dp, end = 0.dp, bottom = 0.dp)
     ) {
-        Row(Modifier.padding(end = 16.dp)) {
+        Row(
+            Modifier.padding(end = 16.dp)
+        ){
             if (item.executed || item.hasDataToUpload) {
                 Column(modifier = Modifier.padding(end = 8.dp)) {
                     if (item.executed) {

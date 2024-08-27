@@ -93,7 +93,8 @@ class TaskListViewModel @Inject constructor(
                     time = timeFormatted,
                     executed = executed,
                     hasDataToUpload = modifiedIds.contains(it.pkey.toString()),
-                    task = it
+                    task = it,
+                    isSpecial = it.typeIsSpecial
                 )
             }
             _uiState.value = TaskListUIState(

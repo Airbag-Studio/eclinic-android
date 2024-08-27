@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.pages.vitalParameters.list
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -19,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +33,7 @@ import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.checkGreen
 import it.airbagstudio.ticare.ui.theme.redColor
+import it.airbagstudio.ticare.ui.theme.specialTaskBackground
 
 data class VitalParameterItem(
     val name: String,
@@ -41,7 +44,8 @@ data class VitalParameterItem(
     val isConfirmed: Boolean,
     val item: AgendaTask?,
     val hasDataToUpload: Boolean,
-    val isSkipped: Boolean
+    val isSkipped: Boolean,
+    val isSpecial: Boolean
 )
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -49,6 +53,7 @@ data class VitalParameterItem(
 fun VitalParameterItemView(item: VitalParameterItem, onClick: () -> Unit) {
     Column(
         modifier = Modifier
+            .background(if (item.isSpecial) specialTaskBackground.copy(alpha = 0.5f) else Color.White)
             .clickable { onClick() }
             .fillMaxWidth()
             .padding(start = 16.dp, top = 12.dp, end = 0.dp, bottom = 0.dp)
@@ -129,10 +134,10 @@ private fun PreviewVitalParameterItem(){
     AppTheme {
         Scaffold {
             Column(Modifier.padding(it)) {
-                VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = true,false,null,true, isSkipped = true)) {
+                VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = true,false,null,true, isSkipped = true, isSpecial = true)) {
 
                 }
-                VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = false,false,null,false, isSkipped = false)) {
+                VitalParameterItemView(item = VitalParameterItem("Frequenza Cardiaca", typeMsmUnit = "Fr/min", quantity = "72",time = "09:30",executed = false,false,null,false, isSkipped = false, isSpecial = false)) {
 
                 }
             }

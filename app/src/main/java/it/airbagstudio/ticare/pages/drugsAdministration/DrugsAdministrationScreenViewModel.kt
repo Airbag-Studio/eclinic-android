@@ -121,7 +121,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     fun executeAll(){
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading = true
-            tasks.filter { it.validated() }.filter { it.execDate != null || it.expTime != null }.forEach {task ->
+            tasks.filter { it.validated() }.filter { !it.typeIsSpecial }.filter { it.execDate != null || it.expTime != null }.forEach {task ->
                 val newTask = task.copy(quantity = task.expQuantity)
                 val res = agendaTaskRepository.updateAgendaTasks(newTask)
                 res.error?.let {
