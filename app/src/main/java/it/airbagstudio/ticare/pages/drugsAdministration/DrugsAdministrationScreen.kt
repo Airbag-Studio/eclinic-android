@@ -45,6 +45,7 @@ import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.utils.getCompleteName
 import it.airbagstudio.ticare.utils.getExecTime
 import it.airbagstudio.ticare.utils.getExpectedTime
+import it.airbagstudio.ticare.utils.isSpecial
 import it.airbagstudio.ticare.utils.printTime
 import it.airbagstudio.ticare.utils.validated
 import kotlinx.coroutines.CoroutineScope
@@ -183,7 +184,7 @@ fun DrugsAdministrationScreen(
                                     rejected = task.rejected ?: false,
                                     isCompleted = task.execTime != null,
                                     hasDataToUpload = viewModel.modifiedIds.contains(task.pkey.toString()),
-                                    isSpecial = task.typeIsSpecial
+                                    isSpecial = task.isSpecial()
                                 ) {
                                     selectedTasks = task
                                     CoroutineScope(Dispatchers.Default).launch {
@@ -209,7 +210,7 @@ fun DrugsAdministrationScreen(
                                     isConfirmed = task.validated(),
                                     rejected = task.rejected ?: false,
                                     hasDataToUpload = viewModel.modifiedIds.contains(task.pkey.toString()),
-                                    isSpecial = task.typeIsSpecial
+                                    isSpecial = task.isSpecial()
                                 ) {
                                     selectedTasks = task
                                     CoroutineScope(Dispatchers.Default).launch {

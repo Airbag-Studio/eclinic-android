@@ -22,6 +22,7 @@ import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
 import it.airbagstudio.ticare.utils.getExecTime
 import it.airbagstudio.ticare.utils.getExpectedTime
 import it.airbagstudio.ticare.utils.getLabelId
+import it.airbagstudio.ticare.utils.isSpecial
 import it.airbagstudio.ticare.utils.printTime
 import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -94,7 +95,7 @@ class TaskListViewModel @Inject constructor(
                     executed = executed,
                     hasDataToUpload = modifiedIds.contains(it.pkey.toString()),
                     task = it,
-                    isSpecial = it.typeIsSpecial
+                    isSpecial = it.isSpecial()
                 )
             }
             _uiState.value = TaskListUIState(

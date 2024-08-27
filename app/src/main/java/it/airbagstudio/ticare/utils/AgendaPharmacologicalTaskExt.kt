@@ -40,3 +40,7 @@ fun AgendaTask.getExecDateTime(): Date? {
 fun AgendaTask.validated(): Boolean {
     return !this.colorStatus.equals("rosso", true)
 }
+
+fun AgendaTask.isSpecial(): Boolean{
+    return this.typeIsSpecial || this.isSchedulerSpecial
+}
