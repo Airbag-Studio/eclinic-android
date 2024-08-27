@@ -12,6 +12,9 @@ fun OperatingShift.isCurrent(): Boolean{
 fun OperatingShift.includeTime(time: LocalTime): Boolean{
     val start = LocalTime.parse(this.startTime)
     val end = LocalTime.parse(this.stopTime)
+    if (start == time || end == time) {
+        return true
+    }
     return if (start.isAfter(end)) time.isAfter(start) || time.isBefore(end) else time.isAfter(start) && time.isBefore(end)
 }
 
