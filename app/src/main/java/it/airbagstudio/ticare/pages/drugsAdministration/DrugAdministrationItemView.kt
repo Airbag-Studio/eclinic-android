@@ -60,7 +60,7 @@ fun DrugAdministrationItemView(
     Column(
         modifier = Modifier
             .clickable { onClick() }
-            .background(if (isSpecial) specialTaskBackground else if (isReserve) tertiary95 else MaterialTheme.colorScheme.surface)
+            .background(if (isSpecial) specialTaskBackground else if (isReserve) tertiary95 else Color.Transparent)
             .fillMaxWidth()
             .padding(start = 16.dp, top = 12.dp, end = 0.dp, bottom = 0.dp)
     ) {

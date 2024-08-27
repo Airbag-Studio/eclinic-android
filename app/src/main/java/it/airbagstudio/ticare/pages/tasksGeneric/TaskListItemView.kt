@@ -46,7 +46,7 @@ data class TaskListItem(
 fun TaskListItemView(item: TaskListItem, onClick: () -> Unit) {
     Column(
         modifier = Modifier
-            .background(if (item.isSpecial) specialTaskBackground.copy(alpha = 0.5f) else Color.White)
+            .background(if (item.isSpecial) specialTaskBackground else Color.Transparent)
             .clickable { onClick() }
             .fillMaxWidth()
             .padding(start = 16.dp, top = 12.dp, end = 0.dp, bottom = 0.dp)
