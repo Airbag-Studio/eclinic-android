@@ -52,7 +52,9 @@ import ch.ticare.eclinic.library.entity.AgendaTask
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
-import it.airbagstudio.ticare.ui.components.NotesPopupButton
+import it.airbagstudio.ticare.ui.components.notesPopupButton.MultipleNotesPopupButton
+import it.airbagstudio.ticare.ui.components.notesPopupButton.MultipleNotesPopupItem
+import it.airbagstudio.ticare.ui.components.notesPopupButton.NotesPopupButton
 import it.airbagstudio.ticare.ui.theme.seed
 import it.airbagstudio.ticare.ui.theme.tertiary95
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
@@ -199,20 +201,16 @@ private fun BuildContent(
                     viewModel.setExecutedDate(it)
                 })
             Column(modifier = Modifier.padding(top = 16.dp)) {
-                var notes = ""
-                task?.sysSchedulingNotes?.let {
-                    if (it.isNotEmpty()) {
-                        notes += "$it\n\n"
-                    }
-                }
-                task?.schedulerNotes?.let {
-                    notes += it
-                }
-                NotesPopupButton(
-                    text = notes,
-                    enabled = true,
-                    editable = false,
-                    onTextChanged = {})
+                MultipleNotesPopupButton(notes = listOf(
+                    MultipleNotesPopupItem(
+                        title = stringResource(id = R.string.general_note),
+                        text = task?.schedulerNotes
+                    ),
+                    MultipleNotesPopupItem(
+                        title = stringResource(id = R.string.scheduling_notes),
+                        text = task?.sysSchedulingNotes
+                    )
+                ))
 
                 NotesPopupButton(
                     text = task?.notes ?: "",

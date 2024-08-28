@@ -43,7 +43,7 @@ import ch.ticare.eclinic.library.entity.ToolTag
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
-import it.airbagstudio.ticare.ui.components.NotesPopupButton
+import it.airbagstudio.ticare.ui.components.notesPopupButton.NotesPopupButton
 import it.airbagstudio.ticare.ui.components.SwitchItem
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
 import it.airbagstudio.ticare.utils.getExecDateTime

@@ -1,6 +1,5 @@
 package it.airbagstudio.ticare.pages.vitalParameters.create
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,7 +43,7 @@ import ch.ticare.eclinic.library.entity.AgendaTask
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
-import it.airbagstudio.ticare.ui.components.NotesPopupButton
+import it.airbagstudio.ticare.ui.components.notesPopupButton.NotesPopupButton
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
 import it.airbagstudio.ticare.utils.getExecDateTime
 import it.airbagstudio.ticare.utils.isValidVitalParameterValue

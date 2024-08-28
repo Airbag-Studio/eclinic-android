@@ -1,4 +1,4 @@
-package it.airbagstudio.ticare.ui.components
+package it.airbagstudio.ticare.ui.components.notesPopupButton
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +50,7 @@ fun NotesPopupButton(title: String = stringResource(id = R.string.notes),text: S
                 showNotesPopup = true
             }
         ) {
-            ButtonContent(title = title, text = if (text.isNotEmpty()) text else stringResource(id = R.string.no_notes))
+            NotesPopupButtonContent(title = title, text = if (text.isNotEmpty()) text else stringResource(id = R.string.no_notes))
         }
     }else{
         TextButton(
@@ -61,7 +60,7 @@ fun NotesPopupButton(title: String = stringResource(id = R.string.notes),text: S
             ),
             onClick = { showNotesPopup = true }
         ) {
-            ButtonContent(title = title, text = if (text.isNotEmpty()) text else stringResource(id = R.string.no_notes))
+            NotesPopupButtonContent(title = title, text = if (text.isNotEmpty()) text else stringResource(id = R.string.no_notes))
         }
     }
 
@@ -74,34 +73,7 @@ fun NotesPopupButton(title: String = stringResource(id = R.string.notes),text: S
         })
     }
 }
-@Composable
-private fun ButtonContent(title: String,text:String){
-    Column(
-        verticalArrangement = Arrangement.Top
-    ) {
-        Row() {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_right),
-                contentDescription = stringResource(
-                    id = R.string.notes
-                )
-            )
 
-        }
-        Text(
-            text = text,
-            maxLines = 2,
-            minLines = 2,
-            style = MaterialTheme.typography.bodySmall,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
 @Composable
 @Preview
 private fun PreviewNoteButton(){
