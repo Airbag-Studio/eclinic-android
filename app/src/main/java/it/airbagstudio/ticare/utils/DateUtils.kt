@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.utils
 
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -25,4 +26,10 @@ fun String.toDate(pattern: String): Date?{
         null
     }
 
+}
+
+fun Date.toDayOfWeek(): Int{
+    val calendar = Calendar.getInstance(Locale.ITALIAN)
+    calendar.time = this
+   return (calendar.get(Calendar.DAY_OF_WEEK) - 2).mod(7)
 }
