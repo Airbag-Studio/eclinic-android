@@ -52,7 +52,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                 code = code
             )
 
-            _scheduledDrugTherapies.value = res.results?.map { item ->
+            _scheduledDrugTherapies.value = res.results?.sortedBy { it.drug }?.map { item ->
                 val shiftsDrugAdministrations = mutableListOf<ScheduledDrugTherapyItem.ScheduledDrugTherapyItem>()
                 val from = LocalDate.parse(item.from, DateTimeFormatter.ofPattern(SERVER_DATE_FORMAT)).atStartOfDay()
 
