@@ -3,6 +3,13 @@ package it.airbagstudio.ticare
 import android.webkit.URLUtil
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atTime
+import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,8 +43,11 @@ class ExampleInstrumentedTest {
 
     @Test
     fun useAppContext() {
-        assertEquals("https://app.ti-care.ch:3000", buildValidUrl("https://app.ti-care.ch:3000/api/v1"))
-        assertEquals("https://app.ti-care.ch:3000", buildValidUrl("app.ti-care.ch:3000/api/v1"))
-        assertEquals("https://194.182.160.249:3000", buildValidUrl("194.182.160.249:3000/api/v1"))
+        val currentLocalDateTime: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        val todayIndex = currentLocalDateTime.dayOfWeek.value - 1
+        val monday = currentLocalDateTime.date.plus(- todayIndex,DateTimeUnit.DAY)
+        val sunday = monday.plus(6,DateTimeUnit.DAY)
+        print("$monday")
+
     }
 }

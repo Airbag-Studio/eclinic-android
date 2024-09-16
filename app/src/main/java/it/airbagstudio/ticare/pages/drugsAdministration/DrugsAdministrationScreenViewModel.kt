@@ -39,7 +39,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
+    val patientCod: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
     private val dateTime: String = savedStateHandle[DestinationsArgs.DATE_TIME]!!
     private val shiftStart: String? = savedStateHandle[DestinationsArgs.SHIFT_START]
     private val shiftEnd: String? = savedStateHandle[DestinationsArgs.SHIFT_END]

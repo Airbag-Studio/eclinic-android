@@ -3,6 +3,8 @@ package it.airbagstudio.ticare.pages.drugsAdministration
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -40,6 +43,7 @@ import ch.ticare.eclinic.library.entity.AgendaTask
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.drugsAdministration.editDrugAdministration.EditDrugAdministrationSheet
+import it.airbagstudio.ticare.pages.drugsAdministration.scheduledDrugTherapies.ScheduledDrugTherapyView
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.utils.getCompleteName
@@ -62,6 +66,7 @@ fun DrugsAdministrationScreen(
     var tabIndex by remember { mutableIntStateOf(0) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var showExecuteAllAlert by remember { mutableStateOf(false) }
+    var showScheduledDrugTherapyDialog by remember { mutableStateOf(false) }
     var selectedTasks by remember {
         mutableStateOf<AgendaTask?>(null)
     }
@@ -128,6 +133,23 @@ fun DrugsAdministrationScreen(
                 stringResource(id = R.string.prescriptions),
                 stringResource(id = R.string.reserves)
             )
+
+            Row(
+                modifier = Modifier.padding(end = 16.dp, bottom = 8.dp)
+            ) {
+                Spacer(Modifier.weight(1f))
+                Button(
+                    shape = RoundedCornerShape(8.dp),
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    onClick = {
+                    showScheduledDrugTherapyDialog = true
+                }) {
+                    Text(stringResource(R.string.therapies))
+                }
+            }
 
             TabRow(
                 selectedTabIndex = tabIndex,
@@ -236,6 +258,11 @@ fun DrugsAdministrationScreen(
         ) {
             showBottomSheet = false
             viewModel.reloadTasks()
+        }
+    }
+    if (showScheduledDrugTherapyDialog){
+        ScheduledDrugTherapyView(patientCode = viewModel.patientCod) {
+            showScheduledDrugTherapyDialog = false
         }
     }
 
