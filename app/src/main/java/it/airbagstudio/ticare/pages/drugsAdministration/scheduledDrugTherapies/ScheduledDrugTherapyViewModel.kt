@@ -8,6 +8,7 @@ import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
 import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT_ITA
+import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.toDate
 import it.airbagstudio.ticare.utils.toDayOfWeek
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -66,7 +67,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                             for (i in 0..6) {
                                 val sum = therapiesForShift.sumOf { it.quantity.toDouble() }
                                 if (sum > 0) {
-                                    quantities.add(sum.toString())
+                                    quantities.add(sum.format())
                                 } else {
                                     quantities.add(null)
                                 }
@@ -82,7 +83,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                                     dateTime?.toDayOfWeek() == i
                                 }
                                 if (therapiesForDay != null) {
-                                    quantities.add(therapiesForDay.quantity)
+                                    quantities.add(therapiesForDay.quantity.format())
                                 } else {
                                     quantities.add(null)
                                 }
@@ -94,7 +95,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                                 if (day.dayOfWeek == from.dayOfWeek){
                                     val sum = therapiesForShift.sumOf { it.quantity.toDouble() }
                                     if (sum > 0) {
-                                        quantities.add(sum.toString())
+                                        quantities.add(sum.format())
                                     } else {
                                         quantities.add(null)
                                     }
@@ -109,7 +110,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                                 if (day.dayOfMonth == from.dayOfMonth){
                                     val sum = therapiesForShift.sumOf { it.quantity.toDouble() }
                                     if (sum > 0) {
-                                        quantities.add(sum.toString())
+                                        quantities.add(sum.format())
                                     } else {
                                         quantities.add(null)
                                     }
@@ -125,7 +126,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                                 if (diff.toDays() % repetition.toLong() == 0L){
                                     val sum = therapiesForShift.sumOf { it.quantity.toDouble() }
                                     if (sum > 0) {
-                                        quantities.add(sum.toString())
+                                        quantities.add(sum.format())
                                     } else {
                                         quantities.add(null)
                                     }
@@ -140,7 +141,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                                 if (day.dayOfMonth == from.dayOfMonth && (day.monthValue - from.monthValue) % repetition == 0){
                                     val sum = therapiesForShift.sumOf { it.quantity.toDouble() }
                                     if (sum > 0) {
-                                        quantities.add(sum.toString())
+                                        quantities.add(sum.format())
                                     } else {
                                         quantities.add(null)
                                     }
