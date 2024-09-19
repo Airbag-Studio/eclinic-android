@@ -53,6 +53,10 @@ android {
             dimension = "env"
             applicationId "ch.ticare.eclinic.app"
         }
+        create("mdm") {
+            dimension = "env"
+            applicationId "ch.ticare.eclinic.app.mdm"
+        }
     }
     buildTypes {
         release {
