@@ -206,7 +206,7 @@ fun DrugsAdministrationScreen(
                                     rejected = task.rejected ?: false,
                                     isCompleted = task.execTime != null,
                                     hasDataToUpload = viewModel.modifiedIds.contains(task.pkey.toString()),
-                                    isSpecial = task.isSpecial()
+                                    isSpecial = task.isSchedulerSpecial
                                 ) {
                                     selectedTasks = task
                                     CoroutineScope(Dispatchers.Default).launch {

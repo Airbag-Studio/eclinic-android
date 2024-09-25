@@ -7,12 +7,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AgendaTask
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
+import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.utils.validated
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -20,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class EditDrugAdministrationSheetViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
-    private val agendaTaskRepository: AgendaTaskRepository
+    private val agendaTaskRepository: AgendaTaskRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     var task = mutableStateOf<AgendaTask?>(null)
@@ -32,6 +36,8 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
     var messagesStringIdentifiers by mutableStateOf<List<Int>?>(null)
     var canWrite by mutableStateOf(false)
+    val clinicType = userRepository.getClinicType()
+
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading = false

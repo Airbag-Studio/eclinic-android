@@ -92,9 +92,9 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                         2 -> {
                             for (i in 0..6) {
                                 val day = monday.plusDays(i.toLong())
-                                if (day.dayOfWeek == from.dayOfWeek){
+                                if (day >= from){
                                     val sum = therapiesForShift.sumOf { it.quantity.toDouble() }
-                                    if (sum > 0) {
+                                    if (sum > 0 && item.repetitionWeekDays.contains(i+1)) {
                                         quantities.add(sum.format())
                                     } else {
                                         quantities.add(null)
@@ -105,9 +105,16 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                             }
                         }
                         3 -> {
+                            val monthlyDaysSomministration = try{
+                                Regex("\\d+")
+                                    .findAll(item.repetitionLabel)
+                                    .map { it.value.toInt() }
+                                    .toList()
+                            } catch (e: NumberFormatException){ listOf() }
+
                             for (i in 0..6) {
                                 val day = monday.plusDays(i.toLong())
-                                if (day.dayOfMonth == from.dayOfMonth){
+                                if (day.dayOfMonth >= from.dayOfMonth && monthlyDaysSomministration.contains(day.dayOfMonth)){
                                     val sum = therapiesForShift.sumOf { it.quantity.toDouble() }
                                     if (sum > 0) {
                                         quantities.add(sum.format())

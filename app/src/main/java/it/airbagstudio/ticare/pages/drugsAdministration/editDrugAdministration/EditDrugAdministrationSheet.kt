@@ -35,20 +35,29 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import ch.ticare.eclinic.library.entity.AgendaTask
+import ch.ticare.eclinic.library.entity.ClinicType
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
@@ -112,6 +121,8 @@ private fun BuildContent(
     val isReserve = task?.isReserve ?: false
     val focusManager = LocalFocusManager.current
     val isValid = task != null && (!task.isSkipped || task.notes.isNotEmpty())
+    val clinicTypeState = viewModel.clinicType.collectAsState(initial = ClinicType.SPITEX)
+
     Scaffold(
         containerColor = if (task?.isReserve == true) tertiary95 else MaterialTheme.colorScheme.surface,
 
@@ -156,7 +167,20 @@ private fun BuildContent(
                     onValueChange = {
                         viewModel.setQuantity(it)
                     },
-                    label = { Text(text = stringResource(id = R.string.quantity)) }
+                    label = { Text(text = stringResource(id = R.string.quantity)) },
+                    trailingIcon = {
+                        clinicTypeState.value?.let {
+                            when(it){
+                                ClinicType.CPA ->{
+                                    Text(
+                                        text = task?.itemMsmUnit ?: "",
+                                        style = MaterialTheme.typography.titleSmall
+                                    )
+                                }
+                                else ->{}
+                            }
+                        }
+                    }
                 )
                 Spacer(modifier = Modifier.width(24.dp))
                 OutlinedTextField(
@@ -169,7 +193,20 @@ private fun BuildContent(
                     value = "${viewModel.task.value?.maxQuantity ?: 0}",
                     enabled = false,
                     onValueChange = {},
-                    label = { Text(text = stringResource(id = R.string.prescribed)) }
+                    label = { Text(text = stringResource(id = R.string.prescribed)) },
+                    trailingIcon = {
+                        clinicTypeState.value?.let {
+                            when(it){
+                                ClinicType.CPA ->{
+                                    Text(
+                                        text = task?.itemMsmUnit ?: "",
+                                        style = MaterialTheme.typography.titleSmall
+                                    )
+                                }
+                                else ->{}
+                            }
+                        }
+                    }
                 )
                 val duration = if ((viewModel.task.value?.duration
                         ?: 0) > 0
