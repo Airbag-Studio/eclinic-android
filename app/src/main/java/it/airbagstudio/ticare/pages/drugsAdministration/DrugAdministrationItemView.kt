@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.DrugChip
+import it.airbagstudio.ticare.ui.components.LabelValueRow
 import it.airbagstudio.ticare.ui.components.OfflineSyncImage
 import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
@@ -50,6 +51,7 @@ fun DrugAdministrationItemView(
     isConfirmed: Boolean,
     notExecuted: Boolean,
     rejected: Boolean,
+    measureUnit : String = "",
     reserves: Double? = null,
     isCompleted: Boolean,
     isReserve: Boolean = false,
@@ -103,7 +105,7 @@ fun DrugAdministrationItemView(
                         .alpha(alpha)
                         .padding(end = 24.dp)
                 ) {
-                    LabelValueRow(label = stringResource(id = R.string.quantity), value = "$quantity")
+                    LabelValueRow(label = stringResource(id = R.string.quantity), value = "$quantity ${measureUnit}")
                     if (!isCompleted && !isReserve) {
                         Spacer(modifier = Modifier.weight(1f))
                         LabelValueRow(

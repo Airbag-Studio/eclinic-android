@@ -28,6 +28,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ch.ticare.eclinic.library.entity.AgendaTask
+import ch.ticare.eclinic.library.entity.ClinicType
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.drugsAdministration.editDrugAdministration.EditDrugAdministrationSheet
@@ -73,6 +75,14 @@ fun DrugsAdministrationScreen(
     var errorMessages = remember {
         mutableStateOf<List<Int>?>(null)
     }
+    val clinicTypeState = viewModel.clinicType.collectAsState(initial = ClinicType.SPITEX)
+
+    var clinicType by remember { mutableStateOf(ClinicType.SPITEX) }
+
+    clinicTypeState.value?.let {
+        clinicType = it
+    }
+
 
     Scaffold(
         floatingActionButton = {
@@ -198,6 +208,10 @@ fun DrugsAdministrationScreen(
                                 DrugAdministrationItemView(
                                     name = task.itemDescription ?: "",
                                     quantity = if(task.getExecTime()?.printTime()!= null) task.quantity else task.expQuantity,
+                                    measureUnit = when(clinicType){
+                                        ClinicType.CPA -> task.typeMsmUnit
+                                        else -> ""
+                                    },
                                     time = task.getExecTime()?.printTime() ?: task.getExpectedTime()
                                         ?.printTime() ?: "",
                                     reserves = task.reservesCount,
@@ -224,6 +238,10 @@ fun DrugsAdministrationScreen(
                                 DrugAdministrationItemView(
                                     name = task.itemDescription ?: "",
                                     quantity = if(task.getExecTime()?.printTime()!= null) task.quantity else task.expQuantity,
+                                    measureUnit = when(clinicType){
+                                        ClinicType.CPA -> task.typeMsmUnit
+                                        else -> ""
+                                    },
                                     time = task.getExecTime()?.printTime() ?: task.getExpectedTime()
                                         ?.printTime() ?: "",
                                     isCompleted = task.execTime != null,

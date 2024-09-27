@@ -16,6 +16,7 @@ import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.repository.AgendaTaskRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
+import ch.ticare.eclinic.library.repository.UserRepository
 import ch.ticare.eclinic.library.repository.VisibilityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -36,6 +37,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     private val agendaTaskRepository: AgendaTaskRepository,
     private val offlineOnlineRepository: OfflineOnlineRepository,
     private val visibilityRepository: VisibilityRepository,
+    private val userRepository: UserRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -53,6 +55,7 @@ class DrugsAdministrationScreenViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
     var patient by mutableStateOf<CaseDetail?>(null)
     var canWrite by mutableStateOf(false)
+    val clinicType = userRepository.getClinicType()
 
     var modifiedIds by mutableStateOf<List<String>>(listOf())
 

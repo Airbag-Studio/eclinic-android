@@ -173,7 +173,7 @@ private fun BuildContent(
                             when(it){
                                 ClinicType.CPA ->{
                                     Text(
-                                        text = task?.itemMsmUnit ?: "",
+                                        text = task?.typeMsmUnit ?: "",
                                         style = MaterialTheme.typography.titleSmall
                                     )
                                 }
@@ -199,7 +199,7 @@ private fun BuildContent(
                             when(it){
                                 ClinicType.CPA ->{
                                     Text(
-                                        text = task?.itemMsmUnit ?: "",
+                                        text = task?.typeMsmUnit ?: "",
                                         style = MaterialTheme.typography.titleSmall
                                     )
                                 }
