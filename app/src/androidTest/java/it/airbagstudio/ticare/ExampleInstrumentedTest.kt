@@ -16,6 +16,9 @@ import org.junit.runner.RunWith
 
 import org.junit.Assert.*
 import java.net.URL
+import ch.ticare.eclinic.library.entity.OperatingShift
+import it.airbagstudio.ticare.utils.includeTime
+import java.time.LocalTime
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -49,5 +52,23 @@ class ExampleInstrumentedTest {
         val sunday = monday.plus(6,DateTimeUnit.DAY)
         print("$monday")
 
+    }
+
+    @Test
+    fun testShift(){
+        val shift = OperatingShift(
+            name = "Pomeriggio",
+            publicName = "Pomeriggio",
+            publicShortName = "Pomeriggio",
+            shortName = "Pomeriggio",
+            startTime = "14:00",
+            stopTime = "22:00"
+        )
+        assertTrue(shift.includeTime(LocalTime.parse("14:00")))
+        assertTrue(shift.includeTime(LocalTime.parse("15:00")))
+        assertTrue(shift.includeTime(LocalTime.parse("21:59")))
+        assertFalse(shift.includeTime(LocalTime.parse("22:00")))
+        assertFalse(shift.includeTime(LocalTime.parse("22:01")))
+        assertFalse(shift.includeTime(LocalTime.parse("13:59")))
     }
 }
