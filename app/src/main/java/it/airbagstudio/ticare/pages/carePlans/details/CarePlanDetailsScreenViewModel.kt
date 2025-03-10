@@ -92,7 +92,7 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                 )
             }
             val plannedInfo = planndeActivities.map {
-                var data = "${it.type}\n${if(it.number > 0) it.number.toString() else "Su Necessità"} ${it.timeUnit}\n${getWeekDays(it.weekDays)}"
+                var data = "${it.type}\n${if(it.number > 0) it.number.toString() else "Su Necessità"} ${it.timeUnit}\n${getWeekDays(it.weekDays)} \nDurata (min):${it.duration}"
                 if(it.qualMin.isNotEmpty()){
                     data+= "\n${it.qualMin}"
                 }
