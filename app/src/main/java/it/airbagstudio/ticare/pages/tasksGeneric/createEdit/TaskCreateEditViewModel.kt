@@ -122,6 +122,7 @@ class TaskCreateEditViewModel @Inject constructor(
     fun setAgendaTaskTypeId(id: Int){
         viewModelScope.launch {
             agendaTaskRepository.getActivityTypeTypes(taskType.name).firstOrNull { it.id == id }?.let {
+                duration.value = it.duration
                 taskActivityType.value = it
             }
         }

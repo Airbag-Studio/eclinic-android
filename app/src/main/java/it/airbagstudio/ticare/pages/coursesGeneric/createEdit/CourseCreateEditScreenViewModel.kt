@@ -94,6 +94,7 @@ class CourseCreateEditScreenViewModel @Inject constructor(
 
     fun setCategory(category: HomeCareCourseCategory){
         selectedCategoryId.value = category.id
+        duration.value = category.duration
     }
 
     fun setDateAndTime(date: Date){

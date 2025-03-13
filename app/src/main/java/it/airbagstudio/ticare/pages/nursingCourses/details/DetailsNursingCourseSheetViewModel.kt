@@ -133,7 +133,10 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             listOfCategories.value = coursesRepository.getCourseCategories(patientCode,ToolTag.valueOf(courseTypeName)).results.also {
                 if(screenType.value == ScreenType.Add) {
-                selectedCategoryId.value = it?.find { cat -> cat.useAsDefault }?.id
+                    it?.find { cat -> cat.useAsDefault }?.let { cat ->
+                        selectedCategoryId.value = cat.id
+                        duration.value = cat.duration
+                    }
                 }
             }
         }

@@ -73,6 +73,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
     private val vitalSignType = combine(vitalSignTypes, vitalSignCode) { types, code ->
         val type = types.firstOrNull { it.code == code }
         vitalSingId = type?.id
+        duration.value = type?.duration ?: 0
         type
     }
 
