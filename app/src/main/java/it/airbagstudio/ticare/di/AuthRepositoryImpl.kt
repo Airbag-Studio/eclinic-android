@@ -42,8 +42,13 @@ class AuthRepositoryImpl(context: Context): AuthRepository {
     }
 
     override fun getUUID(): String? {
-        // return  "8b827876-f089-4153-a8b5-006e63bfc957"
-        return sharedPreferences.getString(uuidKey,null)
+        val savedUUid = sharedPreferences.getString(uuidKey,null)
+        if (!savedUUid.isNullOrEmpty()){
+            return savedUUid
+        }
+        val newUUID = java.util.UUID.randomUUID().toString()
+        sharedPreferences.edit().putString(uuidKey,newUUID).commit()
+        return newUUID
     }
 
     override fun getUserValue(): String? {
