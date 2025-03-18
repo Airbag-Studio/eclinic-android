@@ -171,7 +171,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
         vitalSignCode.value = code
         viewModelScope.launch {
             vitalSignType.firstOrNull()?.let { type ->
-                if (agendaTask == null){
+                if (agendaTask?.execDate == null){
                     duration.value = type.duration
                 }
             }
