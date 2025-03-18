@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -127,7 +129,7 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
         NewVitalParameterUIState(
             itemValues.date,
             itemValues.notes,
-            if(itemValues.duration > 0) itemValues.duration else vitalSignType?.duration ?: 0,
+            itemValues.duration,
             itemValues.value,
             itemValues.showInDiary,
             itemValues.notExecuted,
@@ -167,6 +169,15 @@ class CreateNewVitalParameterSheetViewModel @Inject constructor(
 
     fun setVitalSignCode(code: String) {
         vitalSignCode.value = code
+        viewModelScope.launch {
+            vitalSignType.firstOrNull()?.let { type ->
+                if (agendaTask == null){
+                    duration.value = type.duration
+                }
+            }
+        }
+
+
     }
 
     fun setDate(date: Date) {
