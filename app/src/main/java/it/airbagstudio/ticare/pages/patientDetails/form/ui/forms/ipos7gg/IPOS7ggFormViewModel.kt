@@ -11,6 +11,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.ZoneOffset
+import kotlin.let
+import kotlin.text.split
+import kotlin.text.toInt
 
 class IPOS7ggFormViewModel( // Class name changed
     private val formRepository: FormRepository,
@@ -51,8 +55,12 @@ class IPOS7ggFormViewModel( // Class name changed
     }
 
     private fun initializeNewForm() {
+        val user = formRepository.getUserDetails()
+        val userBirth = user?.birthday?.split(".")?.let {
+            java.time.LocalDate.of(it[2].toInt(), it[1].toInt(), it[0].toInt())
+        }?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
         val newForm = IPOS7ggForm( // Model type changed
-            patientData = PatientData(),
+            patientData = PatientData(name = user?.name ?: "", surname = user?.surname ?: "", birthDate = userBirth),
             sections = IPOS7ggQuestions.initialSections.map { section -> // Questions object changed
                 section.copy(questions = section.questions.map { it.copy(score = null, questionText = if (section.sectionId == "Q1" || section.sectionId == "Q2b") "" else it.questionText) })
             }

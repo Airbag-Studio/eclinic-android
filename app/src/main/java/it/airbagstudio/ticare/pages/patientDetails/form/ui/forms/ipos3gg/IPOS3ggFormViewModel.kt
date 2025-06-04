@@ -2,6 +2,7 @@ package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos3gg
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.ktor.utils.io.bits.of
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.IPOS3ggQuestions
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS3ggForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.ZoneOffset
 
 class IPOS3ggFormViewModel(
     private val formRepository: FormRepository,
@@ -52,8 +54,12 @@ class IPOS3ggFormViewModel(
     }
 
     private fun initializeNewForm() {
+        val user = formRepository.getUserDetails()
+        val userBirth = user?.birthday?.split(".")?.let {
+            java.time.LocalDate.of(it[2].toInt(), it[1].toInt(), it[0].toInt())
+        }?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
         val newForm = IPOS3ggForm(
-            patientData = PatientData(), // Ensure patientData is initialized
+            patientData = PatientData(name = user?.name ?: "", surname = user?.surname ?: "", birthDate = userBirth), // Default/mock patient data
             sections = IPOS3ggQuestions.initialSections.map { section ->
                 section.copy(questions = section.questions.map { it.copy(score = null, questionText = if (section.sectionId == "Q1" || section.sectionId == "Q2b") "" else it.questionText) })
             }

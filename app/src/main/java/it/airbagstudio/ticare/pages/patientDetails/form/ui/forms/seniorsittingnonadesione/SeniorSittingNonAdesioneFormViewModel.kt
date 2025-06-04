@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.ZoneOffset
 import java.util.UUID
 
 class SeniorSittingNonAdesioneFormViewModel(
@@ -28,12 +29,16 @@ class SeniorSittingNonAdesioneFormViewModel(
 
     private fun loadForm() {
         viewModelScope.launch {
+            val user = formRepository.getUserDetails()
+            val userBirth = user?.birthday?.split(".")?.let {
+                java.time.LocalDate.of(it[2].toInt(), it[1].toInt(), it[0].toInt())
+            }?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
             _uiState.value = SeniorSittingNonAdesioneFormUiState.Loading
             if (formId == null) {
                 // New form
                 _uiState.value = SeniorSittingNonAdesioneFormUiState.Editing(
                     formId = null,
-                    patientData = patientData,
+                    patientData =  PatientData(name = user?.name ?: "", surname = user?.surname ?: "", birthDate = userBirth),
                     compilationTimestamp = System.currentTimeMillis(),
                     sections = SeniorSittingNonAdesioneQuestions.sections.map { section ->
                         section.copy(questions = section.questions.map { it.copy(score = 0) }) // Initialize checkbox scores to 0

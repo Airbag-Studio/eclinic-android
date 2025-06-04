@@ -1,10 +1,9 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ch.ticare.eclinic.library.repository.UserDetailRepository
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.HiltViewModel
+import ch.ticare.eclinic.library.extensions.parseServerDateStringFormat
+import ch.ticare.eclinic.library.extensions.parseServerDateTimeStringFormat
+import ch.ticare.eclinic.library.extensions.parseServerDateTimeUSStringFormat
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.ComidQuestions
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.COMIDForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
@@ -14,9 +13,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import java.io.IOException
+import java.time.*
 import java.util.Calendar
-import javax.inject.Inject
 
 class ComidFormViewModel(
     private val formRepository: FormRepository
@@ -33,8 +34,12 @@ class ComidFormViewModel(
     }
 
     private fun createNewForm(): COMIDForm {
+        val user = formRepository.getUserDetails()
+        val userBirth = user?.birthday?.split(".")?.let {
+            LocalDate.of(it[2].toInt(), it[1].toInt(), it[0].toInt())
+        }?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
         return COMIDForm(
-            patientData = PatientData(name = "Mario", surname = "Rossi", birthDate = Calendar.getInstance().timeInMillis), // Default/mock patient data
+            patientData = PatientData(name = user?.name ?: "", surname = user?.surname ?: "", birthDate = userBirth),
             sections = ComidQuestions.getInitialSections(),
             compilationTimestamp = System.currentTimeMillis()
         )

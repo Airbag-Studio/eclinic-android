@@ -1,5 +1,7 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.data.repository
 
+import ch.ticare.eclinic.library.entity.CaseDetail
+import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.AndroidEntryPoint
 import it.airbagstudio.ticare.pages.patientDetails.form.data.datasource.JsonDataSource
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm
@@ -19,6 +21,7 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class FormRepositoryImpl(
+    private val userDetailRepository: UserDetailRepository,
     private val jsonDataSource: JsonDataSource
 ) : FormRepository {
 
@@ -39,6 +42,10 @@ class FormRepositoryImpl(
             _seniorSittingAdesioneForms.value = safeLoadSeniorSittingAdesioneForms() // Initialize SeniorSittingAdesione forms
             _seniorSittingNonAdesioneForms.value = safeLoadSeniorSittingNonAdesioneForms() // Initialize SeniorSittingNonAdesione forms
         }
+    }
+
+    override fun getUserDetails(): CaseDetail? {
+        return userDetailRepository.getCurrentCase()
     }
 
     private suspend fun safeLoadCbiForms(): List<CBIForm> {

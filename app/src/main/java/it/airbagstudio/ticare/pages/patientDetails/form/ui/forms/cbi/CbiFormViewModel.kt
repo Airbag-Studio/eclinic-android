@@ -20,7 +20,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.time.ZoneOffset
 import java.util.Calendar
+import kotlin.let
+import kotlin.text.split
+import kotlin.text.toInt
 
 /**
  * ViewModel per la gestione dello stato del form CBI.
@@ -51,8 +55,12 @@ class CbiFormViewModel(
         if (formId == null) {
             // New form
             val calendar = Calendar.getInstance()
+            val user = formRepository.getUserDetails()
+            val userBirth = user?.birthday?.split(".")?.let {
+                java.time.LocalDate.of(it[2].toInt(), it[1].toInt(), it[0].toInt())
+            }?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
             _uiState.value = CbiFormUiState.Editing(
-                patientData = PatientData(name = "Mario", surname = "Rossi", birthDate = calendar.timeInMillis),
+                patientData = PatientData(name = user?.name ?: "", surname = user?.surname ?: "", birthDate = userBirth),
                 compilationTimestamp = System.currentTimeMillis(),
                 isBirthDateValid = true,
                 availableCaregivers = getMockCaregivers()

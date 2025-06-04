@@ -8,10 +8,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.core.view.WindowCompat
 import ch.ticare.eclinic.library.network.CredentialsListener
+import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.AndroidEntryPoint
 import it.airbagstudio.ticare.navigation.EclinicNavGraph
 import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerViewModel
 import it.airbagstudio.ticare.ui.theme.AppTheme
+import javax.inject.Inject
 
 object LoginRedirect: CredentialsListener{
     var onCredentialRefresh: (() -> Unit)? = null
@@ -31,6 +33,9 @@ class MainActivity : ComponentActivity() {
     private val myViewModel: TimeTrackerViewModel by viewModels()
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
 
+    @Inject
+    lateinit var userDetailRepository: UserDetailRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -40,7 +45,7 @@ class MainActivity : ComponentActivity() {
                     androidx.lifecycle.compose.LocalLifecycleOwner provides androidx.compose.ui.platform.LocalLifecycleOwner.current,
                 ) {
                     CompositionLocalProvider(LocalActivity provides this@MainActivity) {
-                        EclinicNavGraph()
+                        EclinicNavGraph(userDetailRepository)
                     }
                 }
             }

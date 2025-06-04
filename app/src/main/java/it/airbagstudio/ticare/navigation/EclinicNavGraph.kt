@@ -20,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import ch.ticare.eclinic.library.repository.UserDetailRepository
 import it.airbagstudio.ticare.LoginRedirect
 import it.airbagstudio.ticare.MainActivity
 import it.airbagstudio.ticare.pages.carePlans.details.CarePlanDetailsScreen
@@ -63,6 +64,7 @@ import it.airbagstudio.ticare.pages.wounds.list.WoundListScreen
 
 @Composable
 fun EclinicNavGraph(
+    userDetailRepository: UserDetailRepository,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = Destinations.SPLASH_ROUTE,
@@ -70,7 +72,7 @@ fun EclinicNavGraph(
         NavigationActions(navController)
     }
 ) {
-    val formRepository = provideFormRepository(context = LocalContext.current)
+    val formRepository = provideFormRepository(context = LocalContext.current, userDetailRepository = userDetailRepository)
 
     val currentNavBackStackEntry by navController.currentBackStackEntryAsState()
     // val currentRoute = currentNavBackStackEntry?.destination?.route ?: startDestination

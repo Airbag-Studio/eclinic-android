@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.ZoneOffset
 
 class SeniorSittingAdesioneFormViewModel(
     private val formRepository: FormRepository,
@@ -55,8 +56,12 @@ class SeniorSittingAdesioneFormViewModel(
         // The ViewModel won't initialize it here but expect it to be passed or loaded.
         // For a new form instance, we'd typically get patient data from a shared source.
         // For this example, we'll assume PatientData() is a placeholder and will be populated.
+        val user = formRepository.getUserDetails()
+        val userBirth = user?.birthday?.split(".")?.let {
+            java.time.LocalDate.of(it[2].toInt(), it[1].toInt(), it[0].toInt())
+        }?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
         val newForm = SeniorSittingAdesioneForm(
-            patientData = PatientData(), // This should ideally be pre-populated with name, surname, birthDate, zone
+            patientData = PatientData(name = user?.name ?: "", surname = user?.surname ?: "", birthDate = userBirth), // This should ideally be pre-populated with name, surname, birthDate, zone
             sections = SeniorSittingAdesioneQuestions.initialSections.map { section ->
                 section.copy(questions = section.questions.map {
                     // Scaled questions (1-6) default to null score (no selection)

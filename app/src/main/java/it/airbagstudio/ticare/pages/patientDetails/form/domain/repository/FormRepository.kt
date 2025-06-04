@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.domain.repository
 
+import ch.ticare.eclinic.library.entity.CaseDetail
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm
 import kotlinx.coroutines.flow.Flow
 
@@ -8,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
  */
 interface FormRepository {
 
+    fun getUserDetails():CaseDetail?
     /**
      * Salva un form CBI. Se esiste già un form con lo stesso ID, viene aggiornato.
      * Altrimenti, viene aggiunto un nuovo form.

@@ -213,7 +213,7 @@ fun PatientDetailsScreen(
             }
         }
         list.add(SectionListData(
-            title = "Scala",
+            title = "Scale",
             iconId = R.drawable.moduli,
             badgeNumber = null,
             toolTag = ToolTag.Diary,
