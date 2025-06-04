@@ -211,4 +211,120 @@
     <string name="end_date">Data di Fine</string>
     <string name="administering_mode">Modalità di Somministrazione</string>
     <string name="therapies">Terapie</string>
+
+    <string name="empty_state_title">Nessun form salvato</string>
+    <string name="empty_state_description">Tocca il pulsante + per creare un nuovo form</string>
+    <string name="add_form">Aggiungi form</string>
+    <string name="select_form">Seleziona un form</string>
+
+    <!-- CBI Form -->
+    <string name="cbi_form_title">Scala CBI</string>
+    <string name="patient_name">Nome</string> <!-- This is used for Caregiver section, keep as is -->
+    <string name="patient_surname">Cognome</string> <!-- This is used for Caregiver section, keep as is -->
+    <string name="patient_birth_date">Data di nascita</string> <!-- Original generic label, might be used elsewhere or can be removed if only static version is used -->
+    <string name="patient_name_label_static">Nome</string> <!-- Changed -->
+    <string name="patient_surname_label_static">Cognome</string> <!-- Changed -->
+    <string name="patient_birth_date_label_static">Data di Nascita</string>
+    <string name="compilation_date_time_label">Data e Ora di Compilazione</string> <!-- New combined label -->
+    <string name="select_date_hint">Seleziona data</string> <!-- Kept, might be used by DatePickerInputField -->
+    <!-- <string name="current_compilation_date_label">Data Compilazione</string> --> <!-- Removed -->
+    <!-- <string name="current_compilation_time_label">Ora Compilazione</string> --> <!-- Removed -->
+    <!-- Note: patient_notes string is kept for now, though field was removed from UI. Can be cleaned up later if not needed. -->
+    <string name="patient_notes">Note</string>
+    <string name="caregiver_data">Dati del caregiver</string>
+    <string name="caregiver_name">Nome</string>
+    <string name="caregiver_surname">Cognome</string>
+    <string name="caregiver_relationship">Relazione con il paziente</string>
+    <string name="caregiver_contact">Contatto</string>
+    <string name="section_objective">Carico Oggettivo</string>
+    <string name="section_psychological">Carico Psicologico</string>
+    <string name="section_physical">Carico Fisico</string>
+    <string name="section_social">Carico Sociale</string>
+    <string name="section_emotional">Carico Emotivo</string>
+    <string name="form_cbi">Scala CBI</string>
+    <string name="select_form_type">Seleziona tipo di form</string>
+    <string name="form_cbi_title">Scala CBI (Caregiver Burden Inventory)</string>
+
+    <!-- Common Form Strings -->
+    <string name="field_required">Campo obbligatorio</string>
+    <string name="select_birth_date_hint">Seleziona la data di nascita</string>
+    <string name="patient_birth_date_error">Inserire la data di nascita</string>
+    <string name="placeholder_scrivi_qui">Scrivi qui...</string>
+
+
+    <!-- Caregiver Selection Strings -->
+    <string name="caregiver_selector_button_text">Seleziona Caregiver</string>
+    <string name="caregiver_info_card_title">Caregiver Selezionato:</string>
+    <string name="modal_title_select_caregiver">Seleziona Caregiver</string>
+    <string name="modal_button_add_caregiver">Aggiungi</string>
+    <string name="modal_add_caregiver_icon_description">Aggiungi Caregiver</string>
+    <string name="modal_empty_caregiver_list">Nessun caregiver disponibile. Aggiungine uno nuovo.</string>
+    <string name="add_caregiver_form_title">Aggiungi Nuovo Caregiver</string>
+    <string name="label_first_name">Nome</string>
+    <string name="label_last_name">Cognome</string>
+    <string name="label_relationship">Relazione</string>
+    <string name="label_contact_phone">Contatto Telefonico</string>
+    <string name="button_cancel">Annulla</string>
+    <string name="button_save">Salva</string>
+    <string name="error_first_name_required">Il nome è obbligatorio</string>
+    <string name="error_last_name_required">Il cognome è obbligatorio</string>
+    <string name="error_relationship_required">La relazione è obbligatoria</string>
+    <string name="error_contact_required">Il contatto è obbligatorio</string>
+    <string name="error_invalid_phone">Numero di telefono non valido</string>
+    <string name="relationship_son_daughter">Figlio/a</string>
+    <string name="relationship_father">Padre</string>
+    <string name="relationship_mother">Madre</string>
+    <string name="relationship_other">Altro</string>
+    <string name="select_relationship_hint">Seleziona relazione</string>
+
+    <!-- COMID Form -->
+    <string name="comid_form_title">Form COMID</string>
+    <string name="comid_form_title_long">COMID – Strumento multidimensionale di valutazione della complessità per le cure a domicilio</string>
+    <string name="comid_intro_text">Istruzioni per la compilazione: la situazione del paziente, secondo la vostra valutazione, presenta le seguenti caratteristiche? Assegnare la risposta \'sì\' o \'no\' per ogni indicatore.</string>
+    <string name="form_comid">Form COMID</string> <!-- For selection list -->
+    <string name="yes">Sì</string>
+    <string name="no">No</string>
+    <string name="action_back">Torna indietro</string>
+    <string name="save_and_submit">Salva e Invia</string>
+    <string name="patient_birth_date_label">Data di Nascita Paziente</string>
+
+    <!-- IPOS3gg Form -->
+    <string name="form_ipos3gg_title">Scala IPOS – 3gg</string>
+    <string name="form_ipos3gg">Scala IPOS – 3gg</string> <!-- For selection list -->
+    <string name="patient_data_section_title">Dati Paziente</string> <!-- Specific for section header -->
+    <string name="birth_date">Data di Nascita</string> <!-- To match IPOS3ggFormScreen usage -->
+    <string name="compilation_date_time">Data e Ora di Compilazione</string> <!-- To match IPOS3ggFormScreen usage -->
+    <string name="form_ipos3gg_q1_concern_label">Problema/Preoccupazione %1$d</string>
+    <string name="form_ipos3gg_q2b_intro">Elenca fino a 3 altri sintomi o problemi che ti hanno disturbato e indicali:</string>
+    <string name="form_ipos3gg_q2b_symptom_label">Sintomo aggiuntivo %1$d</string>
+
+    <!-- IPOS7gg Form -->
+    <string name="form_ipos7gg_title">Scala IPOS – 7gg</string>
+    <string name="form_ipos7gg">Scala IPOS – 7gg</string> <!-- For selection list -->
+    <!-- Note: Specific labels for Q1, Q2b for 7gg can be added if different from 3gg, currently screen uses 3gg labels -->
+    <!-- <string name="form_ipos7gg_q1_concern_label">Problema/Preoccupazione (7gg) %1$d</string> -->
+    <!-- <string name="form_ipos7gg_q2b_intro">Elenca fino a 3 altri sintomi o problemi (7gg)...</string> -->
+    <!-- <string name="form_ipos7gg_q2b_symptom_label">Sintomo aggiuntivo (7gg) %1$d</string> -->
+
+    <!-- Senior Sitting Adesione Form -->
+    <string name="form_senior_sitting_adesione_title">Senior Sitting – Adesione</string>
+    <string name="form_senior_sitting_adesione">Senior Sitting – Adesione</string> <!-- For selection list -->
+    <string name="label_zone">Zona</string>
+
+    <!-- Generic form action/status messages -->
+    <string name="close_form">Chiudi form</string>
+    <string name="error_loading_form_message">Errore caricamento form: %1$s</string>
+    <string name="form_saved_successfully">Form salvato con successo</string>
+
+    <!-- Senior Sitting Non Adesione Form -->
+    <string name="form_senior_sitting_non_adesione_title">Senior Sitting – Non Adesione</string>
+    <string name="form_senior_sitting_non_adesione">Senior Sitting – Non Adesione</string> <!-- For selection list -->
+    <string name="senior_sitting_non_adesione_intro_section1">Ringraziandola per la collaborazione. Al fine di poter migliorare la qualità del servizio proposto le chiediamo di segnare le affermazioni che ritiene pertinenti rispetto alla sua decisione di non aderire al servizio proposto:</string>
+    <string name="senior_sitting_non_adesione_section1_title">Motivi della non adesione</string>
+    <string name="senior_sitting_non_adesione_section2_title">Gestione – Organizzazione</string>
+    <string name="senior_sitting_non_adesione_suggerimenti_label">Suggerimenti, osservazioni:</string>
+    <string name="error_non_adesione_section1_required">Selezionare almeno un motivo.</string>
+    <string name="error_non_adesione_section2_required">Il campo Suggerimenti, osservazioni è obbligatorio.</string>
+
+
 </resources>

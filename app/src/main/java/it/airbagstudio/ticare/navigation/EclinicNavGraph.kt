@@ -1,17 +1,27 @@
 package it.airbagstudio.ticare.navigation
 
+import IPOS7ggFormScreen
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import it.airbagstudio.ticare.LoginRedirect
+import it.airbagstudio.ticare.MainActivity
 import it.airbagstudio.ticare.pages.carePlans.details.CarePlanDetailsScreen
 import it.airbagstudio.ticare.pages.carePlans.list.CarePlanesListScreen
 import it.airbagstudio.ticare.pages.consumptions.ConsumptionListScreen
@@ -23,6 +33,22 @@ import it.airbagstudio.ticare.pages.nursingCourses.NursingCoursesScreen
 import it.airbagstudio.ticare.pages.otherTreatments.OtherTreatmentScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientDetails.alertsAllergies.AlertAllergiesScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.di.provideFormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.CbiFormViewModelFactory
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.ComidFormViewModelFactory
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.HomeViewModelFactory
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.SeniorSittingNonAdesioneFormViewModelFactory
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi.CbiFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.ComidFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.ComidFormViewModel
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos3gg.IPOS3ggFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittingadesione.SeniorSittingAdesioneFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittingnonadesione.SeniorSittingNonAdesioneFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.FormType
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.HomeScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.HomeViewModel
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
 import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
 import it.airbagstudio.ticare.pages.settings.SettingsPage
@@ -33,7 +59,6 @@ import it.airbagstudio.ticare.pages.workinghours.list.WorkingHoursListScreen
 import it.airbagstudio.ticare.pages.wounds.checks.details.CheckDetailsPage
 import it.airbagstudio.ticare.pages.wounds.details.WoundDetailsScreen
 import it.airbagstudio.ticare.pages.wounds.list.WoundListScreen
-import kotlinx.coroutines.CoroutineScope
 
 
 @Composable
@@ -45,6 +70,8 @@ fun EclinicNavGraph(
         NavigationActions(navController)
     }
 ) {
+    val formRepository = provideFormRepository(context = LocalContext.current)
+
     val currentNavBackStackEntry by navController.currentBackStackEntryAsState()
     // val currentRoute = currentNavBackStackEntry?.destination?.route ?: startDestination
 
@@ -180,6 +207,298 @@ fun EclinicNavGraph(
         composable(Destinations.TASKS_ROUTE){
             TaskListScreen {
                 navController.popBackStack()
+            }
+        }
+
+
+
+
+        composable(
+            route = AppDestinations.HOME_ROUTE,
+            arguments = listOf(navArgument(AppDestinations.HOME_ROUTE_SAVED_ARG) {
+                type = NavType.BoolType
+                defaultValue = false
+            })
+        ) { backStackEntry ->
+            val saved = backStackEntry.arguments?.getBoolean(AppDestinations.HOME_ROUTE_SAVED_ARG) ?: false
+            val homeViewModel: HomeViewModel = viewModel(
+                factory = HomeViewModelFactory(formRepository)
+            )
+            HomeScreen(
+                viewModel = homeViewModel,
+                showSnackbarOnEntry = saved, // Pass the saved flag
+                onNavigateToForm = { formTypeEnum, formId -> // Changed to formTypeEnum
+                    // Use typeName for comparison or switch on enum
+                    if (formTypeEnum == FormType.CBI) {
+                        navController.navigate(AppDestinations.cbiFormRoute(formId))
+                    } else if (formTypeEnum == FormType.COMID) {
+                        navController.navigate(AppDestinations.comidFormRoute(formId))
+                    } else if (formTypeEnum == FormType.IPOS3GG) { // Added IPOS3gg
+                        navController.navigate(AppDestinations.ipos3ggFormRoute(formId))
+                    } else if (formTypeEnum == FormType.IPOS7GG) { // Added IPOS7gg
+                        navController.navigate(AppDestinations.ipos7ggFormRoute(formId))
+                    } else if (formTypeEnum == FormType.SENIOR_SITTING_ADESIONE) { // Added Senior Sitting
+                        navController.navigate(AppDestinations.seniorSittingAdesioneFormRoute(formId))
+                    } else if (formTypeEnum == FormType.SENIOR_SITTING_NON_ADESIONE) { // Added Senior Sitting Non Adesione
+                        navController.navigate(AppDestinations.seniorSittingNonAdesioneFormRoute(formId))
+                    }
+                    // Add other form types as needed
+                }
+            )
+        }
+
+        composable(
+            route = AppDestinations.CBI_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(AppDestinations.CBI_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+            // Consider adding popEnterTransition and popExitTransition for a complete animation set
+            // popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+            // popExitTransition = { slideOutVertically(targetOffsetY = { fullHeight -> fullHeight }, animationSpec = tween(300)) }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(AppDestinations.CBI_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            CbiFormScreen(
+                viewModel = viewModel(factory = CbiFormViewModelFactory(formRepository)), // Correctly pass factory to viewModel()
+                formId = actualFormId,
+                onClose = {
+                    navController.popBackStack()
+                },
+                onSaved = {
+                    // Navigate to home indicating a save occurred
+                    navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                        // Pop up to the start destination of the graph to
+                        // avoid building up a large stack of destinations
+                        // on the back stack as users select items
+                        popUpTo(AppDestinations.homeRoute(saved = false)) { // Use the route pattern
+                            inclusive = true
+                        }
+                        // Avoid multiple copies of the same destination when
+                        // reselecting the same item
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = AppDestinations.COMID_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(AppDestinations.COMID_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(AppDestinations.COMID_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            ComidFormScreen(
+                factory = ComidFormViewModelFactory(formRepository),
+                formId = actualFormId,
+                onClose = {
+                    navController.popBackStack()
+                },
+                onSaved = {
+                    navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                        popUpTo(AppDestinations.homeRoute(saved = false)) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = AppDestinations.IPOS3GG_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(AppDestinations.IPOS3GG_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(AppDestinations.IPOS3GG_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            // Assuming MainActivity.FormRepositoryProvider is accessible here
+            // This requires formRepository to be passed down or accessed via LocalContext if MainActivity provides it.
+            // For now, direct pass as AppNavigation already takes formRepository.
+            val activity = LocalContext.current as? MainActivity
+
+            if (activity != null) { // activity is MainActivity and thus FormRepositoryProvider
+                IPOS3ggFormScreen(
+                    formRepository = formRepository, // Pass MainActivity instance as FormRepositoryProvider
+                    formId = actualFormId,
+                    onClose = {
+                        navController.popBackStack()
+                    },
+                    onSaved = { savedFormId -> // Ensure lambda matches IPOS3ggFormScreen
+                        navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                            popUpTo(AppDestinations.homeRoute(saved = false)) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            } else {
+                // Handle the case where activity is not MainActivity or null
+                // This should ideally not happen if the app structure is correct
+                Text("Error: Required context not available for IPOS3gg form.")
+            }
+        }
+
+        composable(
+            route = AppDestinations.IPOS7GG_FORM_ROUTE, // Added for IPOS7gg
+            arguments = listOf(
+                navArgument(AppDestinations.IPOS7GG_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(AppDestinations.IPOS7GG_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+            val activity = LocalContext.current as? MainActivity
+
+            if (activity != null) {
+                IPOS7ggFormScreen(
+                    formRepository = formRepository,
+                    formId = actualFormId,
+                    onClose = {
+                        navController.popBackStack()
+                    },
+                    onSaved = { savedFormId ->
+                        navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                            popUpTo(AppDestinations.homeRoute(saved = false)) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            } else {
+                Text("Error: Required context not available for IPOS7gg form.")
+            }
+        }
+
+        composable(
+            route = AppDestinations.SENIOR_SITTING_ADESIONE_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(AppDestinations.SENIOR_SITTING_ADESIONE_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(AppDestinations.SENIOR_SITTING_ADESIONE_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+            val activity = LocalContext.current as? MainActivity
+
+            if (activity != null) {
+                SeniorSittingAdesioneFormScreen(
+                    formRepository = formRepository,
+                    formId = actualFormId,
+                    onClose = {
+                        navController.popBackStack()
+                    },
+                    onSaved = { savedFormId ->
+                        navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                            popUpTo(AppDestinations.homeRoute(saved = false)) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            } else {
+                Text("Error: Required context not available for Senior Sitting Adesione form.")
+            }
+        }
+
+        composable(
+            route = AppDestinations.SENIOR_SITTING_NON_ADESIONE_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(AppDestinations.SENIOR_SITTING_NON_ADESIONE_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(AppDestinations.SENIOR_SITTING_NON_ADESIONE_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+            val activity = LocalContext.current as? MainActivity // Assuming MainActivity provides PatientData or similar context if needed by ViewModel
+
+            // For SeniorSittingNonAdesioneFormViewModel, we need PatientData.
+            // This is a placeholder. In a real app, PatientData might come from a shared ViewModel,
+            // navigation arguments if simple enough, or be fetched based on some other context.
+            // For now, using a default PatientData() for new forms, or the one from the loaded form.
+            // The ViewModel constructor expects a non-null PatientData.
+            // This logic might need refinement based on how PatientData is actually sourced for new forms.
+            // For the factory, we provide a default PatientData. The ViewModel itself is responsible
+            // for loading the correct PatientData when an existing formId is provided.
+            val patientDataForFactory = remember { PatientData() }
+
+            if (activity != null) { // Still useful for context, though ViewModel factory handles repo
+                SeniorSittingNonAdesioneFormScreen(
+                    viewModel = viewModel(factory = SeniorSittingNonAdesioneFormViewModelFactory(actualFormId, formRepository, patientDataForFactory)),
+                    formId = actualFormId,
+                    onClose = {
+                        navController.popBackStack()
+                    },
+                    onSaved = { savedFormId, formType ->
+                        navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                            popUpTo(AppDestinations.homeRoute(saved = false)) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            } else {
+                Text("Error: Required context not available for Senior Sitting Non Adesione form.")
             }
         }
     }

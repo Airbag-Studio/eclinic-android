@@ -1,9 +1,9 @@
-package it.airbagstudio.ticare.ui.theme
+package it.airbagstudio.ticare.pages.patientDetails.form.ui.theme // Adjusted package name
 
 import android.app.Activity
 import android.os.Build
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Typography
+// Removed Typography import as AppTypography will be used directly from Type.kt
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -18,27 +18,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.theme.formDividerDark
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.theme.formDividerLight
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.theme.formSectionBackgroundDark
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.theme.formSectionBackgroundLight
-
-// Custom Form-specific colors
-data class FormColors(
-    val sectionBackground: Color,
-    val divider: Color
-)
-
-internal val LocalFormColors = staticCompositionLocalOf<FormColors> {
-    error("No FormColors provided. Did you forget to wrap your Composable in AppTheme?")
-}
-
-// Extension property to easily access FormColors
-val MaterialTheme.formColors: FormColors
-    @Composable
-    @ReadOnlyComposable
-    get() = LocalFormColors.current
-
+import it.airbagstudio.ticare.ui.theme.FormColors
+import it.airbagstudio.ticare.ui.theme.LocalFormColors
 
 private val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,
@@ -107,9 +88,9 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun AppTheme(
-  darkTheme: Boolean = false,
+  darkTheme: Boolean = false, // Keeping isSystemInDarkTheme() for auto dark mode
   // Dynamic color is available on Android 12+
-  dynamicColor: Boolean = false,
+  dynamicColor: Boolean = false, // Set to false by default, can be enabled by user
   content: @Composable() () -> Unit
 ) {
   val colorScheme = when {
@@ -124,26 +105,28 @@ fun AppTheme(
   if (!view.isInEditMode) {
     SideEffect {
         val window = (view.context as Activity).window
-        window.statusBarColor = seed.toArgb()
-        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+        window.statusBarColor = seed.toArgb() // Using seed color from Color.kt
+        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme // Corrected logic for light/dark status bars
     }
   }
-    val currentFormColors = if (darkTheme) {
-        FormColors(
-            sectionBackground = formSectionBackgroundDark,
-            divider = formDividerDark
-        )
-    } else {
-        FormColors(
-            sectionBackground = formSectionBackgroundLight,
-            divider = formDividerLight
-        )
-    }
-    CompositionLocalProvider(LocalFormColors provides currentFormColors) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = Typography(),
-            content = content
-        )
-    }
+
+  val currentFormColors = if (darkTheme) {
+      FormColors(
+          sectionBackground = formSectionBackgroundDark,
+          divider = formDividerDark
+      )
+  } else {
+      FormColors(
+          sectionBackground = formSectionBackgroundLight,
+          divider = formDividerLight
+      )
+  }
+
+  CompositionLocalProvider(LocalFormColors provides currentFormColors) {
+      MaterialTheme(
+          colorScheme = colorScheme,
+          typography = AppTypography, // Using AppTypography from Type.kt
+          content = content
+      )
+  }
 }

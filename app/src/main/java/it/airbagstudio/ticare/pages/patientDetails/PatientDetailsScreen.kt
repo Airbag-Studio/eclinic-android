@@ -212,6 +212,17 @@ fun PatientDetailsScreen(
                 )
             }
         }
+        list.add(SectionListData(
+            title = "Scala",
+            iconId = R.drawable.moduli,
+            badgeNumber = null,
+            toolTag = ToolTag.Diary,
+            onClick = {
+                viewModel.patientCod?.let {
+                    navActions.navigateToFormsHome()
+                }
+            }
+        ))
         sectionListDatas = list
     }
 
