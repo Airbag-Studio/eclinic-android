@@ -279,6 +279,9 @@ fun PreviewSeniorSittingNonAdesioneFormScreenNew() {
         val mockViewModel = SeniorSittingNonAdesioneFormViewModel(
             formId = null,
             formRepository = object : FormRepository {
+                override fun getUserDetails(): ch.ticare.eclinic.library.entity.CaseDetail? {
+                    return null
+                }
                 override suspend fun saveCbiForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm) {}
                 override fun getCbiForms(): kotlinx.coroutines.flow.Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm>> = kotlinx.coroutines.flow.flowOf(emptyList())
                 override suspend fun getCbiFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm? = null

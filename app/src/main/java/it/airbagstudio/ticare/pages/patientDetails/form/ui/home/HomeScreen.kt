@@ -288,6 +288,9 @@ fun FormTypeItem(title: String, onClick: () -> Unit) {
 fun HomeScreenPreview_WithForms() {
     AppTheme {
         val dummyRepo = object : FormRepository {
+            override fun getUserDetails(): ch.ticare.eclinic.library.entity.CaseDetail? {
+                return null
+            }
             override suspend fun saveCbiForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm) {}
             override fun getCbiForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm>> = flowOf(
                 listOf(
@@ -345,6 +348,9 @@ fun HomeScreenPreview_WithForms() {
 fun HomeScreenPreview_Empty() {
     AppTheme {
         val dummyRepo = object : FormRepository {
+            override fun getUserDetails(): ch.ticare.eclinic.library.entity.CaseDetail? {
+                return null
+            }
             override suspend fun saveCbiForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm) {}
             override fun getCbiForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm>> = flowOf(emptyList())
             override suspend fun getCbiFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm? = null
