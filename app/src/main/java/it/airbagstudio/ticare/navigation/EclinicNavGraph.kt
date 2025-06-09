@@ -245,6 +245,9 @@ fun EclinicNavGraph(
                         navController.navigate(AppDestinations.seniorSittingNonAdesioneFormRoute(formId))
                     }
                     // Add other form types as needed
+                },
+                onBack = {
+                    navController.popBackStack()
                 }
             )
         }

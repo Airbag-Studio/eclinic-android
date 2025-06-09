@@ -326,5 +326,8 @@
     <string name="error_non_adesione_section1_required">Selezionare almeno un motivo.</string>
     <string name="error_non_adesione_section2_required">Il campo Suggerimenti, osservazioni è obbligatorio.</string>
 
+    <!-- Scale section title -->
+    <string name="scale_title">Scale</string>
+
 
 </resources>

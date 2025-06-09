@@ -8,12 +8,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -22,6 +24,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -42,11 +45,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
+import it.airbagstudio.ticare.ui.components.HeaderIconText
+import it.airbagstudio.ticare.utils.getCompleteName
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.EmptyState
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.theme.AppTheme
@@ -84,7 +90,8 @@ enum class FormType(val typeName: String) {
 fun HomeScreen(
     viewModel: HomeViewModel,
     showSnackbarOnEntry: Boolean,
-    onNavigateToForm: (formType: FormType, formId: String?) -> Unit
+    onNavigateToForm: (formType: FormType, formId: String?) -> Unit,
+    onBack: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -110,7 +117,15 @@ fun HomeScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(id = R.string.app_name)) },
+                title = { Text(viewModel.patient?.getCompleteName() ?: "") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primaryContainer)
             )
         },
@@ -126,11 +141,40 @@ fun HomeScreen(
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            // Add Scale header with bigger font
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                /*
+                Icon(
+                    painter = painterResource(id = R.drawable.moduli),
+                    contentDescription = stringResource(id = R.string.scale_title),
+                    tint = MaterialTheme.colorScheme.outline
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                */
+                Text(
+                    text = stringResource(id = R.string.scale_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            
             val currentState = uiState
             when (currentState) {
                 is HomeUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
                 is HomeUiState.Empty -> {
                     EmptyState(
@@ -195,20 +239,20 @@ fun HomeScreen(
                     }
                 }
             }
+        }
 
-            if (showBottomSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { showBottomSheet = false },
-                    sheetState = bottomSheetState
-                ) {
-                    FormSelectorBottomSheet(onFormSelected = { selectedFormType ->
-                        coroutineScope.launch {
-                            launch { bottomSheetState.hide() }
-                            showBottomSheet = false
-                            onNavigateToForm(selectedFormType, null) // For new form, ID is null
-                        }
-                    })
-                }
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showBottomSheet = false },
+                sheetState = bottomSheetState
+            ) {
+                FormSelectorBottomSheet(onFormSelected = { selectedFormType ->
+                    coroutineScope.launch {
+                        launch { bottomSheetState.hide() }
+                        showBottomSheet = false
+                        onNavigateToForm(selectedFormType, null) // For new form, ID is null
+                    }
+                })
             }
         }
     }
@@ -338,7 +382,8 @@ fun HomeScreenPreview_WithForms() {
         HomeScreen(
             viewModel = HomeViewModel(dummyRepo),
             showSnackbarOnEntry = false,
-            onNavigateToForm = { _, _ -> }
+            onNavigateToForm = { _, _ -> },
+            onBack = {}
         )
     }
 }
@@ -385,7 +430,8 @@ fun HomeScreenPreview_Empty() {
         HomeScreen(
             viewModel = HomeViewModel(dummyRepo),
             showSnackbarOnEntry = false,
-            onNavigateToForm = { _, _ -> }
+            onNavigateToForm = { _, _ -> },
+            onBack = {}
         )
     }
 }

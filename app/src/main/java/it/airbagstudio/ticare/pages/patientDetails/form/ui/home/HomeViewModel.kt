@@ -2,6 +2,7 @@ package it.airbagstudio.ticare.pages.patientDetails.form.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.CaseDetail
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.COMIDForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS3ggForm
@@ -33,6 +34,9 @@ class HomeViewModel(
 
     private val _snackbarMessage = MutableSharedFlow<String>()
     val snackbarMessage = _snackbarMessage.asSharedFlow()
+    
+    // Expose patient information for the title
+    val patient: CaseDetail? get() = formRepository.getUserDetails()
     
     init {
         loadForms()
