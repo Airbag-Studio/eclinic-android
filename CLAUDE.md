@@ -75,14 +75,22 @@ The app includes a comprehensive form system for healthcare assessments:
 ### Form Types
 - **CBI Form**: Cognitive behavioral assessment
 - **COMID Form**: Communication assessment
-- **IPOS3gg/IPOS7gg Forms**: Palliative care outcome scale
-- **Senior Sitting Forms**: Elderly care assessments (Adesione/Non-Adesione)
+- **IPOS Form**: Unified palliative care outcome scale (3-day/7-day periods with time selector)
+- **Senior Sitting Form**: Unified elderly care assessment (Adesione/Non-Adesione types with type selector)
 
 ### Form Architecture
 - **Domain Layer**: Form models and business logic in `form/domain/`
 - **Data Layer**: JSON-based data sources and repositories in `form/data/`
 - **UI Layer**: Compose screens and ViewModels in `form/ui/`
 - **Factory Pattern**: Each form has its own ViewModel factory
+- **Unified Forms**: IPOS and Senior Sitting forms use selectors for dynamic content
+- **Floating Legends**: Scale reference components that stay fixed during scroll
+
+### Recent Form Improvements
+- **Form Unification**: IPOS and Senior Sitting forms now use unified screens with selectors
+- **Floating Legends**: Added fixed-position scale references ("Per nulla 0 1 2 3 4 Opprimente" for IPOS, "Poco 0 1 2 3 4 5 Molto" for Senior Sitting)
+- **Dynamic Content**: Forms adapt their questions and layout based on user selections
+- **Enhanced UX**: Improved form completion with always-visible scale references
 
 ## Shared Library
 
