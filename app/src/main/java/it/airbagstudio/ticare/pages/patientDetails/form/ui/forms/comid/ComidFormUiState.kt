@@ -15,7 +15,9 @@ sealed interface ComidFormUiState {
         val isFormValid: Boolean = false,
         val isSaving: Boolean = false,
         // Specific validation flags for COMID if any, e.g., birth date for patient
-        val isBirthDateValid: Boolean = true // Assuming patient birth date is still relevant
+        val isBirthDateValid: Boolean = true, // Assuming patient birth date is still relevant
+        val validationErrors: List<String> = emptyList(), // For snackbar error messages
+        val invalidFieldKeys: Set<String> = emptySet() // To identify specific invalid sections
     ) : ComidFormUiState
 
     data class Saved(val savedForm: COMIDForm) : ComidFormUiState

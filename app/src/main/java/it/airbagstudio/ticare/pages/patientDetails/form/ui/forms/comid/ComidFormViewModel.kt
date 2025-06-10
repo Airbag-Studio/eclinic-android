@@ -130,6 +130,7 @@ class ComidFormViewModel(
     private fun validateFormAndUpdateState(editingState: ComidFormUiState.Editing): Boolean {
         var isValid = true
         val newInvalidFieldKeys = mutableSetOf<String>()
+        val validationErrors = mutableListOf<String>()
         var isBirthDateStillValid = editingState.isBirthDateValid // Preserve current state unless changed
 
         // Validate Patient Birth Date
@@ -149,20 +150,25 @@ class ComidFormViewModel(
         //    isValid = false
         // }
 
-
-        // Validate all questions in all sections are answered (score is 0 or 1)
+        // Validate all questions in all sections are answered (score must not be null)
         editingState.form.sections.forEach { section ->
-            if (section.questions.any { it.score != 0 && it.score != 1 }) { // Assuming score is initialized to something else if not answered, or check for a specific "not answered" marker if needed
+            if (section.questions.any { it.score == null }) { // Check for unanswered questions
                 newInvalidFieldKeys.add(ValidationKeys.sectionKey(section.order))
                 isValid = false
             }
+        }
+        
+        // Add validation error message if there are unanswered questions
+        if (newInvalidFieldKeys.isNotEmpty()) {
+            validationErrors.add("Si prega di rispondere a tutte le domande prima di salvare.")
         }
         
         _uiState.update {
             (it as ComidFormUiState.Editing).copy(
                 isFormValid = isValid,
                 isBirthDateValid = isBirthDateStillValid,
-                // Update other specific validation flags if needed
+                validationErrors = validationErrors,
+                invalidFieldKeys = newInvalidFieldKeys
             )
         }
         return isValid
