@@ -36,27 +36,6 @@ fun RadioGroupScale(
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        // Etichette della scala
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Per nulla",
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                text = "Molto",
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        
-        Spacer(modifier = Modifier.height(4.dp))
-        
         // Radio button per la scala 0-4
         Row(
             modifier = Modifier
