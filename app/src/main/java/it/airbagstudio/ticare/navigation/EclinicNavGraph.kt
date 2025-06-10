@@ -39,10 +39,12 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.CbiFormViewModelFactory
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.ComidFormViewModelFactory
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.HomeViewModelFactory
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.IPOSFormViewModelFactory
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.SeniorSittingNonAdesioneFormViewModelFactory
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi.CbiFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.ComidFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.ComidFormViewModel
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos.IPOSFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos3gg.IPOS3ggFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittingadesione.SeniorSittingAdesioneFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittingnonadesione.SeniorSittingNonAdesioneFormScreen
@@ -231,20 +233,23 @@ fun EclinicNavGraph(
                 showSnackbarOnEntry = saved, // Pass the saved flag
                 onNavigateToForm = { formTypeEnum, formId -> // Changed to formTypeEnum
                     // Use typeName for comparison or switch on enum
-                    if (formTypeEnum == FormType.CBI) {
-                        navController.navigate(AppDestinations.cbiFormRoute(formId))
-                    } else if (formTypeEnum == FormType.COMID) {
-                        navController.navigate(AppDestinations.comidFormRoute(formId))
-                    } else if (formTypeEnum == FormType.IPOS3GG) { // Added IPOS3gg
-                        navController.navigate(AppDestinations.ipos3ggFormRoute(formId))
-                    } else if (formTypeEnum == FormType.IPOS7GG) { // Added IPOS7gg
-                        navController.navigate(AppDestinations.ipos7ggFormRoute(formId))
-                    } else if (formTypeEnum == FormType.SENIOR_SITTING_ADESIONE) { // Added Senior Sitting
-                        navController.navigate(AppDestinations.seniorSittingAdesioneFormRoute(formId))
-                    } else if (formTypeEnum == FormType.SENIOR_SITTING_NON_ADESIONE) { // Added Senior Sitting Non Adesione
-                        navController.navigate(AppDestinations.seniorSittingNonAdesioneFormRoute(formId))
+                    when (formTypeEnum) {
+                        FormType.CBI -> {
+                            navController.navigate(AppDestinations.cbiFormRoute(formId))
+                        }
+                        FormType.COMID -> {
+                            navController.navigate(AppDestinations.comidFormRoute(formId))
+                        }
+                        FormType.IPOS -> { // Unified IPOS form
+                            navController.navigate(AppDestinations.iposFormRoute(formId))
+                        }
+                        FormType.SENIOR_SITTING_ADESIONE -> {
+                            navController.navigate(AppDestinations.seniorSittingAdesioneFormRoute(formId))
+                        }
+                        FormType.SENIOR_SITTING_NON_ADESIONE -> {
+                            navController.navigate(AppDestinations.seniorSittingNonAdesioneFormRoute(formId))
+                        }
                     }
-                    // Add other form types as needed
                 },
                 onBack = {
                     navController.popBackStack()
@@ -328,6 +333,41 @@ fun EclinicNavGraph(
                         launchSingleTop = true
                     }
                 }
+            )
+        }
+
+        composable(
+            route = AppDestinations.IPOS_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(AppDestinations.IPOS_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(AppDestinations.IPOS_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            IPOSFormScreen(
+                formId = actualFormId,
+                onClose = {
+                    navController.popBackStack()
+                },
+                onSaved = { savedFormId ->
+                    navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                        popUpTo(AppDestinations.homeRoute(saved = false)) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                },
+                formRepository = formRepository
             )
         }
 

@@ -70,8 +70,7 @@ import java.util.Locale
 enum class FormType(val typeName: String) {
     CBI("CBI"),
     COMID("COMID"),
-    IPOS3GG("IPOS3gg"), // Added IPOS3GG
-    IPOS7GG("IPOS7GG"),  // Added IPOS7GG
+    IPOS("IPOS"), // Unified IPOS form replacing IPOS3GG and IPOS7GG
     SENIOR_SITTING_ADESIONE("SeniorSittingAdesione"), // Added Senior Sitting Adesione
     SENIOR_SITTING_NON_ADESIONE("SENIOR_SITTING_NON_ADESIONE") // Added Senior Sitting Non Adesione
     // Add other form types here
@@ -295,13 +294,8 @@ fun FormSelectorBottomSheet(onFormSelected: (FormType) -> Unit) {
         )
         Spacer(modifier = Modifier.height(8.dp)) // Consistent spacing
         FormTypeItem(
-            title = stringResource(R.string.form_ipos3gg), // Added IPOS3gg
-            onClick = { onFormSelected(FormType.IPOS3GG) }
-        )
-        Spacer(modifier = Modifier.height(8.dp)) // Consistent spacing
-        FormTypeItem(
-            title = stringResource(R.string.form_ipos7gg), // Added IPOS7gg
-            onClick = { onFormSelected(FormType.IPOS7GG) }
+            title = "Scala IPOS", // Unified IPOS form
+            onClick = { onFormSelected(FormType.IPOS) }
         )
         Spacer(modifier = Modifier.height(8.dp)) // Consistent spacing
         FormTypeItem(

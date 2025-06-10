@@ -19,6 +19,10 @@ object AppDestinations {
     const val COMID_FORM_ID_ARG = "formId" // Can reuse "formId" as arg name
     const val COMID_FORM_ROUTE = "$COMID_FORM_ROUTE_BASE/{$COMID_FORM_ID_ARG}"
 
+    const val IPOS_FORM_ROUTE_BASE = "ipos_form"
+    const val IPOS_FORM_ID_ARG = "formId"
+    const val IPOS_FORM_ROUTE = "$IPOS_FORM_ROUTE_BASE/{$IPOS_FORM_ID_ARG}"
+
     const val IPOS3GG_FORM_ROUTE_BASE = "ipos3gg_form"
     const val IPOS3GG_FORM_ID_ARG = "formId" // Can reuse "formId"
     const val IPOS3GG_FORM_ROUTE = "$IPOS3GG_FORM_ROUTE_BASE/{$IPOS3GG_FORM_ID_ARG}"
@@ -56,6 +60,10 @@ object AppDestinations {
 
     fun comidFormRoute(formId: String? = null): String {
         return "$COMID_FORM_ROUTE_BASE/${formId ?: "new"}"
+    }
+
+    fun iposFormRoute(formId: String? = null): String {
+        return "$IPOS_FORM_ROUTE_BASE/${formId ?: "new"}"
     }
 
     fun ipos3ggFormRoute(formId: String? = null): String {
