@@ -293,7 +293,7 @@ fun FormSelectorBottomSheet(onFormSelected: (FormType) -> Unit) {
         )
         Spacer(modifier = Modifier.height(8.dp)) // Consistent spacing
         FormTypeItem(
-            title = "Scala IPOS", // Unified IPOS form
+            title = "IPOS", // Unified IPOS form
             onClick = { onFormSelected(FormType.IPOS) }
         )
         Spacer(modifier = Modifier.height(8.dp)) // Consistent spacing

@@ -5,7 +5,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSitti
 
 object SeniorSittingNonAdesioneQuestions {
 
-    val formTitle = "Progetto Senior Sitting per il supporto al famigliare curante - Non adesione"
+    val formTitle = "Senior Sitting - Non adesione"
 
     val sections: List<SeniorSittingNonAdesioneSection> = listOf(
         SeniorSittingNonAdesioneSection(
