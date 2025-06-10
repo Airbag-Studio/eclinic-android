@@ -40,12 +40,14 @@ import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.CbiFormView
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.ComidFormViewModelFactory
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.HomeViewModelFactory
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.IPOSFormViewModelFactory
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.SeniorSittingFormViewModelFactory
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.SeniorSittingNonAdesioneFormViewModelFactory
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi.CbiFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.ComidFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.ComidFormViewModel
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos.IPOSFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos3gg.IPOS3ggFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsitting.SeniorSittingFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittingadesione.SeniorSittingAdesioneFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittingnonadesione.SeniorSittingNonAdesioneFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.FormType
@@ -243,11 +245,8 @@ fun EclinicNavGraph(
                         FormType.IPOS -> { // Unified IPOS form
                             navController.navigate(AppDestinations.iposFormRoute(formId))
                         }
-                        FormType.SENIOR_SITTING_ADESIONE -> {
-                            navController.navigate(AppDestinations.seniorSittingAdesioneFormRoute(formId))
-                        }
-                        FormType.SENIOR_SITTING_NON_ADESIONE -> {
-                            navController.navigate(AppDestinations.seniorSittingNonAdesioneFormRoute(formId))
+                        FormType.SENIOR_SITTING -> { // Unified Senior Sitting form
+                            navController.navigate(AppDestinations.seniorSittingFormRoute(formId))
                         }
                     }
                 },
@@ -355,6 +354,41 @@ fun EclinicNavGraph(
             val actualFormId = if (formId == "new") null else formId
 
             IPOSFormScreen(
+                formId = actualFormId,
+                onClose = {
+                    navController.popBackStack()
+                },
+                onSaved = { savedFormId ->
+                    navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                        popUpTo(AppDestinations.homeRoute(saved = false)) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                },
+                formRepository = formRepository
+            )
+        }
+
+        composable(
+            route = AppDestinations.SENIOR_SITTING_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(AppDestinations.SENIOR_SITTING_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(AppDestinations.SENIOR_SITTING_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            SeniorSittingFormScreen(
                 formId = actualFormId,
                 onClose = {
                     navController.popBackStack()

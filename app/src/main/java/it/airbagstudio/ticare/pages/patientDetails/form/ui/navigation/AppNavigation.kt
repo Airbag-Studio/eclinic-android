@@ -23,6 +23,10 @@ object AppDestinations {
     const val IPOS_FORM_ID_ARG = "formId"
     const val IPOS_FORM_ROUTE = "$IPOS_FORM_ROUTE_BASE/{$IPOS_FORM_ID_ARG}"
 
+    const val SENIOR_SITTING_FORM_ROUTE_BASE = "senior_sitting_form"
+    const val SENIOR_SITTING_FORM_ID_ARG = "formId"
+    const val SENIOR_SITTING_FORM_ROUTE = "$SENIOR_SITTING_FORM_ROUTE_BASE/{$SENIOR_SITTING_FORM_ID_ARG}"
+
     const val IPOS3GG_FORM_ROUTE_BASE = "ipos3gg_form"
     const val IPOS3GG_FORM_ID_ARG = "formId" // Can reuse "formId"
     const val IPOS3GG_FORM_ROUTE = "$IPOS3GG_FORM_ROUTE_BASE/{$IPOS3GG_FORM_ID_ARG}"
@@ -64,6 +68,10 @@ object AppDestinations {
 
     fun iposFormRoute(formId: String? = null): String {
         return "$IPOS_FORM_ROUTE_BASE/${formId ?: "new"}"
+    }
+
+    fun seniorSittingFormRoute(formId: String? = null): String {
+        return "$SENIOR_SITTING_FORM_ROUTE_BASE/${formId ?: "new"}"
     }
 
     fun ipos3ggFormRoute(formId: String? = null): String {
