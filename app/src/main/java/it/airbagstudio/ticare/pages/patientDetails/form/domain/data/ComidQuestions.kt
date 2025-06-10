@@ -78,7 +78,7 @@ object ComidQuestions {
         return sections.map { section ->
             section.copy(
                 questions = section.questions.map { question ->
-                    question.copy(score = 0) // Default to "no"
+                    question.copy(score = null) // No default selection - user must choose
                 }
             )
         }

@@ -270,34 +270,119 @@ object CbiQuestions {
 - **Medical Focus**: Emphasizes clinical assessment parameters
 - **Scoring System**: Domain-specific scoring with aggregation
 
-### 3. IPOS Forms (3-day & 7-day)
+### 3. IPOS Form (Unified)
 
 **Purpose**: Integrated Palliative care Outcome Scale for patient assessment.
 
-**Variants**:
-- **IPOS3gg**: 3-day assessment period
-- **IPOS7gg**: 7-day assessment period
-
 **Structure**:
+- **Unified Form**: Single form with time period selector (3-day/7-day)
+- **Dynamic Content**: Questions and intro text adapt based on selected period
 - **Time-specific questions**: Questions reference specific time periods
 - **Symptom assessment**: Focus on patient-reported symptoms
 - **Quality of life metrics**: Comprehensive wellbeing evaluation
+- **Floating Legend**: Shows "Per nulla 0 1 2 3 4 Opprimente" scale reference
 
-### 4. Senior Sitting Forms
+**Time Periods**:
+- **IPOS3gg**: 3-day assessment period
+- **IPOS7gg**: 7-day assessment period
+
+**UI Features**:
+- Time period selector at the top
+- Dynamic intro text based on selected period
+- Floating scale legend that stays fixed during scroll
+- Section-based question organization (Q1, Q2, Q2b, Q3_Q9, Q10)
+
+### 4. Senior Sitting Form (Unified)
 
 **Purpose**: Elderly care assessment tools.
 
-**Variants**:
-- **Adesione**: For patients who adhere to treatment
-- **Non-Adesione**: For patients with treatment adherence issues
+**Structure**:
+- **Unified Form**: Single form with type selector (Adesione/Non-Adesione)
+- **Dynamic Content**: Questions and sections adapt based on selected type
+- **Conditional UI**: Different input types based on form type
+- **Floating Legend**: Shows "Poco 0 1 2 3 4 5 Molto" scale reference (Adesione only)
+
+**Types**:
+- **Adesione**: For patients who adhere to treatment (scale questions)
+- **Non-Adesione**: For patients with treatment adherence issues (checkbox questions)
 
 **Special Features**:
 - **Zone information**: Geographic/organizational zone tracking
 - **Elderly-specific metrics**: Age-appropriate assessment criteria
+- **Type selector**: Switch between Adesione and Non-Adesione at runtime
+- **Conditional floating legend**: Only shows for Adesione type with scale questions
 
 ## UI Architecture
 
 ### 1. Reusable Components
+
+#### Floating Legend Components
+
+The form system includes floating legend components that provide scale references during form completion:
+
+```kotlin
+// IPOS Floating Legend
+@Composable
+fun IPOSFloatingLegend(
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("Per nulla", style = MaterialTheme.typography.bodyMedium)
+            Text("0   1   2   3   4", style = MaterialTheme.typography.bodyMedium)
+            Text("Opprimente", style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+// Senior Sitting Floating Legend
+@Composable
+fun SeniorSittingFloatingLegend(
+    modifier: Modifier = Modifier
+) {
+    Card(
+        // Similar structure with "Poco 0 1 2 3 4 5 Molto" scale
+    ) {
+        Row {
+            Text("Poco")
+            Text("0   1   2   3   4   5")
+            Text("Molto")
+        }
+    }
+}
+```
+
+**Usage in Forms**:
+```kotlin
+// Implementation in form screens using Box layout
+@Composable
+fun FormScreen() {
+    Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+        FormContent(
+            // Content with top padding to account for floating legend
+            modifier = Modifier.padding(top = 64.dp)
+        )
+        // Floating legend positioned at top center
+        IPOSFloatingLegend(
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
+    }
+}
+```
 
 #### FormSection Component
 
@@ -771,10 +856,13 @@ class NewAssessmentFormViewModelFactory(
 #### 5. Update Navigation
 
 ```kotlin
-// 1. Add to FormType enum
+// 1. Current FormType enum with unified forms
 enum class FormType(val typeName: String) {
-    NEW_ASSESSMENT("NewAssessment"),
-    // ... existing types
+    CBI("CBI"),
+    COMID("COMID"),
+    IPOS("IPOS"), // Unified IPOS form replacing IPOS3GG and IPOS7GG
+    SENIOR_SITTING("SeniorSitting"), // Unified Senior Sitting form replacing ADESIONE and NON_ADESIONE
+    NEW_ASSESSMENT("NewAssessment") // Example for adding new types
 }
 
 // 2. Add routes to AppDestinations
@@ -917,5 +1005,52 @@ fun `when form is saved, it persists correctly`() = runTest {
     verify(mockDataSource).saveCBIForms(any())
 }
 ```
+
+## Recent Improvements
+
+### Form Unification (Latest Update)
+
+#### IPOS Form Unification
+- **Previous**: Separate IPOS3gg and IPOS7gg forms with duplicate code
+- **Current**: Single unified IPOS form with time period selector
+- **Benefits**: 
+  - Reduced code duplication
+  - Consistent user experience
+  - Easier maintenance and updates
+  - Dynamic content based on selected time period
+
+#### Senior Sitting Form Unification
+- **Previous**: Separate Adesione and Non-Adesione forms
+- **Current**: Single unified form with type selector
+- **Benefits**:
+  - Simplified navigation
+  - Consistent form structure
+  - Dynamic question types (scale vs checkbox)
+  - Reduced maintenance overhead
+
+#### Floating Legends
+- **Feature**: Fixed position scale references during form completion
+- **Implementation**: 
+  - Box layout with overlay positioning
+  - Conditional display based on form type
+  - Proper content padding to prevent overlap
+- **User Experience**: 
+  - Always visible scale reference
+  - No need to scroll back to see scale meanings
+  - Improved form completion efficiency
+
+### Component Architecture Improvements
+- **Reusable Selectors**: TimePeriodSelector and SeniorSittingTypeSelector
+- **Conditional Rendering**: Dynamic content based on user selections
+- **Enhanced Navigation**: Unified routes with cleaner URL structure
+
+### Migration Path
+When adding new unified forms:
+1. Create unified domain model with selector enum
+2. Implement dynamic question/section loading
+3. Add selector UI component
+4. Create unified ViewModel with state management
+5. Update navigation to use single route
+6. Add floating legend if using scale questions
 
 This form system provides a robust, scalable foundation for managing medical assessment forms with clear patterns for extension and maintenance.

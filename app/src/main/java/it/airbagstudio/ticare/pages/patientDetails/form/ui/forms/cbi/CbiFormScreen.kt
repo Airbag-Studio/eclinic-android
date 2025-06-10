@@ -3,6 +3,7 @@ package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi
 // import androidx.compose.material.icons.filled.Check // Removed Check icon
 // import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CaregiverData // No longer directly passed to CaregiverDataSection like this
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,6 +44,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.CaregiverI
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.CaregiverSelectionModalSheet
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.CaregiverSelectorButton
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DateTimePickerInputField
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.FloatingLegend
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.FormSection
 import it.airbagstudio.ticare.ui.theme.formColors
 import java.text.SimpleDateFormat
@@ -141,13 +143,18 @@ fun CbiFormScreen(
             is CbiFormUiState.Editing -> {
                 val editingState = uiState as CbiFormUiState.Editing
                 
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
                 ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(16.dp)
+                            .padding(top = 80.dp) // Add top padding for floating legend
+                    ) {
                     // New introductory text block
                     Column {
                         Text(
@@ -248,7 +255,14 @@ fun CbiFormScreen(
                         }
                     }
                     
-                    Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(32.dp))
+                    }
+                    
+                    // Floating legend positioned at the top
+                    FloatingLegend(
+                        modifier = Modifier
+                            .align(androidx.compose.ui.Alignment.TopCenter)
+                    )
                 }
             }
             is CbiFormUiState.Saved -> {
@@ -285,10 +299,12 @@ fun PatientDataSection(
         border = if (isPatientDataSectionInvalid) BorderStroke(2.dp, MaterialTheme.colorScheme.error) else null
     ) {
         Column(
+            
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
+            /*
             Text(
                 text = stringResource(R.string.patient_data),
                 style = MaterialTheme.typography.titleLarge
@@ -315,6 +331,7 @@ fun PatientDataSection(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(bottom = 16.dp) // More space before new fields
             )
+            */
 
             // New Combined DateTimePickerInputField
             DateTimePickerInputField(

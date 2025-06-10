@@ -60,7 +60,7 @@ object IPOS7ggQuestions { // Changed object name
         ),
         IPOS7ggSection( // Changed to IPOS7ggSection
             sectionId = "Q2",
-            title = "Q2 – Sintomi disturbanti (Scala da 0 a 4: 0 = Per nulla, 4 = Opprimente)", // Textual content for Q2 title
+            title = "Q2 – Sintomi disturbanti", // Textual content for Q2 title
             questions = listOf(
                 QuestionResponse(questionId = Q2_DOLORE_ID, questionText = "Dolore"),
                 QuestionResponse(questionId = Q2_MANCANZA_DI_FIATO_ID, questionText = "Mancanza di fiato"),

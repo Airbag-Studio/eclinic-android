@@ -74,13 +74,13 @@ fun ComidFormScreen(
         }
     }
     
-    // TODO: Show validation errors if ComidFormUiState.Editing includes error messages
-    // LaunchedEffect(uiState) {
-    //     val state = uiState as? ComidFormUiState.Editing ?: return@LaunchedEffect
-    //     if (state.validationErrors.isNotEmpty()) { // Assuming validationErrors list
-    //         snackbarHostState.showSnackbar(message = state.validationErrors.first())
-    //     }
-    // }
+    // Show validation errors
+    LaunchedEffect(uiState) {
+        val state = uiState as? ComidFormUiState.Editing ?: return@LaunchedEffect
+        if (state.validationErrors.isNotEmpty()) {
+            snackbarHostState.showSnackbar(message = state.validationErrors.first())
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -161,7 +161,7 @@ fun ComidFormScreen(
                             onQuestionResponseChanged = { questionId, response ->
                                 viewModel.updateQuestionResponse(section.order, questionId, response)
                             },
-                            // isInvalid = currentState.invalidFieldKeys.contains(ComidFormViewModel.ValidationKeys.sectionKey(section.order)),
+                            isInvalid = currentState.invalidFieldKeys.contains(ComidFormViewModel.ValidationKeys.sectionKey(section.order)),
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
                     }
@@ -212,6 +212,7 @@ fun ComidPatientDataSection(
         border = if (isBirthDateInvalid) BorderStroke(2.dp, MaterialTheme.colorScheme.error) else null // Highlight whole card if birth date is invalid
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            /* 
             Text(
                 text = stringResource(R.string.patient_data),
                 style = MaterialTheme.typography.titleLarge
@@ -240,6 +241,7 @@ fun ComidPatientDataSection(
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
+            */
 
             DateTimePickerInputField(
                 label = stringResource(R.string.compilation_date_time_label),
@@ -256,14 +258,14 @@ fun ComidPatientDataSection(
 fun ComidFormSectionRenderer(
     section: COMIDSection,
     onQuestionResponseChanged: (questionId: Int, response: Boolean) -> Unit,
-    // isInvalid: Boolean, // For highlighting section if it has errors
+    isInvalid: Boolean = false, // For highlighting section if it has errors
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.formColors.sectionBackground),
-        // border = if (isInvalid) BorderStroke(2.dp, MaterialTheme.colorScheme.error) else null
+        border = if (isInvalid) BorderStroke(2.dp, MaterialTheme.colorScheme.error) else null
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = section.title, style = MaterialTheme.typography.titleMedium)
