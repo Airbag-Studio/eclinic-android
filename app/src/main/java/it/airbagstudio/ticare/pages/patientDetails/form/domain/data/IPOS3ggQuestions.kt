@@ -57,7 +57,7 @@ object IPOS3ggQuestions {
         ),
         IPOS3ggSection(
             sectionId = "Q2",
-            title = "Q2 – Sintomi disturbanti (Scala da 0 a 4: 0 = Per nulla, 4 = Opprimente)",
+            title = "Q2 – Sintomi disturbanti",
             questions = listOf(
                 QuestionResponse(questionId = Q2_DOLORE_ID, questionText = "Dolore"),
                 QuestionResponse(questionId = Q2_MANCANZA_DI_FIATO_ID, questionText = "Mancanza di fiato"),

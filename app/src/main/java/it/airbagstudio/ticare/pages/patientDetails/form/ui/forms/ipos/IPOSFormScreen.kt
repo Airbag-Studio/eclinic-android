@@ -48,6 +48,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.IPOSQuestion
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DateTimePickerInputField
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.IPOSFloatingLegend
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.RadioGroupScale
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.TimePeriodSelector
 import it.airbagstudio.ticare.ui.theme.formColors
@@ -96,7 +97,7 @@ fun IPOSFormScreen(
                         if (currentState is IPOSFormUiState.Editing) {
                             IPOSQuestions.getFormTitle(currentState.form.timePeriod)
                         } else {
-                            "Scala IPOS"
+                            "IPOS"
                         }
                     )
                 },
@@ -130,11 +131,15 @@ fun IPOSFormScreen(
                 }
             }
             is IPOSFormUiState.Editing -> {
-                IPOSFormContent(
-                    modifier = Modifier.padding(paddingValues),
-                    editingState = state,
-                    viewModel = viewModel
-                )
+                Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                    IPOSFormContent(
+                        editingState = state,
+                        viewModel = viewModel
+                    )
+                    IPOSFloatingLegend(
+                        modifier = Modifier.align(Alignment.TopCenter)
+                    )
+                }
             }
             is IPOSFormUiState.Saved -> {
                 Box(
@@ -150,7 +155,6 @@ fun IPOSFormScreen(
 
 @Composable
 fun IPOSFormContent(
-    modifier: Modifier = Modifier,
     editingState: IPOSFormUiState.Editing,
     viewModel: IPOSFormViewModel
 ) {
@@ -158,10 +162,11 @@ fun IPOSFormContent(
     val scrollState = rememberScrollState()
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(16.dp)
+            .padding(top = 64.dp) // Add top padding to account for floating legend
     ) {
         // Time Period Selector
         TimePeriodSelector(
@@ -250,6 +255,7 @@ fun PatientDataSection(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
+            /* 
             Text(
                 text = "Dati Paziente",
                 style = MaterialTheme.typography.titleLarge
@@ -276,7 +282,7 @@ fun PatientDataSection(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-
+*/
             // Editable Compilation Timestamp
             DateTimePickerInputField(
                 label = "Data e ora compilazione",

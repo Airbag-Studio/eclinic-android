@@ -49,7 +49,7 @@ object SeniorSittingQuestions {
                 QuestionResponse(questionId = Q4_UTILITA_SGRAVO_CAREGIVER_ID, questionText = "Quanto ritiene essere stato utile l'aiuto ricevuto per sgravarsi dal suo carico assistenziale e ridurre lo stress percepito? (inserire valore zero nel caso in cui non presente un caregiver)"),
                 QuestionResponse(questionId = Q5_UTILITA_CONTATTI_SOCIALI_ID, questionText = "Quanto ritiene essere stato utile l'aiuto ricevuto per favorire i Suoi contatti sociali?"),
                 QuestionResponse(questionId = Q6_INCIDENZA_COSTO_ID, questionText = "Quanto NON ha inciso il costo di 20 fr-. orari sulle sue finanze?"),
-                QuestionResponse(questionId = Q7_AIUTO_SCUDO_ID, questionText = "In cosa Scudo potrebbe aiutarla maggiormente per farla sentire meglio e ridurre il suo carico assistenziale?", score = null)
+                //QuestionResponse(questionId = Q7_AIUTO_SCUDO_ID, questionText = "In cosa Scudo potrebbe aiutarla maggiormente per farla sentire meglio e ridurre il suo carico assistenziale?", score = null)
             )
         ),
         SeniorSittingSection(

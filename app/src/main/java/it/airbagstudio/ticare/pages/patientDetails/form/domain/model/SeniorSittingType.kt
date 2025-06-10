@@ -12,6 +12,6 @@ enum class SeniorSittingType(val typeName: String, val displayName: String, val 
     NON_ADESIONE(
         typeName = "SENIOR_SITTING_NON_ADESIONE", 
         displayName = "Non Adesione", 
-        formTitle = "Progetto Senior Sitting per il supporto al famigliare curante - Non adesione"
+        formTitle = "Senior Sitting - Non adesione"
     )
 }

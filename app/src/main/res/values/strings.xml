@@ -218,7 +218,7 @@
     <string name="select_form">Seleziona un form</string>
 
     <!-- CBI Form -->
-    <string name="cbi_form_title">Scala CBI</string>
+    <string name="cbi_form_title">CBI</string>
     <string name="patient_name">Nome</string> <!-- This is used for Caregiver section, keep as is -->
     <string name="patient_surname">Cognome</string> <!-- This is used for Caregiver section, keep as is -->
     <string name="patient_birth_date">Data di nascita</string> <!-- Original generic label, might be used elsewhere or can be removed if only static version is used -->
@@ -241,7 +241,7 @@
     <string name="section_physical">Carico Fisico</string>
     <string name="section_social">Carico Sociale</string>
     <string name="section_emotional">Carico Emotivo</string>
-    <string name="form_cbi">Scala CBI</string>
+    <string name="form_cbi">CBI</string>
     <string name="select_form_type">Seleziona tipo di form</string>
     <string name="form_cbi_title">Scala CBI (Caregiver Burden Inventory)</string>
 
@@ -278,10 +278,10 @@
     <string name="select_relationship_hint">Seleziona relazione</string>
 
     <!-- COMID Form -->
-    <string name="comid_form_title">Form COMID</string>
+    <string name="comid_form_title">COMID</string>
     <string name="comid_form_title_long">COMID – Strumento multidimensionale di valutazione della complessità per le cure a domicilio</string>
     <string name="comid_intro_text">Istruzioni per la compilazione: la situazione del paziente, secondo la vostra valutazione, presenta le seguenti caratteristiche? Assegnare la risposta \'sì\' o \'no\' per ogni indicatore.</string>
-    <string name="form_comid">Form COMID</string> <!-- For selection list -->
+    <string name="form_comid">COMID</string> <!-- For selection list -->
     <string name="yes">Sì</string>
     <string name="no">No</string>
     <string name="action_back">Torna indietro</string>

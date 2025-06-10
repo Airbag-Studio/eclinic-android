@@ -63,7 +63,7 @@ object IPOSQuestions {
             ),
             IPOSSection(
                 sectionId = "Q2",
-                title = "Q2 – Sintomi disturbanti (Scala da 0 a 4: 0 = Per nulla, 4 = Opprimente)",
+                title = "Q2 – Sintomi disturbanti",
                 questions = listOf(
                     QuestionResponse(questionId = Q2_DOLORE_ID, questionText = "Dolore"),
                     QuestionResponse(questionId = Q2_MANCANZA_DI_FIATO_ID, questionText = "Mancanza di fiato"),
@@ -79,7 +79,7 @@ object IPOSQuestions {
             ),
             IPOSSection(
                 sectionId = "Q2b",
-                title = "Q2b – Sintomi aggiuntivi (campo + scala da 0 a 4)",
+                title = "Q2b – Sintomi aggiuntivi",
                 questions = listOf(
                     QuestionResponse(questionId = Q2B_ADDITIONAL_SYMPTOM_1_ID, questionText = ""),
                     QuestionResponse(questionId = Q2B_ADDITIONAL_SYMPTOM_2_ID, questionText = ""),
@@ -88,7 +88,7 @@ object IPOSQuestions {
             ),
             IPOSSection(
                 sectionId = "Q3_Q9",
-                title = "Q3 a Q9 – Stato emotivo, relazionale, spirituale e pratico (Scala da 0 a 4)",
+                title = "Q3 a Q9 – Stato emotivo, relazionale, spirituale e pratico",
                 questions = listOf(
                     QuestionResponse(questionId = Q3_ANSIA_MALATTIA_TERAPIE_ID, questionText = "Q3. Ansia o preoccupazione per la propria malattia o le terapie"),
                     QuestionResponse(questionId = Q4_ANSIA_CARI_ID, questionText = "Q4. Ansia o preoccupazione da parte dei propri cari"),

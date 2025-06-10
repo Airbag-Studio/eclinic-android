@@ -52,6 +52,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSitti
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DateTimePickerInputField
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.RadioGroupScale
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.SeniorSittingFloatingLegend
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.SeniorSittingTypeSelector
 import it.airbagstudio.ticare.ui.theme.formColors
 import java.text.SimpleDateFormat
@@ -133,11 +134,18 @@ fun SeniorSittingFormScreen(
                 }
             }
             is SeniorSittingFormUiState.Editing -> {
-                SeniorSittingFormContent(
-                    modifier = Modifier.padding(paddingValues),
-                    editingState = state,
-                    viewModel = viewModel
-                )
+                Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                    SeniorSittingFormContent(
+                        editingState = state,
+                        viewModel = viewModel
+                    )
+                    // Only show floating legend for Adesione type (scale questions)
+                    if (state.form.type == SeniorSittingType.ADESIONE) {
+                        SeniorSittingFloatingLegend(
+                            modifier = Modifier.align(Alignment.TopCenter)
+                        )
+                    }
+                }
             }
             is SeniorSittingFormUiState.Saved -> {
                 Box(
@@ -153,7 +161,6 @@ fun SeniorSittingFormScreen(
 
 @Composable
 fun SeniorSittingFormContent(
-    modifier: Modifier = Modifier,
     editingState: SeniorSittingFormUiState.Editing,
     viewModel: SeniorSittingFormViewModel
 ) {
@@ -161,10 +168,11 @@ fun SeniorSittingFormContent(
     val scrollState = rememberScrollState()
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(16.dp)
+            .padding(top = if (form.type == SeniorSittingType.ADESIONE) 64.dp else 0.dp) // Add top padding only for Adesione type
     ) {
         // Type Selector
         SeniorSittingTypeSelector(
@@ -242,6 +250,7 @@ fun SeniorSittingPatientDataSection(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
+            /* 
             Text(
                 text = "Dati Paziente",
                 style = MaterialTheme.typography.titleLarge
@@ -272,7 +281,7 @@ fun SeniorSittingPatientDataSection(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-
+*/
             DateTimePickerInputField(
                 label = "Data e ora compilazione",
                 selectedTimestamp = compilationTimestamp,

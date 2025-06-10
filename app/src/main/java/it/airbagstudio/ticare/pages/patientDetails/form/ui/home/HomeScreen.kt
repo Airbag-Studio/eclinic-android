@@ -265,8 +265,8 @@ fun GenericFormListItem(formInfo: DisplayableFormInfo, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         ListItem(
-            headlineContent = { Text("${formInfo.patientName} ${formInfo.patientSurname}") }, // Display name from DisplayableFormInfo
-            supportingContent = { Text("Tipo: ${formInfo.formType} - Data: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(formInfo.lastModified))}") }
+            headlineContent = { Text("Data: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(formInfo.lastModified))}") },
+           supportingContent = { Text("Punteggio: 0") } // Da aggiornare con il punteggio reale se disponibile            
         )
     }
 }
