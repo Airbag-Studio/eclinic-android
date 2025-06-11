@@ -255,7 +255,7 @@ fun PatientDataSection(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            /* 
+             
             Text(
                 text = "Dati Paziente",
                 style = MaterialTheme.typography.titleLarge
@@ -282,7 +282,6 @@ fun PatientDataSection(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-*/
             // Editable Compilation Timestamp
             DateTimePickerInputField(
                 label = "Data e ora compilazione",

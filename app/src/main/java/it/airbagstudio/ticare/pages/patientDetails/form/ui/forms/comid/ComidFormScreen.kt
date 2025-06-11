@@ -212,7 +212,7 @@ fun ComidPatientDataSection(
         border = if (isBirthDateInvalid) BorderStroke(2.dp, MaterialTheme.colorScheme.error) else null // Highlight whole card if birth date is invalid
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            /* 
+             
             Text(
                 text = stringResource(R.string.patient_data),
                 style = MaterialTheme.typography.titleLarge
@@ -241,7 +241,6 @@ fun ComidPatientDataSection(
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
-            */
 
             DateTimePickerInputField(
                 label = stringResource(R.string.compilation_date_time_label),

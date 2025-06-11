@@ -250,7 +250,7 @@ fun SeniorSittingPatientDataSection(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            /* 
+            
             Text(
                 text = "Dati Paziente",
                 style = MaterialTheme.typography.titleLarge
@@ -281,7 +281,7 @@ fun SeniorSittingPatientDataSection(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-*/
+
             DateTimePickerInputField(
                 label = "Data e ora compilazione",
                 selectedTimestamp = compilationTimestamp,
@@ -423,6 +423,8 @@ fun ScaleQuestionItem(
         RadioGroupScale(
             selectedValue = score,
             onValueSelected = { nonNullableScore -> onScoreChange(nonNullableScore) },
+            minValue = 1,
+            maxValue = 5,
             modifier = Modifier.fillMaxWidth()
         )
     }

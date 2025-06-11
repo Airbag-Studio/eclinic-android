@@ -21,22 +21,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 /**
- * Componente che mostra una scala di valutazione da 0 a 4 con radio button.
+ * Componente che mostra una scala di valutazione con radio button.
  *
- * @param selectedValue Valore selezionato (0-4)
+ * @param selectedValue Valore selezionato
  * @param onValueSelected Callback per la selezione di un valore
+ * @param minValue Valore minimo della scala (default: 0)
+ * @param maxValue Valore massimo della scala (default: 4)
  * @param modifier Modifier per personalizzare il layout
  */
 @Composable
 fun RadioGroupScale(
     selectedValue: Int?, // Changed to nullable
     onValueSelected: (Int) -> Unit,
+    minValue: Int = 0,
+    maxValue: Int = 4,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxWidth()
     ) {
-        // Radio button per la scala 0-4
+        // Radio button per la scala
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -44,7 +48,7 @@ fun RadioGroupScale(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            for (value in 0..4) {
+            for (value in minValue..maxValue) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
@@ -66,7 +70,7 @@ fun RadioGroupScale(
                     )
                 }
                 
-                if (value < 4) {
+                if (value < maxValue) {
                     Spacer(modifier = Modifier.width(4.dp))
                 }
             }

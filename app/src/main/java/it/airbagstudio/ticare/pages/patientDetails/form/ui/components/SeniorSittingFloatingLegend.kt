@@ -45,7 +45,7 @@ fun SeniorSittingFloatingLegend(
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Text(
-                text = "0   1   2   3   4   5",
+                text = "1   2   3   4   5",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onPrimaryContainer

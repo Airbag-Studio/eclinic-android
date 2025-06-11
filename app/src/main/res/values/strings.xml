@@ -155,7 +155,7 @@
     <string name="download_patient_data">Scarica Dati Paziente</string>
     <string name="download_patient_data_info">La funzione Scarica Dati Paziente ti permette di lavorare su dati in locale. Seleziona i pazienti che vuoi scaricare.</string>
     <string name="downloading_selected_patient_data">Scarico i Dati dei Paziente selezionati</string>
-    <string name="patient_data">Dati Paziente (%1$s)</string>
+    <string name="patient_data">Dati Paziente</string>
     <string name="sync_data_expire_at">Scadenza: %1$s</string>
     <string name="patient_data_expire_info">Alla scadenza i Dati Paziente scaricati in locale non saranno più disponibili. Ricorda di tornare a lavorare con dati online prima che scadano per non perdere quanto registrato.</string>
     <string name="only_local_data">Solo dati locali</string>

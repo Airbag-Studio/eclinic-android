@@ -304,7 +304,7 @@ fun PatientDataSection(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            /*
+            
             Text(
                 text = stringResource(R.string.patient_data),
                 style = MaterialTheme.typography.titleLarge
@@ -331,7 +331,7 @@ fun PatientDataSection(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(bottom = 16.dp) // More space before new fields
             )
-            */
+            
 
             // New Combined DateTimePickerInputField
             DateTimePickerInputField(

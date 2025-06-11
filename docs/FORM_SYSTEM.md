@@ -300,11 +300,16 @@ object CbiQuestions {
 - **Unified Form**: Single form with type selector (Adesione/Non-Adesione)
 - **Dynamic Content**: Questions and sections adapt based on selected type
 - **Conditional UI**: Different input types based on form type
-- **Floating Legend**: Shows "Poco 0 1 2 3 4 5 Molto" scale reference (Adesione only)
+- **Floating Legend**: Shows "Poco 1 2 3 4 5 Molto" scale reference (Adesione only)
 
 **Types**:
-- **Adesione**: For patients who adhere to treatment (scale questions)
+- **Adesione**: For patients who adhere to treatment (scale questions with 1-5 scale)
 - **Non-Adesione**: For patients with treatment adherence issues (checkbox questions)
+
+**Scale System** (Adesione type):
+- **Range**: 1-5 (previously 0-4)
+- **Labels**: "Poco" (1) to "Molto" (5)
+- **Component**: Uses configurable RadioGroupScale with minValue=1, maxValue=5
 
 **Special Features**:
 - **Zone information**: Geographic/organizational zone tracking
@@ -355,11 +360,11 @@ fun SeniorSittingFloatingLegend(
     modifier: Modifier = Modifier
 ) {
     Card(
-        // Similar structure with "Poco 0 1 2 3 4 5 Molto" scale
+        // Similar structure with "Poco 1 2 3 4 5 Molto" scale
     ) {
         Row {
             Text("Poco")
-            Text("0   1   2   3   4   5")
+            Text("1   2   3   4   5")
             Text("Molto")
         }
     }
@@ -418,23 +423,133 @@ fun FormSection(
 ```kotlin
 @Composable
 fun QuestionItem(
-    question: QuestionResponse,
-    onScoreChanged: (Int) -> Unit
+    questionNumber: Int,
+    questionText: String,
+    selectedScore: Int?,
+    onScoreSelected: (Int) -> Unit,
+    minScale: Int = 0,
+    maxScale: Int = 4,
+    modifier: Modifier = Modifier
 ) {
-    Column {
-        Text(
-            text = question.questionText,
-            style = MaterialTheme.typography.bodyMedium
-        )
-        
-        RadioGroupScale(
-            selectedValue = question.score,
-            onValueSelected = onScoreChanged,
-            range = 0..4,
-            labels = listOf("Never", "Rarely", "Sometimes", "Often", "Always")
-        )
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Question number and text
+            Row(
+                verticalAlignment = Alignment.Top,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "$questionNumber.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                
+                Text(
+                    text = questionText,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Scale with configurable range
+            RadioGroupScale(
+                selectedValue = selectedScore,
+                onValueSelected = onScoreSelected,
+                minValue = minScale,
+                maxValue = maxScale
+            )
+        }
     }
 }
+```
+
+#### RadioGroupScale Component (Configurable)
+
+```kotlin
+@Composable
+fun RadioGroupScale(
+    selectedValue: Int?,
+    onValueSelected: (Int) -> Unit,
+    minValue: Int = 0,
+    maxValue: Int = 4,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .selectableGroup(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            for (value in minValue..maxValue) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .selectable(
+                            selected = (value == selectedValue),
+                            onClick = { onValueSelected(value) },
+                            role = Role.RadioButton
+                        )
+                        .padding(4.dp)
+                ) {
+                    RadioButton(
+                        selected = (value == selectedValue),
+                        onClick = null // Handled by selectable
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = value.toString(),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                
+                if (value < maxValue) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
+            }
+        }
+    }
+}
+```
+
+**Usage Examples**:
+```kotlin
+// Default 0-4 scale (for CBI, COMID, IPOS forms)
+RadioGroupScale(
+    selectedValue = score,
+    onValueSelected = { newScore -> updateScore(newScore) }
+)
+
+// Custom 1-5 scale (for Senior Sitting Adesione)
+RadioGroupScale(
+    selectedValue = score,
+    onValueSelected = { newScore -> updateScore(newScore) },
+    minValue = 1,
+    maxValue = 5
+)
+
+// Using with QuestionItem
+QuestionItem(
+    questionNumber = 1,
+    questionText = "Quanto il servizio ricevuto è stato di suo gradimento?",
+    selectedScore = currentScore,
+    onScoreSelected = { score -> updateQuestionScore(score) },
+    minScale = 1,  // Senior Sitting uses 1-5 scale
+    maxScale = 5
+)
 ```
 
 #### Caregiver Selection Modal

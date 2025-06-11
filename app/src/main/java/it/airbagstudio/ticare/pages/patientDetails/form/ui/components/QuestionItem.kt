@@ -20,8 +20,10 @@ import androidx.compose.ui.unit.dp
  *
  * @param questionNumber Numero della domanda
  * @param questionText Testo della domanda
- * @param selectedScore Punteggio selezionato (0-4)
+ * @param selectedScore Punteggio selezionato
  * @param onScoreSelected Callback per la selezione di un punteggio
+ * @param minScale Valore minimo della scala (default: 0)
+ * @param maxScale Valore massimo della scala (default: 4)
  * @param modifier Modifier per personalizzare il layout
  */
 @Composable
@@ -30,6 +32,8 @@ fun QuestionItem(
     questionText: String,
     selectedScore: Int?, // Changed to nullable
     onScoreSelected: (Int) -> Unit,
+    minScale: Int = 0,
+    maxScale: Int = 4,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -66,7 +70,9 @@ fun QuestionItem(
             // Scala di valutazione
             RadioGroupScale(
                 selectedValue = selectedScore,
-                onValueSelected = onScoreSelected
+                onValueSelected = onScoreSelected,
+                minValue = minScale,
+                maxValue = maxScale
             )
         }
     }
