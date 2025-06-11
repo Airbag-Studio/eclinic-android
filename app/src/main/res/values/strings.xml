@@ -328,6 +328,8 @@
 
     <!-- Scale section title -->
     <string name="scale_title">Scale</string>
+    <string name="scale">Scale</string>
+    <string name="new_scale">Nuova Scala</string>
 
 
 </resources>

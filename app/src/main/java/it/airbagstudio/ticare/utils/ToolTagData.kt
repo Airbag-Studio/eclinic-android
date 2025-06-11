@@ -70,6 +70,7 @@ fun ToolTag.getLabelId(): Int{
         ToolTag.Wound -> TODO()
         ToolTag.OtherService -> TODO()
         ToolTag.MedicalCourse -> R.string.medical_course
+        ToolTag.Scale -> R.string.scale
     }
 }
 
@@ -97,6 +98,7 @@ fun ToolTag.getCreateLabelId(): Int{
         ToolTag.Wound -> TODO()
         ToolTag.OtherService -> TODO()
         ToolTag.MedicalCourse -> R.string.new_medical_course
+        ToolTag.Scale -> R.string.new_scale
     }
 }
 
@@ -124,6 +126,7 @@ fun ToolTag.getDiaryIconId(): Int{
         ToolTag.Wound -> R.drawable.ic_wounds
         ToolTag.OtherService -> R.drawable.ic_other_prescriptions
         ToolTag.MedicalCourse -> R.drawable.ic_medical_course
+        ToolTag.Scale -> R.drawable.moduli
     }
 }
 
