@@ -382,11 +382,13 @@ class CbiFormViewModel @Inject constructor(
                     }
                 }
             } catch (e: IOException) {
+                e.printStackTrace()
                 _uiState.value = currentState.copy(
                     isSaving = false,
                     validationErrors = listOf("Errore durante il salvataggio del form: ${e.message}")
                 )
             } catch (e: Exception) {
+                e.printStackTrace()
                  _uiState.value = currentState.copy(
                     isSaving = false,
                     validationErrors = listOf("Errore imprevisto durante il salvataggio: ${e.message}")
