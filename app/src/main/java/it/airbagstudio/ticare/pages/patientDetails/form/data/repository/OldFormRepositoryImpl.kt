@@ -2,14 +2,13 @@ package it.airbagstudio.ticare.pages.patientDetails.form.data.repository
 
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.repository.UserDetailRepository
-import dagger.hilt.android.AndroidEntryPoint
 import it.airbagstudio.ticare.pages.patientDetails.form.data.datasource.JsonDataSource
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS3ggForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS7ggForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingAdesioneForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingNonAdesioneForm
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -20,10 +19,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
-class FormRepositoryImpl(
+class OldFormRepositoryImpl(
     private val userDetailRepository: UserDetailRepository,
     private val jsonDataSource: JsonDataSource
-) : FormRepository {
+) : OldFormRepository {
 
     private val repositoryScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val _cbiForms = MutableStateFlow<List<CBIForm>>(emptyList())

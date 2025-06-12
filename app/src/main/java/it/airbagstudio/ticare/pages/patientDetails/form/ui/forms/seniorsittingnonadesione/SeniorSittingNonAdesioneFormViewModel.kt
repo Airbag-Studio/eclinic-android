@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.SeniorSittingNonAdesioneQuestions
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingNonAdesioneForm
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +16,7 @@ import java.util.UUID
 
 class SeniorSittingNonAdesioneFormViewModel(
     private val formId: String?,
-    private val formRepository: FormRepository,
+    private val oldFormRepository: OldFormRepository,
     private val patientData: PatientData // Assuming patient data is passed upon creation/navigation
 ) : ViewModel() {
 
@@ -29,7 +29,7 @@ class SeniorSittingNonAdesioneFormViewModel(
 
     private fun loadForm() {
         viewModelScope.launch {
-            val user = formRepository.getUserDetails()
+            val user = oldFormRepository.getUserDetails()
             val userBirth = user?.birthday?.split(".")?.let {
                 java.time.LocalDate.of(it[2].toInt(), it[1].toInt(), it[0].toInt())
             }?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
@@ -48,7 +48,7 @@ class SeniorSittingNonAdesioneFormViewModel(
             } else {
                 // Existing form
                 try {
-                    val form = formRepository.getSeniorSittingNonAdesioneFormById(formId)
+                    val form = oldFormRepository.getSeniorSittingNonAdesioneFormById(formId)
                     if (form != null) {
                         _uiState.value = SeniorSittingNonAdesioneFormUiState.Editing(
                             formId = form.id,
@@ -157,10 +157,10 @@ class SeniorSittingNonAdesioneFormViewModel(
                         patientData = currentState.patientData,
                         compilationTimestamp = currentState.compilationTimestamp,
                         sections = currentState.sections,
-                        creationDate = if (currentState.formId == null) System.currentTimeMillis() else currentState.sections.firstOrNull()?.let { sec -> currentState.formId?.let { id -> formRepository.getSeniorSittingNonAdesioneFormById(id)?.creationDate } } ?: System.currentTimeMillis(),
+                        creationDate = if (currentState.formId == null) System.currentTimeMillis() else currentState.sections.firstOrNull()?.let { sec -> currentState.formId?.let { id -> oldFormRepository.getSeniorSittingNonAdesioneFormById(id)?.creationDate } } ?: System.currentTimeMillis(),
                         lastModified = System.currentTimeMillis()
                     )
-                    formRepository.saveSeniorSittingNonAdesioneForm(formToSave)
+                    oldFormRepository.saveSeniorSittingNonAdesioneForm(formToSave)
                     _uiState.value = SeniorSittingNonAdesioneFormUiState.Saved(formToSave)
                 } catch (e: Exception) {
                     _uiState.value = currentState.copy(isSaving = false, generalError = "Errore nel salvataggio: ${e.message}")

@@ -101,7 +101,10 @@ class PatientDetailsScreenViewModel @Inject constructor(
                 isOnline = offlineOnlineRepository.state.value.isOnline
                 caseDetails = userDetailRepository.getCase(code).results?.firstOrNull()
 
-                caseDetails?.let { userDetailRepository.setCurrentCase(it) }
+                caseDetails?.let {
+                    var det = it.copy(patientCod = code)
+                    userDetailRepository.setCurrentCase(det)
+                }
                 val caseAlerts = userDetailRepository.getCaseAlerts(code).results
                 alerts = caseAlerts?.map { AlertItem(
                     colorFg = it.foreground,

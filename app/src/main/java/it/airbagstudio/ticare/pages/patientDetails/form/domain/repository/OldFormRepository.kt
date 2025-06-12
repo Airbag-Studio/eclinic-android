@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Interfaccia per il repository che gestisce le operazioni sui form.
  */
-interface FormRepository {
+interface OldFormRepository {
 
     fun getUserDetails():CaseDetail?
     /**

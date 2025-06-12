@@ -1,5 +1,4 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid
-//package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,14 +39,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.COMIDSection
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.QuestionResponse
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DatePickerInputField
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DateTimePickerInputField
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.ComidFormViewModelFactory
 import it.airbagstudio.ticare.ui.theme.formColors
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -58,8 +55,7 @@ fun ComidFormScreen(
     formId: String? = null,
     onClose: () -> Unit,
     onSaved: () -> Unit,
-    factory: ComidFormViewModelFactory, // Pass factory
-    viewModel: ComidFormViewModel = viewModel(factory = factory)
+    viewModel: ComidFormViewModel = hiltViewModel()
 ) {
     LaunchedEffect(formId) {
         viewModel.initForm(formId)

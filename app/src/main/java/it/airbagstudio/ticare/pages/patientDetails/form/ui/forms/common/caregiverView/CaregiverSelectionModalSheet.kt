@@ -1,4 +1,4 @@
-package it.airbagstudio.ticare.pages.patientDetails.form.ui.components
+package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.common.caregiverView
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,29 +7,31 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.Caregiver
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi.CbiFormUiState
+import ch.ticare.eclinic.library.entity.Contact
 import it.airbagstudio.ticare.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CaregiverSelectionModalSheet(
-    uiState: CbiFormUiState.Editing,
+    viewModel: CaregiverFromViewModel,
     onDismiss: () -> Unit,
-    onCaregiverSelected: (Caregiver) -> Unit,
-    onAddNewCaregiverClick: () -> Unit,
-    onSaveNewCaregiver: () -> Unit,
-    onCancelAddCaregiver: () -> Unit,
-    onNewCaregiverFirstNameChanged: (String) -> Unit,
-    onNewCaregiverLastNameChanged: (String) -> Unit,
-    onNewCaregiverRelationshipChanged: (String) -> Unit,
-    onNewCaregiverContactChanged: (String) -> Unit
+    onCaregiverSelected: (Contact) -> Unit,
+    onCancelAddCaregiver: () -> Unit
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    var showAddCaregiverForm by remember { mutableStateOf(false) }
+
+    var availableCaregivers = viewModel.caregivers.collectAsState()
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -41,15 +43,12 @@ fun CaregiverSelectionModalSheet(
                 .navigationBarsPadding() // Ensures content is above navigation bars
                 .imePadding() // Adjusts padding when keyboard is shown
         ) {
-            if (uiState.isAddingCaregiver) {
+            if (showAddCaregiverForm) {
                 AddCaregiverForm(
-                    uiState = uiState,
-                    onSave = onSaveNewCaregiver,
-                    onCancel = onCancelAddCaregiver,
-                    onFirstNameChanged = onNewCaregiverFirstNameChanged,
-                    onLastNameChanged = onNewCaregiverLastNameChanged,
-                    onRelationshipChanged = onNewCaregiverRelationshipChanged,
-                    onContactChanged = onNewCaregiverContactChanged
+                    viewModel = viewModel,
+                    onCancel = {
+                        showAddCaregiverForm = false
+                    },
                 )
             } else {
                 // List View
@@ -62,7 +61,9 @@ fun CaregiverSelectionModalSheet(
                         stringResource(id = R.string.modal_title_select_caregiver),
                         style = MaterialTheme.typography.titleLarge
                     )
-                    TextButton(onClick = onAddNewCaregiverClick) {
+                    TextButton(onClick = {
+                        showAddCaregiverForm = true
+                    }) {
                         Icon(
                             Icons.Filled.Add,
                             contentDescription = stringResource(id = R.string.modal_add_caregiver_icon_description)
@@ -72,17 +73,19 @@ fun CaregiverSelectionModalSheet(
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                if (uiState.availableCaregivers.isEmpty()) {
+                if (availableCaregivers.value.isEmpty()) {
                     Text(stringResource(id = R.string.modal_empty_caregiver_list))
                 } else {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.weight(1f, fill = false) // Allows column to scroll within modal
                     ) {
-                        items(uiState.availableCaregivers, key = { it.id }) { caregiver ->
+                        items(availableCaregivers.value, key = { it.id }) { caregiver ->
                             CaregiverListItemCard(
                                 caregiver = caregiver,
-                                onClick = { onCaregiverSelected(caregiver) }
+                                onClick = {
+                                    onCaregiverSelected(caregiver)
+                                }
                             )
                         }
                     }

@@ -1,4 +1,4 @@
-package it.airbagstudio.ticare.pages.patientDetails.form.ui.components
+package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.common.caregiverView
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,11 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import ch.ticare.eclinic.library.entity.Contact
 import it.airbagstudio.ticare.R
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.Caregiver
 
 @Composable
-fun CaregiverInfoCard(caregiver: Caregiver) {
+fun CaregiverInfoCard(caregiver: Contact) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -24,10 +24,10 @@ fun CaregiverInfoCard(caregiver: Caregiver) {
                 style = MaterialTheme.typography.titleSmall
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("${stringResource(id = R.string.label_first_name)}: ${caregiver.firstName}")
-            Text("${stringResource(id = R.string.label_last_name)}: ${caregiver.lastName}")
+            Text("${stringResource(id = R.string.label_first_name)}: ${caregiver.fullname}")
+            //Text("${stringResource(id = R.string.label_last_name)}: ${caregiver.lastName}")
             Text("${stringResource(id = R.string.label_relationship)}: ${caregiver.relationship}")
-            Text("${stringResource(id = R.string.label_contact_phone)}: ${caregiver.contact}")
+            Text("${stringResource(id = R.string.label_contact_phone)}: ${caregiver.phoneNumbers}")
         }
     }
 }

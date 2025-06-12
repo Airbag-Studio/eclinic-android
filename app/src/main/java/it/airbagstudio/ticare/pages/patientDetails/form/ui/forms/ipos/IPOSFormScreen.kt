@@ -39,14 +39,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.IPOSQuestions
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DateTimePickerInputField
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.IPOSFloatingLegend
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.RadioGroupScale
@@ -62,10 +60,10 @@ fun IPOSFormScreen(
     formId: String?,
     onClose: () -> Unit,
     onSaved: (formId: String) -> Unit,
-    formRepository: FormRepository
+    oldFormRepository: OldFormRepository
 ) {
     val viewModel: IPOSFormViewModel = viewModel(
-        factory = it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.IPOSFormViewModelFactory(formRepository)
+        factory = it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.IPOSFormViewModelFactory(oldFormRepository)
     )
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }

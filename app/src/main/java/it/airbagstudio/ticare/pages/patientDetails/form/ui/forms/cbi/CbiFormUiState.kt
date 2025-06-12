@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi
 
+import ch.ticare.eclinic.library.entity.Contact
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.CbiQuestions
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBISection
@@ -58,8 +59,7 @@ sealed class CbiFormUiState {
         val invalidFieldKeys: Set<String> = emptySet(), // To identify specific invalid fields/cards
 
         // Caregiver selection state
-        val availableCaregivers: List<Caregiver> = emptyList(),
-        val selectedCaregiver: Caregiver? = null,
+        val selectedCaregiver: Contact? = null,
         val isCaregiverSelectionModalVisible: Boolean = false,
         val isAddingCaregiver: Boolean = false,
 
@@ -79,7 +79,7 @@ sealed class CbiFormUiState {
      *
      * @property form Form salvato
      */
-    data class Saved(val form: CBIForm) : CbiFormUiState()
+    data class Saved(val formId: Int) : CbiFormUiState()
 }
 
 /**

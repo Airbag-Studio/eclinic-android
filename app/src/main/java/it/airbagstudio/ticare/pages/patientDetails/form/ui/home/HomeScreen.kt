@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -45,15 +44,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
-import it.airbagstudio.ticare.ui.components.HeaderIconText
 import it.airbagstudio.ticare.utils.getCompleteName
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.EmptyState
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.theme.AppTheme
 import kotlinx.coroutines.flow.Flow
@@ -86,7 +84,7 @@ enum class FormType(val typeName: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel,
+    viewModel: HomeViewModel = hiltViewModel(),
     showSnackbarOnEntry: Boolean,
     onNavigateToForm: (formType: FormType, formId: String?) -> Unit,
     onBack: () -> Unit = {}
@@ -98,6 +96,7 @@ fun HomeScreen(
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     LaunchedEffect(Unit) {
+        viewModel.loadForms()
         viewModel.snackbarMessage.collectLatest { message ->
             snackbarHostState.showSnackbar(message)
         }
@@ -265,8 +264,8 @@ fun GenericFormListItem(formInfo: DisplayableFormInfo, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         ListItem(
-            headlineContent = { Text("Data: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(formInfo.lastModified))}") },
-           supportingContent = { Text("Punteggio: 0") } // Da aggiornare con il punteggio reale se disponibile            
+            headlineContent = { Text("Data: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(formInfo.creationDate))}") },
+           supportingContent = { Text("Punteggio: ${formInfo.totalPoints}") } // Da aggiornare con il punteggio reale se disponibile
         )
     }
 }
@@ -312,133 +311,5 @@ fun FormTypeItem(title: String, onClick: () -> Unit) {
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
     ) {
         Text(text = title, style = MaterialTheme.typography.bodyLarge)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview_WithForms() {
-    AppTheme {
-        val dummyRepo = object : FormRepository {
-            override fun getUserDetails(): ch.ticare.eclinic.library.entity.CaseDetail? {
-                return null
-            }
-            override suspend fun saveCbiForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm) {}
-            override fun getCbiForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm>> = flowOf(
-                listOf(
-                    it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm(id = "cbi1", patientData = PatientData(name = "Mario", surname = "Rossi"), formType = "CBI", lastModified = System.currentTimeMillis() - 100000),
-                    it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm(id = "cbi2", patientData = PatientData(name = "Luigi", surname = "Verdi"), formType = "CBI", lastModified = System.currentTimeMillis() - 200000)
-                )
-            )
-            override suspend fun getCbiFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm? = null
-            override suspend fun deleteCbiForm(formId: String) {}
-            override suspend fun saveComidForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.COMIDForm) {}
-            override fun getComidForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.COMIDForm>> = flowOf(
-                listOf(
-                    it.airbagstudio.ticare.pages.patientDetails.form.domain.model.COMIDForm(id = "comid1", patientData = PatientData(name = "Anna", surname = "Bianchi"), formType = "COMID", lastModified = System.currentTimeMillis())
-                )
-            )
-            override suspend fun getComidFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.COMIDForm? = null
-            override suspend fun deleteComidForm(formId: String) {}
-
-            // IPOS3gg dummy methods
-            override suspend fun saveIPOS3ggForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS3ggForm) {}
-            override fun getIPOS3ggForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS3ggForm>> = flowOf(
-                listOf(
-                    it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS3ggForm(id = "ipos1", patientData = PatientData(name = "Giovanni", surname = "Gialli"), formType = "IPOS3gg", lastModified = System.currentTimeMillis() - 50000)
-                )
-            )
-            override suspend fun getIPOS3ggFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS3ggForm? = null
-            override suspend fun deleteIPOS3ggForm(formId: String) {}
-
-            // IPOS7gg dummy methods
-            override suspend fun saveIPOS7ggForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS7ggForm) {}
-            override fun getIPOS7ggForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS7ggForm>> = flowOf(emptyList()) // Start with empty for preview simplicity
-            override suspend fun getIPOS7ggFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS7ggForm? = null
-            override suspend fun deleteIPOS7ggForm(formId: String) {}
-
-            // SeniorSittingAdesioneForm dummy methods
-            override suspend fun saveSeniorSittingAdesioneForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingAdesioneForm) {}
-            override fun getSeniorSittingAdesioneForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingAdesioneForm>> = flowOf(emptyList())
-            override suspend fun getSeniorSittingAdesioneFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingAdesioneForm? = null
-            override suspend fun deleteSeniorSittingAdesioneForm(formId: String) {}
-            override suspend fun saveSeniorSittingNonAdesioneForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingNonAdesioneForm) {}
-            override fun getSeniorSittingNonAdesioneForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingNonAdesioneForm>> = flowOf(emptyList())
-            override suspend fun getSeniorSittingNonAdesioneFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingNonAdesioneForm? = null
-            override suspend fun deleteSeniorSittingNonAdesioneForm(formId: String) {}
-        }
-        HomeScreen(
-            viewModel = HomeViewModel(dummyRepo),
-            showSnackbarOnEntry = false,
-            onNavigateToForm = { _, _ -> },
-            onBack = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview_Empty() {
-    AppTheme {
-        val dummyRepo = object : FormRepository {
-            override fun getUserDetails(): ch.ticare.eclinic.library.entity.CaseDetail? {
-                return null
-            }
-            override suspend fun saveCbiForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm) {}
-            override fun getCbiForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm>> = flowOf(emptyList())
-            override suspend fun getCbiFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBIForm? = null
-            override suspend fun deleteCbiForm(formId: String) {}
-            override suspend fun saveComidForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.COMIDForm) {}
-            override fun getComidForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.COMIDForm>> = flowOf(emptyList())
-            override suspend fun getComidFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.COMIDForm? = null
-            override suspend fun deleteComidForm(formId: String) {}
-
-            // IPOS3gg dummy methods for empty preview
-            override suspend fun saveIPOS3ggForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS3ggForm) {}
-            override fun getIPOS3ggForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS3ggForm>> = flowOf(emptyList())
-            override suspend fun getIPOS3ggFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS3ggForm? = null
-            override suspend fun deleteIPOS3ggForm(formId: String) {}
-
-            // IPOS7gg dummy methods for empty preview
-            override suspend fun saveIPOS7ggForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS7ggForm) {}
-            override fun getIPOS7ggForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS7ggForm>> = flowOf(emptyList())
-            override suspend fun getIPOS7ggFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS7ggForm? = null
-            override suspend fun deleteIPOS7ggForm(formId: String) {}
-
-            // SeniorSittingAdesioneForm dummy methods for empty preview
-            override suspend fun saveSeniorSittingAdesioneForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingAdesioneForm) {}
-            override fun getSeniorSittingAdesioneForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingAdesioneForm>> = flowOf(emptyList())
-            override suspend fun getSeniorSittingAdesioneFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingAdesioneForm? = null
-            override suspend fun deleteSeniorSittingAdesioneForm(formId: String) {}
-            override suspend fun saveSeniorSittingNonAdesioneForm(form: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingNonAdesioneForm) {}
-            override fun getSeniorSittingNonAdesioneForms(): Flow<List<it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingNonAdesioneForm>> = flowOf(emptyList())
-            override suspend fun getSeniorSittingNonAdesioneFormById(formId: String): it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingNonAdesioneForm? = null
-            override suspend fun deleteSeniorSittingNonAdesioneForm(formId: String) {}
-        }
-        HomeScreen(
-            viewModel = HomeViewModel(dummyRepo),
-            showSnackbarOnEntry = false,
-            onNavigateToForm = { _, _ -> },
-            onBack = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GenericFormListItemPreview() {
-    AppTheme {
-        GenericFormListItem(
-            formInfo = DisplayableFormInfo(
-                id = "preview-1",
-                formType = "CBI",
-                displayName = "Mario Rossi - CBI", // This field is not directly used in GenericFormListItem's text
-                creationDate = System.currentTimeMillis(),
-                lastModified = System.currentTimeMillis(),
-                patientName = "Mario",
-                patientSurname = "Rossi"
-            ),
-            onClick = {}
-        )
     }
 }

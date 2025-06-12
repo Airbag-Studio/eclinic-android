@@ -37,15 +37,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.CaregiverInfoCard
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.CaregiverSelectionModalSheet
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.common.caregiverView.CaregiverInfoCard
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.common.caregiverView.CaregiverSelectionModalSheet
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.CaregiverSelectorButton
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DateTimePickerInputField
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.FloatingLegend
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.FormSection
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.common.caregiverView.CaregiverView
 import it.airbagstudio.ticare.ui.theme.formColors
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -65,7 +67,7 @@ fun CbiFormScreen(
     formId: String? = null,
     onClose: () -> Unit,
     onSaved: () -> Unit,
-    viewModel: CbiFormViewModel = viewModel()
+    viewModel: CbiFormViewModel = hiltViewModel()
 ) {
     // Inizializza il form
     LaunchedEffect(formId) {
@@ -187,33 +189,15 @@ fun CbiFormScreen(
                     )
                     
                     Spacer(modifier = Modifier.height(16.dp))
-                    
-                    // Updated Caregiver Section
-                    val selectedCaregiver = editingState.selectedCaregiver
-                    if (selectedCaregiver == null) {
-                        CaregiverSelectorButton(onClick = { viewModel.onCaregiverSelectorClick() })
-                    } else {
-                        CaregiverInfoCard(caregiver = selectedCaregiver)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        CaregiverSelectorButton(onClick = { viewModel.onCaregiverSelectorClick() })
-                    }
 
-                    if (editingState.isCaregiverSelectionModalVisible) {
-                        CaregiverSelectionModalSheet(
-                            uiState = editingState,
-                            onDismiss = { viewModel.onDismissCaregiverSelectionModal() },
-                            onCaregiverSelected = { caregiver -> viewModel.onCaregiverSelected(caregiver) },
-                            onAddNewCaregiverClick = { viewModel.onAddNewCaregiverClick() },
-                            onSaveNewCaregiver = { viewModel.onSaveNewCaregiver() },
-                            onCancelAddCaregiver = { viewModel.onCancelAddCaregiver() },
-                            onNewCaregiverFirstNameChanged = { viewModel.onNewCaregiverFirstNameChanged(it) },
-                            onNewCaregiverLastNameChanged = { viewModel.onNewCaregiverLastNameChanged(it) },
-                            onNewCaregiverRelationshipChanged = { viewModel.onNewCaregiverRelationshipChanged(it) },
-                            onNewCaregiverContactChanged = { viewModel.onNewCaregiverContactChanged(it) }
-                        )
-                    }
-                    // End of Updated Caregiver Section
-                    
+                    CaregiverView(
+                        selectedCaregiver = editingState.selectedCaregiver,
+                        onSelectCaregiver = {
+                            viewModel.selectCaregiver(it)
+                        }
+
+                    )
+
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     // Le 5 sezioni del carico

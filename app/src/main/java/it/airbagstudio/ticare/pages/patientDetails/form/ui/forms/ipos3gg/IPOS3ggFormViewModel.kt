@@ -2,11 +2,10 @@ package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos3gg
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.ktor.utils.io.bits.of
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.IPOS3ggQuestions
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOS3ggForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +14,7 @@ import kotlinx.coroutines.launch
 import java.time.ZoneOffset
 
 class IPOS3ggFormViewModel(
-    private val formRepository: FormRepository,
+    private val oldFormRepository: OldFormRepository,
     private val formId: String?
 ) : ViewModel() {
 
@@ -31,7 +30,7 @@ class IPOS3ggFormViewModel(
             _uiState.value = IPOS3ggFormUiState.Loading
             if (formId != null) {
                 try {
-                    val form = formRepository.getIPOS3ggFormById(formId)
+                    val form = oldFormRepository.getIPOS3ggFormById(formId)
                     if (form != null) {
                         _uiState.value = IPOS3ggFormUiState.Editing(
                             form = form,
@@ -54,7 +53,7 @@ class IPOS3ggFormViewModel(
     }
 
     private fun initializeNewForm() {
-        val user = formRepository.getUserDetails()
+        val user = oldFormRepository.getUserDetails()
         val userBirth = user?.birthday?.split(".")?.let {
             java.time.LocalDate.of(it[2].toInt(), it[1].toInt(), it[0].toInt())
         }?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
@@ -175,7 +174,7 @@ class IPOS3ggFormViewModel(
             viewModelScope.launch {
                 try {
                     val formToSave = currentState.form.copy(lastModified = System.currentTimeMillis())
-                    formRepository.saveIPOS3ggForm(formToSave)
+                    oldFormRepository.saveIPOS3ggForm(formToSave)
                     _uiState.value = IPOS3ggFormUiState.Saved(formToSave)
                 } catch (e: Exception) {
                     _uiState.value = currentState.copy(

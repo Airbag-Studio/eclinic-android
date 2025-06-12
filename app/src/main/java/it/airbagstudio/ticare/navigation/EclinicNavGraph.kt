@@ -11,7 +11,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -36,15 +35,9 @@ import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientDetails.alertsAllergies.AlertAllergiesScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.di.provideFormRepository
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.CbiFormViewModelFactory
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.ComidFormViewModelFactory
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.HomeViewModelFactory
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.IPOSFormViewModelFactory
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.SeniorSittingFormViewModelFactory
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.SeniorSittingNonAdesioneFormViewModelFactory
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi.CbiFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.ComidFormScreen
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.ComidFormViewModel
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos.IPOSFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos3gg.IPOS3ggFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsitting.SeniorSittingFormScreen
@@ -227,11 +220,7 @@ fun EclinicNavGraph(
             })
         ) { backStackEntry ->
             val saved = backStackEntry.arguments?.getBoolean(AppDestinations.HOME_ROUTE_SAVED_ARG) ?: false
-            val homeViewModel: HomeViewModel = viewModel(
-                factory = HomeViewModelFactory(formRepository)
-            )
             HomeScreen(
-                viewModel = homeViewModel,
                 showSnackbarOnEntry = saved, // Pass the saved flag
                 onNavigateToForm = { formTypeEnum, formId -> // Changed to formTypeEnum
                     // Use typeName for comparison or switch on enum
@@ -278,7 +267,6 @@ fun EclinicNavGraph(
             val actualFormId = if (formId == "new") null else formId
 
             CbiFormScreen(
-                viewModel = viewModel(factory = CbiFormViewModelFactory(formRepository)), // Correctly pass factory to viewModel()
                 formId = actualFormId,
                 onClose = {
                     navController.popBackStack()
@@ -319,7 +307,6 @@ fun EclinicNavGraph(
             val actualFormId = if (formId == "new") null else formId
 
             ComidFormScreen(
-                factory = ComidFormViewModelFactory(formRepository),
                 formId = actualFormId,
                 onClose = {
                     navController.popBackStack()
@@ -366,7 +353,7 @@ fun EclinicNavGraph(
                         launchSingleTop = true
                     }
                 },
-                formRepository = formRepository
+                oldFormRepository = formRepository
             )
         }
 
@@ -401,7 +388,7 @@ fun EclinicNavGraph(
                         launchSingleTop = true
                     }
                 },
-                formRepository = formRepository
+                oldFormRepository = formRepository
             )
         }
 
@@ -430,7 +417,7 @@ fun EclinicNavGraph(
 
             if (activity != null) { // activity is MainActivity and thus FormRepositoryProvider
                 IPOS3ggFormScreen(
-                    formRepository = formRepository, // Pass MainActivity instance as FormRepositoryProvider
+                    oldFormRepository = formRepository, // Pass MainActivity instance as FormRepositoryProvider
                     formId = actualFormId,
                     onClose = {
                         navController.popBackStack()
@@ -472,7 +459,7 @@ fun EclinicNavGraph(
 
             if (activity != null) {
                 IPOS7ggFormScreen(
-                    formRepository = formRepository,
+                    oldFormRepository = formRepository,
                     formId = actualFormId,
                     onClose = {
                         navController.popBackStack()
@@ -512,7 +499,7 @@ fun EclinicNavGraph(
 
             if (activity != null) {
                 SeniorSittingAdesioneFormScreen(
-                    formRepository = formRepository,
+                    oldFormRepository = formRepository,
                     formId = actualFormId,
                     onClose = {
                         navController.popBackStack()

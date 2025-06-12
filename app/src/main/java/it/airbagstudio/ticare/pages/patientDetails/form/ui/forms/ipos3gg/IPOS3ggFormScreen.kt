@@ -48,7 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.IPOS3ggQuestions
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DateTimePickerInputField
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.RadioGroupScale
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.IPOS3ggFormViewModelFactory
@@ -62,10 +62,10 @@ fun IPOS3ggFormScreen(
     formId: String?,
     onClose: () -> Unit,
     onSaved: (formId: String) -> Unit,
-    formRepository: FormRepository // Corrected type
+    oldFormRepository: OldFormRepository // Corrected type
 ) {
     val viewModel: IPOS3ggFormViewModel = viewModel(
-        factory = IPOS3ggFormViewModelFactory(formRepository, formId)
+        factory = IPOS3ggFormViewModelFactory(oldFormRepository, formId)
     )
     val uiState by viewModel.uiState.collectAsState()
 

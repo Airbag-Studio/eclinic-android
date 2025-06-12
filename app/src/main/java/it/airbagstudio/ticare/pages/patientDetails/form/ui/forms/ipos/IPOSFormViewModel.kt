@@ -6,7 +6,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.IPOSQuestion
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOSForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOSTimePeriod
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 
 class IPOSFormViewModel(
-    private val formRepository: FormRepository
+    private val oldFormRepository: OldFormRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<IPOSFormUiState>(IPOSFormUiState.Editing(form = createNewForm()))
@@ -27,7 +27,7 @@ class IPOSFormViewModel(
     }
 
     private fun createNewForm(): IPOSForm {
-        val user = formRepository.getUserDetails()
+        val user = oldFormRepository.getUserDetails()
         val userBirth = user?.birthday?.split(".")?.let {
             // Handle birthday parsing similar to other forms
             try {

@@ -6,7 +6,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.SeniorSittin
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingType
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 
 class SeniorSittingFormViewModel(
-    private val formRepository: FormRepository
+    private val oldFormRepository: OldFormRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SeniorSittingFormUiState>(SeniorSittingFormUiState.Editing(form = createNewForm()))
@@ -27,7 +27,7 @@ class SeniorSittingFormViewModel(
     }
 
     private fun createNewForm(): SeniorSittingForm {
-        val user = formRepository.getUserDetails()
+        val user = oldFormRepository.getUserDetails()
         val userBirth = user?.birthday?.split(".")?.let {
             try {
                 val day = it[0].toInt()

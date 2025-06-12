@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.SeniorSittingAdesioneQuestions
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingAdesioneForm
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import java.time.ZoneOffset
 
 class SeniorSittingAdesioneFormViewModel(
-    private val formRepository: FormRepository,
+    private val oldFormRepository: OldFormRepository,
     private val formId: String?
 ) : ViewModel() {
 
@@ -30,7 +30,7 @@ class SeniorSittingAdesioneFormViewModel(
             _uiState.value = SeniorSittingAdesioneFormUiState.Loading
             if (formId != null) {
                 try {
-                    val form = formRepository.getSeniorSittingAdesioneFormById(formId)
+                    val form = oldFormRepository.getSeniorSittingAdesioneFormById(formId)
                     if (form != null) {
                         _uiState.value = SeniorSittingAdesioneFormUiState.Editing(
                             form = form,
@@ -56,7 +56,7 @@ class SeniorSittingAdesioneFormViewModel(
         // The ViewModel won't initialize it here but expect it to be passed or loaded.
         // For a new form instance, we'd typically get patient data from a shared source.
         // For this example, we'll assume PatientData() is a placeholder and will be populated.
-        val user = formRepository.getUserDetails()
+        val user = oldFormRepository.getUserDetails()
         val userBirth = user?.birthday?.split(".")?.let {
             java.time.LocalDate.of(it[2].toInt(), it[1].toInt(), it[0].toInt())
         }?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
@@ -156,7 +156,7 @@ class SeniorSittingAdesioneFormViewModel(
             viewModelScope.launch {
                 try {
                     val formToSave = currentState.form.copy(lastModified = System.currentTimeMillis())
-                    formRepository.saveSeniorSittingAdesioneForm(formToSave)
+                    oldFormRepository.saveSeniorSittingAdesioneForm(formToSave)
                     _uiState.value = SeniorSittingAdesioneFormUiState.Saved(formToSave)
                 } catch (e: Exception) {
                     _uiState.value = currentState.copy(

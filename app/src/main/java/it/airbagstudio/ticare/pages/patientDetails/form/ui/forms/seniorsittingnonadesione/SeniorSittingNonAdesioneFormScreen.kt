@@ -16,7 +16,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.FormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DateTimePickerInputField
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.SectionHeader
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.theme.AppTheme
@@ -278,7 +278,7 @@ fun PreviewSeniorSittingNonAdesioneFormScreenNew() {
     AppTheme {
         val mockViewModel = SeniorSittingNonAdesioneFormViewModel(
             formId = null,
-            formRepository = object : FormRepository {
+            oldFormRepository = object : OldFormRepository {
                 override fun getUserDetails(): ch.ticare.eclinic.library.entity.CaseDetail? {
                     return null
                 }
