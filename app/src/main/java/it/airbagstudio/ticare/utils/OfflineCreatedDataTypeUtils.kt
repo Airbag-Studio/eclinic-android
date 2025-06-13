@@ -37,5 +37,6 @@ fun OfflineCreatedDataType.getCategoryName(): Int {
         OfflineCreatedDataType.PHYSIOTHERAPY_CREATE, OfflineCreatedDataType.PHYSIOTHERAPY_UPDATE -> R.string.physiotherapy_task
         OfflineCreatedDataType.MEDICAL_COURSE_CREATE,OfflineCreatedDataType.MEDICAL_COURSE_UPDATE -> R.string.medical_course
         OfflineCreatedDataType.CBI_SCALE_CREATE, OfflineCreatedDataType.CBI_SCALE_UPDATE -> R.string.scale
+        OfflineCreatedDataType.CONTACT_CREATE, OfflineCreatedDataType.CONTACT_UPDATE -> R.string.contacts
     }
 }

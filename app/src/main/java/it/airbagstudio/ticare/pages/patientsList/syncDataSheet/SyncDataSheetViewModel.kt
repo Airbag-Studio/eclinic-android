@@ -55,6 +55,7 @@ class SyncDataSheetViewModel @Inject constructor(
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         syncNetworkError = throwable.localizedMessage
+        throwable.printStackTrace()
     }
 
     val uiState = combine(
