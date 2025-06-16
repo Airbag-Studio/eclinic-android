@@ -200,7 +200,7 @@ fun HomeScreen(
                                             .padding(vertical = 8.dp, horizontal = 8.dp)
                                     )
                                 }
-                                items(formsInGroup, key = { formInfo -> formInfo.id }) { formInfo ->
+                                items(formsInGroup, key = { formInfo -> "${formInfo.id}_${formInfo.creationDate}" }) { formInfo ->
                                     GenericFormListItem(
                                         formInfo = formInfo,
                                         onClick = {

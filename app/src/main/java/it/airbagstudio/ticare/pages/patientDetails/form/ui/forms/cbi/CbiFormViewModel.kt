@@ -4,11 +4,10 @@ package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi
 // import android.app.Application
 // import it.airbagstudio.ticare.pages.patientDetails.form.data.datasource.local.JsonDataSourceImpl
 // import it.airbagstudio.ticare.pages.patientDetails.form.data.repository.FormRepositoryImpl
-import android.util.Log.e
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ch.ticare.eclinic.library.entity.CbiScale
 import ch.ticare.eclinic.library.entity.Contact
+import ch.ticare.eclinic.library.entity.form.CbiScale
 import ch.ticare.eclinic.library.repository.FormRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.UserRepository
@@ -17,7 +16,6 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.CBISection
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.QuestionResponse
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SectionType
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT
 import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +25,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.time.ZoneOffset
-import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 

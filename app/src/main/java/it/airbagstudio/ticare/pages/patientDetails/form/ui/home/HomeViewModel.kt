@@ -3,8 +3,8 @@ package it.airbagstudio.ticare.pages.patientDetails.form.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.CaseDetail
-import ch.ticare.eclinic.library.entity.GetCBITestList
-import ch.ticare.eclinic.library.entity.GetSeniorSittingTestList
+import ch.ticare.eclinic.library.entity.form.GetCBITestList
+import ch.ticare.eclinic.library.entity.form.GetSeniorSittingTestList
 import ch.ticare.eclinic.library.repository.FormRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -74,9 +74,7 @@ class HomeViewModel @Inject constructor(
                 @Suppress("UNCHECKED_CAST")
                 val comidList = listOf<COMIDForm>()
                 @Suppress("UNCHECKED_CAST")
-                val ipos3ggList = listOf<IPOS3ggForm>()
-                @Suppress("UNCHECKED_CAST")
-                val ipos7ggList = listOf<IPOS7ggForm>()
+                val iposList = formRepository.getIopsScaleList(caseCod).results ?: listOf()
                 @Suppress("UNCHECKED_CAST")
                 val seniorSittingList = formRepository.getSeniorSittingScaleList(caseCod).results ?: listOf<GetSeniorSittingTestList.SeniorSittingTestResult>()
 
@@ -97,6 +95,14 @@ class HomeViewModel @Inject constructor(
                     formType = FormType.SENIOR_SITTING.name,
                     displayName = seniorSitting.nameSurnameUser,
                     creationDate = seniorSitting.evalDateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA)?.time ?: 0,
+                )
+            }
+            iposList.mapTo(allForms) {
+                DisplayableFormInfo(
+                    id = it.id.toString(),
+                    formType = FormType.IPOS.name,
+                    displayName = it.nameSurnameUser,
+                    creationDate = it.evalDateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA)?.time ?: 0,
                 )
             }
 

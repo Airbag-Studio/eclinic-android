@@ -352,8 +352,7 @@ fun EclinicNavGraph(
                         }
                         launchSingleTop = true
                     }
-                },
-                oldFormRepository = formRepository
+                }
             )
         }
 

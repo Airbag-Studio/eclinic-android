@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.IPOSQuestions
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
@@ -60,11 +61,8 @@ fun IPOSFormScreen(
     formId: String?,
     onClose: () -> Unit,
     onSaved: (formId: String) -> Unit,
-    oldFormRepository: OldFormRepository
+    viewModel: IPOSFormViewModel = hiltViewModel()
 ) {
-    val viewModel: IPOSFormViewModel = viewModel(
-        factory = it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.IPOSFormViewModelFactory(oldFormRepository)
-    )
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -131,6 +129,7 @@ fun IPOSFormScreen(
             is IPOSFormUiState.Editing -> {
                 Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
                     IPOSFormContent(
+                        formId = formId,
                         editingState = state,
                         viewModel = viewModel
                     )
@@ -153,6 +152,7 @@ fun IPOSFormScreen(
 
 @Composable
 fun IPOSFormContent(
+    formId: String?,
     editingState: IPOSFormUiState.Editing,
     viewModel: IPOSFormViewModel
 ) {
@@ -216,7 +216,7 @@ fun IPOSFormContent(
 
         Spacer(modifier = Modifier.height(24.dp))
         Button(
-            onClick = { viewModel.saveForm() },
+            onClick = { viewModel.saveForm(formId) },
             modifier = Modifier.fillMaxWidth(),
             enabled = editingState.isFormValid && !editingState.isSaving
         ) {
