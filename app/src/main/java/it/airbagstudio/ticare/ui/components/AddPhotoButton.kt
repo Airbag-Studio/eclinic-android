@@ -82,10 +82,9 @@ fun AddPhotoButton(modifier: Modifier = Modifier,onSuccess: (List<Bitmap>) -> Un
         }
 
     val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            capturedImageUri = uri
-            if (it) {
-                onSuccess(listOf(BitmapFactory.decodeFile(file.path).resized() ))
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
+            if (it != null) {
+                onSuccess(listOf(it.resized()))
             }
         }
 
@@ -94,7 +93,7 @@ fun AddPhotoButton(modifier: Modifier = Modifier,onSuccess: (List<Bitmap>) -> Un
     ) {
         if (it) {
             Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
-            cameraLauncher.launch(uri)
+            cameraLauncher.launch(null)
         } else {
             Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
         }
@@ -119,7 +118,7 @@ fun AddPhotoButton(modifier: Modifier = Modifier,onSuccess: (List<Bitmap>) -> Un
                 val permissionCheckResult =
                     ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                 if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                    cameraLauncher.launch(uri)
+                    cameraLauncher.launch(null)
                 } else {
                     // Request a permission
                     cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
