@@ -69,7 +69,7 @@ enum class FormType(val typeName: String) {
     CBI("CBI"),
     COMID("COMID"),
     IPOS("IPOS"), // Unified IPOS form replacing IPOS3GG and IPOS7GG
-    SENIOR_SITTING("SeniorSitting") // Unified Senior Sitting form replacing ADESIONE and NON_ADESIONE
+    SENIOR_SITTING("SENIOR_SITTING") // Unified Senior Sitting form replacing ADESIONE and NON_ADESIONE
     // Add other form types here
 }
 
@@ -265,7 +265,7 @@ fun GenericFormListItem(formInfo: DisplayableFormInfo, onClick: () -> Unit) {
     ) {
         ListItem(
             headlineContent = { Text("Data: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(formInfo.creationDate))}") },
-           supportingContent = { Text("Punteggio: ${formInfo.totalPoints}") } // Da aggiornare con il punteggio reale se disponibile
+           supportingContent = { if (formInfo.totalPoints != null) Text("Punteggio: ${formInfo.totalPoints}") } // Da aggiornare con il punteggio reale se disponibile
         )
     }
 }

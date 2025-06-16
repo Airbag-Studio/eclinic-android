@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.SeniorSittingAdesioneQuestions
@@ -44,7 +45,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DateTimePickerInputField
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.RadioGroupScale
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.SeniorSittingAdesioneFormViewModelFactory
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.common.caregiverView.CaregiverView
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -55,11 +56,9 @@ fun SeniorSittingAdesioneFormScreen(
     formId: String?,
     onClose: () -> Unit,
     onSaved: (formId: String) -> Unit,
-    oldFormRepository: OldFormRepository
+    oldFormRepository: OldFormRepository,
+    viewModel: SeniorSittingAdesioneFormViewModel = hiltViewModel()
 ) {
-    val viewModel: SeniorSittingAdesioneFormViewModel = viewModel(
-        factory = SeniorSittingAdesioneFormViewModelFactory(oldFormRepository, formId)
-    )
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState) {
@@ -132,6 +131,10 @@ fun SeniorSittingAdesioneFormContent(
             compilationTimestampError = if (!editingState.isCompilationTimestampValid) stringResource(R.string.field_required) else null
         )
         Spacer(modifier = Modifier.height(24.dp))
+
+        CaregiverView(selectedCaregiver = editingState.selectedCaregiver) {
+            viewModel.selectCaregiver(it)
+        }
 
         form.sections.forEach { section ->
             Spacer(modifier = Modifier.height(if (form.sections.first() == section) 0.dp else 24.dp))

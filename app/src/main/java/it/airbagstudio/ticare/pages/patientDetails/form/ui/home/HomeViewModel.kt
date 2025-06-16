@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.GetCBITestList
+import ch.ticare.eclinic.library.entity.GetSeniorSittingTestList
 import ch.ticare.eclinic.library.repository.FormRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -77,9 +78,7 @@ class HomeViewModel @Inject constructor(
                 @Suppress("UNCHECKED_CAST")
                 val ipos7ggList = listOf<IPOS7ggForm>()
                 @Suppress("UNCHECKED_CAST")
-                val seniorSittingList = listOf<SeniorSittingAdesioneForm>()
-                @Suppress("UNCHECKED_CAST")
-                val seniorSittingNonAdesioneList = listOf<SeniorSittingNonAdesioneForm>()
+                val seniorSittingList = formRepository.getSeniorSittingScaleList(caseCod).results ?: listOf<GetSeniorSittingTestList.SeniorSittingTestResult>()
 
                 val allForms = mutableListOf<DisplayableFormInfo>()
 
@@ -92,6 +91,15 @@ class HomeViewModel @Inject constructor(
                         totalPoints = cbi.getTotalScore()
                     )
                 }
+            seniorSittingList.mapTo(allForms) { seniorSitting ->
+                DisplayableFormInfo(
+                    id = seniorSitting.iD.toString(),
+                    formType = FormType.SENIOR_SITTING.name,
+                    displayName = seniorSitting.nameSurnameUser,
+                    creationDate = seniorSitting.evalDateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA)?.time ?: 0,
+                )
+            }
+
             /*
                 comidList.mapTo(allForms) { comid ->
                     DisplayableFormInfo(

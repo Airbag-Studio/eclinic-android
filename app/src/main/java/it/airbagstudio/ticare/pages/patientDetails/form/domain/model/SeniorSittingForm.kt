@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.domain.model
 
+import ch.ticare.eclinic.library.entity.Contact
 import kotlinx.serialization.Serializable
 import java.util.UUID
 
@@ -9,6 +10,7 @@ data class SeniorSittingForm(
     val creationDate: Long = System.currentTimeMillis(),
     val lastModified: Long = System.currentTimeMillis(),
     val patientData: PatientData = PatientData(),
+    val selectedCaregiver: Contact? = null,
     val type: SeniorSittingType = SeniorSittingType.ADESIONE,
     val compilationTimestamp: Long = System.currentTimeMillis(),
     val sections: List<SeniorSittingSection> = emptyList(),

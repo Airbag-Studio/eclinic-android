@@ -1,33 +1,59 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsitting
 
+import android.R.attr.type
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.Contact
+import ch.ticare.eclinic.library.entity.SeniorSittingScalePost
+import ch.ticare.eclinic.library.repository.FormRepository
+import ch.ticare.eclinic.library.repository.UserDetailRepository
+import ch.ticare.eclinic.library.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.SeniorSittingQuestions
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingType
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittingadesione.SeniorSittingAdesioneFormUiState
+import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT
+import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.util.Date
+import javax.inject.Inject
 
-class SeniorSittingFormViewModel(
-    private val oldFormRepository: OldFormRepository
+@HiltViewModel
+class SeniorSittingFormViewModel @Inject constructor(
+    private val formRepository: FormRepository,
+    private val userDetailRepository: UserDetailRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SeniorSittingFormUiState>(SeniorSittingFormUiState.Editing(form = createNewForm()))
     val uiState: StateFlow<SeniorSittingFormUiState> = _uiState.asStateFlow()
+
+    private var userId: Int? = null
 
     object ValidationKeys {
         const val COMPILATION_TIMESTAMP = "compilation_timestamp"
         fun sectionKey(sectionId: String) = "section_${sectionId}"
     }
 
+    init {
+        viewModelScope.launch {
+            userRepository.getCurrentUserID().collect(){
+                userId = it
+            }
+        }
+
+    }
+
     private fun createNewForm(): SeniorSittingForm {
-        val user = oldFormRepository.getUserDetails()
+        val user = userDetailRepository.getCurrentCase()
         val userBirth = user?.birthday?.split(".")?.let {
             try {
                 val day = it[0].toInt()
@@ -56,6 +82,134 @@ class SeniorSittingFormViewModel(
     }
 
     fun initForm(formId: String?) {
+        var case = userDetailRepository.getCurrentCase() ?: return
+        val caseCode = case.patientCod ?: return
+        val contacts = userDetailRepository.getCurrentCase()?.contacts?.otherContacts ?: listOf()
+        viewModelScope.launch {
+            formRepository.getSeniorSittingScaleList(caseCode).results?.firstOrNull { it.iD == formId?.toInt() }?.let { form ->
+
+
+                val isAdesione = form.modality
+                onTypeChanged(if (isAdesione) SeniorSittingType.ADESIONE else SeniorSittingType.NON_ADESIONE)
+                val currentState = _uiState.value
+                if (currentState is SeniorSittingFormUiState.Editing) {
+                    if (isAdesione){
+                        val updatedForm = currentState.form.copy(
+                            selectedCaregiver = contacts.firstOrNull { it.id == form.iDContact },
+                            compilationTimestamp = System.currentTimeMillis(),
+                        )
+                        _uiState.update {
+                            currentState.copy(form = updatedForm)
+                        }
+                        onQuestionResponseChanged(
+                            sectionId = "scaled_questions",
+                            questionId = SeniorSittingQuestions.Q1_GRADIMENTO_ID,
+                            newScore = form.tableARow1,
+                            newText = null
+                        )
+                        onQuestionResponseChanged(
+                            sectionId = "scaled_questions",
+                            questionId = SeniorSittingQuestions.Q2_UTILITA_SERVIZIO_ID,
+                            newScore = form.tableARow2,
+                            newText = null)
+                        onQuestionResponseChanged(
+                            sectionId = "scaled_questions",
+                            questionId = SeniorSittingQuestions.Q3_QUALITA_OFFERTA_ID,
+                            newScore = form.tableARow3,
+                            newText = null)
+                        onQuestionResponseChanged(
+                            sectionId = "scaled_questions",
+                            questionId = SeniorSittingQuestions.Q4_UTILITA_SGRAVO_CAREGIVER_ID,
+                            newScore = form.tableARow4,
+                            newText = null)
+                        onQuestionResponseChanged(
+                            sectionId = "scaled_questions",
+                            questionId = SeniorSittingQuestions.Q5_UTILITA_CONTATTI_SOCIALI_ID,
+                            newScore = form.tableARow5,
+                            newText = null)
+                        onQuestionResponseChanged(
+                            sectionId = "scaled_questions",
+                            questionId = SeniorSittingQuestions.Q6_INCIDENZA_COSTO_ID,
+                            newScore = form.tableARow6,
+                            newText = null)
+                        onQuestionResponseChanged(
+                            sectionId = "scaled_questions",
+                            questionId = SeniorSittingQuestions.Q7_AIUTO_SCUDO_ID,
+                            newScore = null,
+                            newText = form.tableARow7 ?: ""
+                        )
+                        onQuestionResponseChanged(
+                            sectionId = "management_organization_questions",
+                            questionId = SeniorSittingQuestions.Q8_SUGGERIMENTI_ID,
+                            newScore = null,
+                            newText = form.tableARow8 ?: ""
+                        )
+                    } else {
+                        val updatedForm = currentState.form.copy(
+                            selectedCaregiver = contacts.firstOrNull { it.id == form.iDContact },
+                            compilationTimestamp = System.currentTimeMillis(),
+                        )
+                        _uiState.update {
+                            currentState.copy(form = updatedForm)
+                        }
+                        onCheckboxChanged(
+                            sectionOrder = 1,
+                            questionId = SeniorSittingQuestions.NA_Q1_AUTONOMIA_ID,
+                            isChecked = form.tableBRow1 == 1
+                        )
+                        onCheckboxChanged(
+                            sectionOrder = 1,
+                            questionId = SeniorSittingQuestions.NA_Q2_ALTRI_AIUTI_ID,
+                            isChecked = form.tableBRow2 == 1
+                        )
+                        onCheckboxChanged(
+                            sectionOrder = 1,
+                            questionId = SeniorSittingQuestions.NA_Q3_NON_PERTINENTE_ID,
+                            isChecked = form.tableBRow3 == 1
+                        )
+                        onCheckboxChanged(
+                            sectionOrder = 1,
+                            questionId = SeniorSittingQuestions.NA_Q4_COSTO_SOSTENERE_ID,
+                            isChecked = form.tableBRow4 == 1
+                        )
+                        onCheckboxChanged(
+                            sectionOrder = 1,
+                            questionId = SeniorSittingQuestions.NA_Q5_COSTO_CARO_ID,
+                            isChecked = form.tableBRow5 == 1
+                        )
+                        onCheckboxChanged(
+                            sectionOrder = 1,
+                            questionId = SeniorSittingQuestions.NA_Q6_NON_SUFFICIENTE_ID,
+                            isChecked = form.tableBRow6 == 1
+                        )
+                        onCheckboxChanged(
+                            sectionOrder = 1,
+                            questionId = SeniorSittingQuestions.NA_Q7_FASCIA_ORARIA_ID,
+                            isChecked = form.tableBRow7 == 1
+                        )
+                        onCheckboxChanged(
+                            sectionOrder = 1,
+                            questionId = SeniorSittingQuestions.NA_Q8_COMPETENZA_ID,
+                            isChecked = form.tableBRow8 == 1
+                        )
+                        onCheckboxChanged(
+                            sectionOrder = 1,
+                            questionId = SeniorSittingQuestions.NA_Q9_NON_RISPONDE_ID,
+                            isChecked = form.tableBRow9 == 1
+                        )
+                        onQuestionResponseChanged(
+                            sectionId = "non_adesione_suggestions",
+                            questionId = SeniorSittingQuestions.NA_Q10_SUGGERIMENTI_ID,
+                            newScore = null,
+                            newText = form.tableBRow10 ?: ""
+
+                        )
+                    }
+                }
+
+            }
+
+        }
         if (formId == null) {
             _uiState.value = SeniorSittingFormUiState.Editing(
                 form = createNewForm()
@@ -78,6 +232,19 @@ class SeniorSittingFormViewModel(
         }
     }
 
+    fun  selectCaregiver(contact: Contact){
+        val currentState = _uiState.value
+        if (currentState is SeniorSittingFormUiState.Editing) {
+            val updatedForm = currentState.form.copy(
+                selectedCaregiver = contact
+            )
+            _uiState.update {
+                currentState.copy(form = updatedForm)
+            }
+            validateFormAndUpdateState(currentState)
+        }
+    }
+
     fun onTypeChanged(newType: SeniorSittingType) {
         val currentState = _uiState.value
         if (currentState is SeniorSittingFormUiState.Editing) {
@@ -89,6 +256,7 @@ class SeniorSittingFormViewModel(
             _uiState.update {
                 currentState.copy(form = updatedForm)
             }
+            validateFormAndUpdateState(currentState)
         }
     }
 
@@ -130,6 +298,7 @@ class SeniorSittingFormViewModel(
                     form = currentState.form.copy(sections = updatedSections)
                 )
             }
+            validateFormAndUpdateState(currentState)
         }
     }
 
@@ -159,14 +328,16 @@ class SeniorSittingFormViewModel(
                     form = currentState.form.copy(sections = updatedSections)
                 )
             }
+            validateFormAndUpdateState(currentState)
         }
+
     }
 
     private fun validateFormAndUpdateState(editingState: SeniorSittingFormUiState.Editing): Boolean {
         var isValid = true
         val newInvalidFieldKeys = mutableSetOf<String>()
         val validationErrors = mutableListOf<String>()
-
+        val selectedCaregiver = editingState.form.selectedCaregiver ?: return false
         when (editingState.form.type) {
             SeniorSittingType.ADESIONE -> {
                 // Validate Adesione form
@@ -221,9 +392,13 @@ class SeniorSittingFormViewModel(
         return isValid
     }
 
-    fun saveForm() {
+    fun saveForm(formId: String?) {
         val currentState = _uiState.value
-        if (currentState !is SeniorSittingFormUiState.Editing) return
+        val case = userDetailRepository.getCurrentCase() ?: return
+        val userId = userId ?: return
+        val selectedCaregiver = (currentState as? SeniorSittingFormUiState.Editing)?.form?.selectedCaregiver ?: return
+
+        val isAdesione = currentState.form.type == SeniorSittingType.ADESIONE
 
         if (!validateFormAndUpdateState(currentState)) {
             return
@@ -232,14 +407,54 @@ class SeniorSittingFormViewModel(
         viewModelScope.launch {
             _uiState.update { currentState.copy(isSaving = true) }
 
-            val formToSave = currentState.form.copy(
-                lastModified = System.currentTimeMillis()
-            )
-
             try {
-                // TODO: Implement form saving to repository
-                // For now, just simulate success
-                kotlinx.coroutines.delay(1000) // Simulate network delay
+                val formToSave = currentState.form.copy(lastModified = System.currentTimeMillis())
+
+                val data = if (isAdesione){
+                    SeniorSittingScalePost.SeniorSittingScale(
+                        id = formId?.toInt(),
+                        cODCase = case.patientCod.toString(),
+                        evalDateTime = Date(formToSave.compilationTimestamp).format(SERVER_PARAMETER_DATE_TIME_FORMAT),
+                        tableARow1 = formToSave.sections[0].questions[0].score,
+                        tableARow2 = formToSave.sections[0].questions[1].score,
+                        tableARow3 = formToSave.sections[0].questions[2].score,
+                        tableARow4 = formToSave.sections[0].questions[3].score,
+                        tableARow5 = formToSave.sections[0].questions[4].score,
+                        tableARow6 = formToSave.sections[0].questions[5].score,
+                        tableARow7 = formToSave.sections[0].questions[6].questionText,
+                        tableARow8 = formToSave.sections[1].questions[0].questionText,
+                        iDUser = userId,
+                        modality = true,
+                        iDContact = selectedCaregiver.id
+
+                    )
+                } else {
+                    SeniorSittingScalePost.SeniorSittingScale(
+                        id = formId?.toInt(),
+                        cODCase = case.patientCod.toString(),
+                        evalDateTime = Date(formToSave.compilationTimestamp).format(SERVER_PARAMETER_DATE_TIME_FORMAT),
+                        iDUser = userId,
+                        modality = false,
+                        iDContact = selectedCaregiver.id,
+                        tableBRow1 = formToSave.sections[0].questions[0].score,
+                        tableBRow2 = formToSave.sections[0].questions[1].score,
+                        tableBRow3 = formToSave.sections[0].questions[2].score,
+                        tableBRow4 = formToSave.sections[0].questions[3].score,
+                        tableBRow5 = formToSave.sections[0].questions[4].score,
+                        tableBRow6 = formToSave.sections[0].questions[5].score,
+                        tableBRow7 = formToSave.sections[0].questions[6].score,
+                        tableBRow8 = formToSave.sections[0].questions[7].score,
+                        tableBRow9 = formToSave.sections[0].questions[8].score,
+                        tableBRow10 = formToSave.sections[1].questions[0].questionText,
+
+                    )
+                }
+
+                if (formId != null){
+                    formRepository.editSeniorSittingScale(data)
+                } else {
+                    formRepository.addSeniorSittingTestScale(data)
+                }
                 _uiState.value = SeniorSittingFormUiState.Saved(formToSave)
             } catch (e: IOException) {
                 _uiState.value = currentState.copy(

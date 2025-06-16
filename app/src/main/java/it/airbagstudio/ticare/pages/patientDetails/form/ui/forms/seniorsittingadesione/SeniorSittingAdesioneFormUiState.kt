@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittingadesione
 
+import ch.ticare.eclinic.library.entity.Contact
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingAdesioneForm
 
@@ -13,6 +14,7 @@ sealed interface SeniorSittingAdesioneFormUiState {
         // Validation flags for patient data (similar to other forms)
         val isPatientBirthDateValid: Boolean = true, // Assuming birth date is still part of PatientData shown
         val isCompilationTimestampValid: Boolean = true,
+        val selectedCaregiver: Contact? = null,
         // Specific validation for Senior Sitting questions can be added if needed,
         // e.g., ensuring all scaled questions are answered.
         // For now, isFormValid will depend on patient data and if all questions are touched.

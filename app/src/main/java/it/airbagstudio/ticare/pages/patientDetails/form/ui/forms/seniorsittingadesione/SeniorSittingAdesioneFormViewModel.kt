@@ -2,33 +2,57 @@ package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittinga
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.Contact
+import ch.ticare.eclinic.library.entity.SeniorSittingScalePost
+import ch.ticare.eclinic.library.repository.FormRepository
+import ch.ticare.eclinic.library.repository.UserDetailRepository
+import ch.ticare.eclinic.library.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.SeniorSittingAdesioneQuestions
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingAdesioneForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
+import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT
+import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.ZoneOffset
+import java.util.Date
+import javax.inject.Inject
 
-class SeniorSittingAdesioneFormViewModel(
-    private val oldFormRepository: OldFormRepository,
-    private val formId: String?
+@HiltViewModel
+class SeniorSittingAdesioneFormViewModel @Inject constructor(
+    private val formRepository: FormRepository,
+    private val userDetailRepository: UserDetailRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SeniorSittingAdesioneFormUiState>(SeniorSittingAdesioneFormUiState.Loading)
     val uiState: StateFlow<SeniorSittingAdesioneFormUiState> = _uiState.asStateFlow()
 
+    private var userId: Int? = null
+
+
     init {
         loadOrCreateForm()
+        viewModelScope.launch {
+            userRepository.getCurrentUserID().collect(){
+                userId = it
+            }
+        }
+
     }
+
+    var formId: String? = null
 
     private fun loadOrCreateForm() {
         viewModelScope.launch {
             _uiState.value = SeniorSittingAdesioneFormUiState.Loading
             if (formId != null) {
+                /*
                 try {
                     val form = oldFormRepository.getSeniorSittingAdesioneFormById(formId)
                     if (form != null) {
@@ -45,9 +69,18 @@ class SeniorSittingAdesioneFormViewModel(
                     _uiState.value = SeniorSittingAdesioneFormUiState.Error("Errore nel caricamento del form: ${e.localizedMessage}")
                     initializeNewForm()
                 }
+
+                 */
             } else {
                 initializeNewForm()
             }
+        }
+    }
+
+    fun selectCaregiver(caregiver: Contact) {
+        (_uiState.value as? SeniorSittingAdesioneFormUiState.Editing)?.let { currentState ->
+            val updatedForm = currentState.copy(selectedCaregiver = caregiver)
+            _uiState.value = updatedForm
         }
     }
 
@@ -56,7 +89,7 @@ class SeniorSittingAdesioneFormViewModel(
         // The ViewModel won't initialize it here but expect it to be passed or loaded.
         // For a new form instance, we'd typically get patient data from a shared source.
         // For this example, we'll assume PatientData() is a placeholder and will be populated.
-        val user = oldFormRepository.getUserDetails()
+        val user = userDetailRepository.getCurrentCase()
         val userBirth = user?.birthday?.split(".")?.let {
             java.time.LocalDate.of(it[2].toInt(), it[1].toInt(), it[0].toInt())
         }?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
@@ -146,6 +179,9 @@ class SeniorSittingAdesioneFormViewModel(
     }
 
     fun saveForm() {
+        val case = userDetailRepository.getCurrentCase() ?: return
+        val idUser = userId ?: return
+        val selectedCaregiver = (_uiState.value as? SeniorSittingAdesioneFormUiState.Editing)?.selectedCaregiver ?: return
         (_uiState.value as? SeniorSittingAdesioneFormUiState.Editing)?.let { currentState ->
             if (!currentState.isFormValid) {
                 // Optionally trigger UI feedback about invalid fields
@@ -156,7 +192,25 @@ class SeniorSittingAdesioneFormViewModel(
             viewModelScope.launch {
                 try {
                     val formToSave = currentState.form.copy(lastModified = System.currentTimeMillis())
-                    oldFormRepository.saveSeniorSittingAdesioneForm(formToSave)
+
+                    formRepository.addSeniorSittingTestScale(SeniorSittingScalePost.SeniorSittingScale(
+                        cODCase = case.patientCod.toString(),
+                        evalDateTime = Date(formToSave.compilationTimestamp).format(SERVER_PARAMETER_DATE_TIME_FORMAT),
+                        tableARow1 = formToSave.sections[0].questions[0].score,
+                        tableARow2 = formToSave.sections[0].questions[1].score,
+                        tableARow3 = formToSave.sections[0].questions[2].score,
+                        tableARow4 = formToSave.sections[0].questions[3].score,
+                        tableARow5 = formToSave.sections[0].questions[4].score,
+                        tableARow6 = formToSave.sections[0].questions[5].score,
+                        tableARow7 = formToSave.sections[0].questions[6].questionText,
+                        tableARow8 = formToSave.sections[0].questions[7].questionText,
+                        iDUser = idUser,
+                        modality = true,
+                        iDContact = selectedCaregiver.id
+
+                    ))
+
+
                     _uiState.value = SeniorSittingAdesioneFormUiState.Saved(formToSave)
                 } catch (e: Exception) {
                     _uiState.value = currentState.copy(

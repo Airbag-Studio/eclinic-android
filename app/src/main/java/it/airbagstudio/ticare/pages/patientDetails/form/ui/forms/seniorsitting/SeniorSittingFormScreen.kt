@@ -43,7 +43,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ch.ticare.eclinic.library.entity.Contact
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.SeniorSittingQuestions
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingType
@@ -52,6 +54,8 @@ import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DateTimePi
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.RadioGroupScale
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.SeniorSittingFloatingLegend
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.SeniorSittingTypeSelector
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.common.caregiverView.CaregiverView
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittingadesione.SeniorSittingAdesioneFormUiState
 import it.airbagstudio.ticare.ui.theme.formColors
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -63,11 +67,8 @@ fun SeniorSittingFormScreen(
     formId: String?,
     onClose: () -> Unit,
     onSaved: (formId: String) -> Unit,
-    oldFormRepository: OldFormRepository
+    viewModel: SeniorSittingFormViewModel = hiltViewModel()
 ) {
-    val viewModel: SeniorSittingFormViewModel = viewModel(
-        factory = it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.SeniorSittingFormViewModelFactory(oldFormRepository)
-    )
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -134,6 +135,7 @@ fun SeniorSittingFormScreen(
             is SeniorSittingFormUiState.Editing -> {
                 Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
                     SeniorSittingFormContent(
+                        formId = formId,
                         editingState = state,
                         viewModel = viewModel
                     )
@@ -159,6 +161,7 @@ fun SeniorSittingFormScreen(
 
 @Composable
 fun SeniorSittingFormContent(
+    formId: String?,
     editingState: SeniorSittingFormUiState.Editing,
     viewModel: SeniorSittingFormViewModel
 ) {
@@ -189,6 +192,11 @@ fun SeniorSittingFormContent(
         )
         Spacer(modifier = Modifier.height(24.dp))
 
+        CaregiverView(selectedCaregiver = editingState.form.selectedCaregiver) {
+            viewModel.selectCaregiver(it)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+
         // Form Sections
         form.sections.forEach { section ->
             Spacer(modifier = Modifier.height(if (form.sections.first() == section) 0.dp else 24.dp))
@@ -211,7 +219,7 @@ fun SeniorSittingFormContent(
 
         Spacer(modifier = Modifier.height(24.dp))
         Button(
-            onClick = { viewModel.saveForm() },
+            onClick = { viewModel.saveForm(formId = formId) },
             modifier = Modifier.fillMaxWidth(),
             enabled = editingState.isFormValid && !editingState.isSaving
         ) {

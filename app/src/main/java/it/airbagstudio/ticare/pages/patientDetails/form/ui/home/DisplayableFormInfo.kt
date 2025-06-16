@@ -14,5 +14,5 @@ data class DisplayableFormInfo(
     val formType: String,
     val displayName: String, // Could be constructed from patient name + date, or specific form title
     val creationDate: Long,
-    val totalPoints: Int
+    val totalPoints: Int? = null,
 )
