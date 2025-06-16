@@ -339,7 +339,7 @@ fun SeniorSittingFormSectionRenderer(
                                         onValueChange = { newText ->
                                             onQuestionResponseChanged(question.questionId, null, newText)
                                         },
-                                        label = { Text("In cosa Scudo potrebbe aiutarla maggiormente per farla sentire meglio e ridurre il suo carico assistenziale?") },
+                                        label = { Text("") },
                                         placeholder = { Text("Scrivi qui...") },
                                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 16.dp).defaultMinSize(minHeight = 100.dp),
                                         singleLine = false,
