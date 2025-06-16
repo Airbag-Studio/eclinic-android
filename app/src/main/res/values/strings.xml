@@ -331,6 +331,8 @@
     <string name="scale">Scale</string>
     <string name="new_scale">Nuova Scala</string>
     <string name="contacts">Contatti</string>
+    <string name="senior_sitting_form_title">Senior Sitting Test</string>
+    <string name="ipost_form_title">Ipos test</string>
 
 
 </resources>

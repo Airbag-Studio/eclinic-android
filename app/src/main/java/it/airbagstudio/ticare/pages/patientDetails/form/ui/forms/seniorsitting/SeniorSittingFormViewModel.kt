@@ -82,6 +82,9 @@ class SeniorSittingFormViewModel @Inject constructor(
         var case = userDetailRepository.getCurrentCase() ?: return
         val caseCode = case.patientCod ?: return
         val contacts = userDetailRepository.getCurrentCase()?.contacts?.otherContacts ?: listOf()
+        _uiState.value = SeniorSittingFormUiState.Editing(
+            form = createNewForm()
+        )
         viewModelScope.launch {
             formRepository.getSeniorSittingScaleList(caseCode).results?.firstOrNull { it.iD == formId?.toInt() }?.let { form ->
 
@@ -206,26 +209,6 @@ class SeniorSittingFormViewModel @Inject constructor(
 
             }
 
-        }
-        if (formId == null) {
-            _uiState.value = SeniorSittingFormUiState.Editing(
-                form = createNewForm()
-            )
-        } else {
-            viewModelScope.launch {
-                _uiState.value = SeniorSittingFormUiState.Loading
-                try {
-                    // TODO: Implement form loading from repository
-                    // For now, create a new form
-                    _uiState.value = SeniorSittingFormUiState.Editing(
-                        form = createNewForm()
-                    )
-                } catch (e: IOException) {
-                    _uiState.value = SeniorSittingFormUiState.Error("Errore nel caricamento del form Senior Sitting: ${e.message}")
-                } catch (e: Exception) {
-                    _uiState.value = SeniorSittingFormUiState.Error("Errore imprevisto nel caricamento del form Senior Sitting: ${e.message}")
-                }
-            }
         }
     }
 
