@@ -1,6 +1,5 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsitting
 
-import android.R.attr.type
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.Contact
@@ -13,8 +12,6 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.SeniorSittin
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingType
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittingadesione.SeniorSittingAdesioneFormUiState
 import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT
 import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.flow.MutableStateFlow

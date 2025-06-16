@@ -165,7 +165,7 @@ fun ComidFormScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
-                        onClick = { viewModel.saveForm() },
+                        onClick = { viewModel.saveForm(formId) },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !currentState.isSaving
                     ) {

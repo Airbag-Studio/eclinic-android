@@ -16,6 +16,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSitti
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingNonAdesioneForm
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi.getTotalScore
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.getTotalScore
 import it.airbagstudio.ticare.utils.DATE_ONLY_TIME_FORMAT
 import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT_ITA
 import it.airbagstudio.ticare.utils.toDate
@@ -59,20 +60,11 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = HomeUiState.Loading
 
-            //val cbiFormsFlow = formRepository.getCbiScaleList(caseCod)
-            //val comidFormsFlow = oldFormRepository.getComidForms()
-            //val ipos3ggFormsFlow = oldFormRepository.getIPOS3ggForms() // Added IPOS3gg flow
-            //val ipos7ggFormsFlow = oldFormRepository.getIPOS7ggForms() // Added IPOS7gg flow
-            //val seniorSittingAdesioneFormsFlow = oldFormRepository.getSeniorSittingAdesioneForms() // Added SeniorSittingAdesione flow
-            //val seniorSittingNonAdesioneFormsFlow = oldFormRepository.getSeniorSittingNonAdesioneForms() // Added SeniorSittingNonAdesione flow
-
-            // Combine flows of CBIForm, COMIDForm, IPOS3ggForm, IPOS7ggForm, SeniorSittingAdesioneForm, and SeniorSittingNonAdesioneForm
-
                 // It's expected that 'flows' is an Array<List<*>> where each element corresponds to a flow's emission
                 @Suppress("UNCHECKED_CAST")
                 val cbiList = formRepository.getCbiScaleList(caseCod).results ?: listOf<GetCBITestList.CBITestResult>()
                 @Suppress("UNCHECKED_CAST")
-                val comidList = listOf<COMIDForm>()
+                val comidList = formRepository.getComidScaleList(caseCod).results ?: listOf()
                 @Suppress("UNCHECKED_CAST")
                 val iposList = formRepository.getIopsScaleList(caseCod).results ?: listOf()
                 @Suppress("UNCHECKED_CAST")
@@ -106,64 +98,17 @@ class HomeViewModel @Inject constructor(
                 )
             }
 
-            /*
+
                 comidList.mapTo(allForms) { comid ->
                     DisplayableFormInfo(
-                        id = comid.id,
-                        formType = comid.formType,
-                        displayName = "${comid.patientData.name} ${comid.patientData.surname}",
-                        creationDate = comid.creationDate,
-                        lastModified = comid.lastModified,
-                        patientName = comid.patientData.name,
-                        patientSurname = comid.patientData.surname
+                        id = comid.iD.toString(),
+                        formType = FormType.COMID.name,
+                        displayName = comid.nameSurnameUser,
+                        creationDate = comid.evalDateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA)?.time ?: 0,
+                        totalPoints = comid.getTotalScore()
                     )
                 }
-                ipos3ggList.mapTo(allForms) { ipos3gg ->
-                    DisplayableFormInfo(
-                        id = ipos3gg.id,
-                        formType = ipos3gg.formType,
-                        displayName = "${ipos3gg.patientData.name} ${ipos3gg.patientData.surname}",
-                        creationDate = ipos3gg.creationDate,
-                        lastModified = ipos3gg.lastModified,
-                        patientName = ipos3gg.patientData.name,
-                        patientSurname = ipos3gg.patientData.surname
-                    )
-                }
-                ipos7ggList.mapTo(allForms) { ipos7gg ->
-                    DisplayableFormInfo(
-                        id = ipos7gg.id,
-                        formType = ipos7gg.formType,
-                        displayName = "${ipos7gg.patientData.name} ${ipos7gg.patientData.surname}",
-                        creationDate = ipos7gg.creationDate,
-                        lastModified = ipos7gg.lastModified,
-                        patientName = ipos7gg.patientData.name,
-                        patientSurname = ipos7gg.patientData.surname
-                    )
-                }
-                seniorSittingList.mapTo(allForms) { seniorSitting ->
-                    DisplayableFormInfo(
-                        id = seniorSitting.id,
-                        formType = seniorSitting.formType,
-                        displayName = "${seniorSitting.patientData.name} ${seniorSitting.patientData.surname}",
-                        creationDate = seniorSitting.creationDate,
-                        lastModified = seniorSitting.lastModified,
-                        patientName = seniorSitting.patientData.name,
-                        patientSurname = seniorSitting.patientData.surname
-                    )
-                }
-                seniorSittingNonAdesioneList.mapTo(allForms) { seniorSittingNonAdesione ->
-                    DisplayableFormInfo(
-                        id = seniorSittingNonAdesione.id,
-                        formType = seniorSittingNonAdesione.formType,
-                        displayName = "${seniorSittingNonAdesione.patientData.name} ${seniorSittingNonAdesione.patientData.surname}",
-                        creationDate = seniorSittingNonAdesione.creationDate,
-                        lastModified = seniorSittingNonAdesione.lastModified,
-                        patientName = seniorSittingNonAdesione.patientData.name,
-                        patientSurname = seniorSittingNonAdesione.patientData.surname
-                    )
-                }
-                *
-             */
+
                 allForms.sortedByDescending { it.creationDate } // Return the sorted list
 
 

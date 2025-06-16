@@ -1,17 +1,14 @@
 package it.airbagstudio.ticare.navigation
 
-import IPOS7ggFormScreen
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -21,7 +18,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import it.airbagstudio.ticare.LoginRedirect
-import it.airbagstudio.ticare.MainActivity
 import it.airbagstudio.ticare.pages.carePlans.details.CarePlanDetailsScreen
 import it.airbagstudio.ticare.pages.carePlans.list.CarePlanesListScreen
 import it.airbagstudio.ticare.pages.consumptions.ConsumptionListScreen
@@ -34,18 +30,12 @@ import it.airbagstudio.ticare.pages.otherTreatments.OtherTreatmentScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientDetails.alertsAllergies.AlertAllergiesScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.di.provideFormRepository
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.factories.SeniorSittingNonAdesioneFormViewModelFactory
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi.CbiFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.ComidFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos.IPOSFormScreen
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos3gg.IPOS3ggFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsitting.SeniorSittingFormScreen
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittingadesione.SeniorSittingAdesioneFormScreen
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsittingnonadesione.SeniorSittingNonAdesioneFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.FormType
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.HomeScreen
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.HomeViewModel
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
 import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
@@ -388,182 +378,6 @@ fun EclinicNavGraph(
                     }
                 }
             )
-        }
-
-        composable(
-            route = AppDestinations.IPOS3GG_FORM_ROUTE,
-            arguments = listOf(
-                navArgument(AppDestinations.IPOS3GG_FORM_ID_ARG) { type = NavType.StringType }
-            ),
-            enterTransition = {
-                slideInVertically(
-                    initialOffsetY = { fullHeight -> fullHeight },
-                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
-                )
-            },
-            exitTransition = {
-                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
-            }
-        ) { backStackEntry ->
-            val formId = backStackEntry.arguments?.getString(AppDestinations.IPOS3GG_FORM_ID_ARG)
-            val actualFormId = if (formId == "new") null else formId
-
-            // Assuming MainActivity.FormRepositoryProvider is accessible here
-            // This requires formRepository to be passed down or accessed via LocalContext if MainActivity provides it.
-            // For now, direct pass as AppNavigation already takes formRepository.
-            val activity = LocalContext.current as? MainActivity
-
-            if (activity != null) { // activity is MainActivity and thus FormRepositoryProvider
-                IPOS3ggFormScreen(
-                    oldFormRepository = formRepository, // Pass MainActivity instance as FormRepositoryProvider
-                    formId = actualFormId,
-                    onClose = {
-                        navController.popBackStack()
-                    },
-                    onSaved = { savedFormId -> // Ensure lambda matches IPOS3ggFormScreen
-                        navController.navigate(AppDestinations.homeRoute(saved = true)) {
-                            popUpTo(AppDestinations.homeRoute(saved = false)) {
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                        }
-                    }
-                )
-            } else {
-                // Handle the case where activity is not MainActivity or null
-                // This should ideally not happen if the app structure is correct
-                Text("Error: Required context not available for IPOS3gg form.")
-            }
-        }
-
-        composable(
-            route = AppDestinations.IPOS7GG_FORM_ROUTE, // Added for IPOS7gg
-            arguments = listOf(
-                navArgument(AppDestinations.IPOS7GG_FORM_ID_ARG) { type = NavType.StringType }
-            ),
-            enterTransition = {
-                slideInVertically(
-                    initialOffsetY = { fullHeight -> fullHeight },
-                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
-                )
-            },
-            exitTransition = {
-                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
-            }
-        ) { backStackEntry ->
-            val formId = backStackEntry.arguments?.getString(AppDestinations.IPOS7GG_FORM_ID_ARG)
-            val actualFormId = if (formId == "new") null else formId
-            val activity = LocalContext.current as? MainActivity
-
-            if (activity != null) {
-                IPOS7ggFormScreen(
-                    oldFormRepository = formRepository,
-                    formId = actualFormId,
-                    onClose = {
-                        navController.popBackStack()
-                    },
-                    onSaved = { savedFormId ->
-                        navController.navigate(AppDestinations.homeRoute(saved = true)) {
-                            popUpTo(AppDestinations.homeRoute(saved = false)) {
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                        }
-                    }
-                )
-            } else {
-                Text("Error: Required context not available for IPOS7gg form.")
-            }
-        }
-
-        composable(
-            route = AppDestinations.SENIOR_SITTING_ADESIONE_FORM_ROUTE,
-            arguments = listOf(
-                navArgument(AppDestinations.SENIOR_SITTING_ADESIONE_FORM_ID_ARG) { type = NavType.StringType }
-            ),
-            enterTransition = {
-                slideInVertically(
-                    initialOffsetY = { fullHeight -> fullHeight },
-                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
-                )
-            },
-            exitTransition = {
-                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
-            }
-        ) { backStackEntry ->
-            val formId = backStackEntry.arguments?.getString(AppDestinations.SENIOR_SITTING_ADESIONE_FORM_ID_ARG)
-            val actualFormId = if (formId == "new") null else formId
-            val activity = LocalContext.current as? MainActivity
-
-            if (activity != null) {
-                SeniorSittingAdesioneFormScreen(
-                    oldFormRepository = formRepository,
-                    formId = actualFormId,
-                    onClose = {
-                        navController.popBackStack()
-                    },
-                    onSaved = { savedFormId ->
-                        navController.navigate(AppDestinations.homeRoute(saved = true)) {
-                            popUpTo(AppDestinations.homeRoute(saved = false)) {
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                        }
-                    }
-                )
-            } else {
-                Text("Error: Required context not available for Senior Sitting Adesione form.")
-            }
-        }
-
-        composable(
-            route = AppDestinations.SENIOR_SITTING_NON_ADESIONE_FORM_ROUTE,
-            arguments = listOf(
-                navArgument(AppDestinations.SENIOR_SITTING_NON_ADESIONE_FORM_ID_ARG) { type = NavType.StringType }
-            ),
-            enterTransition = {
-                slideInVertically(
-                    initialOffsetY = { fullHeight -> fullHeight },
-                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
-                )
-            },
-            exitTransition = {
-                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
-            }
-        ) { backStackEntry ->
-            val formId = backStackEntry.arguments?.getString(AppDestinations.SENIOR_SITTING_NON_ADESIONE_FORM_ID_ARG)
-            val actualFormId = if (formId == "new") null else formId
-            val activity = LocalContext.current as? MainActivity // Assuming MainActivity provides PatientData or similar context if needed by ViewModel
-
-            // For SeniorSittingNonAdesioneFormViewModel, we need PatientData.
-            // This is a placeholder. In a real app, PatientData might come from a shared ViewModel,
-            // navigation arguments if simple enough, or be fetched based on some other context.
-            // For now, using a default PatientData() for new forms, or the one from the loaded form.
-            // The ViewModel constructor expects a non-null PatientData.
-            // This logic might need refinement based on how PatientData is actually sourced for new forms.
-            // For the factory, we provide a default PatientData. The ViewModel itself is responsible
-            // for loading the correct PatientData when an existing formId is provided.
-            val patientDataForFactory = remember { PatientData() }
-
-            if (activity != null) { // Still useful for context, though ViewModel factory handles repo
-                SeniorSittingNonAdesioneFormScreen(
-                    viewModel = viewModel(factory = SeniorSittingNonAdesioneFormViewModelFactory(actualFormId, formRepository, patientDataForFactory)),
-                    formId = actualFormId,
-                    onClose = {
-                        navController.popBackStack()
-                    },
-                    onSaved = { savedFormId, formType ->
-                        navController.navigate(AppDestinations.homeRoute(saved = true)) {
-                            popUpTo(AppDestinations.homeRoute(saved = false)) {
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                        }
-                    }
-                )
-            } else {
-                Text("Error: Required context not available for Senior Sitting Non Adesione form.")
-            }
         }
     }
 }
