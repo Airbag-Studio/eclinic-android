@@ -230,7 +230,7 @@ fun EclinicNavGraph(
                     }
                 },
                 onBack = {
-                    navController.popBackStack()
+                    navController.popBackStack(Destinations.PATIENT_DETAILS_ROUTE, inclusive = false)
                 }
             )
         }
@@ -259,7 +259,7 @@ fun EclinicNavGraph(
             CbiFormScreen(
                 formId = actualFormId,
                 onClose = {
-                    navController.popBackStack()
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
                 },
                 onSaved = {
                     // Navigate to home indicating a save occurred
@@ -299,7 +299,7 @@ fun EclinicNavGraph(
             ComidFormScreen(
                 formId = actualFormId,
                 onClose = {
-                    navController.popBackStack()
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
                 },
                 onSaved = {
                     navController.navigate(AppDestinations.homeRoute(saved = true)) {
@@ -333,7 +333,7 @@ fun EclinicNavGraph(
             IPOSFormScreen(
                 formId = actualFormId,
                 onClose = {
-                    navController.popBackStack()
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
                 },
                 onSaved = { savedFormId ->
                     navController.navigate(AppDestinations.homeRoute(saved = true)) {
@@ -367,7 +367,7 @@ fun EclinicNavGraph(
             SeniorSittingFormScreen(
                 formId = actualFormId,
                 onClose = {
-                    navController.popBackStack()
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
                 },
                 onSaved = { savedFormId ->
                     navController.navigate(AppDestinations.homeRoute(saved = true)) {
