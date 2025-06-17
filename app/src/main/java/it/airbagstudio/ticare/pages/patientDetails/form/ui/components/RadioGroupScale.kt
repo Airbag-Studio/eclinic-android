@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun RadioGroupScale(
+    enabled : Boolean,
     selectedValue: Int?, // Changed to nullable
     onValueSelected: (Int) -> Unit,
     minValue: Int = 0,
@@ -60,6 +61,7 @@ fun RadioGroupScale(
                         .padding(4.dp)
                 ) {
                     RadioButton(
+                        enabled = enabled,
                         selected = (value == selectedValue),
                         onClick = null // Gestito dal selectable
                     )

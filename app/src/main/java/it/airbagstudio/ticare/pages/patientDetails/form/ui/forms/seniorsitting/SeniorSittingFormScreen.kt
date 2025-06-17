@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsitting
 
+import android.R.attr.checked
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -37,7 +39,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -67,7 +71,8 @@ fun SeniorSittingFormScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-
+    var isEditingEnabled by remember { mutableStateOf(false) }
+    var isFormEnabled = isEditingEnabled || formId == null
     LaunchedEffect(formId) {
         viewModel.initForm(formId)
     }
@@ -98,6 +103,16 @@ fun SeniorSittingFormScreen(
                             "Senior Sitting"
                         }
                     )
+                },
+                actions = {
+                    if (formId != null) {
+                        IconButton(onClick = { isEditingEnabled = !isEditingEnabled }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Torna indietro"
+                            )
+                        }
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
@@ -131,6 +146,7 @@ fun SeniorSittingFormScreen(
             is SeniorSittingFormUiState.Editing -> {
                 Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
                     SeniorSittingFormContent(
+                        isFormEnabled = isFormEnabled,
                         formId = formId,
                         editingState = state,
                         viewModel = viewModel
@@ -157,6 +173,7 @@ fun SeniorSittingFormScreen(
 
 @Composable
 fun SeniorSittingFormContent(
+    isFormEnabled: Boolean,
     formId: String?,
     editingState: SeniorSittingFormUiState.Editing,
     viewModel: SeniorSittingFormViewModel
@@ -173,6 +190,7 @@ fun SeniorSittingFormContent(
     ) {
         // Type Selector
         SeniorSittingTypeSelector(
+            enabled = isFormEnabled,
             selectedType = form.type,
             onTypeSelected = { viewModel.onTypeChanged(it) },
             modifier = Modifier.padding(bottom = 16.dp)
@@ -188,7 +206,7 @@ fun SeniorSittingFormContent(
         )
         Spacer(modifier = Modifier.height(24.dp))
 
-        CaregiverView(selectedCaregiver = editingState.form.selectedCaregiver) {
+        CaregiverView(enabled = isFormEnabled, selectedCaregiver = editingState.form.selectedCaregiver) {
             viewModel.selectCaregiver(it)
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -198,6 +216,7 @@ fun SeniorSittingFormContent(
             Spacer(modifier = Modifier.height(if (form.sections.first() == section) 0.dp else 24.dp))
             
             SeniorSittingFormSectionRenderer(
+                enabled = isFormEnabled,
                 section = section,
                 formType = form.type,
                 onQuestionResponseChanged = { questionId, newScore, newText ->
@@ -217,7 +236,7 @@ fun SeniorSittingFormContent(
         Button(
             onClick = { viewModel.saveForm(formId = formId) },
             modifier = Modifier.fillMaxWidth(),
-            enabled = editingState.isFormValid && !editingState.isSaving
+            enabled = editingState.isFormValid && !editingState.isSaving && isFormEnabled
         ) {
             if (editingState.isSaving) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
@@ -298,6 +317,7 @@ fun SeniorSittingPatientDataSection(
 
 @Composable
 fun SeniorSittingFormSectionRenderer(
+    enabled: Boolean,
     section: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSittingSection,
     formType: SeniorSittingType,
     onQuestionResponseChanged: (questionId: Int, newScore: Int?, newText: String?) -> Unit,
@@ -335,6 +355,7 @@ fun SeniorSittingFormSectionRenderer(
                                 if (question.questionId == SeniorSittingQuestions.Q7_AIUTO_SCUDO_ID) {
                                     // Q7 as text field
                                     OutlinedTextField(
+                                        enabled = enabled,
                                         value = question.questionText,
                                         onValueChange = { newText ->
                                             onQuestionResponseChanged(question.questionId, null, newText)
@@ -348,6 +369,7 @@ fun SeniorSittingFormSectionRenderer(
                                 } else {
                                     // Scale questions 1-6
                                     ScaleQuestionItem(
+                                        enabled = enabled,
                                         questionText = question.questionText,
                                         score = question.score,
                                         onScoreChange = { newScore ->
@@ -360,6 +382,7 @@ fun SeniorSittingFormSectionRenderer(
                         "management_organization_questions" -> {
                             section.questions.forEach { question ->
                                 OutlinedTextField(
+                                    enabled = enabled,
                                     value = question.questionText,
                                     onValueChange = { newText ->
                                         onQuestionResponseChanged(question.questionId, null, newText)
@@ -379,6 +402,7 @@ fun SeniorSittingFormSectionRenderer(
                         "non_adesione_reasons" -> {
                             section.questions.forEach { question ->
                                 CheckboxQuestionItem(
+                                    enabled = enabled,
                                     questionText = question.questionText,
                                     isChecked = question.score == 1,
                                     onCheckedChange = { isChecked ->
@@ -390,6 +414,7 @@ fun SeniorSittingFormSectionRenderer(
                         "non_adesione_suggestions" -> {
                             section.questions.forEach { question ->
                                 OutlinedTextField(
+                                    enabled = enabled,
                                     value = question.questionText,
                                     onValueChange = { newText ->
                                         onQuestionResponseChanged(question.questionId, null, newText)
@@ -411,6 +436,7 @@ fun SeniorSittingFormSectionRenderer(
 
 @Composable
 fun ScaleQuestionItem(
+    enabled: Boolean,
     questionText: String,
     score: Int?,
     onScoreChange: (Int?) -> Unit,
@@ -423,6 +449,7 @@ fun ScaleQuestionItem(
             modifier = Modifier.padding(bottom = 8.dp)
         )
         RadioGroupScale(
+            enabled = enabled,
             selectedValue = score,
             onValueSelected = { nonNullableScore -> onScoreChange(nonNullableScore) },
             minValue = 1,
@@ -434,6 +461,7 @@ fun ScaleQuestionItem(
 
 @Composable
 fun CheckboxQuestionItem(
+    enabled: Boolean,
     questionText: String,
     isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -451,6 +479,7 @@ fun CheckboxQuestionItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
+            enabled = enabled,
             checked = isChecked,
             onCheckedChange = null // null because toggleable handles it
         )

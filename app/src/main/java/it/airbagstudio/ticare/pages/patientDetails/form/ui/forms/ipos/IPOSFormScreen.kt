@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,7 +37,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -65,7 +68,8 @@ fun IPOSFormScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-
+    var isEditingEnabled by remember { mutableStateOf(false) }
+    var isFormEnabled = isEditingEnabled || formId == null
     LaunchedEffect(formId) {
         viewModel.initForm(formId)
     }
@@ -96,6 +100,16 @@ fun IPOSFormScreen(
                             "IPOS"
                         }
                     )
+                },
+                actions = {
+                    if (formId != null) {
+                        IconButton(onClick = { isEditingEnabled = !isEditingEnabled }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Torna indietro"
+                            )
+                        }
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
@@ -129,6 +143,7 @@ fun IPOSFormScreen(
             is IPOSFormUiState.Editing -> {
                 Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
                     IPOSFormContent(
+                        enabled = isFormEnabled,
                         formId = formId,
                         editingState = state,
                         viewModel = viewModel
@@ -152,6 +167,7 @@ fun IPOSFormScreen(
 
 @Composable
 fun IPOSFormContent(
+    enabled: Boolean,
     formId: String?,
     editingState: IPOSFormUiState.Editing,
     viewModel: IPOSFormViewModel
@@ -168,6 +184,7 @@ fun IPOSFormContent(
     ) {
         // Time Period Selector
         TimePeriodSelector(
+            enabled = enabled,
             selectedPeriod = form.timePeriod,
             onPeriodSelected = { viewModel.onTimePeriodChanged(it) },
             modifier = Modifier.padding(bottom = 16.dp)
@@ -195,6 +212,7 @@ fun IPOSFormContent(
             Spacer(modifier = Modifier.height(if (form.sections.first() == section) 0.dp else 24.dp))
             
             IPOSFormSectionRenderer(
+                enabled = enabled,
                 section = section,
                 timePeriod = form.timePeriod,
                 onQuestionResponseChanged = { questionId, newScore, newText ->
@@ -218,7 +236,7 @@ fun IPOSFormContent(
         Button(
             onClick = { viewModel.saveForm(formId) },
             modifier = Modifier.fillMaxWidth(),
-            enabled = editingState.isFormValid && !editingState.isSaving
+            enabled = editingState.isFormValid && !editingState.isSaving && enabled
         ) {
             if (editingState.isSaving) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
@@ -295,6 +313,7 @@ fun PatientDataSection(
 
 @Composable
 fun IPOSFormSectionRenderer(
+    enabled: Boolean,
     section: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOSSection,
     timePeriod: it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOSTimePeriod,
     onQuestionResponseChanged: (questionId: Int, newScore: Int?, newText: String?) -> Unit,
@@ -323,6 +342,7 @@ fun IPOSFormSectionRenderer(
                     )
                     section.questions.forEachIndexed { index, question ->
                         OutlinedTextField(
+                            enabled = enabled,
                             value = question.questionText,
                             onValueChange = { newText ->
                                 onQuestionResponseChanged(question.questionId, null, newText)
@@ -342,6 +362,7 @@ fun IPOSFormSectionRenderer(
                     )
                     section.questions.forEach { question ->
                         ScaleQuestionItem(
+                            enabled = enabled,
                             questionText = question.questionText,
                             score = question.score,
                             onScoreChange = { newScore ->
@@ -359,6 +380,7 @@ fun IPOSFormSectionRenderer(
                     section.questions.forEachIndexed { index, question ->
                         Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
                             OutlinedTextField(
+                                enabled = enabled,
                                 value = question.questionText,
                                 onValueChange = { newText ->
                                     onQuestionResponseChanged(question.questionId, question.score, newText)
@@ -368,6 +390,7 @@ fun IPOSFormSectionRenderer(
                                 singleLine = true
                             )
                             RadioGroupScale(
+                                enabled = enabled,
                                 selectedValue = question.score,
                                 onValueSelected = { newScoreValue ->
                                     onQuestionResponseChanged(question.questionId, newScoreValue, question.questionText)
@@ -380,6 +403,7 @@ fun IPOSFormSectionRenderer(
                 "Q3_Q9" -> {
                     section.questions.forEach { question ->
                         ScaleQuestionItem(
+                            enabled = enabled,
                             questionText = question.questionText,
                             score = question.score,
                             onScoreChange = { newScore ->
@@ -403,6 +427,7 @@ fun IPOSFormSectionRenderer(
                                 }
                         ) {
                             RadioButton(
+                                enabled = enabled,
                                 selected = (q10Response?.score == index),
                                 onClick = {
                                     q10Response?.let {
@@ -422,6 +447,7 @@ fun IPOSFormSectionRenderer(
 
 @Composable
 fun ScaleQuestionItem(
+    enabled: Boolean,
     questionText: String,
     score: Int?,
     onScoreChange: (Int?) -> Unit,
@@ -434,6 +460,7 @@ fun ScaleQuestionItem(
             modifier = Modifier.padding(bottom = 8.dp)
         )
         RadioGroupScale(
+            enabled = enabled,
             selectedValue = score,
             onValueSelected = { nonNullableScore -> onScoreChange(nonNullableScore) },
             modifier = Modifier.fillMaxWidth()

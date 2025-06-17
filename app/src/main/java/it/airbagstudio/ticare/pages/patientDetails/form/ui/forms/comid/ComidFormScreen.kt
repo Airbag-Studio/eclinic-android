@@ -13,6 +13,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,7 +33,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -57,6 +60,9 @@ fun ComidFormScreen(
     onSaved: () -> Unit,
     viewModel: ComidFormViewModel = hiltViewModel()
 ) {
+
+    var isEditingEnabled by remember { mutableStateOf(false) }
+    var isFormEnabled = isEditingEnabled || formId == null
     LaunchedEffect(formId) {
         viewModel.initForm(formId)
     }
@@ -88,6 +94,16 @@ fun ComidFormScreen(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = stringResource(R.string.action_back)
                         )
+                    }
+                },
+                actions = {
+                    if (formId != null) {
+                        IconButton(onClick = { isEditingEnabled = !isEditingEnabled }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Torna indietro"
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -153,6 +169,7 @@ fun ComidFormScreen(
 
                     currentState.form.sections.forEach { section ->
                         ComidFormSectionRenderer(
+                            enabled = isFormEnabled,
                             section = section,
                             onQuestionResponseChanged = { questionId, response ->
                                 viewModel.updateQuestionResponse(section.order, questionId, response)
@@ -167,7 +184,7 @@ fun ComidFormScreen(
                     Button(
                         onClick = { viewModel.saveForm(formId) },
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = !currentState.isSaving
+                        enabled = !currentState.isSaving && isFormEnabled
                     ) {
                         if (currentState.isSaving) {
                             CircularProgressIndicator(
@@ -251,6 +268,7 @@ fun ComidPatientDataSection(
 
 @Composable
 fun ComidFormSectionRenderer(
+    enabled: Boolean,
     section: COMIDSection,
     onQuestionResponseChanged: (questionId: Int, response: Boolean) -> Unit,
     isInvalid: Boolean = false, // For highlighting section if it has errors
@@ -267,6 +285,7 @@ fun ComidFormSectionRenderer(
             Spacer(modifier = Modifier.height(8.dp))
             section.questions.forEach { question ->
                 ComidQuestionItem(
+                    enabled = enabled,
                     question = question,
                     onResponseSelected = { response ->
                         onQuestionResponseChanged(question.questionId, response)
@@ -280,6 +299,7 @@ fun ComidFormSectionRenderer(
 
 @Composable
 fun ComidQuestionItem(
+    enabled: Boolean,
     question: QuestionResponse,
     onResponseSelected: (Boolean) -> Unit
 ) {
@@ -303,7 +323,7 @@ fun ComidQuestionItem(
                     .padding(end = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                RadioButton(selected = yesSelected, onClick = null)
+                RadioButton(enabled = enabled, selected = yesSelected, onClick = null)
                 Spacer(Modifier.width(4.dp))
                 Text(stringResource(R.string.yes))
             }
@@ -318,7 +338,7 @@ fun ComidQuestionItem(
                     .padding(end = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                RadioButton(selected = noSelected, onClick = null)
+                RadioButton( enabled = enabled,selected = noSelected, onClick = null)
                 Spacer(Modifier.width(4.dp))
                 Text(stringResource(R.string.no))
             }

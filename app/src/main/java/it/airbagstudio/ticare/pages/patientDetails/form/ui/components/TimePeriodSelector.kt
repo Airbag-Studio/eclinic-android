@@ -28,6 +28,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.IPOSTimePer
  */
 @Composable
 fun TimePeriodSelector(
+    enabled: Boolean,
     selectedPeriod: IPOSTimePeriod,
     onPeriodSelected: (IPOSTimePeriod) -> Unit,
     modifier: Modifier = Modifier
@@ -68,6 +69,7 @@ fun TimePeriodSelector(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
+                            enabled = enabled,
                             selected = (period == selectedPeriod),
                             onClick = null // Handled by selectable modifier
                         )

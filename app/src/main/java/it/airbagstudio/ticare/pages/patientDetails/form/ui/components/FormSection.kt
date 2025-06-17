@@ -30,6 +30,7 @@ import it.airbagstudio.ticare.ui.theme.formColors
  */
 @Composable
 fun FormSection(
+    enabled : Boolean,
     sectionType: SectionType,
     questions: List<QuestionResponse>,
     onScoreChanged: (Int, Int) -> Unit,
@@ -61,6 +62,7 @@ fun FormSection(
             // Domande della sezione
             questions.forEach { question ->
                 QuestionItem(
+                    enabled = enabled,
                     questionNumber = question.questionId,
                     questionText = question.questionText,
                     selectedScore = question.score,

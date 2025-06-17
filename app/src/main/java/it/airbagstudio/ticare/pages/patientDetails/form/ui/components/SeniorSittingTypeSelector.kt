@@ -28,6 +28,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.SeniorSitti
  */
 @Composable
 fun SeniorSittingTypeSelector(
+    enabled: Boolean,
     selectedType: SeniorSittingType,
     onTypeSelected: (SeniorSittingType) -> Unit,
     modifier: Modifier = Modifier
@@ -68,6 +69,7 @@ fun SeniorSittingTypeSelector(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
+                            enabled = enabled,
                             selected = (type == selectedType),
                             onClick = null // Handled by selectable modifier
                         )

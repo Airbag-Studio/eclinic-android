@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun QuestionItem(
+    enabled : Boolean,
     questionNumber: Int,
     questionText: String,
     selectedScore: Int?, // Changed to nullable
@@ -69,6 +70,7 @@ fun QuestionItem(
             
             // Scala di valutazione
             RadioGroupScale(
+                enabled = enabled,
                 selectedValue = selectedScore,
                 onValueSelected = onScoreSelected,
                 minValue = minScale,

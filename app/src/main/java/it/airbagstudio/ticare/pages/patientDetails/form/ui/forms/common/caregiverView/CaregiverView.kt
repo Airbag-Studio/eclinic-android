@@ -18,6 +18,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.CaregiverS
 @Composable
 fun CaregiverView(
     viewModel: CaregiverFromViewModel = hiltViewModel(),
+    enabled: Boolean,
     selectedCaregiver: Contact?,
     onSelectCaregiver: (Contact) -> Unit){
     var openCaregiverSelectionModal by remember { mutableStateOf(false) }
@@ -25,11 +26,11 @@ fun CaregiverView(
 
     Column {
         if (selectedCaregiver == null) {
-            CaregiverSelectorButton(onClick = { openCaregiverSelectionModal = true })
+            CaregiverSelectorButton(enabled = enabled,onClick = { openCaregiverSelectionModal = true })
         } else {
             CaregiverInfoCard(caregiver = selectedCaregiver)
             Spacer(modifier = Modifier.height(8.dp))
-            CaregiverSelectorButton(onClick = { openCaregiverSelectionModal = true })
+            CaregiverSelectorButton(enabled = enabled,onClick = { openCaregiverSelectionModal = true })
         }
 
         if (openCaregiverSelectionModal) {

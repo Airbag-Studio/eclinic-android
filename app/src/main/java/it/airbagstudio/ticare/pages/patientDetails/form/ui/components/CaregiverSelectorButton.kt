@@ -9,8 +9,9 @@ import androidx.compose.ui.res.stringResource
 import it.airbagstudio.ticare.R
 
 @Composable
-fun CaregiverSelectorButton(onClick: () -> Unit) {
+fun CaregiverSelectorButton(enabled: Boolean, onClick: () -> Unit) {
     Button(
+        enabled = enabled,
         onClick = onClick,
         modifier = Modifier.fillMaxWidth()
     ) {

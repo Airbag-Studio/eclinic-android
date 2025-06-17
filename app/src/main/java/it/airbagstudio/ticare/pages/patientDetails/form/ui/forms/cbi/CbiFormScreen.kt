@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,7 +33,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -48,6 +51,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DateTimePi
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.FloatingLegend
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.FormSection
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.common.caregiverView.CaregiverView
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos.PatientDataSection
 import it.airbagstudio.ticare.ui.theme.formColors
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -69,11 +73,12 @@ fun CbiFormScreen(
     onSaved: () -> Unit,
     viewModel: CbiFormViewModel = hiltViewModel()
 ) {
+    var isEditingEnabled by remember { mutableStateOf(false) }
     // Inizializza il form
     LaunchedEffect(formId) {
         viewModel.initForm(formId)
     }
-    
+    var isFormEnabled = isEditingEnabled || formId == null
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     
@@ -107,6 +112,14 @@ fun CbiFormScreen(
                     }
                 },
                 actions = {
+                    if (formId != null) {
+                        IconButton(onClick = { isEditingEnabled = !isEditingEnabled }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Torna indietro"
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -191,6 +204,7 @@ fun CbiFormScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     CaregiverView(
+                        enabled = isFormEnabled,
                         selectedCaregiver = editingState.selectedCaregiver,
                         onSelectCaregiver = {
                             viewModel.selectCaregiver(it)
@@ -203,6 +217,7 @@ fun CbiFormScreen(
                     // Le 5 sezioni del carico
                     editingState.sections.forEach { section ->
                         FormSection(
+                            enabled = isFormEnabled,
                             sectionType = section.type,
                             questions = section.questions,
                             onScoreChanged = { questionId, score ->
@@ -227,7 +242,7 @@ fun CbiFormScreen(
                     Button(
                         onClick = { viewModel.saveForm() },
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = !editingState.isSaving // Disable button when saving
+                        enabled = !editingState.isSaving && isFormEnabled// Disable button when saving
                     ) {
                         if (editingState.isSaving) {
                             CircularProgressIndicator(
