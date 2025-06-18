@@ -218,10 +218,9 @@ class SeniorSittingFormViewModel @Inject constructor(
             val updatedForm = currentState.form.copy(
                 selectedCaregiver = contact
             )
-            _uiState.update {
-                currentState.copy(form = updatedForm)
-            }
-            validateFormAndUpdateState(currentState)
+            val updatedState = currentState.copy(form = updatedForm)
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
     }
 
@@ -233,21 +232,20 @@ class SeniorSittingFormViewModel @Inject constructor(
                 sections = SeniorSittingQuestions.getInitialSections(newType),
                 formType = newType.typeName
             )
-            _uiState.update {
-                currentState.copy(form = updatedForm)
-            }
-            validateFormAndUpdateState(currentState)
+            val updatedState = currentState.copy(form = updatedForm)
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
     }
 
     fun onCompilationDateTimeSelected(timestamp: Long) {
         val currentState = _uiState.value
         if (currentState is SeniorSittingFormUiState.Editing) {
-            _uiState.update {
-                currentState.copy(
-                    form = currentState.form.copy(compilationTimestamp = timestamp)
-                )
-            }
+            val updatedState = currentState.copy(
+                form = currentState.form.copy(compilationTimestamp = timestamp)
+            )
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
     }
 
@@ -273,12 +271,11 @@ class SeniorSittingFormViewModel @Inject constructor(
 
             updatedSections[sectionIndex] = currentSection.copy(questions = updatedQuestions)
 
-            _uiState.update {
-                currentState.copy(
-                    form = currentState.form.copy(sections = updatedSections)
-                )
-            }
-            validateFormAndUpdateState(currentState)
+            val updatedState = currentState.copy(
+                form = currentState.form.copy(sections = updatedSections)
+            )
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
     }
 
@@ -303,12 +300,11 @@ class SeniorSittingFormViewModel @Inject constructor(
 
             updatedSections[sectionIndex] = currentSection.copy(questions = updatedQuestions)
 
-            _uiState.update {
-                currentState.copy(
-                    form = currentState.form.copy(sections = updatedSections)
-                )
-            }
-            validateFormAndUpdateState(currentState)
+            val updatedState = currentState.copy(
+                form = currentState.form.copy(sections = updatedSections)
+            )
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
 
     }

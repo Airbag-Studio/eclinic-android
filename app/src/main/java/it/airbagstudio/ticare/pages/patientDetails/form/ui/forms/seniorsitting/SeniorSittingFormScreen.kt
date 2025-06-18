@@ -84,12 +84,12 @@ fun SeniorSittingFormScreen(
     }
 
     // Show validation errors
-    LaunchedEffect(uiState) {
-        val state = uiState as? SeniorSittingFormUiState.Editing ?: return@LaunchedEffect
-        if (state.validationErrors.isNotEmpty()) {
-            snackbarHostState.showSnackbar(message = state.validationErrors.first())
-        }
-    }
+    // LaunchedEffect(uiState) {
+    //     val state = uiState as? SeniorSittingFormUiState.Editing ?: return@LaunchedEffect
+    //     if (state.validationErrors.isNotEmpty()) {
+    //         snackbarHostState.showSnackbar(message = state.validationErrors.first())
+    //     }
+    // }
 
     Scaffold(
         topBar = {
@@ -360,7 +360,7 @@ fun SeniorSittingFormSectionRenderer(
                                         onValueChange = { newText ->
                                             onQuestionResponseChanged(question.questionId, null, newText)
                                         },
-                                        label = { Text("") },
+                                        label = { Text("In cosa Scudo potrebbe aiutarla maggiormente") },
                                         placeholder = { Text("Scrivi qui...") },
                                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 16.dp).defaultMinSize(minHeight = 100.dp),
                                         singleLine = false,
