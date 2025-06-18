@@ -228,24 +228,49 @@ class IPOSFormViewModel @Inject constructor(
     fun onTimePeriodChanged(newPeriod: IPOSTimePeriod) {
         val currentState = _uiState.value
         if (currentState is IPOSFormUiState.Editing) {
+            // Preserve existing answers when changing time period
+            val newSections = IPOSQuestions.getInitialSections(newPeriod)
+            val preservedSections = newSections.map { newSection ->
+                val existingSection = currentState.form.sections.find { it.sectionId == newSection.sectionId }
+                if (existingSection != null) {
+                    // Preserve existing answers for this section
+                    newSection.copy(
+                        questions = newSection.questions.map { newQuestion ->
+                            val existingQuestion = existingSection.questions.find { it.questionId == newQuestion.questionId }
+                            if (existingQuestion != null) {
+                                // Keep existing score and text
+                                newQuestion.copy(
+                                    score = existingQuestion.score,
+                                    questionText = existingQuestion.questionText
+                                )
+                            } else {
+                                newQuestion
+                            }
+                        }
+                    )
+                } else {
+                    newSection
+                }
+            }
+            
             val updatedForm = currentState.form.copy(
                 timePeriod = newPeriod,
-                sections = IPOSQuestions.getInitialSections(newPeriod)
+                sections = preservedSections
             )
-            _uiState.update {
-                currentState.copy(form = updatedForm)
-            }
+            val updatedState = currentState.copy(form = updatedForm)
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
     }
 
     fun onCompilationDateTimeSelected(timestamp: Long) {
         val currentState = _uiState.value
         if (currentState is IPOSFormUiState.Editing) {
-            _uiState.update {
-                currentState.copy(
-                    form = currentState.form.copy(compilationTimestamp = timestamp)
-                )
-            }
+            val updatedState = currentState.copy(
+                form = currentState.form.copy(compilationTimestamp = timestamp)
+            )
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
     }
 
@@ -277,12 +302,11 @@ class IPOSFormViewModel @Inject constructor(
 
             updatedSections[sectionIndex] = currentSection.copy(questions = updatedQuestions)
 
-            _uiState.update {
-                currentState.copy(
-                    form = currentState.form.copy(sections = updatedSections)
-                )
-            }
-            validateFormAndUpdateState(currentState)
+            val updatedState = currentState.copy(
+                form = currentState.form.copy(sections = updatedSections)
+            )
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
     }
 
@@ -295,11 +319,8 @@ class IPOSFormViewModel @Inject constructor(
         editingState.form.sections.forEach { section ->
             when (section.sectionId) {
                 "Q1" -> {
-                    // Q1 requires at least one non-empty concern
-                    if (section.questions.all { it.questionText.isBlank() }) {
-                        newInvalidFieldKeys.add(ValidationKeys.sectionKey(section.sectionId))
-                        isValid = false
-                    }
+                    // Q1 is now optional - no validation required
+                    // Users can leave all concerns blank if they wish
                 }
 
                 "Q2" -> {
@@ -311,13 +332,9 @@ class IPOSFormViewModel @Inject constructor(
                 }
 
                 "Q2b" -> {
-                    // Q2b requires that if text is provided, score must also be provided
-                    section.questions.forEach { question ->
-                        if (question.questionText.isNotBlank() && question.score == null) {
-                            newInvalidFieldKeys.add(ValidationKeys.sectionKey(section.sectionId))
-                            isValid = false
-                        }
-                    }
+                    // Q2b is now optional
+                    // If text is provided, score is still optional
+                    // Users can leave all additional symptoms blank
                 }
 
                 "Q3_Q9" -> {
@@ -360,7 +377,7 @@ class IPOSFormViewModel @Inject constructor(
         val currentState = _uiState.value
         if (currentState !is IPOSFormUiState.Editing) return
 
-        if (!validateFormAndUpdateState(currentState)) {
+        if (!validateFormAndUpdateState(currentState, showError = true)) {
             return
         }
 

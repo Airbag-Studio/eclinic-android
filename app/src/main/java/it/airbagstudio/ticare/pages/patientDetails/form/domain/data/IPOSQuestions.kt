@@ -54,7 +54,7 @@ object IPOSQuestions {
         return listOf(
             IPOSSection(
                 sectionId = "Q1",
-                title = "Q1 – Problemi o preoccupazioni principali",
+                title = "Q1 – Problemi o preoccupazioni principali (opzionale)",
                 questions = listOf(
                     QuestionResponse(questionId = Q1_CONCERN_1_ID, questionText = ""),
                     QuestionResponse(questionId = Q1_CONCERN_2_ID, questionText = ""),
@@ -79,7 +79,7 @@ object IPOSQuestions {
             ),
             IPOSSection(
                 sectionId = "Q2b",
-                title = "Q2b – Sintomi aggiuntivi",
+                title = "Q2b – Sintomi aggiuntivi (opzionale)",
                 questions = listOf(
                     QuestionResponse(questionId = Q2B_ADDITIONAL_SYMPTOM_1_ID, questionText = ""),
                     QuestionResponse(questionId = Q2B_ADDITIONAL_SYMPTOM_2_ID, questionText = ""),
