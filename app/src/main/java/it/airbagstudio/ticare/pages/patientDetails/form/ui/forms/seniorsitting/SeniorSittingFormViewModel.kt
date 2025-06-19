@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsitting
 
+import android.R.attr.data
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.Contact
@@ -23,6 +24,7 @@ import java.io.IOException
 import java.util.Date
 import javax.inject.Inject
 import android.util.Log
+import android.util.Log.e
 
 @HiltViewModel
 class SeniorSittingFormViewModel @Inject constructor(
@@ -434,8 +436,8 @@ class SeniorSittingFormViewModel @Inject constructor(
                         tableARow4 = formToSave.sections[0].questions[3].score ?: 0,
                         tableARow5 = formToSave.sections[0].questions[4].score ?: 0,
                         tableARow6 = formToSave.sections[0].questions[5].score ?: 0,
-                        tableARow7 = formToSave.sections[0].questions[6].questionText.ifEmpty { "" },
-                        tableARow8 = formToSave.sections[1].questions[0].questionText.ifEmpty { "" },
+                        tableARow7 = formToSave.sections[0].questions[6].questionText.ifEmpty { null },
+                        tableARow8 = formToSave.sections[1].questions[0].questionText.ifEmpty { null },
                         iDUser = userId,
                         modality = true,
                         iDContact = selectedCaregiver.id
@@ -461,7 +463,7 @@ class SeniorSittingFormViewModel @Inject constructor(
                         tableBRow7 = formToSave.sections[0].questions[6].score ?: 0,
                         tableBRow8 = formToSave.sections[0].questions[7].score ?: 0,
                         tableBRow9 = formToSave.sections[0].questions[8].score ?: 0,
-                        tableBRow10 = formToSave.sections[1].questions[0].questionText.ifEmpty { "" },
+                        tableBRow10 = formToSave.sections[1].questions[0].questionText.ifEmpty { null },
                     )
                     Log.d("SeniorSittingForm", "NON_ADESIONE Data: tableBRow1=${nonAdesioneData.tableBRow1}, tableBRow2=${nonAdesioneData.tableBRow2}, tableBRow3=${nonAdesioneData.tableBRow3}")
                     Log.d("SeniorSittingForm", "NON_ADESIONE Text: tableBRow10='${nonAdesioneData.tableBRow10}'")

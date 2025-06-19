@@ -69,7 +69,7 @@ enum class FormType(val typeName: String) {
     CBI("CBI"),
     COMID("COMID"),
     IPOS("IPOS"), // Unified IPOS form replacing IPOS3GG and IPOS7GG
-    SENIOR_SITTING("SENIOR SITTING") // Unified Senior Sitting form replacing ADESIONE and NON_ADESIONE
+    SENIOR_SITTING("SENIOR_SITTING") // Unified Senior Sitting form replacing ADESIONE and NON_ADESIONE
     // Add other form types here
 }
 

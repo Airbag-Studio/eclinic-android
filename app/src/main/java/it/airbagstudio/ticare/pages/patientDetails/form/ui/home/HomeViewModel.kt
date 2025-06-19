@@ -20,6 +20,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.getTotalS
 import it.airbagstudio.ticare.utils.DATE_ONLY_TIME_FORMAT
 import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT_ITA
 import it.airbagstudio.ticare.utils.toDate
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -50,14 +51,21 @@ class HomeViewModel @Inject constructor(
     
     // Expose patient information for the title
     val patient: CaseDetail? get() = userDetailRepository.getCurrentCase()
-    
+
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+        exception.printStackTrace()
+        viewModelScope.launch {
+            _uiState.value = HomeUiState.Error(exception.message ?: "Unknown error")
+        }
+    }
+
     init {
         loadForms()
     }
     
     fun loadForms() {
         val caseCod = userDetailRepository.getCurrentCase()?.patientCod ?: return
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             _uiState.value = HomeUiState.Loading
 
                 // It's expected that 'flows' is an Array<List<*>> where each element corresponds to a flow's emission
