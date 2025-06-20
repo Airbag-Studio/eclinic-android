@@ -16,8 +16,8 @@ android {
         applicationId "ch.ticare.eclinic"
         minSdk 28
         targetSdk 34
-        versionCode 85
-        versionName "1.2.20"
+        versionCode 86
+        versionName "1.2.21"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
