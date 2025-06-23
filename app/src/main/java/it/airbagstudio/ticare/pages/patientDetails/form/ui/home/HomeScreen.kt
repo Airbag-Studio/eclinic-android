@@ -306,6 +306,11 @@ fun FormSelectorBottomSheet(onFormSelected: (FormType) -> Unit) {
             title = stringResource(R.string.form_idpall), // Unified Senior Sitting form
             onClick = { onFormSelected(FormType.IDPALL) }
         )
+        Spacer(modifier = Modifier.height(8.dp)) // Consistent spacing
+        FormTypeItem(
+            title = stringResource(R.string.form_cam_title), // Unified Senior Sitting form
+            onClick = { onFormSelected(FormType.CAM) }
+        )
         Spacer(modifier = Modifier.height(16.dp))
     }
 }

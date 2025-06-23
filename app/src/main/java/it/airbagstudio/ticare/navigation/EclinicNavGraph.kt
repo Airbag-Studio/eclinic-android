@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -30,6 +31,7 @@ import it.airbagstudio.ticare.pages.otherTreatments.OtherTreatmentScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientDetails.alertsAllergies.AlertAllergiesScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.di.provideFormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cam.CAMFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi.CbiFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.ComidFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.idpall.IDPallFormScreen
@@ -38,6 +40,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsitting.S
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.FormType
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.HomeScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations.CAM_FORM_ID_ARG
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations.IDPALL_FORM_ID_ARG
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations.IDPALL_FORM_ROUTE
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
@@ -234,7 +237,9 @@ fun EclinicNavGraph(
                         FormType.IDPALL -> {
                             navController.navigate(AppDestinations.idpallFormRoute(formId))
                         }
-                        FormType.CAM -> TODO()
+                        FormType.CAM -> {
+                            navController.navigate(AppDestinations.camFormRoute(formId))
+                        }
                     }
                 },
                 onBack = {
@@ -410,36 +415,45 @@ fun EclinicNavGraph(
             IDPallFormScreen(
                 formId = actualFormId,
                 onNavigateBack = {
-                    // If IDPallFormScreen's internal save leads to onNavigateBack,
-                    // and we want to show snackbar, we might need to adjust how 'saved' state is passed.
-                    // For now, just popBackStack. If a save confirmation is needed from IDPall,
-                    // IDPallFormScreen would need an onSaved callback or similar.
-                    // The current IDPallFormScreen handles its own Saved state UI and navigates back.
-                    // If the intention is to show the snackbar on HomeScreen after IDPall save,
-                    // then IDPallFormScreen would need an onSaved lambda that AppNavigation can use
-                    // to navigate to homeRoute(saved=true).
-                    // Based on current IDPallFormScreen, it navigates back itself after showing save message.
-                    // So, if it calls onNavigateBack after its internal save, we might need to pass a saved flag.
-                    // Let's assume for now that onNavigateBack is called and we want to show the snackbar.
-                    // This requires IDPallFormScreen to call onNavigateBack *after* a successful save.
-                    // A more robust way would be for IDPallFormScreen to have an onSaved lambda.
-                    // Given the current structure of IDPallFormScreen (navigates back itself after delay),
-                    // to show snackbar on Home, we'd need to modify IDPallFormScreen to call a new onSaved lambda.
-                    // For now, I will assume onNavigateBack is the primary exit path and if a save happened,
-                    // we want to show the snackbar. This is a bit of a guess based on other forms.
-                    // The most robust solution is to add an onSaved callback to IDPallFormScreen.
-                    // However, sticking to fixing existing errors first:
-                    // The original error was "No parameter with name 'onSaved' found".
-                    // The screen has onNavigateBack. If we want the snackbar, we need to navigate to homeRoute(saved=true).
-                    // This implies IDPallFormScreen should call onNavigateBack *after* a save.
-                    // Let's assume onNavigateBack is the generic "I'm done" callback.
-                    // The problem is, we don't know if it was a save or just a back press.
-                    // For now, I will remove the onSaved parameter as it's not in IDPallFormScreen.
-                    // The viewModel parameter was also an error.
-                    navController.popBackStack()
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
+
                 }
-                // To properly handle the snackbar, IDPallFormScreen should have an onSaved: () -> Unit parameter.
-                // Since it doesn't, I'm removing the onSaved logic here for IDPall.
+            )
+        }
+
+
+        composable( // Added CAM Form
+            route = AppDestinations.CAM_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(CAM_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(CAM_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            CAMFormScreen(
+                formId = actualFormId,
+                onClose = {
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
+
+                },
+                onSaved = {
+                    navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                        popUpTo(AppDestinations.homeRoute(saved = false)) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
             )
         }
     }

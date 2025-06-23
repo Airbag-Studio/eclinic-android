@@ -47,6 +47,10 @@ object AppDestinations {
     const val IDPALL_FORM_ID_ARG = "formId"
     const val IDPALL_FORM_ROUTE = "$IDPALL_FORM_ROUTE_BASE/{$IDPALL_FORM_ID_ARG}"
 
+    const val CAM_FORM_ROUTE_BASE = "cam_form" // Added for CAM
+    const val CAM_FORM_ID_ARG = "formId" // Added for CAM
+    const val CAM_FORM_ROUTE = "$CAM_FORM_ROUTE_BASE/{$CAM_FORM_ID_ARG}" // Added for CAM
+
     /**
      * Crea la route per la home screen, opzionalmente indicando se un form è stato salvato.
      * @param saved true se un form è stato appena salvato, false altrimenti.
@@ -80,5 +84,9 @@ object AppDestinations {
 
     fun idpallFormRoute(formId: String? = null): String {
         return "${IDPALL_FORM_ROUTE_BASE}/${formId ?: "new"}"
+    }
+
+    fun camFormRoute(formId: String? = null): String { // Added for CAM
+        return "$CAM_FORM_ROUTE_BASE/${formId ?: "new"}"
     }
 }

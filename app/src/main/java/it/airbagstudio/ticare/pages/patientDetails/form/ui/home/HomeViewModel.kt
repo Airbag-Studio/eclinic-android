@@ -85,6 +85,7 @@ class HomeViewModel @Inject constructor(
 
 
             val idPallList = formRepository.getIDPallTestScaleList(caseCod).results ?: listOf()
+            val camList = formRepository.getCamTestScaleList(caseCod).results ?: listOf()
 
             val allForms = mutableListOf<DisplayableFormInfo>()
 
@@ -138,6 +139,14 @@ class HomeViewModel @Inject constructor(
                         ?: 0,
                     totalPoints = comid.getTotalScore()
                 )
+            }
+            camList.mapTo(allForms) {
+                DisplayableFormInfo(
+                    id = it.iD.toString(),
+                    formType = FormType.CAM.name,
+                    displayName = it.nameSurnameUser,
+                    creationDate = it.evalDateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA)?.time
+                        ?: 0)
             }
 
             allForms.sortedByDescending { it.creationDate } // Return the sorted list
