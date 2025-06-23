@@ -4,7 +4,6 @@ import android.R.attr.data
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.Contact
-import ch.ticare.eclinic.library.entity.SeniorSittingScalePost
 import ch.ticare.eclinic.library.repository.FormRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.UserRepository
@@ -25,6 +24,7 @@ import java.util.Date
 import javax.inject.Inject
 import android.util.Log
 import android.util.Log.e
+import ch.ticare.eclinic.library.entity.form.SeniorSittingScalePost
 
 @HiltViewModel
 class SeniorSittingFormViewModel @Inject constructor(
