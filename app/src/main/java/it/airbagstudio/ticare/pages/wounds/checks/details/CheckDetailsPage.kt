@@ -35,7 +35,7 @@ import it.airbagstudio.ticare.pages.wounds.common.ImagesDialog
 import it.airbagstudio.ticare.pages.wounds.common.TitleValueView
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
-import it.airbagstudio.ticare.ui.components.okHttpClient
+import it.airbagstudio.ticare.ui.components.getUnsafeOkHttpClient
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getPainter
 import it.airbagstudio.ticare.utils.toDate
@@ -124,7 +124,7 @@ fun CheckDetailsPage(
         if (showImagesDialog) {
             val woundDate = viewModel.check?.dateTime?.toDate("dd.MM.yyyy HH:mm")?.format("dd MMMM yyyy, HH:mm") ?: ""
             val imageLoader = ImageLoader.Builder(LocalContext.current)
-                .okHttpClient(okHttpClient)
+                .okHttpClient(getUnsafeOkHttpClient())
                 .build()
 
             val painters = viewModel.photos.filter { it.iDCheck == viewModel.checkId.toInt() }.map {
