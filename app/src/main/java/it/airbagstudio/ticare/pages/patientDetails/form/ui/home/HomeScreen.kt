@@ -69,8 +69,9 @@ enum class FormType(val typeName: String) {
     CBI("CBI"),
     COMID("COMID"),
     IPOS("IPOS"), // Unified IPOS form replacing IPOS3GG and IPOS7GG
-    SENIOR_SITTING("SENIOR_SITTING") // Unified Senior Sitting form replacing ADESIONE and NON_ADESIONE
-    // Add other form types here
+    SENIOR_SITTING("SENIOR_SITTING"), // Unified Senior Sitting form replacing ADESIONE and NON_ADESIONE
+    IDPALL("IDPALL"),
+    CAM("CAM") // Added CAM
 }
 
 /**
@@ -299,6 +300,11 @@ fun FormSelectorBottomSheet(onFormSelected: (FormType) -> Unit) {
         FormTypeItem(
             title = "Senior Sitting", // Unified Senior Sitting form
             onClick = { onFormSelected(FormType.SENIOR_SITTING) }
+        )
+        Spacer(modifier = Modifier.height(8.dp)) // Consistent spacing
+        FormTypeItem(
+            title = stringResource(R.string.form_idpall), // Unified Senior Sitting form
+            onClick = { onFormSelected(FormType.IDPALL) }
         )
         Spacer(modifier = Modifier.height(16.dp))
     }

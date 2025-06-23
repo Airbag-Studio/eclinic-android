@@ -113,41 +113,6 @@ class CbiFormViewModel @Inject constructor(
                 updateQuestionScore(SectionType.EMOTIONAL, 24, form.tableERow5)
             }
         }
-/*
-        if (formId == null) {
-
-
-        } else {
-            // Load existing form
-            viewModelScope.launch {
-                _uiState.value = CbiFormUiState.Loading
-                try {
-                    val form = formRepository.getCbiScaleList(patientCode).results?.firstOrNull { it.iD == formId.toInt() }
-                    if (form != null) {
-
-
-                        _uiState.value = CbiFormUiState.Editing(
-                            formId = form.iD.toString(),
-                            patientData = patientData,
-                            caregiverData = form.caregiverData,
-                            sections = form.sections,
-                            totalScore = form.totalScore,
-                            compilationTimestamp = form.compilationTimestamp,
-                            isValid = true,
-                            isBirthDateValid = true
-                        )
-                    } else {
-                        _uiState.value = CbiFormUiState.Error("Form non trovato.")
-                    }
-                } catch (e: IOException) {
-                    _uiState.value = CbiFormUiState.Error("Errore nel caricamento del form: ${e.message}")
-                } catch (e: Exception) {
-                    _uiState.value = CbiFormUiState.Error("Errore imprevisto nel caricamento del form: ${e.message}")
-                }
-            }
-        }
-
- */
     }
 
     /**

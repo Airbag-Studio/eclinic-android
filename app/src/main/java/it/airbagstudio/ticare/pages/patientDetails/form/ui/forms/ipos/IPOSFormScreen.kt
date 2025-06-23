@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos
 
+import android.R.attr.label
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -202,7 +203,6 @@ fun IPOSFormContent(
             patientData = form.patientData,
             compilationTimestamp = form.compilationTimestamp,
             onCompilationDateTimeSelected = viewModel::onCompilationDateTimeSelected,
-            isPatientDataSectionInvalid = !editingState.isCompilationTimestampValid,
             compilationTimestampError = if (!editingState.isCompilationTimestampValid) "Campo richiesto" else null
         )
         Spacer(modifier = Modifier.height(24.dp))
@@ -253,7 +253,6 @@ fun PatientDataSection(
     patientData: PatientData,
     compilationTimestamp: Long,
     onCompilationDateTimeSelected: (Long) -> Unit,
-    isPatientDataSectionInvalid: Boolean = false,
     compilationTimestampError: String? = null
 ) {
     val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
@@ -264,7 +263,7 @@ fun PatientDataSection(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.formColors.sectionBackground
         ),
-        border = if (isPatientDataSectionInvalid && compilationTimestampError != null) BorderStroke(1.dp, MaterialTheme.colorScheme.error) else null
+        border = null
     ) {
         Column(
             modifier = Modifier
