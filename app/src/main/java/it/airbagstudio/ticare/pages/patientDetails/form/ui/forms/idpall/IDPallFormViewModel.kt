@@ -157,17 +157,54 @@ class IDPallFormViewModel @Inject constructor(
     }
 
     /**
+     * Determina se la sezione "ID PALL Specializzate" è richiesta (obbligatoria).
+     * La sezione è obbligatoria se:
+     * - Risposta alla domanda 1 è "NO" (score = 0), OPPURE
+     * - Risposta è "YES" (score = 1) a una delle domande: 21, 22, 23, 24, 3, 4
+     */
+    fun isSpecializedSectionRequired(): Boolean {
+        val currentState = _uiState.value as? IDPallFormUiState.Editing ?: return false
+        val generalSectionQuestions = currentState.form.sections.firstOrNull()?.questions ?: return false
+        
+        // Trova la risposta alla domanda 1
+        val question1Response = generalSectionQuestions.find { it.questionId == 1 }?.score
+        
+        // Se la risposta alla domanda 1 è "NO" (score = 0), la sezione specializzata è obbligatoria
+        if (question1Response == 0) {
+            return true
+        }
+        
+        // Altrimenti, controlla se c'è almeno una risposta "YES" alle domande trigger
+        val triggerQuestionIds = setOf(21, 22, 23, 24, 3, 4)
+        val hasYesResponseInTriggerQuestions = generalSectionQuestions
+            .filter { it.questionId in triggerQuestionIds }
+            .any { it.score == 1 }
+        
+        return hasYesResponseInTriggerQuestions
+    }
+
+    /**
      * Valida il form e aggiorna lo stato di validazione.
      */
     private fun validateFormAndUpdateState() {
         val currentState = _uiState.value as? IDPallFormUiState.Editing ?: return
         
         var isValid = true
-        val questions = currentState.form.sections.flatMap { it.questions }.filter { it.questionId != 2 }
-        if (questions.any { it.score == null }){
-
+        
+        // Valida la sezione generale (esclusa la domanda 2 che è informativa)
+        val generalQuestions = currentState.form.sections[0].questions.filter { it.questionId != 2 }
+        if (generalQuestions.any { it.score == null }) {
             isValid = false
         }
+        
+        // Valida la sezione specializzata solo se è richiesta
+        if (isSpecializedSectionRequired()) {
+            val specializedQuestions = currentState.form.sections.getOrNull(1)?.questions ?: emptyList()
+            if (specializedQuestions.any { it.score == null }) {
+                isValid = false
+            }
+        }
+        
         _uiState.update {
             currentState.copy(isFormValid = isValid)
         }
@@ -212,6 +249,9 @@ class IDPallFormViewModel @Inject constructor(
                     compilationTimestamp = System.currentTimeMillis()
                 )
                 
+                // Ottieni le risposte dalla sezione specializzata (sempre presenti dato che la sezione è sempre mostrata)
+                val specializedSectionResponses = formToSave.sections.getOrNull(1)?.questions ?: emptyList()
+                
                 val toSend = IDPallTestScale(
                     iD = formId,
                     cODCase = caseCode,
@@ -225,14 +265,14 @@ class IDPallFormViewModel @Inject constructor(
                     tableARow2QstD = formToSave.sections[0].questions[4].score == 1,
                     tableARow3 = formToSave.sections[0].questions[5].score == 1,
                     tableARow4 = formToSave.sections[0].questions[6].score == 1,
-                    tableBRow1 = formToSave.sections[1].questions[0].score == 1,
-                    tableBRow2 = formToSave.sections[1].questions[1].score == 1,
-                    tableBRow3 = formToSave.sections[1].questions[2].score == 1,
-                    tableBRow4 = formToSave.sections[1].questions[3].score == 1,
-                    tableBRow5 = formToSave.sections[1].questions[4].score == 1,
-                    tableBRow6 = formToSave.sections[1].questions[5].score == 1,
-                    tableBRow7 = formToSave.sections[1].questions[6].score == 1,
-                    tableBRow8 = formToSave.sections[1].questions[7].score == 1
+                    tableBRow1 = (specializedSectionResponses.getOrNull(0)?.score ?: 0) == 1,
+                    tableBRow2 = (specializedSectionResponses.getOrNull(1)?.score ?: 0) == 1,
+                    tableBRow3 = (specializedSectionResponses.getOrNull(2)?.score ?: 0) == 1,
+                    tableBRow4 = (specializedSectionResponses.getOrNull(3)?.score ?: 0) == 1,
+                    tableBRow5 = (specializedSectionResponses.getOrNull(4)?.score ?: 0) == 1,
+                    tableBRow6 = (specializedSectionResponses.getOrNull(5)?.score ?: 0) == 1,
+                    tableBRow7 = (specializedSectionResponses.getOrNull(6)?.score ?: 0) == 1,
+                    tableBRow8 = (specializedSectionResponses.getOrNull(7)?.score ?: 0) == 1
                     )
                 if (formId != null) {
                     repository.editIDPallTestScale(toSend)
