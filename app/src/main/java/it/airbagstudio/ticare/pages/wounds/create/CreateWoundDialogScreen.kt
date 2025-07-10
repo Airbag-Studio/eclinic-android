@@ -19,7 +19,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -29,7 +28,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -52,13 +50,11 @@ import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.MultiselectPopupTextField
 import it.airbagstudio.ticare.ui.components.PopupTextField
-import it.airbagstudio.ticare.ui.components.okHttpClient
+import it.airbagstudio.ticare.ui.components.getUnsafeOkHttpClient
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
-import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getPainter
 import it.airbagstudio.ticare.utils.rememberImeState
-import it.airbagstudio.ticare.utils.toDate
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
@@ -233,7 +229,7 @@ fun CreateWoundDialogScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 if (uiState.wound.images.isNotEmpty() || uiState.woundPhotos.isNotEmpty()) {
                     val imageLoader = ImageLoader.Builder(LocalContext.current)
-                        .okHttpClient(okHttpClient)
+                        .okHttpClient(getUnsafeOkHttpClient())
                         .build()
                     val painters = uiState.woundPhotos.map {
                         it.getPainter(requestData = viewModel.requestImageRequestData, imageLoader = imageLoader, authTimestampHeader = DateTimeFormatter.ISO_INSTANT.format(

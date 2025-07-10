@@ -334,5 +334,11 @@
     <string name="senior_sitting_form_title">Senior Sitting Test</string>
     <string name="ipost_form_title">Ipos test</string>
 
+    <string name="form_idpall_title">ID PALL</string>
+    <string name="form_idpall">ID PALL</string>
+    <string name="select_applicable_options">Seleziona le opzioni applicabili:</string>
 
+    <!-- CAM Form -->
+    <string name="form_cam_title">CAM (Confusion Assessment Method)</string>
+    <string name="form_cam">CAM</string>
 </resources>

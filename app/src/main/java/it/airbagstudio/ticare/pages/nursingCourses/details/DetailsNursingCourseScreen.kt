@@ -63,7 +63,7 @@ import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ListPopup
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.SwitchItem
-import it.airbagstudio.ticare.ui.components.okHttpClient
+import it.airbagstudio.ticare.ui.components.getUnsafeOkHttpClient
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getPainter
 import it.airbagstudio.ticare.utils.toDate
@@ -346,7 +346,7 @@ private fun BuildSheetContent(
         }
         if (showImagesDialog) {
             val imageLoader = ImageLoader.Builder(LocalContext.current)
-                .okHttpClient(okHttpClient)
+                .okHttpClient(getUnsafeOkHttpClient())
                 .build()
             val date = uiState.newNursingCourse.dateTime.format("dd/MM/yyyy")
             val painters = uiState.newNursingCourse.photos.map {

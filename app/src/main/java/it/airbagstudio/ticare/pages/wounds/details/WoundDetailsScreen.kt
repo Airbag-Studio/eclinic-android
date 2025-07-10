@@ -1,7 +1,6 @@
 package it.airbagstudio.ticare.pages.wounds.details
 
 import android.net.Uri
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,8 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,11 +22,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -58,7 +52,7 @@ import it.airbagstudio.ticare.pages.wounds.create.CreateWoundDialogScreen
 import it.airbagstudio.ticare.ui.components.ConfirmWithNoteDialog
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
-import it.airbagstudio.ticare.ui.components.okHttpClient
+import it.airbagstudio.ticare.ui.components.getUnsafeOkHttpClient
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.seed
 import it.airbagstudio.ticare.utils.format
@@ -293,7 +287,7 @@ fun WoundDetailsScreen(
 
     if (showImagesDialog) {
         val imageLoader = ImageLoader.Builder(LocalContext.current)
-            .okHttpClient(okHttpClient)
+            .okHttpClient(getUnsafeOkHttpClient())
             .build()
         val woundDate = viewModel.wound?.appearanceDate?.toDate("dd.MM.yyyy")
             ?.format("dd/MM/yyyy") ?: ""

@@ -1,9 +1,9 @@
 package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsitting
 
+import android.R.attr.data
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.Contact
-import ch.ticare.eclinic.library.entity.SeniorSittingScalePost
 import ch.ticare.eclinic.library.repository.FormRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
 import ch.ticare.eclinic.library.repository.UserRepository
@@ -22,6 +22,9 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.Date
 import javax.inject.Inject
+import android.util.Log
+import android.util.Log.e
+import ch.ticare.eclinic.library.entity.form.SeniorSittingScalePost
 
 @HiltViewModel
 class SeniorSittingFormViewModel @Inject constructor(
@@ -218,10 +221,9 @@ class SeniorSittingFormViewModel @Inject constructor(
             val updatedForm = currentState.form.copy(
                 selectedCaregiver = contact
             )
-            _uiState.update {
-                currentState.copy(form = updatedForm)
-            }
-            validateFormAndUpdateState(currentState)
+            val updatedState = currentState.copy(form = updatedForm)
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
     }
 
@@ -233,21 +235,20 @@ class SeniorSittingFormViewModel @Inject constructor(
                 sections = SeniorSittingQuestions.getInitialSections(newType),
                 formType = newType.typeName
             )
-            _uiState.update {
-                currentState.copy(form = updatedForm)
-            }
-            validateFormAndUpdateState(currentState)
+            val updatedState = currentState.copy(form = updatedForm)
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
     }
 
     fun onCompilationDateTimeSelected(timestamp: Long) {
         val currentState = _uiState.value
         if (currentState is SeniorSittingFormUiState.Editing) {
-            _uiState.update {
-                currentState.copy(
-                    form = currentState.form.copy(compilationTimestamp = timestamp)
-                )
-            }
+            val updatedState = currentState.copy(
+                form = currentState.form.copy(compilationTimestamp = timestamp)
+            )
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
     }
 
@@ -273,12 +274,11 @@ class SeniorSittingFormViewModel @Inject constructor(
 
             updatedSections[sectionIndex] = currentSection.copy(questions = updatedQuestions)
 
-            _uiState.update {
-                currentState.copy(
-                    form = currentState.form.copy(sections = updatedSections)
-                )
-            }
-            validateFormAndUpdateState(currentState)
+            val updatedState = currentState.copy(
+                form = currentState.form.copy(sections = updatedSections)
+            )
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
     }
 
@@ -303,38 +303,52 @@ class SeniorSittingFormViewModel @Inject constructor(
 
             updatedSections[sectionIndex] = currentSection.copy(questions = updatedQuestions)
 
-            _uiState.update {
-                currentState.copy(
-                    form = currentState.form.copy(sections = updatedSections)
-                )
-            }
-            validateFormAndUpdateState(currentState)
+            val updatedState = currentState.copy(
+                form = currentState.form.copy(sections = updatedSections)
+            )
+            _uiState.update { updatedState }
+            validateFormAndUpdateState(updatedState)
         }
 
     }
 
     private fun validateFormAndUpdateState(editingState: SeniorSittingFormUiState.Editing): Boolean {
+        Log.d("SeniorSittingForm", "=== VALIDATION STARTED ===")
         var isValid = true
         val newInvalidFieldKeys = mutableSetOf<String>()
         val validationErrors = mutableListOf<String>()
-        val selectedCaregiver = editingState.form.selectedCaregiver ?: return false
+        val selectedCaregiver = editingState.form.selectedCaregiver ?: run {
+            Log.e("SeniorSittingForm", "No caregiver selected!")
+            return false
+        }
+        Log.d("SeniorSittingForm", "Caregiver validated: ${selectedCaregiver.fullname}")
         when (editingState.form.type) {
             SeniorSittingType.ADESIONE -> {
+                Log.d("SeniorSittingForm", "Validating ADESIONE form")
                 // Validate Adesione form
                 editingState.form.sections.forEach { section ->
+                    Log.d("SeniorSittingForm", "Validating section: ${section.sectionId}")
                     when (section.sectionId) {
                         "scaled_questions" -> {
                             // Check that all scale questions (1-6) have scores, Q7 can be empty text
                             val scaleQuestions = section.questions.filter { 
                                 it.questionId != SeniorSittingQuestions.Q7_AIUTO_SCUDO_ID 
                             }
-                            if (scaleQuestions.any { it.score == null }) {
+                            Log.d("SeniorSittingForm", "Scale questions (excluding Q7): ${scaleQuestions.size}")
+                            scaleQuestions.forEach { q ->
+                                Log.d("SeniorSittingForm", "  Q${q.questionId}: score=${q.score}")
+                            }
+                            val invalidQuestions = scaleQuestions.filter { it.score == null }
+                            if (invalidQuestions.isNotEmpty()) {
+                                Log.e("SeniorSittingForm", "Invalid scale questions: ${invalidQuestions.map { it.questionId }}")
                                 newInvalidFieldKeys.add(ValidationKeys.sectionKey(section.sectionId))
                                 isValid = false
+                            } else {
+                                Log.d("SeniorSittingForm", "All scale questions are valid")
                             }
                         }
                         "management_organization_questions" -> {
-                            // Q8 text field can be empty - no validation needed
+                            Log.d("SeniorSittingForm", "Q8 text field - no validation needed")
                         }
                     }
                 }
@@ -359,7 +373,10 @@ class SeniorSittingFormViewModel @Inject constructor(
         }
 
         if (newInvalidFieldKeys.isNotEmpty()) {
+            Log.e("SeniorSittingForm", "Validation failed - invalid fields: $newInvalidFieldKeys")
             validationErrors.add("Si prega di completare tutte le sezioni richieste prima di salvare.")
+        } else {
+            Log.d("SeniorSittingForm", "Validation passed - form is valid")
         }
 
         _uiState.update {
@@ -369,79 +386,106 @@ class SeniorSittingFormViewModel @Inject constructor(
                 invalidFieldKeys = newInvalidFieldKeys
             )
         }
+        Log.d("SeniorSittingForm", "=== VALIDATION COMPLETED: isValid=$isValid ===")
         return isValid
     }
 
     fun saveForm(formId: String?) {
+        Log.d("SeniorSittingForm", "=== SAVE FORM STARTED ===")
         val currentState = _uiState.value
         val case = userDetailRepository.getCurrentCase() ?: return
         val userId = userId ?: return
         val selectedCaregiver = (currentState as? SeniorSittingFormUiState.Editing)?.form?.selectedCaregiver ?: return
 
         val isAdesione = currentState.form.type == SeniorSittingType.ADESIONE
+        Log.d("SeniorSittingForm", "Form type: ${if (isAdesione) "ADESIONE" else "NON_ADESIONE"}")
+        Log.d("SeniorSittingForm", "FormId: $formId")
+        Log.d("SeniorSittingForm", "UserId: $userId")
+        Log.d("SeniorSittingForm", "PatientCode: ${case.patientCod}")
+        Log.d("SeniorSittingForm", "Caregiver: ${selectedCaregiver.fullname} (ID: ${selectedCaregiver.id})")
 
         if (!validateFormAndUpdateState(currentState)) {
+            Log.e("SeniorSittingForm", "Form validation failed!")
             return
         }
 
+        Log.d("SeniorSittingForm", "Form validation passed, starting save...")
         viewModelScope.launch {
             _uiState.update { currentState.copy(isSaving = true) }
 
             try {
                 val formToSave = currentState.form.copy(lastModified = System.currentTimeMillis())
+                
+                // Log form sections and questions
+                formToSave.sections.forEachIndexed { sectionIndex, section ->
+                    Log.d("SeniorSittingForm", "Section $sectionIndex (${section.sectionId}):")
+                    section.questions.forEachIndexed { questionIndex, question ->
+                        Log.d("SeniorSittingForm", "  Q$questionIndex (ID: ${question.questionId}): score=${question.score}, text='${question.questionText}'")
+                    }
+                }
 
                 val data = if (isAdesione){
-                    SeniorSittingScalePost.SeniorSittingScale(
+                    Log.d("SeniorSittingForm", "Creating ADESIONE data object...")
+                    val adesioneData = SeniorSittingScalePost.SeniorSittingScale(
                         id = formId?.toInt(),
                         cODCase = case.patientCod.toString(),
                         evalDateTime = Date(formToSave.compilationTimestamp).format(SERVER_PARAMETER_DATE_TIME_FORMAT),
-                        tableARow1 = formToSave.sections[0].questions[0].score,
-                        tableARow2 = formToSave.sections[0].questions[1].score,
-                        tableARow3 = formToSave.sections[0].questions[2].score,
-                        tableARow4 = formToSave.sections[0].questions[3].score,
-                        tableARow5 = formToSave.sections[0].questions[4].score,
-                        tableARow6 = formToSave.sections[0].questions[5].score,
-                        tableARow7 = formToSave.sections[0].questions[6].questionText,
-                        tableARow8 = formToSave.sections[1].questions[0].questionText,
+                        tableARow1 = formToSave.sections[0].questions[0].score ?: 0,
+                        tableARow2 = formToSave.sections[0].questions[1].score ?: 0,
+                        tableARow3 = formToSave.sections[0].questions[2].score ?: 0,
+                        tableARow4 = formToSave.sections[0].questions[3].score ?: 0,
+                        tableARow5 = formToSave.sections[0].questions[4].score ?: 0,
+                        tableARow6 = formToSave.sections[0].questions[5].score ?: 0,
+                        tableARow7 = formToSave.sections[0].questions[6].questionText.ifEmpty { null },
+                        tableARow8 = formToSave.sections[1].questions[0].questionText.ifEmpty { null },
                         iDUser = userId,
                         modality = true,
                         iDContact = selectedCaregiver.id
-
                     )
+                    Log.d("SeniorSittingForm", "ADESIONE Data: tableARow1=${adesioneData.tableARow1}, tableARow2=${adesioneData.tableARow2}, tableARow3=${adesioneData.tableARow3}, tableARow4=${adesioneData.tableARow4}, tableARow5=${adesioneData.tableARow5}, tableARow6=${adesioneData.tableARow6}")
+                    Log.d("SeniorSittingForm", "ADESIONE Text: tableARow7='${adesioneData.tableARow7}', tableARow8='${adesioneData.tableARow8}'")
+                    adesioneData
                 } else {
-                    SeniorSittingScalePost.SeniorSittingScale(
+                    Log.d("SeniorSittingForm", "Creating NON_ADESIONE data object...")
+                    val nonAdesioneData = SeniorSittingScalePost.SeniorSittingScale(
                         id = formId?.toInt(),
                         cODCase = case.patientCod.toString(),
                         evalDateTime = Date(formToSave.compilationTimestamp).format(SERVER_PARAMETER_DATE_TIME_FORMAT),
                         iDUser = userId,
                         modality = false,
                         iDContact = selectedCaregiver.id,
-                        tableBRow1 = formToSave.sections[0].questions[0].score,
-                        tableBRow2 = formToSave.sections[0].questions[1].score,
-                        tableBRow3 = formToSave.sections[0].questions[2].score,
-                        tableBRow4 = formToSave.sections[0].questions[3].score,
-                        tableBRow5 = formToSave.sections[0].questions[4].score,
-                        tableBRow6 = formToSave.sections[0].questions[5].score,
-                        tableBRow7 = formToSave.sections[0].questions[6].score,
-                        tableBRow8 = formToSave.sections[0].questions[7].score,
-                        tableBRow9 = formToSave.sections[0].questions[8].score,
-                        tableBRow10 = formToSave.sections[1].questions[0].questionText,
-
+                        tableBRow1 = formToSave.sections[0].questions[0].score ?: 0,
+                        tableBRow2 = formToSave.sections[0].questions[1].score ?: 0,
+                        tableBRow3 = formToSave.sections[0].questions[2].score ?: 0,
+                        tableBRow4 = formToSave.sections[0].questions[3].score ?: 0,
+                        tableBRow5 = formToSave.sections[0].questions[4].score ?: 0,
+                        tableBRow6 = formToSave.sections[0].questions[5].score ?: 0,
+                        tableBRow7 = formToSave.sections[0].questions[6].score ?: 0,
+                        tableBRow8 = formToSave.sections[0].questions[7].score ?: 0,
+                        tableBRow9 = formToSave.sections[0].questions[8].score ?: 0,
+                        tableBRow10 = formToSave.sections[1].questions[0].questionText.ifEmpty { null },
                     )
+                    Log.d("SeniorSittingForm", "NON_ADESIONE Data: tableBRow1=${nonAdesioneData.tableBRow1}, tableBRow2=${nonAdesioneData.tableBRow2}, tableBRow3=${nonAdesioneData.tableBRow3}")
+                    Log.d("SeniorSittingForm", "NON_ADESIONE Text: tableBRow10='${nonAdesioneData.tableBRow10}'")
+                    nonAdesioneData
                 }
 
-                if (formId != null){
+                Log.d("SeniorSittingForm", "Calling API - isEdit: ${formId != null}")
+                val result = if (formId != null){
                     formRepository.editSeniorSittingScale(data)
                 } else {
                     formRepository.addSeniorSittingTestScale(data)
                 }
+                Log.d("SeniorSittingForm", "API call completed successfully: $result")
                 _uiState.value = SeniorSittingFormUiState.Saved(formToSave)
             } catch (e: IOException) {
+                Log.e("SeniorSittingForm", "IOException during save: ${e.message}", e)
                 _uiState.value = currentState.copy(
                     isSaving = false,
                     validationErrors = listOf("Errore nel salvataggio del form: ${e.message}")
                 )
             } catch (e: Exception) {
+                Log.e("SeniorSittingForm", "Exception during save: ${e.message}", e)
                 _uiState.value = currentState.copy(
                     isSaving = false,
                     validationErrors = listOf("Errore imprevisto nel salvataggio del form: ${e.message}")

@@ -41,5 +41,7 @@ fun OfflineCreatedDataType.getCategoryName(): Int {
         OfflineCreatedDataType.I_POST_SCALE_UPDATE, OfflineCreatedDataType.I_POST_SCALE_CREATE -> R.string.ipost_form_title
         OfflineCreatedDataType.COMID_TEST_CREATE, OfflineCreatedDataType.COMID_TEST_UPDATE -> R.string.comid_form_title
         OfflineCreatedDataType.CONTACT_CREATE, OfflineCreatedDataType.CONTACT_UPDATE -> R.string.contacts
+        OfflineCreatedDataType.IDPALL_TEST_CREATE, OfflineCreatedDataType.IDPALL_TEST_UPDATE -> R.string.form_idpall_title
+        OfflineCreatedDataType.CAM_TEST_CREATE, OfflineCreatedDataType.CAM_TEST_UPDATE -> R.string.form_cam_title
     }
 }

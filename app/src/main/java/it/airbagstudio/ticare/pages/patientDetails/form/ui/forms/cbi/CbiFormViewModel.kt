@@ -84,67 +84,35 @@ class CbiFormViewModel @Inject constructor(
                 selectedCaregiver = currentCase.contacts.otherContacts.firstOrNull { it.id == form?.iDContact },
                 totalScore = form?.getTotalScore() ?: 0,
             )
-            updateQuestionScore(SectionType.OBJECTIVE, 1, form?.tableTRow1 ?: 0)
-            updateQuestionScore(SectionType.OBJECTIVE, 2, form?.tableTRow2 ?: 0)
-            updateQuestionScore(SectionType.OBJECTIVE, 3, form?.tableTRow3 ?: 0)
-            updateQuestionScore(SectionType.OBJECTIVE, 4, form?.tableTRow4 ?: 0)
-            updateQuestionScore(SectionType.OBJECTIVE, 5, form?.tableTRow5 ?: 0)
-            updateQuestionScore(SectionType.PSYCHOLOGICAL, 6, form?.tableSRow1 ?: 0)
-            updateQuestionScore(SectionType.PSYCHOLOGICAL, 7, form?.tableSRow2 ?: 0)
-            updateQuestionScore(SectionType.PSYCHOLOGICAL, 8, form?.tableSRow3 ?: 0)
-            updateQuestionScore(SectionType.PSYCHOLOGICAL, 9, form?.tableSRow4 ?: 0)
-            updateQuestionScore(SectionType.PSYCHOLOGICAL, 10, form?.tableSRow5 ?: 0)
-            updateQuestionScore(SectionType.PHYSICAL, 11, form?.tableFRow1 ?: 0)
-            updateQuestionScore(SectionType.PHYSICAL, 12, form?.tableFRow2 ?: 0)
-            updateQuestionScore(SectionType.PHYSICAL, 13, form?.tableFRow3 ?: 0)
-            updateQuestionScore(SectionType.PHYSICAL, 14, form?.tableFRow4 ?: 0)
-            updateQuestionScore(SectionType.SOCIAL, 15, form?.tableDRow1 ?: 0)
-            updateQuestionScore(SectionType.SOCIAL, 16, form?.tableDRow2 ?: 0)
-            updateQuestionScore(SectionType.SOCIAL, 17, form?.tableDRow3 ?: 0)
-            updateQuestionScore(SectionType.SOCIAL, 18, form?.tableDRow4 ?: 0)
-            updateQuestionScore(SectionType.SOCIAL, 19, form?.tableDRow5 ?: 0)
-            updateQuestionScore(SectionType.EMOTIONAL, 20, form?.tableERow1 ?: 0)
-            updateQuestionScore(SectionType.EMOTIONAL, 21, form?.tableERow2 ?: 0)
-            updateQuestionScore(SectionType.EMOTIONAL, 22, form?.tableERow3 ?: 0)
-            updateQuestionScore(SectionType.EMOTIONAL, 23, form?.tableERow4 ?: 0)
-            updateQuestionScore(SectionType.EMOTIONAL, 24, form?.tableERow5 ?: 0)
-
-        }
-/*
-        if (formId == null) {
-
-
-        } else {
-            // Load existing form
-            viewModelScope.launch {
-                _uiState.value = CbiFormUiState.Loading
-                try {
-                    val form = formRepository.getCbiScaleList(patientCode).results?.firstOrNull { it.iD == formId.toInt() }
-                    if (form != null) {
-
-
-                        _uiState.value = CbiFormUiState.Editing(
-                            formId = form.iD.toString(),
-                            patientData = patientData,
-                            caregiverData = form.caregiverData,
-                            sections = form.sections,
-                            totalScore = form.totalScore,
-                            compilationTimestamp = form.compilationTimestamp,
-                            isValid = true,
-                            isBirthDateValid = true
-                        )
-                    } else {
-                        _uiState.value = CbiFormUiState.Error("Form non trovato.")
-                    }
-                } catch (e: IOException) {
-                    _uiState.value = CbiFormUiState.Error("Errore nel caricamento del form: ${e.message}")
-                } catch (e: Exception) {
-                    _uiState.value = CbiFormUiState.Error("Errore imprevisto nel caricamento del form: ${e.message}")
-                }
+            
+            // Only update question scores if we're loading an existing form
+            if (form != null) {
+                updateQuestionScore(SectionType.OBJECTIVE, 1, form.tableTRow1)
+                updateQuestionScore(SectionType.OBJECTIVE, 2, form.tableTRow2)
+                updateQuestionScore(SectionType.OBJECTIVE, 3, form.tableTRow3)
+                updateQuestionScore(SectionType.OBJECTIVE, 4, form.tableTRow4)
+                updateQuestionScore(SectionType.OBJECTIVE, 5, form.tableTRow5)
+                updateQuestionScore(SectionType.PSYCHOLOGICAL, 6, form.tableSRow1)
+                updateQuestionScore(SectionType.PSYCHOLOGICAL, 7, form.tableSRow2)
+                updateQuestionScore(SectionType.PSYCHOLOGICAL, 8, form.tableSRow3)
+                updateQuestionScore(SectionType.PSYCHOLOGICAL, 9, form.tableSRow4)
+                updateQuestionScore(SectionType.PSYCHOLOGICAL, 10, form.tableSRow5)
+                updateQuestionScore(SectionType.PHYSICAL, 11, form.tableFRow1)
+                updateQuestionScore(SectionType.PHYSICAL, 12, form.tableFRow2)
+                updateQuestionScore(SectionType.PHYSICAL, 13, form.tableFRow3)
+                updateQuestionScore(SectionType.PHYSICAL, 14, form.tableFRow4)
+                updateQuestionScore(SectionType.SOCIAL, 15, form.tableDRow1)
+                updateQuestionScore(SectionType.SOCIAL, 16, form.tableDRow2)
+                updateQuestionScore(SectionType.SOCIAL, 17, form.tableDRow3)
+                updateQuestionScore(SectionType.SOCIAL, 18, form.tableDRow4)
+                updateQuestionScore(SectionType.SOCIAL, 19, form.tableDRow5)
+                updateQuestionScore(SectionType.EMOTIONAL, 20, form.tableERow1)
+                updateQuestionScore(SectionType.EMOTIONAL, 21, form.tableERow2)
+                updateQuestionScore(SectionType.EMOTIONAL, 22, form.tableERow3)
+                updateQuestionScore(SectionType.EMOTIONAL, 23, form.tableERow4)
+                updateQuestionScore(SectionType.EMOTIONAL, 24, form.tableERow5)
             }
         }
-
- */
     }
 
     /**

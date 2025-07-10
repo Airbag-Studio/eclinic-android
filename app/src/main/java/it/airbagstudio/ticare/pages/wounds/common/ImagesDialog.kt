@@ -2,7 +2,6 @@ package it.airbagstudio.ticare.pages.wounds.common
 
 import android.content.Context
 import android.net.Uri
-import android.provider.ContactsContract.CommonDataKinds.Photo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -40,10 +39,7 @@ import it.airbagstudio.ticare.BuildConfig
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.ImageDetailsDialog
 import it.airbagstudio.ticare.ui.components.ImageRequestData
-import it.airbagstudio.ticare.ui.components.okHttpClient
 import java.io.File
-import java.time.Instant
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

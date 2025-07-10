@@ -43,6 +43,14 @@ object AppDestinations {
     const val SENIOR_SITTING_NON_ADESIONE_FORM_ID_ARG = "formId"
     const val SENIOR_SITTING_NON_ADESIONE_FORM_ROUTE = "$SENIOR_SITTING_NON_ADESIONE_FORM_ROUTE_BASE/{$SENIOR_SITTING_NON_ADESIONE_FORM_ID_ARG}"
 
+    const val IDPALL_FORM_ROUTE_BASE = "idpall_form"
+    const val IDPALL_FORM_ID_ARG = "formId"
+    const val IDPALL_FORM_ROUTE = "$IDPALL_FORM_ROUTE_BASE/{$IDPALL_FORM_ID_ARG}"
+
+    const val CAM_FORM_ROUTE_BASE = "cam_form" // Added for CAM
+    const val CAM_FORM_ID_ARG = "formId" // Added for CAM
+    const val CAM_FORM_ROUTE = "$CAM_FORM_ROUTE_BASE/{$CAM_FORM_ID_ARG}" // Added for CAM
+
     /**
      * Crea la route per la home screen, opzionalmente indicando se un form è stato salvato.
      * @param saved true se un form è stato appena salvato, false altrimenti.
@@ -74,19 +82,11 @@ object AppDestinations {
         return "$SENIOR_SITTING_FORM_ROUTE_BASE/${formId ?: "new"}"
     }
 
-    fun ipos3ggFormRoute(formId: String? = null): String {
-        return "$IPOS3GG_FORM_ROUTE_BASE/${formId ?: "new"}"
+    fun idpallFormRoute(formId: String? = null): String {
+        return "${IDPALL_FORM_ROUTE_BASE}/${formId ?: "new"}"
     }
 
-    fun ipos7ggFormRoute(formId: String? = null): String { // Added for IPOS7gg
-        return "$IPOS7GG_FORM_ROUTE_BASE/${formId ?: "new"}"
-    }
-
-    fun seniorSittingAdesioneFormRoute(formId: String? = null): String {
-        return "$SENIOR_SITTING_ADESIONE_FORM_ROUTE_BASE/${formId ?: "new"}"
-    }
-
-    fun seniorSittingNonAdesioneFormRoute(formId: String? = null): String {
-        return "$SENIOR_SITTING_NON_ADESIONE_FORM_ROUTE_BASE/${formId ?: "new"}"
+    fun camFormRoute(formId: String? = null): String { // Added for CAM
+        return "$CAM_FORM_ROUTE_BASE/${formId ?: "new"}"
     }
 }

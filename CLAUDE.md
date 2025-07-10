@@ -30,6 +30,14 @@ EClinic is an Android healthcare application built with Kotlin and Jetpack Compo
 
 # Run instrumented tests
 ./gradlew connectedAndroidTest
+
+# Clean build
+./gradlew clean
+
+# Build specific flavor
+./gradlew assembleDevelopDebug
+./gradlew assemblePreProdRelease
+./gradlew assembleMdmRelease
 ```
 
 ### Build Flavors
@@ -54,6 +62,7 @@ Uses Dagger Hilt for dependency injection. The main module is `AppModule.kt` whi
 - **Network**: Ktor client for API communication with custom authentication
 - **Repository Pattern**: Each feature has its own repository (e.g., `UserRepository`, `DiaryRepository`)
 - **Offline Support**: `OfflineOnlineRepository` manages sync between local and remote data
+- **Multi-tenant Support**: Company-based routing with authorization headers
 
 ### UI Architecture
 - **UI Framework**: Jetpack Compose with Material 3
@@ -67,6 +76,12 @@ Uses Dagger Hilt for dependency injection. The main module is `AppModule.kt` whi
 - **SQLDelight**: 2.0.0 for database
 - **Coil**: 2.4.0 for image loading
 - **Firebase**: Crashlytics for error reporting
+
+### API Architecture
+- **Authentication**: Bearer token with automatic refresh
+- **Offline-First**: All data cached locally, synced when network available
+- **Conflict Resolution**: Last-write-wins strategy with server timestamps
+- **Error Handling**: Centralized error interceptor with retry logic
 
 ## Form System
 
@@ -123,9 +138,33 @@ The app uses a shared library (`shared-debug.aar`/`shared-release.aar`) that con
 - **Unit Tests**: Located in `src/test/`
 - **Instrumented Tests**: Located in `src/androidTest/`
 - **Test Runner**: AndroidJUnitRunner for instrumented tests
+- **Run Single Test**: `./gradlew test --tests "TestClassName.testMethodName"`
+- **Run Test Class**: `./gradlew test --tests "TestClassName"`
+
+## CI/CD
+
+- **Platform**: Bitrise CI/CD
+- **Build Triggers**: Automatic builds on merge to develop/master branches
+- **Release Process**: Pre-production builds promoted to production after testing
+- **Emergency Procedures**: Hotfix branches for critical production issues
 
 ## Security
 
 - Uses enterprise feedback for MDM environments
 - File provider configuration for secure file sharing
 - Authentication token management through shared library
+- APK signing with separate keystores per environment
+
+## Code Quality
+
+Note: The project does not currently have automated code formatting tools (ktlint, detekt) configured. Manual code review ensures consistency with Kotlin coding conventions.
+
+## Additional Documentation
+
+For more detailed information, see:
+- `docs/API_ARCHITECTURE.md` - Detailed API and networking documentation
+- `docs/DATABASE_SCHEMA.md` - Database structure and migrations
+- `docs/DEPLOYMENT.md` - Comprehensive deployment procedures
+- `docs/DEVELOPER_GUIDE.md` - Development setup and best practices
+- `docs/FORM_SYSTEM.md` - Detailed form architecture documentation
+- `docs/MEMORY_BANK.md` - Recent changes and improvements tracking
