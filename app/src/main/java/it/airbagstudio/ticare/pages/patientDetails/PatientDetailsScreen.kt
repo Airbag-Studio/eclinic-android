@@ -126,7 +126,12 @@ fun PatientDetailsScreen(
         val sortedTools = tools.filter { it.isActive }.sortedBy { it.priority }
         var list = mutableListOf<SectionListData>()
         for (tool in sortedTools) {
-            if (visibility.firstOrNull { it.entity == tool.toolTag.name }?.canView == true) {
+            val isVisible = if (tool.toolTag == ToolTag.Scale) {
+                visibility.filter { it.entity == "CAMTest" || it.entity == "IDPallTest" || it.entity == "CBITest" || it.entity == "ComidTest" || it.entity == "IPOSTest" || it.entity == "SeniorSittingTest" }.any { it.canView }
+            } else {
+                visibility.firstOrNull { it.entity == tool.toolTag.name }?.canView == true
+            }
+            if (isVisible) {
                 list.add(
                     SectionListData(
                         title = tool.name,
@@ -206,12 +211,31 @@ fun PatientDetailsScreen(
                                     }
                                 }
                                 ToolTag.Diary -> {}
+                                ToolTag.Scale -> {
+                                    viewModel.patientCod?.let {
+                                        navActions.navigateToFormsHome()
+                                    }
+                                }
                             }
                         }
                     )
                 )
             }
         }
+        /*
+        list.add(SectionListData(
+            title = "Scale",
+            iconId = R.drawable.moduli,
+            badgeNumber = null,
+            toolTag = ToolTag.Diary,
+            onClick = {
+                viewModel.patientCod?.let {
+                    navActions.navigateToFormsHome()
+                }
+            }
+        ))
+
+         */
         sectionListDatas = list
     }
 

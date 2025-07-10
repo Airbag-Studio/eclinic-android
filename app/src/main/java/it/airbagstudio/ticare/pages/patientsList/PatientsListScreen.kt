@@ -84,6 +84,7 @@ fun PatientListScreen(
     navActions: NavigationActions
 
 ) {
+    val isContractAboutToExpire by viewModel.isContractAboutToExpire.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var searchActive by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
@@ -102,12 +103,22 @@ fun PatientListScreen(
     }
 
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LifecycleResumeEffect(Unit) {
         // Do something on resume or launch effect
         viewModel.updatePatients()
         onPauseOrDispose {
 
+        }
+    }
+
+    // Show snackbar if contract is about to expire
+    LaunchedEffect(isContractAboutToExpire) {
+        if (isContractAboutToExpire) {
+            snackbarHostState.showSnackbar("Il contratto sta per scadere. Contatta l'amministratore.",actionLabel = "Chiudi").let {
+                viewModel.cancelContractAboutToExpire()
+            }
         }
     }
 
@@ -118,7 +129,7 @@ fun PatientListScreen(
     BottomSheetScaffold(
         scaffoldState = BottomSheetScaffoldState(
             sheetState,
-            snackbarHostState = SnackbarHostState()
+            snackbarHostState = snackbarHostState
         ),
         modifier = Modifier.consumeWindowInsets(
             WindowInsets.systemBars.only(WindowInsetsSides.Vertical)

@@ -26,21 +26,62 @@ import it.airbagstudio.ticare.R
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import java.io.File
+import java.security.SecureRandom
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
+import javax.security.cert.X509Certificate
 
 data class ImageRequestData(
     val url: String,
     val token: String
 )
+fun getUnsafeOkHttpClient(): OkHttpClient {
+    // Create a trust manager that does not validate certificate chains
+    val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
 
+        override fun checkClientTrusted(
+            p0: Array<out java.security.cert.X509Certificate?>?,
+            p1: String?
+        ) {
+        }
+
+        override fun checkServerTrusted(
+            p0: Array<out java.security.cert.X509Certificate?>?,
+            p1: String?
+        ) {
+        }
+
+        override fun getAcceptedIssuers(): Array<out java.security.cert.X509Certificate?>? {
+            return arrayOf()
+        }
+    })
+
+    // Install the all-trusting trust manager
+    val sslContext = SSLContext.getInstance("SSL")
+    sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+    // Create an ssl socket factory with our all-trusting manager
+    val sslSocketFactory = sslContext.socketFactory
+
+    return OkHttpClient.Builder()
+        .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
+        .hostnameVerifier { _, _ -> true }.dispatcher(Dispatcher().apply {
+            maxRequests = 2
+
+        }).build()
+}
+/*
 val okHttpClient = OkHttpClient.Builder()
     .dispatcher(Dispatcher().apply {
         maxRequests = 2
+
     })
     .build()
-
+*/
 @Composable
 fun PatientImage(code: String, photo: String, requestData: ImageRequestData,isOnline: Boolean = true) {
 
@@ -87,7 +128,7 @@ private fun getPainter(code: String, photo: String, requestData: ImageRequestDat
             .addHeader("auth-timestamp", authTimestampHeader)
             .build()
         val imageLoader = ImageLoader.Builder(LocalContext.current)
-            .okHttpClient(okHttpClient)
+            .okHttpClient(getUnsafeOkHttpClient())
             .build()
         return rememberAsyncImagePainter(
                 model = imageRequest,

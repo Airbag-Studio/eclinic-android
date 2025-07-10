@@ -53,7 +53,7 @@ import it.airbagstudio.ticare.ui.components.ImageRequestData
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.ui.components.MultiselectPopupTextField
 import it.airbagstudio.ticare.ui.components.PopupTextField
-import it.airbagstudio.ticare.ui.components.okHttpClient
+import it.airbagstudio.ticare.ui.components.getUnsafeOkHttpClient
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
 import it.airbagstudio.ticare.utils.getPainter
@@ -234,7 +234,7 @@ fun CheckCreateDialogScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 if (uiState.check.images.isNotEmpty() || viewModel.checkImages.value.isNotEmpty()) {
                     val imageLoader = ImageLoader.Builder(LocalContext.current)
-                        .okHttpClient(okHttpClient)
+                        .okHttpClient(getUnsafeOkHttpClient())
                         .build()
                     val painters = viewModel.checkImages.value.map {
                         it.getPainter(requestData = viewModel.requestImageRequestData, imageLoader = imageLoader, authTimestampHeader = DateTimeFormatter.ISO_INSTANT.format(

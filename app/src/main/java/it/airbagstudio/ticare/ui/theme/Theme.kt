@@ -9,11 +9,35 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.theme.formDividerDark
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.theme.formDividerLight
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.theme.formSectionBackgroundDark
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.theme.formSectionBackgroundLight
+
+// Custom Form-specific colors
+data class FormColors(
+    val sectionBackground: Color,
+    val divider: Color
+)
+
+internal val LocalFormColors = staticCompositionLocalOf<FormColors> {
+    error("No FormColors provided. Did you forget to wrap your Composable in AppTheme?")
+}
+
+// Extension property to easily access FormColors
+val MaterialTheme.formColors: FormColors
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalFormColors.current
 
 
 private val LightColorScheme = lightColorScheme(
@@ -104,10 +128,22 @@ fun AppTheme(
         WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
     }
   }
-
-  MaterialTheme(
-      colorScheme = colorScheme,
-      typography = Typography(),
-      content = content
-  )
+    val currentFormColors = if (darkTheme) {
+        FormColors(
+            sectionBackground = formSectionBackgroundDark,
+            divider = formDividerDark
+        )
+    } else {
+        FormColors(
+            sectionBackground = formSectionBackgroundLight,
+            divider = formDividerLight
+        )
+    }
+    CompositionLocalProvider(LocalFormColors provides currentFormColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography(),
+            content = content
+        )
+    }
 }

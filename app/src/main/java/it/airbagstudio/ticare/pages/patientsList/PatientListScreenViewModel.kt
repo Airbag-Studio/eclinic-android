@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
@@ -82,6 +83,9 @@ class PatientListScreenViewModel @Inject constructor(
     private val onlineRepository: OfflineOnlineRepository,
     private val syncDataRepository: SyncDataRepository
 ) : ViewModel() {
+
+    private var _isContractAboutToExpire = MutableStateFlow(false)
+    var isContractAboutToExpire = _isContractAboutToExpire.asStateFlow()
 
     var isLoading by mutableStateOf(false)
     var query by mutableStateOf("")
@@ -220,10 +224,19 @@ class PatientListScreenViewModel @Inject constructor(
 
     init {
         downloadData()
+        checkIfContractAboutToExpire()
         requestImageRequestData = ImageRequestData(
             authRepository.getBaseURL(),
             authRepository.getToken() ?: ""
         )
+    }
+
+    fun checkIfContractAboutToExpire(){
+        _isContractAboutToExpire.value = userRepository.isContractAboutToExpire()
+    }
+
+    fun cancelContractAboutToExpire(){
+        _isContractAboutToExpire.value = false
     }
 
     fun updatePatients(){

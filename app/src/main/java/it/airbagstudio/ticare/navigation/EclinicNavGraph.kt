@@ -1,16 +1,23 @@
 package it.airbagstudio.ticare.navigation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import ch.ticare.eclinic.library.repository.UserDetailRepository
 import it.airbagstudio.ticare.LoginRedirect
 import it.airbagstudio.ticare.pages.carePlans.details.CarePlanDetailsScreen
 import it.airbagstudio.ticare.pages.carePlans.list.CarePlanesListScreen
@@ -23,6 +30,19 @@ import it.airbagstudio.ticare.pages.nursingCourses.NursingCoursesScreen
 import it.airbagstudio.ticare.pages.otherTreatments.OtherTreatmentScreen
 import it.airbagstudio.ticare.pages.patientDetails.PatientDetailsScreen
 import it.airbagstudio.ticare.pages.patientDetails.alertsAllergies.AlertAllergiesScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.di.provideFormRepository
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cam.CAMFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi.CbiFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.ComidFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.idpall.IDPallFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos.IPOSFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsitting.SeniorSittingFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.FormType
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.HomeScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations.CAM_FORM_ID_ARG
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations.IDPALL_FORM_ID_ARG
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations.IDPALL_FORM_ROUTE
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
 import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
 import it.airbagstudio.ticare.pages.settings.SettingsPage
@@ -33,11 +53,11 @@ import it.airbagstudio.ticare.pages.workinghours.list.WorkingHoursListScreen
 import it.airbagstudio.ticare.pages.wounds.checks.details.CheckDetailsPage
 import it.airbagstudio.ticare.pages.wounds.details.WoundDetailsScreen
 import it.airbagstudio.ticare.pages.wounds.list.WoundListScreen
-import kotlinx.coroutines.CoroutineScope
 
 
 @Composable
 fun EclinicNavGraph(
+    userDetailRepository: UserDetailRepository,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = Destinations.SPLASH_ROUTE,
@@ -45,6 +65,8 @@ fun EclinicNavGraph(
         NavigationActions(navController)
     }
 ) {
+    val formRepository = provideFormRepository(context = LocalContext.current, userDetailRepository = userDetailRepository)
+
     val currentNavBackStackEntry by navController.currentBackStackEntryAsState()
     // val currentRoute = currentNavBackStackEntry?.destination?.route ?: startDestination
 
@@ -181,6 +203,258 @@ fun EclinicNavGraph(
             TaskListScreen {
                 navController.popBackStack()
             }
+        }
+
+
+
+
+        composable(
+            route = AppDestinations.HOME_ROUTE,
+            arguments = listOf(navArgument(AppDestinations.HOME_ROUTE_SAVED_ARG) {
+                type = NavType.BoolType
+                defaultValue = false
+            })
+        ) { backStackEntry ->
+            val saved = backStackEntry.arguments?.getBoolean(AppDestinations.HOME_ROUTE_SAVED_ARG) ?: false
+            HomeScreen(
+                showSnackbarOnEntry = saved, // Pass the saved flag
+                onNavigateToForm = { formTypeEnum, formId -> // Changed to formTypeEnum
+                    // Use typeName for comparison or switch on enum
+                    when (formTypeEnum) {
+                        FormType.CBI -> {
+                            navController.navigate(AppDestinations.cbiFormRoute(formId))
+                        }
+                        FormType.COMID -> {
+                            navController.navigate(AppDestinations.comidFormRoute(formId))
+                        }
+                        FormType.IPOS -> { // Unified IPOS form
+                            navController.navigate(AppDestinations.iposFormRoute(formId))
+                        }
+                        FormType.SENIOR_SITTING -> { // Unified Senior Sitting form
+                            navController.navigate(AppDestinations.seniorSittingFormRoute(formId))
+                        }
+
+                        FormType.IDPALL -> {
+                            navController.navigate(AppDestinations.idpallFormRoute(formId))
+                        }
+                        FormType.CAM -> {
+                            navController.navigate(AppDestinations.camFormRoute(formId))
+                        }
+                    }
+                },
+                onBack = {
+                    navController.popBackStack(Destinations.PATIENT_DETAILS_ROUTE, inclusive = false)
+                }
+            )
+        }
+
+        composable(
+            route = AppDestinations.CBI_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(AppDestinations.CBI_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+            // Consider adding popEnterTransition and popExitTransition for a complete animation set
+            // popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+            // popExitTransition = { slideOutVertically(targetOffsetY = { fullHeight -> fullHeight }, animationSpec = tween(300)) }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(AppDestinations.CBI_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            CbiFormScreen(
+                formId = actualFormId,
+                onClose = {
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
+                },
+                onSaved = {
+                    // Navigate to home indicating a save occurred
+                    navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                        // Pop up to the start destination of the graph to
+                        // avoid building up a large stack of destinations
+                        // on the back stack as users select items
+                        popUpTo(AppDestinations.homeRoute(saved = false)) { // Use the route pattern
+                            inclusive = true
+                        }
+                        // Avoid multiple copies of the same destination when
+                        // reselecting the same item
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = AppDestinations.COMID_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(AppDestinations.COMID_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(AppDestinations.COMID_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            ComidFormScreen(
+                formId = actualFormId,
+                onClose = {
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
+                },
+                onSaved = {
+                    navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                        popUpTo(AppDestinations.homeRoute(saved = false)) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = AppDestinations.IPOS_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(AppDestinations.IPOS_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(AppDestinations.IPOS_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            IPOSFormScreen(
+                formId = actualFormId,
+                onClose = {
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
+                },
+                onSaved = { savedFormId ->
+                    navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                        popUpTo(AppDestinations.homeRoute(saved = false)) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = AppDestinations.SENIOR_SITTING_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(AppDestinations.SENIOR_SITTING_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(AppDestinations.SENIOR_SITTING_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            SeniorSittingFormScreen(
+                formId = actualFormId,
+                onClose = {
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
+                },
+                onSaved = { savedFormId ->
+                    navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                        popUpTo(AppDestinations.homeRoute(saved = false)) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = IDPALL_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(IDPALL_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(IDPALL_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            // Corrected call to IDPallFormScreen
+            IDPallFormScreen(
+                formId = actualFormId,
+                onNavigateBack = {
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
+
+                }
+            )
+        }
+
+
+        composable( // Added CAM Form
+            route = AppDestinations.CAM_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(CAM_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(CAM_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            CAMFormScreen(
+                formId = actualFormId,
+                onClose = {
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
+
+                },
+                onSaved = {
+                    navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                        popUpTo(AppDestinations.homeRoute(saved = false)) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
     }
 }

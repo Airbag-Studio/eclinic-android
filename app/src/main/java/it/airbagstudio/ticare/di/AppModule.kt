@@ -25,6 +25,7 @@ import ch.ticare.eclinic.library.repository.UserRepository
 import ch.ticare.eclinic.library.repository.VisibilityRepository
 import ch.ticare.eclinic.library.repository.WorkingHourRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
+import ch.ticare.eclinic.library.repository.FormRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -164,4 +165,10 @@ class AppModule {
         return VisibilityRepository(database)
     }
 
+    @Provides
+    @Singleton
+    fun providesFormRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): FormRepository {
+        return FormRepository(apiClient,database,offlineOnlineRepository)
+
+    }
 }

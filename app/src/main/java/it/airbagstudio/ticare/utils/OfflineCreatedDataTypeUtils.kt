@@ -36,5 +36,12 @@ fun OfflineCreatedDataType.getCategoryName(): Int {
         OfflineCreatedDataType.GENERICSERVICE_CREATE, OfflineCreatedDataType.GENERICSERVICE_UPDATE -> R.string.generic_task
         OfflineCreatedDataType.PHYSIOTHERAPY_CREATE, OfflineCreatedDataType.PHYSIOTHERAPY_UPDATE -> R.string.physiotherapy_task
         OfflineCreatedDataType.MEDICAL_COURSE_CREATE,OfflineCreatedDataType.MEDICAL_COURSE_UPDATE -> R.string.medical_course
+        OfflineCreatedDataType.CBI_SCALE_CREATE, OfflineCreatedDataType.CBI_SCALE_UPDATE -> R.string.cbi_form_title
+        OfflineCreatedDataType.SENIOR_SITTING_SCALE_CREATE, OfflineCreatedDataType.SENIOR_SITTING_SCALE_UPDATE -> R.string.senior_sitting_form_title
+        OfflineCreatedDataType.I_POST_SCALE_UPDATE, OfflineCreatedDataType.I_POST_SCALE_CREATE -> R.string.ipost_form_title
+        OfflineCreatedDataType.COMID_TEST_CREATE, OfflineCreatedDataType.COMID_TEST_UPDATE -> R.string.comid_form_title
+        OfflineCreatedDataType.CONTACT_CREATE, OfflineCreatedDataType.CONTACT_UPDATE -> R.string.contacts
+        OfflineCreatedDataType.IDPALL_TEST_CREATE, OfflineCreatedDataType.IDPALL_TEST_UPDATE -> R.string.form_idpall_title
+        OfflineCreatedDataType.CAM_TEST_CREATE, OfflineCreatedDataType.CAM_TEST_UPDATE -> R.string.form_cam_title
     }
 }

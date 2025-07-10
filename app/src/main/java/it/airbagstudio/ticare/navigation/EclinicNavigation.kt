@@ -33,6 +33,7 @@ import it.airbagstudio.ticare.navigation.Screens.VITAL_PARAMETERS_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.WORKING_HOURS_LIST_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.WOUNDS_SCREEN
 import it.airbagstudio.ticare.navigation.Screens.WOUND_DETAILS_SCREEN
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations
 
 private object Screens{
     const val SPLASH_SCREEN = "splashScreen"
@@ -181,5 +182,10 @@ class NavigationActions(private val navController: NavController){
     }
     fun navigateToTasksScreen(patientCod: String,taskType: String, taskId: Int = -1){
         navController.navigate("$TASKS_SCREEN/$patientCod/$taskType/$taskId")
+    }
+
+    fun navigateToFormsHome() {
+        navController.navigate(AppDestinations.HOME_ROUTE)
+
     }
 }
