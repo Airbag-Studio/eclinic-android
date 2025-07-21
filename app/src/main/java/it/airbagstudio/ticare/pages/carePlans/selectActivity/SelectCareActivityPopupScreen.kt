@@ -222,6 +222,7 @@ fun SelectCareActivityPopupScreen(
                         onClick = {
                             showExecuteAllAlert = false
                             viewModel.executeAllPlannedActivities(trackerViewUIState.elapsedTimeFromLastActivity){
+                                trackerViewModel.updateLastMinutesFromLastActivity()
                                 onDismissRequest(null)
                             }
                         }) {
