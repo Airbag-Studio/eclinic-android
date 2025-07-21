@@ -1,10 +1,10 @@
 package it.airbagstudio.ticare.pages.carePlans.selectActivity
 
+import android.R.attr.duration
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ch.ticare.eclinic.library.entity.HomeCareActivity
 import ch.ticare.eclinic.library.entity.HomeCareActivitySave
-import ch.ticare.eclinic.library.entity.HomeCarePlannedActivity
 import ch.ticare.eclinic.library.entity.HomeCareUnplannedActivity
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,11 +12,10 @@ import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.lang.Thread.sleep
 import java.util.Date
 import javax.inject.Inject
 
@@ -161,6 +160,38 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                 }
             }
 
+        }
+    }
+
+    fun executeAllPlannedActivities(elapsedTimeFromLastActivity : Long?, onSuccess:() -> Unit){
+        val elapsedTime = elapsedTimeFromLastActivity ?: return
+        viewModelScope.launch(coroutineExceptionHandler) {
+            plannedActivities.collect { activities ->
+                val totalPlannedTime: Double = (activities?.sumOf { it.duration } ?: 0).toDouble()
+                activities?.forEach { activity ->
+                    val plannedTime: Double = activity.duration.toDouble()
+                    val executionTime = if(plannedTime > 0) (plannedTime * elapsedTime) / totalPlannedTime else 0.0
+                    saveActivity(HomeCareActivitySave(
+                        idPlanning = activity.id,
+                        idActivityType = null,
+                        codCase = patientCode.value ?: "",
+                        execDateTime = Date().format("yyyy.MM.dd HH:mm"),
+                        duration = executionTime.toInt(),
+                        notes = activity.notes,
+                        showInDiary = false,
+                    ))
+                }
+                onSuccess()
+            }
+
+        }
+
+    }
+
+    suspend fun saveActivity(activity: HomeCareActivitySave){
+        val res = homeCareActivitiesRepository.addHomeCareActivity(activity)
+        res.error?.desc?.let {
+            errorMessage.value = it
         }
     }
 }

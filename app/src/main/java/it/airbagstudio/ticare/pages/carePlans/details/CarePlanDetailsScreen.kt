@@ -202,6 +202,8 @@ fun CarePlanDetailsScreen(
                     idActivityType = params.second
                 }
                 showCreateCarePopup = true
+            }else{
+                viewModel.downloadData()
             }
         })
     }

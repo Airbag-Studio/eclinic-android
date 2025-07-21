@@ -12,10 +12,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +29,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -63,6 +68,8 @@ fun SelectCareActivityPopupScreen(
     trackerViewModel: TimeTrackerViewModel = hiltViewModel(LocalActivity.current),
     onDismissRequest: (Pair<Boolean,Int>?) -> Unit
 ) {
+    var showExecuteAllAlert by remember { mutableStateOf(false) }
+
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = { onDismissRequest(null) },
@@ -71,6 +78,9 @@ fun SelectCareActivityPopupScreen(
         val trackerViewUIState by trackerViewModel.uiState.collectAsStateWithLifecycle()
         var showTravelTimeDialog by remember {
             mutableStateOf(false)
+        }
+        var tabIndex by remember {
+            mutableIntStateOf(0)
         }
         LaunchedEffect(Unit) {
             viewModel.setCarePlanId(planId)
@@ -92,16 +102,36 @@ fun SelectCareActivityPopupScreen(
                         }
                     }
                 )
-            }) { values ->
+            },
+            floatingActionButton = {
+                if (tabIndex == 0) {
+                    ExtendedFloatingActionButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 24.dp),
+                        expanded = true,
+                        text = {
+                            Text(
+                                text = stringResource(id = R.string.execute_all),
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        },
+                        icon = { Icon(imageVector = Icons.Default.Add, contentDescription = "") },
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        onClick = {
+                            showExecuteAllAlert = true
+
+                        })
+                }
+            },
+            floatingActionButtonPosition = FabPosition.Center) { values ->
             Column(
                 Modifier
                     .fillMaxSize()
                     .padding(values)
 
             ) {
-                var tabIndex by remember {
-                    mutableIntStateOf(0)
-                }
+
                 val labels = listOf(
                     stringResource(id = R.string.planned),
                     stringResource(id = R.string.not_planned)
@@ -179,6 +209,37 @@ fun SelectCareActivityPopupScreen(
         }
 
          */
+
+        if (showExecuteAllAlert) {
+            AlertDialog(
+                onDismissRequest = {
+                    showExecuteAllAlert = false
+                },
+                title = { Text(text = stringResource(id = R.string.execute_all_activities_confirm_dialog_title)) },
+                text = { Text(text = stringResource(id = R.string.execute_all_activities_confirm_dialog_message)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showExecuteAllAlert = false
+                            viewModel.executeAllPlannedActivities(trackerViewUIState.elapsedTimeFromLastActivity){
+                                onDismissRequest(null)
+                            }
+                        }) {
+                        Text("Ok")
+                    }
+                },
+                dismissButton =
+                    {
+                        TextButton(
+                            onClick = {
+                                showExecuteAllAlert = false
+                            }) {
+                            Text(stringResource(id = R.string.cancel))
+                        }
+
+                    })
+
+        }
     }
 }
 
