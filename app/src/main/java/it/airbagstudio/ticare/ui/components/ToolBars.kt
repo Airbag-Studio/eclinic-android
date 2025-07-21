@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
@@ -31,7 +32,8 @@ import it.airbagstudio.ticare.utils.debounced
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToolbarWithSyncAndSettings(
-    title: String,
+    companyName: String,
+    username: String,
     onSettingsClick: () -> Unit,
     isOnline: Boolean,
     showTimeTrackerButton: Boolean,
@@ -40,10 +42,17 @@ fun ToolbarWithSyncAndSettings(
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
         title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium
-            )
+            Column {
+                Text(
+                    text = companyName,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = username,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
         },
         navigationIcon = {
             FilledIconButton(
@@ -142,7 +151,7 @@ fun ToolbarWithBack(
 @Preview
 private fun PreviewToolbar() {
     AppTheme() {
-        ToolbarWithSyncAndSettings(title = "Casa Delle Rose", onDownloadPatientDataClick = {},
+        ToolbarWithSyncAndSettings(companyName = "Casa Delle Rose", username = "Mario Rossi", onDownloadPatientDataClick = {},
             isOnline = true, showTimeTrackerButton = true, onSettingsClick = {})
     }
 

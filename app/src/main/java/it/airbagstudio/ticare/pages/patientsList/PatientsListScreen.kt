@@ -136,7 +136,8 @@ fun PatientListScreen(
         ),
         topBar = {
             ToolbarWithSyncAndSettings(
-                title = uiState.companyName,
+                companyName = uiState.companyName,
+                username = uiState.userName,
                 isOnline = uiState.isOnline,
                 showTimeTrackerButton = uiState.clinicType == ClinicType.SPITEX,
                 onDownloadPatientDataClick = {
