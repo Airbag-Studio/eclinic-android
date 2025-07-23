@@ -18,6 +18,8 @@ import kotlinx.coroutines.launch
 import java.lang.Thread.sleep
 import java.util.Date
 import javax.inject.Inject
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 data class SelectCareActivityPopupUIState(
     val isLoading: Boolean,
@@ -168,18 +170,33 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             plannedActivities.collect { activities ->
                 val totalPlannedTime: Double = (activities?.sumOf { it.duration } ?: 0).toDouble()
+                var cumulatedExecutionTime = 0
+                val activitiesToSend = mutableListOf<HomeCareActivitySave>()
                 activities?.forEach { activity ->
                     val plannedTime: Double = activity.duration.toDouble()
-                    val executionTime = if(plannedTime > 0) (plannedTime * elapsedTime) / totalPlannedTime else 0.0
-                    saveActivity(HomeCareActivitySave(
+                    val executionTime : Int = if(plannedTime > 0) ((plannedTime * elapsedTime) / totalPlannedTime).roundToInt() else 0
+                    cumulatedExecutionTime += executionTime
+
+                    activitiesToSend.add(HomeCareActivitySave(
                         idPlanning = activity.id,
                         idActivityType = null,
                         codCase = patientCode.value ?: "",
                         execDateTime = Date().format("yyyy.MM.dd HH:mm"),
-                        duration = executionTime.toInt(),
+                        duration = executionTime,
                         notes = activity.notes,
                         showInDiary = false,
                     ))
+                }
+                var sortedActivities: MutableList<HomeCareActivitySave> = activitiesToSend.sortedBy { it.execDateTime }.toMutableList()
+                if(cumulatedExecutionTime != elapsedTime.toInt()){
+                    val remainingTime = elapsedTime.toInt() - cumulatedExecutionTime
+                    val duration = sortedActivities[sortedActivities.lastIndex].duration
+                    sortedActivities[sortedActivities.lastIndex] = sortedActivities[sortedActivities.lastIndex].copy(duration = duration + remainingTime)
+                }
+                //Log.w("executeAllPlannedActivities","elapsedTime $elapsedTime totalPlannedTime $totalPlannedTime sortedActivities $sortedActivities")
+                //Log.w("EXECUTING",sortedActivities.map { it.duration }.toString())
+                sortedActivities.forEach {
+                    saveActivity(it)
                 }
                 onSuccess()
             }
