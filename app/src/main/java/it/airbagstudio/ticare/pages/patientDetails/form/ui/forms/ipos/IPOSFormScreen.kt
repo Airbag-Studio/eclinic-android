@@ -3,9 +3,11 @@ package it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos
 import android.R.attr.label
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +25,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -51,7 +55,6 @@ import it.airbagstudio.ticare.pages.patientDetails.form.domain.data.IPOSQuestion
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.DateTimePickerInputField
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.IPOSFloatingLegend
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.RadioGroupScale
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.TimePeriodSelector
 import it.airbagstudio.ticare.ui.theme.formColors
@@ -142,17 +145,13 @@ fun IPOSFormScreen(
                 }
             }
             is IPOSFormUiState.Editing -> {
-                Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-                    IPOSFormContent(
-                        enabled = isFormEnabled,
-                        formId = formId,
-                        editingState = state,
-                        viewModel = viewModel
-                    )
-                    IPOSFloatingLegend(
-                        modifier = Modifier.align(Alignment.TopCenter)
-                    )
-                }
+                IPOSFormContent(
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    enabled = isFormEnabled,
+                    formId = formId,
+                    editingState = state,
+                    viewModel = viewModel
+                )
             }
             is IPOSFormUiState.Saved -> {
                 Box(
@@ -168,6 +167,7 @@ fun IPOSFormScreen(
 
 @Composable
 fun IPOSFormContent(
+    modifier: Modifier = Modifier,
     enabled: Boolean,
     formId: String?,
     editingState: IPOSFormUiState.Editing,
@@ -177,11 +177,9 @@ fun IPOSFormContent(
     val scrollState = rememberScrollState()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .verticalScroll(scrollState)
             .padding(16.dp)
-            .padding(top = 64.dp) // Add top padding to account for floating legend
     ) {
         // Time Period Selector
         TimePeriodSelector(
@@ -359,6 +357,31 @@ fun IPOSFormSectionRenderer(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
+                    
+                    // Mostra la legenda dettagliata una sola volta all'inizio della sezione Q2
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            LegendItem("0", "No per\nniente")
+                            LegendItem("1", "Leggermente")
+                            LegendItem("2", "Moderatamente")
+                            LegendItem("3", "In Modo\nSevero")
+                            LegendItem("4", "In modo\nintollerab.")
+                        }
+                    }
+                    
                     section.questions.forEach { question ->
                         ScaleQuestionItem(
                             enabled = enabled,
@@ -366,7 +389,8 @@ fun IPOSFormSectionRenderer(
                             score = question.score,
                             onScoreChange = { newScore ->
                                 onQuestionResponseChanged(question.questionId, newScore, question.questionText)
-                            }
+                            },
+                            showLegend = false // Non mostrare alcuna legenda per ogni domanda
                         )
                     }
                 }
@@ -376,6 +400,31 @@ fun IPOSFormSectionRenderer(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
+                    
+                    // Mostra la legenda dettagliata una sola volta all'inizio della sezione Q2b
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            LegendItem("0", "No per\nniente")
+                            LegendItem("1", "Leggermente")
+                            LegendItem("2", "Moderatamente")
+                            LegendItem("3", "In Modo\nSevero")
+                            LegendItem("4", "In modo\nintollerab.")
+                        }
+                    }
+                    
                     section.questions.forEachIndexed { index, question ->
                         Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
                             OutlinedTextField(
@@ -388,6 +437,7 @@ fun IPOSFormSectionRenderer(
                                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                                 singleLine = true
                             )
+                            
                             RadioGroupScale(
                                 enabled = enabled,
                                 selectedValue = question.score,
@@ -400,14 +450,145 @@ fun IPOSFormSectionRenderer(
                     }
                 }
                 "Q3_Q9" -> {
+                    var isFirstLegendShown = false
+                    var isSecondLegendShown = false
+                    
                     section.questions.forEach { question ->
+                        // Determina quale domanda stiamo processando
+                        val questionNumber = when (question.questionId) {
+                            IPOSQuestions.Q3_ANSIA_MALATTIA_TERAPIE_ID -> 3
+                            IPOSQuestions.Q4_ANSIA_CARI_ID -> 4
+                            IPOSQuestions.Q5_DEPRESSIONE_ID -> 5
+                            IPOSQuestions.Q6_PACE_SE_STESSO_ID -> 6
+                            IPOSQuestions.Q7_CONDIVIDERE_STATI_ANIMO_ID -> 7
+                            IPOSQuestions.Q8_INFO_RICEVUTE_ID -> 8
+                            IPOSQuestions.Q9_GESTIONE_PROBLEMI_PRATICI_ID -> 9
+                            else -> 0
+                        }
+                        
+                        // Mostra la prima legenda prima di Q3 (Per nulla - Opprimente)
+                        if (questionNumber == 3 && !isFirstLegendShown) {
+                            isFirstLegendShown = true
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 12.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "Per nulla",
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                    Text(
+                                        text = "0     1     2     3     4",
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                    Text(
+                                        text = "Opprimente",
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                }
+                            }
+                        }
+                        
+                        // Mostra la seconda legenda prima di Q6 (scala inversa)
+                        if (questionNumber == 6 && !isSecondLegendShown) {
+                            isSecondLegendShown = true
+                            
+                            // Divisore prima del nuovo gruppo Q6-Q8
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 16.dp),
+                                thickness = 2.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                            
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 12.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                                ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp, vertical = 12.dp),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    LegendItemInverse("0", "Sempre")
+                                    LegendItemInverse("1", "Per la maggior\nparte del tempo")
+                                    LegendItemInverse("2", "Qualche\nvolta")
+                                    LegendItemInverse("3", "Raramente")
+                                    LegendItemInverse("4", "No, per\nniente")
+                                }
+                            }
+                        }
+                        
+                        // Mostra di nuovo la prima legenda prima di Q9
+                        if (questionNumber == 9) {
+                            // Divisore prima di Q9
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 16.dp),
+                                thickness = 2.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                            
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 12.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "Per nulla",
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                    Text(
+                                        text = "0     1     2     3     4",
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                    Text(
+                                        text = "Opprimente",
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                }
+                            }
+                        }
+                        
                         ScaleQuestionItem(
                             enabled = enabled,
                             questionText = question.questionText,
                             score = question.score,
                             onScoreChange = { newScore ->
                                 onQuestionResponseChanged(question.questionId, newScore, question.questionText)
-                            }
+                            },
+                            showLegend = false // Non mostrare alcuna legenda per ogni domanda
                         )
                     }
                 }
@@ -450,6 +631,8 @@ fun ScaleQuestionItem(
     questionText: String,
     score: Int?,
     onScoreChange: (Int?) -> Unit,
+    showDetailedLegend: Boolean = false,
+    showLegend: Boolean = true, // Nuovo parametro per controllare se mostrare la legenda
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.padding(bottom = 16.dp)) {
@@ -458,11 +641,103 @@ fun ScaleQuestionItem(
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
             modifier = Modifier.padding(bottom = 8.dp)
         )
+        
+        // Mostra la legenda solo se showLegend è true
+        if (showLegend) {
+            // Aggiungi la legenda sopra i radio button
+            if (showDetailedLegend) {
+                // Legenda dettagliata per Q2 e Q2b
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    LegendItem("0", "No per\nniente")
+                    LegendItem("1", "Leggermente")
+                    LegendItem("2", "Moderatamente")
+                    LegendItem("3", "In Modo\nSevero")
+                    LegendItem("4", "In modo\nintollerab.")
+                }
+            } else {
+                // Legenda semplice per Q3-Q9
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Per nulla",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "Opprimente",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+        
         RadioGroupScale(
             enabled = enabled,
             selectedValue = score,
             onValueSelected = { nonNullableScore -> onScoreChange(nonNullableScore) },
             modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun RowScope.LegendItem(
+    number: String,
+    description: String
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.weight(1f)
+    ) {
+        Text(
+            text = number,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            maxLines = 2,
+            minLines = 2,
+            modifier = Modifier.padding(horizontal = 2.dp)
+        )
+    }
+}
+
+@Composable
+private fun RowScope.LegendItemInverse(
+    number: String,
+    description: String
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.weight(1f)
+    ) {
+        Text(
+            text = number,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onTertiaryContainer
+        )
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onTertiaryContainer,
+            maxLines = 2,
+            minLines = 2,
+            modifier = Modifier.padding(horizontal = 2.dp)
         )
     }
 }
