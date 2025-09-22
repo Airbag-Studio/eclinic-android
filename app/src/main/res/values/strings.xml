@@ -343,4 +343,5 @@
     <!-- CAM Form -->
     <string name="form_cam_title">CAM (Confusion Assessment Method)</string>
     <string name="form_cam">CAM</string>
+    <string name="cares_no_plane">Prestazioni senza piano di cura</string>
 </resources>

@@ -24,12 +24,12 @@ import it.airbagstudio.ticare.ui.theme.AppTheme
 data class CarePlanesListItem(
     val title: String,
     val date:String,
-    val id: Int,
+    val id: Int?,
     val hasDataToUpload: Boolean
 )
 
 @Composable
-internal fun CarePlanesListItemView(item: CarePlanesListItem,onClick: (Int) -> Unit){
+internal fun CarePlanesListItemView(item: CarePlanesListItem,onClick: (Int?) -> Unit){
     Row(modifier = Modifier
         .clickable {
             onClick(item.id)

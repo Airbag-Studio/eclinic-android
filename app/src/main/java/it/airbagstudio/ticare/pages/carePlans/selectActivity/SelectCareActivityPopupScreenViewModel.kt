@@ -118,7 +118,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
             isLoading.value = false
         }
 
-    fun setCarePlanId(id: Int) {
+    fun setCarePlanId(id: Int?) {
         carePlanId.value = id
     }
 

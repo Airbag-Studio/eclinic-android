@@ -63,7 +63,7 @@ import it.airbagstudio.ticare.ui.components.timeTracker.TravelTimeDialog
 @Composable
 fun SelectCareActivityPopupScreen(
     caseCode: String,
-    planId:Int,
+    planId:Int?,
     viewModel: SelectCareActivityPopupScreenViewModel = hiltViewModel(),
     trackerViewModel: TimeTrackerViewModel = hiltViewModel(LocalActivity.current),
     onDismissRequest: (Pair<Boolean,Int>?) -> Unit
@@ -104,7 +104,7 @@ fun SelectCareActivityPopupScreen(
                 )
             },
             floatingActionButton = {
-                if (tabIndex == 0) {
+                if (tabIndex == 0 && planId != null) {
                     ExtendedFloatingActionButton(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -131,56 +131,74 @@ fun SelectCareActivityPopupScreen(
                     .padding(values)
 
             ) {
-
-                val labels = listOf(
-                    stringResource(id = R.string.planned),
-                    stringResource(id = R.string.not_planned)
-                )
-                TabRow(
-                    selectedTabIndex = tabIndex,
-                    indicator = { tabPositions ->
-                        if (tabIndex < tabPositions.size) {
-                            SecondaryIndicator(
-                                modifier = Modifier
-                                    .tabIndicatorOffset(tabPositions[tabIndex]),
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                    },
-                ) {
-                    labels.forEachIndexed { index, title ->
-                        Tab(
-                            selected = tabIndex == index,
-                            onClick = {
-                                tabIndex = index
-                            },
-                            text = {
-                                Text(
-                                    text = title,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = MaterialTheme.colorScheme.onSurface,
+                if (planId != null) {
+                    val labels = listOf(
+                        stringResource(id = R.string.planned),
+                        stringResource(id = R.string.not_planned)
+                    )
+                    TabRow(
+                        selectedTabIndex = tabIndex,
+                        indicator = { tabPositions ->
+                            if (tabIndex < tabPositions.size) {
+                                SecondaryIndicator(
+                                    modifier = Modifier
+                                        .tabIndicatorOffset(tabPositions[tabIndex]),
+                                    color = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
-                        )
-                    }
-                }
-                when (tabIndex){
-                    0 -> {
-                        ItemsList(uiState.plannedActivities){ id,_ ->
-                            onDismissRequest(Pair(true,id))
+                        },
+                    ) {
+                        labels.forEachIndexed { index, title ->
+                            Tab(
+                                selected = tabIndex == index,
+                                onClick = {
+                                    tabIndex = index
+                                },
+                                text = {
+                                    Text(
+                                        text = title,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
+                            )
                         }
                     }
-                    1 -> {
-                        SearchableList(uiState.query,uiState.unplannedActivities, onItemClick = { id,isTracking ->
-                            if (isTracking){
-                                showTravelTimeDialog = true
-                            }else{
-                                onDismissRequest(Pair(false,id))
+                    when (tabIndex) {
+                        0 -> {
+                            ItemsList(uiState.plannedActivities) { id, _ ->
+                                onDismissRequest(Pair(true, id))
                             }
-                        }){
-                            viewModel.setQuery(it)
                         }
+
+                        1 -> {
+                            SearchableList(
+                                uiState.query,
+                                uiState.unplannedActivities,
+                                onItemClick = { id, isTracking ->
+                                    if (isTracking) {
+                                        showTravelTimeDialog = true
+                                    } else {
+                                        onDismissRequest(Pair(false, id))
+                                    }
+                                }) {
+                                viewModel.setQuery(it)
+                            }
+                        }
+                    }
+                }else{
+                    SearchableList(
+                        uiState.query,
+                        uiState.unplannedActivities,
+                        onItemClick = { id, isTracking ->
+                            if (isTracking) {
+                                showTravelTimeDialog = true
+                            } else {
+                                onDismissRequest(Pair(false, id))
+                            }
+                        }) {
+                        viewModel.setQuery(it)
                     }
                 }
             }
