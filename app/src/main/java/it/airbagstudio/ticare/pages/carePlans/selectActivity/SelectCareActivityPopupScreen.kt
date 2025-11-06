@@ -2,6 +2,7 @@ package it.airbagstudio.ticare.pages.carePlans.selectActivity
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -53,23 +55,26 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import it.airbagstudio.ticare.LocalActivity
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerViewModel
 import it.airbagstudio.ticare.ui.components.timeTracker.TravelTimeDialog
+import kotlinx.coroutines.awaitCancellation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectCareActivityPopupScreen(
     caseCode: String,
-    planId:Int?,
+    planId: Int?,
     viewModel: SelectCareActivityPopupScreenViewModel = hiltViewModel(),
     trackerViewModel: TimeTrackerViewModel = hiltViewModel(LocalActivity.current),
-    onDismissRequest: (Pair<Boolean,Int>?) -> Unit
+    onDismissRequest: (Pair<Boolean, Int>?) -> Unit
 ) {
     var showExecuteAllAlert by remember { mutableStateOf(false) }
-
+    var isSelecting by remember { mutableStateOf(false) }
+    val errorMessage = viewModel.errorMessage.collectAsStateWithLifecycle()
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = { onDismissRequest(null) },
@@ -82,12 +87,18 @@ fun SelectCareActivityPopupScreen(
         var tabIndex by remember {
             mutableIntStateOf(0)
         }
+
+        LaunchedEffect(tabIndex) {
+            viewModel.cancelAllSection()
+            isSelecting = false
+        }
+
         LaunchedEffect(Unit) {
-            viewModel.setCarePlanId(planId)
-            viewModel.setPatientCode(caseCode)
+            viewModel.loadData(carePlanId = planId, patientCode = caseCode)
             trackerViewModel.updateLastMinutesFromLastActivity()
         }
-        Scaffold(modifier = Modifier.fillMaxSize(),
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
@@ -96,15 +107,43 @@ fun SelectCareActivityPopupScreen(
                         }
 
                     },
+                    navigationIcon = {
+                        if (isSelecting){
+                            TextButton(onClick = {
+                                if(tabIndex == 0 && planId != null){
+                                    viewModel.selectAllPlanned()
+                                }else{
+                                    viewModel.selectAllUnplanned()
+                                }
+                            }) {
+                                Text(text = stringResource(id = R.string.select_all))
+                            }
+                        }else {
+                            TextButton(onClick = {
+                                isSelecting = true
+                            }) {
+                                Text(text = stringResource(id = R.string.select))
+                            }
+                        }
+                    },
                     actions = {
-                        IconButton(onClick = { onDismissRequest(null) }) {
-                            Icon(imageVector = Icons.Default.Close, contentDescription = "")
+                        if (isSelecting) {
+                            TextButton(onClick = {
+                                viewModel.cancelAllSection()
+                                isSelecting = false
+                            }) {
+                                Text(text = stringResource(id = R.string.cancel))
+                            }
+                        }else{
+                            IconButton(onClick = { onDismissRequest(null) }) {
+                                Icon(imageVector = Icons.Default.Close, contentDescription = "")
+                            }
                         }
                     }
                 )
             },
             floatingActionButton = {
-                if (tabIndex == 0 && planId != null) {
+                if(isSelecting) {
                     ExtendedFloatingActionButton(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -124,7 +163,8 @@ fun SelectCareActivityPopupScreen(
                         })
                 }
             },
-            floatingActionButtonPosition = FabPosition.Center) { values ->
+            floatingActionButtonPosition = FabPosition.Center
+        ) { values ->
             Column(
                 Modifier
                     .fillMaxSize()
@@ -167,57 +207,74 @@ fun SelectCareActivityPopupScreen(
                     }
                     when (tabIndex) {
                         0 -> {
-                            ItemsList(uiState.plannedActivities) { id, _ ->
-                                onDismissRequest(Pair(true, id))
-                            }
+                            ItemsList(
+                                isSelecting,
+                                uiState.plannedActivities,
+                                onSelectedChange = { id, isSelected ->
+                                    viewModel.changeActivitySelection(id,isSelected)
+                                },
+                                onItemClick = { id, _ ->
+                                    onDismissRequest(Pair(true, id))
+                                })
                         }
 
                         1 -> {
                             SearchableList(
-                                uiState.query,
-                                uiState.unplannedActivities,
+                                isSelecting = isSelecting,
+                                query = uiState.query,
+                                activities = uiState.unplannedActivities,
                                 onItemClick = { id, isTracking ->
                                     if (isTracking) {
                                         showTravelTimeDialog = true
                                     } else {
                                         onDismissRequest(Pair(false, id))
                                     }
-                                }) {
-                                viewModel.setQuery(it)
-                            }
+                                }, onQueryChange = {
+                                    viewModel.setQuery(it)
+                                }, onSelectedChange = { id, isSelected ->
+                                    viewModel.changeActivitySelection(id,isSelected)
+                                })
+
                         }
                     }
-                }else{
+                } else {
                     SearchableList(
-                        uiState.query,
-                        uiState.unplannedActivities,
+                        isSelecting = isSelecting,
+                        query = uiState.query,
+                        activities = uiState.unplannedActivities,
                         onItemClick = { id, isTracking ->
                             if (isTracking) {
                                 showTravelTimeDialog = true
                             } else {
                                 onDismissRequest(Pair(false, id))
                             }
-                        }) {
-                        viewModel.setQuery(it)
-                    }
+                        }, onSelectedChange = { id, isSelected ->
+                            viewModel.changeActivitySelection(id,isSelected)
+                        }, onQueryChange = {
+                            viewModel.setQuery(it)
+                        })
+
                 }
             }
         }
-        if (showTravelTimeDialog){
-            TravelTimeDialog(travelTime = trackerViewUIState.elapsedTimeFromLastActivity, onDismissRequest = { confirm ->
-                if (confirm){
-                    viewModel.sendTransferActivity(trackerViewUIState.elapsedTimeFromLastActivity){
+
+        if (showTravelTimeDialog) {
+            TravelTimeDialog(
+                travelTime = trackerViewUIState.elapsedTimeFromLastActivity,
+                onDismissRequest = { confirm ->
+                    if (confirm) {
+                        viewModel.sendTransferActivity(trackerViewUIState.elapsedTimeFromLastActivity) {
+                            showTravelTimeDialog = false
+                        }
+                    } else {
                         showTravelTimeDialog = false
                     }
-                }else{
-                    showTravelTimeDialog = false
-                }
 
 
-            })
+                })
         }
-        if (uiState.errorMessage != null){
-            ErrorAlert(message = uiState.errorMessage!!, onDismissRequest = {
+        if (errorMessage.value != null) {
+            ErrorAlert(message = errorMessage.value!!, onDismissRequest = {
                 viewModel.clearErrors()
             })
         }
@@ -239,9 +296,16 @@ fun SelectCareActivityPopupScreen(
                     TextButton(
                         onClick = {
                             showExecuteAllAlert = false
-                            viewModel.executeAllPlannedActivities(trackerViewUIState.elapsedTimeFromLastActivity){
-                                trackerViewModel.updateLastMinutesFromLastActivity()
-                                onDismissRequest(null)
+                            if(tabIndex == 0 && planId != null) {
+                                viewModel.executeAllPlannedActivities(trackerViewUIState.elapsedTimeFromLastActivity) {
+                                    trackerViewModel.updateLastMinutesFromLastActivity()
+                                    onDismissRequest(null)
+                                }
+                            }else{
+                                viewModel.executeAllUnplannedActivities(trackerViewUIState.elapsedTimeFromLastActivity) {
+                                    trackerViewModel.updateLastMinutesFromLastActivity()
+                                    onDismissRequest(null)
+                                }
                             }
                         }) {
                         Text("Ok")
@@ -264,7 +328,14 @@ fun SelectCareActivityPopupScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchableList(query:String,activities: List<SelectCareActivityPopupUIState.ActivityListItem>,onItemClick:(Int,Boolean)->Unit,onQueryChange: (String) -> Unit){
+private fun SearchableList(
+    isSelecting: Boolean,
+    query: String,
+    activities: List<SelectCareActivityPopupUIState.ActivityListItem>,
+    onItemClick: (Int, Boolean) -> Unit,
+    onQueryChange: (String) -> Unit,
+    onSelectedChange: (Int, Boolean) -> Unit
+) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     Column {
@@ -276,7 +347,10 @@ private fun SearchableList(query:String,activities: List<SelectCareActivityPopup
                 .focusRequester(focusRequester)
                 .padding(vertical = 16.dp, horizontal = 8.dp)
                 .height(56.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text,imeAction = ImeAction.Search),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Search
+            ),
             keyboardActions = KeyboardActions(onSearch = {
                 focusRequester.freeFocus()
                 focusManager.clearFocus(true)
@@ -301,23 +375,37 @@ private fun SearchableList(query:String,activities: List<SelectCareActivityPopup
                 onQueryChange(it)
             }
         )
-        ItemsList(activities,onItemClick)
+        ItemsList(isSelecting, activities, onItemClick, onSelectedChange = onSelectedChange)
     }
 }
 
 @Composable
-private fun ItemsList(activities: List<SelectCareActivityPopupUIState.ActivityListItem>,onItemClick:(Int,Boolean)->Unit){
+private fun ItemsList(
+    isSelecting: Boolean,
+    activities: List<SelectCareActivityPopupUIState.ActivityListItem>,
+    onItemClick: (Int, Boolean) -> Unit,
+    onSelectedChange: (Int, Boolean) -> Unit
+) {
     LazyColumn(
+        contentPadding = PaddingValues(bottom = 120.dp),
         content = {
-            items(activities){
-                val title = if (it.code != null){
+            items(activities) {
+                val title = if (it.code != null) {
                     "${it.code} - ${it.title}"
-                }else{
+                } else {
                     it.title
                 }
-                ActivityListItemView(title,isTransferRow = it.isTransferActivity){
-                    onItemClick(it.id,it.isTransferActivity)
-                }
+                ActivityListItemView(
+                    isSelecting,
+                    title = title,
+                    isTransferRow = it.isTransferActivity,
+                    isSelected = it.isSelected,
+                    onClick = {
+                        onItemClick(it.id, it.isTransferActivity)
+                    },
+                    onSelectedChange = { isSelected ->
+                        onSelectedChange(it.id, isSelected)
+                    })
             }
         })
 }

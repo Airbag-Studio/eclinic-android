@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -23,7 +24,7 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
-fun ActivityListItemView(title:String,isTransferRow: Boolean = false,onClick: () -> Unit){
+fun ActivityListItemView(isSelecting: Boolean, isSelected: Boolean, title:String, isTransferRow: Boolean = false, onClick: () -> Unit,onSelectedChange: (Boolean) -> Unit){
     val modifier = if (isTransferRow){
         Modifier.background(MaterialTheme.colorScheme.secondaryContainer)
     }else{
@@ -38,6 +39,11 @@ fun ActivityListItemView(title:String,isTransferRow: Boolean = false,onClick: ()
             modifier = Modifier.padding(16.dp,8.dp,24.dp,8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (isSelecting){
+                Checkbox(isSelected, onCheckedChange = {
+                    onSelectedChange(it)
+                })
+            }
             if (isTransferRow){
                 Icon(painter = painterResource(id = R.drawable.ic_running), contentDescription = "")
                 Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
@@ -60,13 +66,19 @@ fun ActivityListItemView(title:String,isTransferRow: Boolean = false,onClick: ()
 private fun ItemPreview(){
     AppTheme {
         Column {
-            ActivityListItemView(title = "Utilizzo MLL - Limitazioni meccaniche das ds d sa ds ad sa d") {
+            ActivityListItemView(isSelecting = true, title = "Utilizzo MLL - Limitazioni meccaniche das ds d sa ds ad sa d", isSelected = true, onClick = {
+
+            }) {
 
             }
-            ActivityListItemView(title = "Titolo prestazione 2") {
+            ActivityListItemView(isSelecting = true,title = "Titolo prestazione 2", isSelected = false, onClick = {
+
+            }) {
 
             }
-            ActivityListItemView(title = "Tempo trasferta", isTransferRow = true) {
+            ActivityListItemView(isSelecting = true,title = "Tempo trasferta", isTransferRow = true, isSelected = false, onClick = {
+
+            }) {
 
             }
         }
