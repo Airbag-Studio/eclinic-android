@@ -172,20 +172,22 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                 val totalPlannedTime: Double = (activities?.sumOf { it.duration } ?: 0).toDouble()
                 var cumulatedExecutionTime = 0
                 val activitiesToSend = mutableListOf<HomeCareActivitySave>()
+                val startTime = Date()
                 activities?.forEach { activity ->
                     val plannedTime: Double = activity.duration.toDouble()
                     val executionTime : Int = if(plannedTime > 0) ((plannedTime * elapsedTime) / totalPlannedTime).roundToInt() else 0
+                    val activityTime: Long = startTime.time + (cumulatedExecutionTime.toLong() * 1000 * 60)
                     cumulatedExecutionTime += executionTime
-
-                    activitiesToSend.add(HomeCareActivitySave(
+                    val activityToSave = HomeCareActivitySave(
                         idPlanning = activity.id,
                         idActivityType = null,
                         codCase = patientCode.value ?: "",
-                        execDateTime = Date().format("yyyy.MM.dd HH:mm"),
+                        execDateTime = Date( activityTime).format("yyyy.MM.dd HH:mm"),
                         duration = executionTime,
                         notes = activity.notes,
                         showInDiary = false,
-                    ))
+                    )
+                    activitiesToSend.add(activityToSave)
                 }
                 var sortedActivities: MutableList<HomeCareActivitySave> = activitiesToSend.sortedBy { it.execDateTime }.toMutableList()
                 if(cumulatedExecutionTime != elapsedTime.toInt()){
