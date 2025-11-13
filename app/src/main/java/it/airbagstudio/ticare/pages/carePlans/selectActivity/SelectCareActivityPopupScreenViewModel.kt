@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.carePlans.selectActivity
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.HomeCareActivity
@@ -170,7 +171,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
     fun executeAllPlannedActivities(elapsedTimeFromLastActivity : Long?, onSuccess:() -> Unit){
         val elapsedTime = elapsedTimeFromLastActivity ?: return
         viewModelScope.launch(coroutineExceptionHandler) {
-            val startTime = Date()
+            val startTime = Date().time - (elapsedTimeFromLastActivity * 1000 * 60)
             launch {
                 plannedActivities.value.filter { ac -> selectedActivityIds.value.contains(ac.id) }.let { activities ->
                     if (activities.isEmpty()) return@launch
@@ -184,7 +185,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                         val executionTime: Int =
                             if (plannedTime > 0) ((plannedTime * elapsedTime) / totalPlannedTime).roundToInt() else 0
                         val activityTime: Long =
-                            startTime.time + (cumulatedExecutionTime.toLong() * 1000 * 60)
+                            startTime + (cumulatedExecutionTime.toLong() * 1000 * 60)
                         cumulatedExecutionTime += executionTime
                         val activityToSave = HomeCareActivitySave(
                             idPlanning = activity.id,
@@ -205,6 +206,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                         sortedActivities[sortedActivities.lastIndex] =
                             sortedActivities[sortedActivities.lastIndex].copy(duration = duration + remainingTime)
                     }
+                    Log.d("sortedActivities", sortedActivities.toString())
                     sortedActivities.forEach {
                         saveActivity(it)
                     }
@@ -217,18 +219,18 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
     fun executeAllUnplannedActivities(elapsedTimeFromLastActivity : Long?, onSuccess:() -> Unit) {
         val elapsedTime = elapsedTimeFromLastActivity ?: return
         viewModelScope.launch(coroutineExceptionHandler) {
-            val startTime = Date()
+            val startTime = Date().time - (elapsedTimeFromLastActivity * 1000 * 60)
             notPlannedActivities.value.filter { ac -> selectedActivityIds.value.contains(ac.id) }.let{ activities ->
                 if (activities.isEmpty()) return@launch
 
-                val totalPlannedTime: Double = 0.0
+                val totalPlannedTime: Double = (activities.sumOf { it.duration }).toDouble()
                 var cumulatedExecutionTime = 0
                 val activitiesToSend = mutableListOf<HomeCareActivitySave>()
 
                 activities.forEach { activity ->
-                    val plannedTime: Double = 0.0
+                    val plannedTime: Double = activity.duration.toDouble()
                     val executionTime : Int = if(plannedTime > 0) ((plannedTime * elapsedTime) / totalPlannedTime).roundToInt() else 0
-                    val activityTime: Long = startTime.time + (cumulatedExecutionTime.toLong() * 1000 * 60)
+                    val activityTime: Long = startTime + (cumulatedExecutionTime.toLong() * 1000 * 60)
                     cumulatedExecutionTime += executionTime
                     val activityToSave = HomeCareActivitySave(
                         idActivityType = activity.id,
@@ -247,6 +249,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                     val duration = sortedActivities[sortedActivities.lastIndex].duration
                     sortedActivities[sortedActivities.lastIndex] = sortedActivities[sortedActivities.lastIndex].copy(duration = duration + remainingTime)
                 }
+                Log.d("sortedActivities", sortedActivities.toString())
                 sortedActivities.forEach {
                     saveActivity(it)
                 }
