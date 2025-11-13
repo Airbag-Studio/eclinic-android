@@ -120,7 +120,7 @@ class LoginViewModel @Inject constructor(
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         isLoading.value = false
-        errorMessage.value = throwable.localizedMessage
+        errorMessage.value = "Si è verificato un errore durante il recupero dei dati."
         throwable.printStackTrace()
     }
 
