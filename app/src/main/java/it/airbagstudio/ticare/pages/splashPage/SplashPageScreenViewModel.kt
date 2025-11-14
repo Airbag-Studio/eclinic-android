@@ -53,7 +53,7 @@ class SplashPageScreenViewModel @Inject constructor(
                         if (isLoggedIn == null && res.isSuccess) {
                             isLoggedIn = _isLoggedIn
                         }else if (res.isFailure){
-                            errorMessage = res.exceptionOrNull()?.localizedMessage
+                            errorMessage = "Si è verificato un errore durante il recupero dei dati."
                         }
                     }
                 }else{

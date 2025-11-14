@@ -192,8 +192,8 @@ class LoginViewModel @Inject constructor(
                 val loginRequest =
                     authRepository.getUUID()?.let { uuid ->
                         LoginRequest(
-                            username = username.value,
-                            password = password.value,
+                            username = username.value.trim(),
+                            password = password.value.trim(),
                             company = company.name,
                             group = company.group,
                             uuid = uuid,
@@ -202,8 +202,8 @@ class LoginViewModel @Inject constructor(
 
                     } ?: run {
                         LoginRequest(
-                            username = username.value,
-                            password = password.value,
+                            username = username.value.trim(),
+                            password = password.value.trim(),
                             company = company.name,
                             group = company.group,
                             uuid = "",
@@ -222,7 +222,7 @@ class LoginViewModel @Inject constructor(
                         } else if (res.isFailure) {
                             authRepository.setToken(null)
                             authRepository.setRefreshToken(null)
-                            errorMessage.value = res.exceptionOrNull()?.localizedMessage
+                            errorMessage.value = "Si è verificato un errore durante il recupero dei dati."
                         }
                     }
                 }

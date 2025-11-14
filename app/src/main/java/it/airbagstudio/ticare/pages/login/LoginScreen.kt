@@ -335,7 +335,11 @@ fun LoginScreen(
                 message = uiState.pageState.errorMessage!!,
                 onDismissRequest = { viewModel.reset() },
                 onRetry = {
-                    viewModel.downloadCompanies()
+                    if(uiState.pageState.showSecondStep){
+                        viewModel.loginUser()
+                    }else {
+                        viewModel.downloadCompanies()
+                    }
                 })
         }
     }

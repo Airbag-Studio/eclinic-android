@@ -37,6 +37,7 @@ fun SplashPageScreen(
     if (viewModel.errorMessage != null){
         ErrorAlert(message = viewModel.errorMessage!!, onDismissRequest = {
             viewModel.errorMessage = null
+            nav.navigateToLogin()
         })
     }
         BuildContent()
