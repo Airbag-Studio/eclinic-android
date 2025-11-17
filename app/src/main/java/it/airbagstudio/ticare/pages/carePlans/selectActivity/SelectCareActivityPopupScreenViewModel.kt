@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.pages.carePlans.selectActivity
 
 import android.util.Log
+import android.util.Log.i
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.HomeCareActivity
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 data class SelectCareActivityPopupUIState(
@@ -173,7 +175,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             val startTime = Date().time - (elapsedTimeFromLastActivity * 1000 * 60)
             launch {
-                plannedActivities.value.filter { ac -> selectedActivityIds.value.contains(ac.id) }.let { activities ->
+                plannedActivities.value.filter { ac -> selectedActivityIds.value.contains(ac.id) }.sortedBy { it.duration }.let { activities ->
                     if (activities.isEmpty()) return@launch
                     val totalPlannedTime: Double =
                         (activities.sumOf { it.duration }).toDouble()
@@ -182,11 +184,15 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
 
                     activities.forEach { activity ->
                         val plannedTime: Double = activity.duration.toDouble()
-                        val executionTime: Int =
-                            if (plannedTime > 0) ((plannedTime * elapsedTime) / totalPlannedTime).roundToInt() else 0
-                        val activityTime: Long =
-                            startTime + (cumulatedExecutionTime.toLong() * 1000 * 60)
+                        var executionTime: Int =
+                            if (plannedTime > 0) ceil((plannedTime * elapsedTime) / totalPlannedTime).toInt() else 0
+                        var activityTime: Long =
+                            startTime + (cumulatedExecutionTime.toLong() * 1000 * 60) +  (executionTime.toLong() * 1000 * 60)
                         cumulatedExecutionTime += executionTime
+                        if(activityTime > Date().time){
+                            executionTime -= ((activityTime - Date().time) / 60000).toInt()
+                            activityTime = Date().time
+                        }
                         val activityToSave = HomeCareActivitySave(
                             idPlanning = activity.id,
                             idActivityType = null,
@@ -198,14 +204,17 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                         )
                         activitiesToSend.add(activityToSave)
                     }
-                    var sortedActivities: MutableList<HomeCareActivitySave> =
+                    val sortedActivities: MutableList<HomeCareActivitySave> =
                         activitiesToSend.sortedBy { it.execDateTime }.toMutableList()
+                    /*
                     if (cumulatedExecutionTime != elapsedTime.toInt()) {
                         val remainingTime = elapsedTime.toInt() - cumulatedExecutionTime
                         val duration = sortedActivities[sortedActivities.lastIndex].duration
                         sortedActivities[sortedActivities.lastIndex] =
                             sortedActivities[sortedActivities.lastIndex].copy(duration = duration + remainingTime)
                     }
+
+                     */
                     Log.d("sortedActivities", sortedActivities.toString())
                     sortedActivities.forEach {
                         saveActivity(it)
@@ -220,7 +229,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         val elapsedTime = elapsedTimeFromLastActivity ?: return
         viewModelScope.launch(coroutineExceptionHandler) {
             val startTime = Date().time - (elapsedTimeFromLastActivity * 1000 * 60)
-            notPlannedActivities.value.filter { ac -> selectedActivityIds.value.contains(ac.id) }.let{ activities ->
+            notPlannedActivities.value.filter { ac -> selectedActivityIds.value.contains(ac.id) }.sortedBy { it.duration }.let{ activities ->
                 if (activities.isEmpty()) return@launch
 
                 val totalPlannedTime: Double = (activities.sumOf { it.duration }).toDouble()
@@ -229,9 +238,14 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
 
                 activities.forEach { activity ->
                     val plannedTime: Double = activity.duration.toDouble()
-                    val executionTime : Int = if(plannedTime > 0) ((plannedTime * elapsedTime) / totalPlannedTime).roundToInt() else 0
-                    val activityTime: Long = startTime + (cumulatedExecutionTime.toLong() * 1000 * 60)
+                    var executionTime: Int =
+                        if (plannedTime > 0) ceil((plannedTime * elapsedTime) / totalPlannedTime).toInt() else 0
+                    var activityTime: Long = startTime + (cumulatedExecutionTime.toLong() * 1000 * 60) +  (executionTime.toLong() * 1000 * 60)
                     cumulatedExecutionTime += executionTime
+                    if(activityTime > Date().time){
+                        executionTime -= ((activityTime - Date().time) / 60000).toInt()
+                        activityTime = Date().time
+                    }
                     val activityToSave = HomeCareActivitySave(
                         idActivityType = activity.id,
                         codCase = patientCode.value ?: "",
@@ -243,12 +257,15 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                     )
                     activitiesToSend.add(activityToSave)
                 }
-                var sortedActivities: MutableList<HomeCareActivitySave> = activitiesToSend.sortedBy { it.execDateTime }.toMutableList()
+                val sortedActivities: MutableList<HomeCareActivitySave> = activitiesToSend.sortedBy { it.execDateTime }.toMutableList()
+                /*
                 if(cumulatedExecutionTime != elapsedTime.toInt()){
                     val remainingTime = elapsedTime.toInt() - cumulatedExecutionTime
                     val duration = sortedActivities[sortedActivities.lastIndex].duration
                     sortedActivities[sortedActivities.lastIndex] = sortedActivities[sortedActivities.lastIndex].copy(duration = duration + remainingTime)
                 }
+
+                 */
                 Log.d("sortedActivities", sortedActivities.toString())
                 sortedActivities.forEach {
                     saveActivity(it)
