@@ -62,8 +62,9 @@ class DiaryViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            val maxDiaryDays = diaryRepository.getMaxDiaryDays()
             val now = LocalDate.now()
-            val from = now.minusDays(7)
+            val from = now.minusDays(maxDiaryDays.toLong())
             items.value = diaryRepository.getDiary(
                 patientCod,
                 from.format(dateFormatter),
