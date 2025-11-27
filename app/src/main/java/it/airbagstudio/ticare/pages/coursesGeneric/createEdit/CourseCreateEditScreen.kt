@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -25,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.HomeCareCourse
 import ch.ticare.eclinic.library.entity.ToolTag
 import it.airbagstudio.ticare.R
@@ -69,6 +72,7 @@ fun CourseCreateEditScreen(
     }
 
 
+    val showOverrideDescriptionAlert by viewModel.showOverrideDescriptionAlert.collectAsStateWithLifecycle()
 
     val uiState by viewModel.uiState.collectAsState()
     LaunchedEffect(key1 = viewModel.isSuccess.value) {
@@ -204,6 +208,27 @@ fun CourseCreateEditScreen(
             ErrorAlert(message = viewModel.errorMessage.value!!, onDismissRequest = {
                 viewModel.errorMessage.value = null
             } )
+        }
+        if(showOverrideDescriptionAlert){
+            AlertDialog(onDismissRequest = {
+
+            }, title = {
+                Text(text = stringResource(id = R.string.override_description))
+            }, text = {
+                Text(text = stringResource(id = R.string.override_description_alert))
+            }, dismissButton = {
+                TextButton(onClick = {
+                    viewModel.keepUserDescription()
+                }) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
+            }, confirmButton = {
+                TextButton(onClick = {
+                    viewModel.overrideUserDescription()
+                }) {
+                    Text(text = stringResource(id = R.string.confirm))
+                }
+            })
         }
     }
 }

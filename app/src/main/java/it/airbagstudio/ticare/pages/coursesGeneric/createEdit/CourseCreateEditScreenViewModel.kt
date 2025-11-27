@@ -19,7 +19,9 @@ import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -62,6 +64,11 @@ class CourseCreateEditScreenViewModel @Inject constructor(
     private val categories = MutableStateFlow<List<HomeCareCourseCategory>>(listOf())
     private val isLoading = MutableStateFlow(false)
 
+    private val _showOverrideDescriptionAlert = MutableStateFlow(false)
+    var showOverrideDescriptionAlert = _showOverrideDescriptionAlert.asStateFlow()
+
+    private var isDescriptionChangedByUser = false
+
     var errorMessage = mutableStateOf<String?>(null)
     var isSuccess = mutableStateOf(false)
 
@@ -95,6 +102,7 @@ class CourseCreateEditScreenViewModel @Inject constructor(
     fun setCategory(category: HomeCareCourseCategory){
         selectedCategoryId.value = category.id
         duration.value = category.duration
+        setDescriptionFromCategory(category)
     }
 
     fun setDateAndTime(date: Date){
@@ -107,10 +115,39 @@ class CourseCreateEditScreenViewModel @Inject constructor(
 
     fun setDescription(value: String){
         this.description.value = value
+        isDescriptionChangedByUser = true
     }
 
     fun setShowInDiary(value: Boolean){
         this.showInDiary.value = value
+    }
+
+    private fun setDescriptionFromCategory(category: HomeCareCourseCategory) {
+        category.defaultDescription?.let { catDescription ->
+            if (catDescription.isNotEmpty()) {
+                if (isDescriptionChangedByUser) {
+                    _showOverrideDescriptionAlert.value = true
+                    return
+                }
+                description.value = catDescription
+            }
+        }
+    }
+
+    fun keepUserDescription() {
+        _showOverrideDescriptionAlert.value = false
+    }
+
+    fun overrideUserDescription() {
+        _showOverrideDescriptionAlert.value = false
+        isDescriptionChangedByUser = false
+        viewModelScope.launch {
+
+            selectedCategory.first()?.let { selectedCategory ->
+                setDescriptionFromCategory(selectedCategory)
+            }
+        }
+
     }
 
     fun saveCourse(){
@@ -168,6 +205,10 @@ class CourseCreateEditScreenViewModel @Inject constructor(
             categories.value = res.results ?: listOf()
             if (selectedCategoryId.value == null && categories.value.isNotEmpty()){
                 selectedCategoryId.value = categories.value.firstOrNull { it.useAsDefault }?.id
+                if (description.value.isEmpty()) {
+                    description.value =
+                        categories.value.firstOrNull { it.useAsDefault }?.defaultDescription ?: ""
+                }
             }
 
         }

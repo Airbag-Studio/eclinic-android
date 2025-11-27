@@ -177,12 +177,14 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     }
 
     private fun setDescriptionFromCategory(category: HomeCareCourseCategory) {
-        if (isDescriptionChangedByUser) {
-            _showOverrideDescriptionAlert.value = true
-            return
-        }
         category.defaultDescription?.let { catDescription ->
-            description.value = catDescription
+            if (catDescription.isNotEmpty()) {
+                if (isDescriptionChangedByUser) {
+                    _showOverrideDescriptionAlert.value = true
+                    return
+                }
+                description.value = catDescription
+            }
         }
     }
 
