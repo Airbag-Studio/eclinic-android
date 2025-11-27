@@ -1,5 +1,7 @@
 package it.airbagstudio.ticare.pages.nursingCourses.details
 
+import android.R.attr.description
+import android.R.attr.duration
 import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,10 +29,13 @@ import it.airbagstudio.ticare.utils.toDate
 import java.util.Date
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -47,7 +52,8 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     var isOnline by mutableStateOf(false)
     private val selectedCategoryStateFlow = MutableStateFlow<HomeCareCourseCategory?>(null)
     private val selectedCategoryId = MutableStateFlow<Int?>(null)
-    private var listOfCategories: MutableStateFlow<List<HomeCareCourseCategory>?> = MutableStateFlow(emptyList())
+    private var listOfCategories: MutableStateFlow<List<HomeCareCourseCategory>?> =
+        MutableStateFlow(emptyList())
     private val selectedDate = MutableStateFlow(Date())
     private val description = MutableStateFlow("")
     private val duration = MutableStateFlow<Int?>(null)
@@ -59,6 +65,12 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     private var editNursingCourseId: Int = 0
     private val imagesUri = MutableStateFlow<List<Bitmap>>(listOf())
     private val homeCareCourseImages = MutableStateFlow<List<HomeCareCourseImage>>(listOf())
+
+    private val _showOverrideDescriptionAlert = MutableStateFlow(false)
+    var showOverrideDescriptionAlert = _showOverrideDescriptionAlert.asStateFlow()
+
+    private var isDescriptionChangedByUser = false
+
 
     private var courseTypeName = ""
 
@@ -75,6 +87,11 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     private val selectedCategory = combine(listOfCategories, selectedCategoryId) { categories, id ->
         categories?.firstOrNull { it.id == id } ?: categories?.firstOrNull { it.useAsDefault }
     }.map {
+        if (selectedCategoryStateFlow.value != it) {
+            it?.let { careCourseCategory ->
+                setDescriptionFromCategory(careCourseCategory)
+            }
+        }
         selectedCategoryStateFlow.value = it
         duration.value = it?.duration
         it
@@ -89,14 +106,22 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         imagesUri,
         homeCareCourseImages
     ) { items ->
-      val category = items[0] as HomeCareCourseCategory?
+        val category = items[0] as HomeCareCourseCategory?
         val date = items[1] as Date
         val description = items[2] as String
         val duration = items[3] as Int?
         val showInDiary = items[4] as Boolean
         val imagesUri = items[5] as List<Bitmap>
         val homeCareCourseImages = items[6] as List<HomeCareCourseImage>
-        DetailsNursingCourseScreenUiState.NewNursingCourse(category, date, duration, description, showInDiary,imagesUri,homeCareCourseImages)
+        DetailsNursingCourseScreenUiState.NewNursingCourse(
+            category,
+            date,
+            duration,
+            description,
+            showInDiary,
+            imagesUri,
+            homeCareCourseImages
+        )
     }
 
     val uiState = combine(
@@ -122,30 +147,66 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = DetailsNursingCourseScreenUiState(
-            newNursingCourse = DetailsNursingCourseScreenUiState.NewNursingCourse(selectedCategoryStateFlow.value, selectedDate.value, duration.value, description.value, showInDiary.value),
+            newNursingCourse = DetailsNursingCourseScreenUiState.NewNursingCourse(
+                selectedCategoryStateFlow.value,
+                selectedDate.value,
+                duration.value,
+                description.value,
+                showInDiary.value
+            ),
             isEditing = false,
             isEditingEnabled = canWrite
         )
     )
 
-    fun loadCategory(patientCode: String) {
+    suspend fun loadCategory(patientCode: String) {
         if (courseTypeName.isEmpty()) return
-        viewModelScope.launch(coroutineExceptionHandler) {
-            listOfCategories.value = coursesRepository.getCourseCategories(patientCode,ToolTag.valueOf(courseTypeName)).results.also {
-                if(screenType.value == ScreenType.Add) {
-                    it?.find { cat -> cat.useAsDefault }?.let { cat ->
-                        selectedCategoryId.value = cat.id
-                        duration.value = cat.duration
-                    }
+        listOfCategories.value = coursesRepository.getCourseCategories(
+            patientCode,
+            ToolTag.valueOf(courseTypeName)
+        ).results.also {
+            if (screenType.value == ScreenType.Add) {
+                it?.find { cat -> cat.useAsDefault }?.let { cat ->
+                    selectedCategoryId.value = cat.id
+                    duration.value = cat.duration
+                    setDescriptionFromCategory(cat)
                 }
             }
+
         }
     }
+
+    private fun setDescriptionFromCategory(category: HomeCareCourseCategory) {
+        if (isDescriptionChangedByUser) {
+            _showOverrideDescriptionAlert.value = true
+            return
+        }
+        category.defaultDescription?.let { catDescription ->
+            description.value = catDescription
+        }
+    }
+
+    fun keepUserDescription() {
+        _showOverrideDescriptionAlert.value = false
+    }
+
+    fun overrideUserDescription() {
+        _showOverrideDescriptionAlert.value = false
+        isDescriptionChangedByUser = false
+        viewModelScope.launch {
+
+            selectedCategory.first()?.let { selectedCategory ->
+                setDescriptionFromCategory(selectedCategory)
+            }
+        }
+
+    }
+
 
     fun setScreenType(type: ScreenType) {
         isOnline = offlineOnlineRepository.state.value.isOnline
         screenType.value = type
-        when(type) {
+        when (type) {
             ScreenType.Add -> setDefaultParams()
             is ScreenType.Edit -> setPreviousCategory(type.homeCareCourse)
         }
@@ -157,6 +218,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
 
     fun setDescription(value: String) {
         description.value = value
+        isDescriptionChangedByUser = true
     }
 
     fun setDuration(value: Int?) {
@@ -165,7 +227,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
 
 
     fun setCategoryId(categoryId: Int?) {
-        selectedCategoryId.value =  categoryId
+        selectedCategoryId.value = categoryId
     }
 
     fun setShowInDiary(show: Boolean) {
@@ -174,13 +236,15 @@ class EditNursingCourseSheetViewModel @Inject constructor(
 
     fun getShowInDiary(): Boolean = showInDiary.value
 
-    fun clearError(){
+    fun clearError() {
         errorMessage.value = null
     }
 
     fun clearState() {
         isSuccess.value = false
         imagesUri.value = listOf()
+        _showOverrideDescriptionAlert.value = false
+        isDescriptionChangedByUser = false
     }
 
 
@@ -205,16 +269,29 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         editNursingCourseId = actualCourse.id
         selectedCategoryId.value = actualCourse.categoryID
         duration.value = actualCourse.duration
-        selectedDate.value = actualCourse.dateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA) ?: Date()
+        selectedDate.value =
+            actualCourse.dateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA) ?: Date()
         description.value = actualCourse.desc
         showInDiary.value = actualCourse.showInDiary
+        var catSelectionJob : Job? = null
+        viewModelScope.launch {
+            catSelectionJob = launch {
+                selectedCategory.collect { category ->
+                    category?.defaultDescription?.let { catDescription ->
+                        description.value = actualCourse.desc
+                        isDescriptionChangedByUser = catDescription != actualCourse.desc
+                        catSelectionJob?.cancel()
+                    }
+                }
+            }
+        }
     }
 
     private fun setDefaultParams() {
         editNursingCourseId = 0
         selectedCategoryId.value = null
         duration.value = null
-        selectedDate.value =  Date()
+        selectedDate.value = Date()
         description.value = ""
         showInDiary.value = false
     }
@@ -242,7 +319,7 @@ class EditNursingCourseSheetViewModel @Inject constructor(
                             ecImage = bitmap.toByteArray(),
                             t = courseTypeName
                         )
-                        coursesRepository.uploadImage(patientCode,request)
+                        coursesRepository.uploadImage(patientCode, request)
                     }
                 }
                 isSuccess.value = true
@@ -286,6 +363,6 @@ class EditNursingCourseSheetViewModel @Inject constructor(
 }
 
 sealed class ScreenType {
-    data class Edit(val homeCareCourse: HomeCareCourse): ScreenType()
-    object Add: ScreenType()
+    data class Edit(val homeCareCourse: HomeCareCourse) : ScreenType()
+    object Add : ScreenType()
 }

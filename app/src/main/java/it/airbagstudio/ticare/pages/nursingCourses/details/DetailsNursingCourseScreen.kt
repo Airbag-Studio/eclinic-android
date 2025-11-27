@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -33,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,6 +53,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import ch.ticare.eclinic.library.entity.HomeCareCourse
 import coil.ImageLoader
 import coil.compose.AsyncImagePainter.State.Empty.painter
@@ -110,14 +113,16 @@ fun EditNursingCourseScreen(
     ) {
         LaunchedEffect(Unit) {
             run {
+                viewModel.setCourseTypeName(courseTypeName)
+                viewModel.loadCategory(patientCode)
                 viewModel.canWrite = canWrite
                 if (homeCareCourse != null) {
                     viewModel.setScreenType(ScreenType.Edit(homeCareCourse))
                 } else {
                     viewModel.setScreenType(ScreenType.Add)
                 }
-                viewModel.setCourseTypeName(courseTypeName)
-                viewModel.loadCategory(patientCode)
+
+
             }
         }
         BuildSheetContent(viewModel = viewModel, patientCode, onDismissRequest)
@@ -135,6 +140,7 @@ private fun BuildSheetContent(
 
     val screenHeight = configuration.screenHeightDp - 130
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val showOverrideDescriptionAlert by viewModel.showOverrideDescriptionAlert.collectAsStateWithLifecycle()
     var showCategoryPopup by remember {
         mutableStateOf(false)
     }
@@ -363,6 +369,28 @@ private fun BuildSheetContent(
         if (uiState.isSuccess) {
             viewModel.clearState()
             onDismissRequest()
+        }
+
+        if(showOverrideDescriptionAlert){
+            AlertDialog(onDismissRequest = {
+
+            }, title = {
+                Text(text = stringResource(id = R.string.override_description))
+            }, text = {
+                Text(text = stringResource(id = R.string.override_description_alert))
+            }, dismissButton = {
+                TextButton(onClick = {
+                    viewModel.keepUserDescription()
+                }) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
+            }, confirmButton = {
+                TextButton(onClick = {
+                    viewModel.overrideUserDescription()
+                }) {
+                    Text(text = stringResource(id = R.string.confirm))
+                }
+            })
         }
     }
 }
