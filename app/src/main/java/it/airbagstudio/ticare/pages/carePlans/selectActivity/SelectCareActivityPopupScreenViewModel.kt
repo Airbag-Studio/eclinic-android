@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.carePlans.selectActivity
 
+import android.R.attr.duration
 import android.util.Log
 import android.util.Log.i
 import androidx.lifecycle.ViewModel
@@ -213,20 +214,20 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                                 showInDiary = false,
                             )
                             activitiesToSend.add(activityToSave)
-                            // Stop: non processare altre attività
-                            break
+
+                        }else {
+
+                            val activityToSave = HomeCareActivitySave(
+                                idPlanning = activity.id,
+                                idActivityType = null,
+                                codCase = patientCode.value ?: "",
+                                execDateTime = Date(activityTime).format("yyyy.MM.dd HH:mm"),
+                                duration = executionTime,
+                                notes = activity.notes,
+                                showInDiary = false,
+                            )
+                            activitiesToSend.add(activityToSave)
                         }
-                        
-                        val activityToSave = HomeCareActivitySave(
-                            idPlanning = activity.id,
-                            idActivityType = null,
-                            codCase = patientCode.value ?: "",
-                            execDateTime = Date(activityTime).format("yyyy.MM.dd HH:mm"),
-                            duration = executionTime,
-                            notes = activity.notes,
-                            showInDiary = false,
-                        )
-                        activitiesToSend.add(activityToSave)
                     }
                     
                     val sortedActivities: MutableList<HomeCareActivitySave> =
@@ -256,7 +257,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
 
                 for (activity in activities) {
                     val plannedTime: Double = activity.duration.toDouble()
-                    var executionTime: Int =
+                    val executionTime: Int =
                         if (plannedTime > 0) {
                             val calculated = ((plannedTime * elapsedTime) / totalPlannedTime).roundToInt()
                             // Se il calcolo dà 0 ma la duration originale NON è 0, metti 1
@@ -283,19 +284,18 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                             showInDiary = true,
                         )
                         activitiesToSend.add(activityToSave)
-                        // Stop: non processare altre attività
-                        break
+                    } else {
+                        val activityToSave = HomeCareActivitySave(
+
+                            idActivityType = activity.id,
+                            codCase = patientCode.value ?: "",
+                            execDateTime = Date(activityTime).format("yyyy.MM.dd HH:mm"),
+                            duration = executionTime,
+                            notes = "",
+                            showInDiary = true,
+                        )
+                        activitiesToSend.add(activityToSave)
                     }
-                    
-                    val activityToSave = HomeCareActivitySave(
-                        idActivityType = activity.id,
-                        codCase = patientCode.value ?: "",
-                        execDateTime = Date(activityTime).format("yyyy.MM.dd HH:mm"),
-                        duration = executionTime,
-                        notes = "",
-                        showInDiary = true,
-                    )
-                    activitiesToSend.add(activityToSave)
                 }
                 
                 val sortedActivities: MutableList<HomeCareActivitySave> = activitiesToSend.sortedBy { it.execDateTime }.toMutableList()
