@@ -349,4 +349,5 @@
     <string name="override_description">Sovrascrivere la descrizione?</string>
     <string name="override_description_alert">Sovrascrivere la descrizione con quella associata alla categoria?</string>
     <string name="confirm">Conferma</string>
+    <string name="form_pacic_title">PACIC-S</string>
 </resources>

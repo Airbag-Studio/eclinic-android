@@ -626,7 +626,7 @@ fun IPOSFormSectionRenderer(
 }
 
 @Composable
-fun ScaleQuestionItem(
+private fun ScaleQuestionItem(
     enabled: Boolean,
     questionText: String,
     score: Int?,
@@ -691,7 +691,7 @@ fun ScaleQuestionItem(
 }
 
 @Composable
-private fun RowScope.LegendItem(
+fun RowScope.LegendItem(
     number: String,
     description: String
 ) {

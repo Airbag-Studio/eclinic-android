@@ -45,18 +45,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.airbagstudio.ticare.R
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.model.PatientData
 import it.airbagstudio.ticare.utils.getCompleteName
-import it.airbagstudio.ticare.pages.patientDetails.form.domain.repository.OldFormRepository
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.components.EmptyState
-import it.airbagstudio.ticare.pages.patientDetails.form.ui.theme.AppTheme
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -71,7 +65,9 @@ enum class FormType(val typeName: String) {
     IPOS("IPOS"), // Unified IPOS form replacing IPOS3GG and IPOS7GG
     SENIOR_SITTING("SENIOR_SITTING"), // Unified Senior Sitting form replacing ADESIONE and NON_ADESIONE
     IDPALL("IDPALL"),
-    CAM("CAM") // Added CAM
+    CAM("CAM"), // Added CAM
+
+    PACIC_S("PACIC-S")
 }
 
 /**
@@ -310,6 +306,12 @@ fun FormSelectorBottomSheet(onFormSelected: (FormType) -> Unit) {
         FormTypeItem(
             title = stringResource(R.string.form_cam_title), // Unified Senior Sitting form
             onClick = { onFormSelected(FormType.CAM) }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        FormTypeItem(
+            title = stringResource(R.string.form_pacic_title), // Unified Senior Sitting form
+            onClick = { onFormSelected(FormType.PACIC_S) }
         )
         Spacer(modifier = Modifier.height(16.dp))
     }

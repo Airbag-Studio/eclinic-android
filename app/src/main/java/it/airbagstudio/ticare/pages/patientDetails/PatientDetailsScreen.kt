@@ -127,7 +127,7 @@ fun PatientDetailsScreen(
         var list = mutableListOf<SectionListData>()
         for (tool in sortedTools) {
             val isVisible = if (tool.toolTag == ToolTag.Scale) {
-                visibility.filter { it.entity == "CAMTest" || it.entity == "IDPallTest" || it.entity == "CBITest" || it.entity == "ComidTest" || it.entity == "IPOSTest" || it.entity == "SeniorSittingTest" }.any { it.canView }
+                visibility.filter { it.entity == "CAMTest" || it.entity == "IDPallTest" || it.entity == "CBITest" || it.entity == "ComidTest" || it.entity == "IPOSTest" || it.entity == "SeniorSittingTest"  || it.entity == "PACICTest" }.any { it.canView }
             } else {
                 visibility.firstOrNull { it.entity == tool.toolTag.name }?.canView == true
             }

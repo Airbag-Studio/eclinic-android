@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -36,6 +35,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.cbi.CbiFormScre
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.comid.ComidFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.idpall.IDPallFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.ipos.IPOSFormScreen
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.pacic.PACICFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.forms.seniorsitting.SeniorSittingFormScreen
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.FormType
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.HomeScreen
@@ -43,6 +43,7 @@ import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestina
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations.CAM_FORM_ID_ARG
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations.IDPALL_FORM_ID_ARG
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations.IDPALL_FORM_ROUTE
+import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations.PACIC_FORM_ID_ARG
 import it.airbagstudio.ticare.pages.patientInfo.PatientInfoScreen
 import it.airbagstudio.ticare.pages.patientsList.PatientListScreen
 import it.airbagstudio.ticare.pages.settings.SettingsPage
@@ -224,12 +225,15 @@ fun EclinicNavGraph(
                         FormType.CBI -> {
                             navController.navigate(AppDestinations.cbiFormRoute(formId))
                         }
+
                         FormType.COMID -> {
                             navController.navigate(AppDestinations.comidFormRoute(formId))
                         }
+
                         FormType.IPOS -> { // Unified IPOS form
                             navController.navigate(AppDestinations.iposFormRoute(formId))
                         }
+
                         FormType.SENIOR_SITTING -> { // Unified Senior Sitting form
                             navController.navigate(AppDestinations.seniorSittingFormRoute(formId))
                         }
@@ -237,9 +241,14 @@ fun EclinicNavGraph(
                         FormType.IDPALL -> {
                             navController.navigate(AppDestinations.idpallFormRoute(formId))
                         }
+
                         FormType.CAM -> {
                             navController.navigate(AppDestinations.camFormRoute(formId))
                         }
+
+                        FormType.PACIC_S ->
+                            navController.navigate(AppDestinations.pacicFormRoute(formId))
+
                     }
                 },
                 onBack = {
@@ -441,6 +450,41 @@ fun EclinicNavGraph(
             val actualFormId = if (formId == "new") null else formId
 
             CAMFormScreen(
+                formId = actualFormId,
+                onClose = {
+                    navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)
+
+                },
+                onSaved = {
+                    navController.navigate(AppDestinations.homeRoute(saved = true)) {
+                        popUpTo(AppDestinations.homeRoute(saved = false)) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable( // Added CAM Form
+            route = AppDestinations.PACIC_FORM_ROUTE,
+            arguments = listOf(
+                navArgument(PACIC_FORM_ID_ARG) { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { fullHeight -> fullHeight },
+                    animationSpec = tween(durationMillis = 300, delayMillis = 0)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(durationMillis = 300, delayMillis = 0))
+            }
+        ) { backStackEntry ->
+            val formId = backStackEntry.arguments?.getString(PACIC_FORM_ID_ARG)
+            val actualFormId = if (formId == "new") null else formId
+
+            PACICFormScreen(
                 formId = actualFormId,
                 onClose = {
                     navController.popBackStack(AppDestinations.HOME_ROUTE, inclusive = false)

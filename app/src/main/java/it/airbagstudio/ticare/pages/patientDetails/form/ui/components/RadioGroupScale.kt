@@ -55,7 +55,10 @@ fun RadioGroupScale(
                     modifier = Modifier
                         .selectable(
                             selected = (value == selectedValue),
-                            onClick = { onValueSelected(value) },
+                            onClick = {
+                                if (enabled) {
+                                    onValueSelected(value)
+                                }},
                             role = Role.RadioButton
                         )
                         .padding(4.dp)

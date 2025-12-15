@@ -43,5 +43,6 @@ fun OfflineCreatedDataType.getCategoryName(): Int {
         OfflineCreatedDataType.CONTACT_CREATE, OfflineCreatedDataType.CONTACT_UPDATE -> R.string.contacts
         OfflineCreatedDataType.IDPALL_TEST_CREATE, OfflineCreatedDataType.IDPALL_TEST_UPDATE -> R.string.form_idpall_title
         OfflineCreatedDataType.CAM_TEST_CREATE, OfflineCreatedDataType.CAM_TEST_UPDATE -> R.string.form_cam_title
+        OfflineCreatedDataType.PACIC_SCALE_CREATE, OfflineCreatedDataType.PACIC_SCALE_UPDATE -> R.string.form_pacic_title
     }
 }
