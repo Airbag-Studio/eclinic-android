@@ -42,6 +42,7 @@ import androidx.core.content.FileProvider
 import it.airbagstudio.ticare.BuildConfig
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.theme.AppTheme
+import it.airbagstudio.ticare.utils.correctOrientation
 import it.airbagstudio.ticare.utils.createImageFile
 import it.airbagstudio.ticare.utils.resized
 import java.util.Objects
@@ -67,10 +68,6 @@ fun AddPhotoButton(modifier: Modifier = Modifier,onSuccess: (List<Bitmap>) -> Un
         )
     }
 
-    var capturedImageUri by remember {
-        mutableStateOf<Uri>(Uri.EMPTY)
-    }
-
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uriList ->
             val bitmpas = uriList.map {
@@ -82,9 +79,13 @@ fun AddPhotoButton(modifier: Modifier = Modifier,onSuccess: (List<Bitmap>) -> Un
         }
 
     val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
-            if (it != null) {
-                onSuccess(listOf(it.resized()))
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                if (bitmap != null) {
+                    val corrected = bitmap.correctOrientation(file)
+                    onSuccess(listOf(corrected.resized()))
+                }
             }
         }
 
@@ -93,7 +94,7 @@ fun AddPhotoButton(modifier: Modifier = Modifier,onSuccess: (List<Bitmap>) -> Un
     ) {
         if (it) {
             Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
-            cameraLauncher.launch(null)
+            cameraLauncher.launch(uri)
         } else {
             Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
         }
@@ -118,7 +119,7 @@ fun AddPhotoButton(modifier: Modifier = Modifier,onSuccess: (List<Bitmap>) -> Un
                 val permissionCheckResult =
                     ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                 if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                    cameraLauncher.launch(null)
+                    cameraLauncher.launch(uri)
                 } else {
                     // Request a permission
                     cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
