@@ -350,4 +350,6 @@
     <string name="override_description_alert">Sovrascrivere la descrizione con quella associata alla categoria?</string>
     <string name="confirm">Conferma</string>
     <string name="form_pacic_title">PACIC-S</string>
+    <string name="all_diary_items">Tutto</string>
+    <string name="care_planes_diary_items">Solo piani di cura</string>
 </resources>

@@ -22,6 +22,7 @@ import javax.inject.Inject
 
 data class DiaryUIState(
     val items: Map<String, List<DiaryItem>>,
+    val homeCareItems: Map<String, List<DiaryItem>>,
     val patientName: String,
     val isLoading: Boolean
 )
@@ -46,6 +47,10 @@ class DiaryViewModel @Inject constructor(
                 val date = it.date.toDate("dd.MM.yyyy")
                 date?.format("EEE dd MMMM") ?: it.date
             },
+            homeCareItems = items.filter { it.entityName == "HomeCareServiceTask" }.groupBy {
+                val date = it.date.toDate("dd.MM.yyyy")
+                date?.format("EEE dd MMMM") ?: it.date
+            },
             patientName = case?.getCompleteName() ?: "",
             isLoading = false
         )
@@ -55,6 +60,7 @@ class DiaryViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = DiaryUIState(
             items = mapOf(),
+            homeCareItems = mapOf(),
             patientName = case?.getCompleteName() ?: "",
             isLoading = true
         )

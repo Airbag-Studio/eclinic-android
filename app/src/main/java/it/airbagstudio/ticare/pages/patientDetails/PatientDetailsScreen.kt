@@ -216,6 +216,9 @@ fun PatientDetailsScreen(
                                         navActions.navigateToFormsHome()
                                     }
                                 }
+                                ToolTag.MedicalDiagnosis -> {
+                                    //TODO: Implement
+                                }
                             }
                         }
                     )

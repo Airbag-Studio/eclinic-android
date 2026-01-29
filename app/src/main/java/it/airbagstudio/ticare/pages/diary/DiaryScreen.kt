@@ -18,10 +18,16 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -30,6 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.ToolTag
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.pages.diary.allItemsTab.DiaryAllItemsTabContent
 import it.airbagstudio.ticare.pages.otherTreatments.OtherTreatmentItemView
 import it.airbagstudio.ticare.ui.components.BuildPageHeader
 import it.airbagstudio.ticare.ui.components.PatientListItemViewLoading
@@ -45,6 +52,9 @@ fun DiaryScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var currentTab by remember {
+        mutableIntStateOf(0)
+    }
     Scaffold(
         topBar = {
             ToolbarWithBackAndSync(title = uiState.patientName) {
@@ -69,79 +79,26 @@ fun DiaryScreen(
                     PatientListItemViewLoading()
                 }
             } else {
-                LazyColumn(content = {
-
-                    items(uiState.items.keys.toList()) {
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .padding(horizontal = 16.dp, vertical = 4.dp),
-                            style = MaterialTheme.typography.titleMedium,
-                            text = it
-                        )
-                        val items = uiState.items.get(it)
-                        items?.forEach { item ->
-                            if (item.entityName == "VitalSignTask") {
-                                DiaryVitaLParameterItemView(
-                                    title = item.typeLbl ?: "",
-                                    value = item.value ?: "",
-                                    time = item.time,
-                                    note = item.taskNotes ?: "",
-                                    notExecuted = item.isSkipped ?: false,
-                                )
-                            } else if (item.entityName == "PharmacologicalTask") {
-                                DiaryDrugAdministrationItemView(
-                                    title = item.typeLbl ?: "",
-                                    quantity = item.actualQuantity ?: "",
-                                    note = item.taskNotes ?: "",
-                                    expectedQuantity = item.expQuantity ?: "",
-                                    time = item.time,
-                                    isConfirmed = true,
-                                    isReserve = item.isReserve ?: false,
-                                    notExecuted = item.isSkipped ?: false,
-                                    rejected = item.isRejected ?: false
-                                )
-                            } else if (item.entityName == "HomeCareCourse"){
-                                DiaryNursingCourseItemView(
-                                    title = item.title,
-                                    duration = if(item.duration != null) item.duration.toString() else "-",
-                                    time = item.time,
-                                    note = item.desc ?: "",
-                                    isPlanned = item.isScheduledTask ?: true
-                                )
-                            } else if (item.entityName == "HomeCareServiceTask"){
-                                DiaryCarePlaneItemView(
-                                    title = item.typeLbl ?: "",
-                                    // description = item.schedulerLbl ?: "",
-                                    isPlanned = item.isScheduledTask ?: true,
-                                    time = item.time,
-                                    note = item.taskNotes ?: "",
-                                    duration = item.duration?.toString() ?: "-"
-                                )
-                            } else if (item.entityName == "Wound"){
-                                DiaryWoundItemView(
-                                    title = item.bodyPart ?: "",
-                                    note = item.appearanceDescription ?: ""
-                                )
-                            }else{
-                                val toolTag = ToolTag.valueOf(item.entityName)
-                                GenericDiaryListItemView(
-                                    iconId = toolTag.getDiaryIconId(),
-                                    typeIdLabel = toolTag.getLabelId(),
-                                    activityName = item.typeLbl ?: item.title,
-                                    duration = item.duration?.toString() ?: "-",
-                                    time = item.time,
-                                    note = if(toolTag.name.endsWith("Course")) item.desc else item.taskNotes,
-                                    color = if (item.taskNotes != null) seed else Color(0xFFCF4500),
-                                    notExecuted = item.isSkipped ?: false
-                                )
-                            }
-                            
-                            HorizontalDivider(modifier = Modifier.padding(start = if (items.lastOrNull() == item) 0.dp else 16.dp))
-                        }
+                TabRow(currentTab) {
+                    Tab(selected = currentTab == 0, onClick = {
+                        currentTab = 0
+                    }) {
+                        Text( modifier = Modifier.padding(vertical = 4.dp),text = stringResource(R.string.all_diary_items))
                     }
-                })
+                    Tab(selected = currentTab == 1, onClick = {
+                        currentTab = 1
+                    }) {
+                        Text(
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            text = stringResource(R.string.care_planes_diary_items))
+                    }
+                }
+                if (currentTab == 0) {
+                    DiaryAllItemsTabContent(uiState.items)
+                }else{
+                    DiaryAllItemsTabContent(uiState.homeCareItems)
+
+                }
             }
 
 
