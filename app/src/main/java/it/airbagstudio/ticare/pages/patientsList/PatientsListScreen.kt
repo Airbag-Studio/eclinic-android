@@ -116,7 +116,10 @@ fun PatientListScreen(
     // Show snackbar if contract is about to expire
     LaunchedEffect(isContractAboutToExpire) {
         if (isContractAboutToExpire) {
-            snackbarHostState.showSnackbar("Il contratto sta per scadere. Contatta l'amministratore.",actionLabel = "Chiudi").let {
+            snackbarHostState.showSnackbar(
+                "Il contratto sta per scadere. Contatta l'amministratore.",
+                actionLabel = "Chiudi"
+            ).let {
                 viewModel.cancelContractAboutToExpire()
             }
         }
@@ -267,9 +270,10 @@ fun PatientListScreen(
                             modifier = Modifier
                                 .padding(8.dp)
                         ) {
-                            PopupTextField(modifier = Modifier
-                                .weight(1f)
-                                .height(56.dp),
+                            PopupTextField(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(56.dp),
                                 label = "",
                                 showLabel = false,
                                 value = uiState.selectedDivision?.name
@@ -283,9 +287,10 @@ fun PatientListScreen(
                                 viewModel.setSelectedDivision(it.item)
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            PopupTextField(modifier = Modifier
-                                .weight(1f)
-                                .height(56.dp),
+                            PopupTextField(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(56.dp),
                                 label = "",
                                 showLabel = false,
                                 value = uiState.selectedSector?.name
@@ -356,7 +361,9 @@ fun PatientListScreen(
                                 )
                             ) + uiState.zones.map { ListPopupItem(label = it.name, it) }
                         } else {
-                            uiState.userZones.map { ListPopupItem(label = it.name, it) }
+                            listOf(
+                                ListPopupItem<Zone>(stringResource(id = R.string.all), null)
+                            ) + uiState.userZones.map { ListPopupItem(label = it.name, it) }
                         }
 
                         ListPopup(
@@ -371,7 +378,8 @@ fun PatientListScreen(
                             })
                     }
                     if (showMicrozonesPopup) {
-                        ListPopup(title = stringResource(id = R.string.zones),
+                        ListPopup(
+                            title = stringResource(id = R.string.zones),
                             items = listOf(
                                 ListPopupItem<Microzone>(
                                     stringResource(id = R.string.all), null

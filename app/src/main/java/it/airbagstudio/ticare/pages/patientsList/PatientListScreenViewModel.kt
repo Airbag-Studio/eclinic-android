@@ -1,17 +1,14 @@
 package it.airbagstudio.ticare.pages.patientsList
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ch.ticare.eclinic.library.entity.CaseInfo
 import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.Division
 import ch.ticare.eclinic.library.entity.Microzone
 import ch.ticare.eclinic.library.entity.Sector
-import ch.ticare.eclinic.library.entity.WoundPhoto
 import ch.ticare.eclinic.library.entity.Zone
 import ch.ticare.eclinic.library.network.AuthRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
@@ -34,8 +31,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
@@ -142,17 +137,6 @@ class PatientListScreenViewModel @Inject constructor(
         isLoading = false
         errorMessage = it.localizedMessage
     }
-
-    private val zonesState = combine(zones,microzones,isRequestAllCasesAccessOn,userListRepository.getUserZones()){ _,_,isRequestAllCasesAccessOn,userZones ->
-        if (isRequestAllCasesAccessOn){
-            setSelectedZone(null)
-        }else{
-            if (userZones.isNotEmpty()){
-                selectedZone.value = userZones.first()
-            }
-
-        }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly,Unit)
 
     val clinicType = userRepository.getClinicType()
 
