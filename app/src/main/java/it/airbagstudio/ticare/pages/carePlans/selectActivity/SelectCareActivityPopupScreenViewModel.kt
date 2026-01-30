@@ -132,6 +132,13 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                     carePlanId
                 ).results
                 plannedActivities.value = plannedRes ?: listOf()
+            }else{
+                val carePlanIds = homeCareActivitiesRepository.getHomeCarePlans(patientCode).results?.map { it.id } ?: listOf()
+                val plannedRes = homeCareActivitiesRepository.getHomeCareActivitiesPlanned(
+                    patientCode,
+                    null
+                ).results?.filter { carePlanIds.contains(it.carePlan) } ?: listOf()
+                plannedActivities.value = plannedRes
             }
             notPlannedActivities.value = res.results ?: listOf()
             _errorMessage.value = res.error?.desc

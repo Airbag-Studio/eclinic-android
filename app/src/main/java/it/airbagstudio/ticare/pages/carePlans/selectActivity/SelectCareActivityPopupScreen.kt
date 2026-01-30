@@ -110,11 +110,7 @@ fun SelectCareActivityPopupScreen(
                     navigationIcon = {
                         if (isSelecting){
                             TextButton(onClick = {
-                                if(tabIndex == 0 && planId != null){
-                                    viewModel.selectAllPlanned()
-                                }else{
-                                    viewModel.selectAllUnplanned()
-                                }
+                                viewModel.selectAllUnplanned()
                             }) {
                                 Text(text = stringResource(id = R.string.select_all))
                             }
@@ -171,7 +167,6 @@ fun SelectCareActivityPopupScreen(
                     .padding(values)
 
             ) {
-                if (planId != null) {
                     val labels = listOf(
                         stringResource(id = R.string.planned),
                         stringResource(id = R.string.not_planned)
@@ -237,24 +232,6 @@ fun SelectCareActivityPopupScreen(
 
                         }
                     }
-                } else {
-                    SearchableList(
-                        isSelecting = isSelecting,
-                        query = uiState.query,
-                        activities = uiState.unplannedActivities,
-                        onItemClick = { id, isTracking ->
-                            if (isTracking) {
-                                showTravelTimeDialog = true
-                            } else {
-                                onDismissRequest(Pair(false, id))
-                            }
-                        }, onSelectedChange = { id, isSelected ->
-                            viewModel.changeActivitySelection(id,isSelected)
-                        }, onQueryChange = {
-                            viewModel.setQuery(it)
-                        })
-
-                }
             }
         }
 
@@ -296,7 +273,7 @@ fun SelectCareActivityPopupScreen(
                     TextButton(
                         onClick = {
                             showExecuteAllAlert = false
-                            if(tabIndex == 0 && planId != null) {
+                            if(tabIndex == 0) {
                                 viewModel.executeAllPlannedActivities(trackerViewUIState.elapsedTimeFromLastActivity) {
                                     trackerViewModel.updateLastMinutesFromLastActivity()
                                     onDismissRequest(null)
