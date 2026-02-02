@@ -3,14 +3,18 @@ package it.airbagstudio.ticare.pages.patientInfo
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.ContactsContract
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +37,8 @@ fun PatientInfoCard(
     tile: String,
     text: String? = null,
     address: String? = null,
+    role: String? = null,
+    email: String? = null,
     phones: List<String> = listOf()
 ) {
     val ctx = LocalContext.current
@@ -68,6 +74,14 @@ fun PatientInfoCard(
                 color = MaterialTheme.colorScheme.onSurface
             )
             text?.let { content ->
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = content,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            role?.let { content ->
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     text = content,
@@ -119,9 +133,35 @@ fun PatientInfoCard(
                     }
                 }
             }
+            email?.let {
+                HorizontalDivider()
+                Row(verticalAlignment = CenterVertically,
+                    modifier = Modifier
+                        .clickable {
+                            openEmailClient(it, ctx)
+                        }
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp),
+                        text = email,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Image(
+                        modifier = Modifier.padding(end = 16.dp),
+                        imageVector = Icons.Default.Mail,
+                        contentDescription = ""
+                    )
+                }
+
+            }
 
         }
         if (address != null) {
+
             Image(
                 modifier = Modifier.padding(end = 16.dp),
                 painter = painterResource(id = R.drawable.ic_directions),
@@ -143,6 +183,13 @@ private fun startCall(number: String, context: Context) {
     val dialIntent = Intent(Intent.ACTION_DIAL)
     dialIntent.data = Uri.parse("tel:$number")
     context.startActivity(dialIntent)
+}
+
+private fun openEmailClient(email: String, context: Context) {
+    val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+        data = Uri.parse("mailto:$email")
+    }
+    context.startActivity(emailIntent)
 }
 
 @Composable
@@ -168,6 +215,19 @@ private fun PreviewPatientInfoCardMultiplePhone() {
         PatientInfoCard(
             tile = "Dott.ssa Lina Sastri",
             phones = listOf("079/2149547", "091 923 75 61")
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun PreviewPatientInfoCardMultiplePhoneAndEmail() {
+    AppTheme {
+        PatientInfoCard(
+            tile = "Dott.ssa Lina Sastri",
+            phones = listOf("079/2149547", "091 923 75 61"),
+            email = "test@test.com",
+            role = "Test role"
         )
     }
 }
