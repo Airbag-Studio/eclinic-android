@@ -98,15 +98,7 @@ fun PatientInfoCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            if (phones.count() == 1) {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp),
-                    text = phones.first(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            } else {
+
                 phones.forEach { phone ->
                     Row(
                         verticalAlignment = CenterVertically,
@@ -123,6 +115,7 @@ fun PatientInfoCard(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
+
                         Image(
                             painter = painterResource(id = R.drawable.ic_call),
                             contentDescription = ""
@@ -132,7 +125,7 @@ fun PatientInfoCard(
                         HorizontalDivider()
                     }
                 }
-            }
+
             email?.let {
                 HorizontalDivider()
                 Row(verticalAlignment = CenterVertically,
@@ -167,13 +160,17 @@ fun PatientInfoCard(
                 painter = painterResource(id = R.drawable.ic_directions),
                 contentDescription = ""
             )
-        } else if (phones.count() == 1) {
+        }
+        /*
+        else if (phones.count() == 1) {
             Image(
                 modifier = Modifier.padding(end = 16.dp),
                 painter = painterResource(id = R.drawable.ic_call),
                 contentDescription = ""
             )
         }
+
+         */
     }
 
 
@@ -225,9 +222,8 @@ private fun PreviewPatientInfoCardMultiplePhoneAndEmail() {
     AppTheme {
         PatientInfoCard(
             tile = "Dott.ssa Lina Sastri",
-            phones = listOf("079/2149547", "091 923 75 61"),
-            email = "test@test.com",
-            role = "Test role"
+            phones = listOf("079/2149547"),
+            email = "test@test.com"
         )
     }
 }

@@ -48,14 +48,16 @@ fun PatientInfoScreen(
                 caseInfo.internalMedics?.forEach { internalMedic ->
                         PatientInfoCard(
                             tile = "${internalMedic.label}\n${internalMedic.operator}",
-                            text = internalMedic.function
+                            text = internalMedic.function,
+                            email = internalMedic.email
                         )
                 }
                 caseInfo.externalMedics.forEach { externalMedic ->
                     if (externalMedic.phoneNumbers.isNotEmpty()) {
                         PatientInfoCard(
                             tile = "${externalMedic.label}\n${externalMedic.operator}",
-                            phones = externalMedic.phoneNumbers.split(" | " )
+                            phones = externalMedic.phoneNumbers.split(" | " ),
+                            email = externalMedic.email
                         )
                     }
                 }
@@ -65,6 +67,7 @@ fun PatientInfoScreen(
                 caseInfo.contacts.otherContacts.forEach {
                     PatientInfoCard(
                         tile = "${it.relationship} ${it.fullname}",
+                        role = it.role,
                         phones = it.phoneNumbers.split(" | " )
                     )
                 }
