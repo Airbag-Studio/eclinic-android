@@ -110,7 +110,11 @@ fun SelectCareActivityPopupScreen(
                     navigationIcon = {
                         if (isSelecting){
                             TextButton(onClick = {
-                                viewModel.selectAllUnplanned()
+                                if(tabIndex == 0) {
+                                    viewModel.selectAllPlanned()
+                                }else{
+                                    viewModel.selectAllUnplanned()
+                                }
                             }) {
                                 Text(text = stringResource(id = R.string.select_all))
                             }
