@@ -47,6 +47,7 @@ fun DiaryAllItemsTabContent(items: Map<String, List<DiaryItem>>){
                         time = item.time,
                         note = item.taskNotes ?: "",
                         notExecuted = item.isSkipped ?: false,
+                        userLbl = item.userLbl
                     )
                 } else if (item.entityName == "PharmacologicalTask") {
                     DiaryDrugAdministrationItemView(
@@ -58,7 +59,8 @@ fun DiaryAllItemsTabContent(items: Map<String, List<DiaryItem>>){
                         isConfirmed = true,
                         isReserve = item.isReserve ?: false,
                         notExecuted = item.isSkipped ?: false,
-                        rejected = item.isRejected ?: false
+                        rejected = item.isRejected ?: false,
+                        userLbl = item.userLbl
                     )
                 } else if (item.entityName == "HomeCareCourse"){
                     DiaryNursingCourseItemView(
@@ -66,7 +68,8 @@ fun DiaryAllItemsTabContent(items: Map<String, List<DiaryItem>>){
                         duration = if(item.duration != null) item.duration.toString() else "-",
                         time = item.time,
                         note = item.desc ?: "",
-                        isPlanned = item.isScheduledTask ?: true
+                        isPlanned = item.isScheduledTask ?: true,
+                        userLbl = item.userLbl
                     )
                 } else if (item.entityName == "HomeCareServiceTask"){
                     DiaryCarePlaneItemView(
@@ -75,12 +78,14 @@ fun DiaryAllItemsTabContent(items: Map<String, List<DiaryItem>>){
                         isPlanned = item.isScheduledTask ?: true,
                         time = item.time,
                         note = item.taskNotes ?: "",
-                        duration = item.duration?.toString() ?: "-"
+                        duration = item.duration?.toString() ?: "-",
+                        userLbl = item.userLbl
                     )
                 } else if (item.entityName == "Wound"){
                     DiaryWoundItemView(
                         title = item.bodyPart ?: "",
-                        note = item.appearanceDescription ?: ""
+                        note = item.appearanceDescription ?: "",
+                        userLbl = item.userLbl
                     )
                 }else{
                     val toolTag = ToolTag.valueOf(item.entityName)
@@ -92,7 +97,8 @@ fun DiaryAllItemsTabContent(items: Map<String, List<DiaryItem>>){
                         time = item.time,
                         note = if(toolTag.name.endsWith("Course")) item.desc else item.taskNotes,
                         color = if (item.taskNotes != null) seed else Color(0xFFCF4500),
-                        notExecuted = item.isSkipped ?: false
+                        notExecuted = item.isSkipped ?: false,
+                        userLbl = item.userLbl
                     )
                 }
 

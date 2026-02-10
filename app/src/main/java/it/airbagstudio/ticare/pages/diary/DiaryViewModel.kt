@@ -99,7 +99,7 @@ class DiaryViewModel @Inject constructor(
                         patientLbl = "",
                         title = "HomeCareServiceTask",
                         typeLbl = it.type,
-                        userLbl = "",
+                        userLbl = it.user,
                         isScheduledTask = it.isScheduled,
                         duration = it.duration
                     )

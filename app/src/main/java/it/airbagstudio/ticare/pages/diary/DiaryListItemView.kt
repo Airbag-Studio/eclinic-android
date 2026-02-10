@@ -45,7 +45,8 @@ fun DiaryDrugAdministrationItemView(
     isConfirmed: Boolean,
     isReserve: Boolean,
     notExecuted: Boolean,
-    rejected: Boolean
+    rejected: Boolean,
+    userLbl: String
 ) {
     Row(modifier = Modifier.padding(16.dp)) {
         Column(
@@ -74,6 +75,8 @@ fun DiaryDrugAdministrationItemView(
                     value = expectedQuantity
                 )
             }
+            LabelValueRow(label = "Operatore",userLbl)
+
             FlowRow(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -108,7 +111,8 @@ fun DiaryNursingCourseItemView(
     duration: String,
     time: String,
     note: String,
-    isPlanned: Boolean
+    isPlanned: Boolean,
+    userLbl: String
 ) {
     Row(modifier = Modifier.padding(16.dp)) {
         Column(
@@ -130,6 +134,8 @@ fun DiaryNursingCourseItemView(
                 Spacer(modifier = Modifier.weight(1f))
                 LabelValueRow(label = stringResource(id = R.string.time), value = time)
             }
+            LabelValueRow(label = "Operatore",userLbl)
+
             if (!isPlanned) {
                 FlowRow(
                     modifier = Modifier
@@ -143,6 +149,7 @@ fun DiaryNursingCourseItemView(
             if (note.isNotEmpty()) {
                 NoteView(note = note)
             }
+
         }
     }
 }
@@ -154,7 +161,8 @@ fun DiaryCarePlaneItemView(
     time: String,
     note: String,
     isPlanned: Boolean,
-    duration: String
+    duration: String,
+    userLbl: String
 ) {
     Row(modifier = Modifier.padding(16.dp)) {
         Column(
@@ -176,6 +184,8 @@ fun DiaryCarePlaneItemView(
                 Spacer(modifier = Modifier.weight(1f))
                 LabelValueRow(label = stringResource(id = R.string.time), value = time)
             }
+            LabelValueRow(label = "Operatore",userLbl)
+
             if (!isPlanned) {
                 FlowRow(
                     modifier = Modifier
@@ -189,6 +199,7 @@ fun DiaryCarePlaneItemView(
             if (note.isNotEmpty()) {
                 NoteView(note = note)
             }
+
         }
     }
 
@@ -196,7 +207,8 @@ fun DiaryCarePlaneItemView(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun DiaryVitaLParameterItemView(title: String, value: String, time: String, note: String, notExecuted: Boolean) {
+fun DiaryVitaLParameterItemView(title: String, value: String, time: String, note: String, notExecuted: Boolean,
+                                userLbl: String) {
     Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -217,6 +229,8 @@ fun DiaryVitaLParameterItemView(title: String, value: String, time: String, note
                 Spacer(modifier = Modifier.weight(1f))
                 LabelValueRow(label = stringResource(id = R.string.time), value = time)
             }
+            LabelValueRow(label = "Operatore",userLbl)
+
             if (notExecuted) {
                 FlowRow(
                     modifier = Modifier
@@ -228,12 +242,14 @@ fun DiaryVitaLParameterItemView(title: String, value: String, time: String, note
             if (note.isNotEmpty()) {
                 NoteView(note = note)
             }
+
         }
     }
 }
 
 @Composable
-fun DiaryWoundItemView(title: String, note: String) {
+fun DiaryWoundItemView(title: String, note: String,
+                       userLbl: String) {
     Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -249,9 +265,12 @@ fun DiaryWoundItemView(title: String, note: String) {
                 category = stringResource(id = R.string.wounds_protocol),
                 title = title
             )
+            LabelValueRow(label = "Operatore",userLbl)
+
             if (note.isNotEmpty()) {
                 NoteView(note = note)
             }
+
         }
     }
 }
@@ -266,7 +285,8 @@ fun GenericDiaryListItemView(
     time: String,
     note: String?,
     color: Color,
-    notExecuted: Boolean
+    notExecuted: Boolean,
+    userLbl: String
 ) {
     Row(Modifier.padding(16.dp)) {
         Image(
@@ -283,6 +303,8 @@ fun GenericDiaryListItemView(
                 Spacer(modifier = Modifier.weight(1f))
                 LabelValueRow(label = stringResource(id = R.string.time), value = time)
             }
+            LabelValueRow(label = "Operatore",userLbl)
+
             if (notExecuted) {
                 FlowRow(
                     modifier = Modifier
@@ -294,6 +316,7 @@ fun GenericDiaryListItemView(
             if (!note.isNullOrEmpty()) {
                 NoteView(note = note)
             }
+
 
         }
     }
@@ -408,7 +431,8 @@ private fun DiaryPreview() {
                     time = "8:30",
                     note = "Test note",
                     color = seed,
-                    notExecuted = false
+                    notExecuted = false,
+                    userLbl = "Test Test"
                 )
 
                 DiaryCarePlaneItemView(
@@ -416,7 +440,8 @@ private fun DiaryPreview() {
                     time = "08:00",
                     note = "Queste sono delle note di test",
                     isPlanned = true,
-                    duration = "12"
+                    duration = "12",
+                    userLbl = "Test Test"
                 )
 
                 DiaryDrugAdministrationItemView(
@@ -429,7 +454,8 @@ private fun DiaryPreview() {
                     isConfirmed = true,
                     isReserve = true,
                     notExecuted = true,
-                    rejected = true
+                    rejected = true,
+                    userLbl = "Test Test"
                 )
 
                 DiaryNursingCourseItemView(
@@ -437,7 +463,8 @@ private fun DiaryPreview() {
                     duration = "23",
                     time = "14:56",
                     note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
-                    isPlanned = false
+                    isPlanned = false,
+                    userLbl = "Test Test"
                 )
             }
         }
