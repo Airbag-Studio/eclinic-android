@@ -39,6 +39,7 @@ data class SelectCareActivityPopupUIState(
         val title:String,
         val code: String?,
         val id: Int,
+        val carePlanId: Int?,
         val isPlanned: Boolean,
         val isTransferActivity: Boolean,
         val isSelected: Boolean
@@ -76,7 +77,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
             otherActivities
         }
         activities.map {
-            SelectCareActivityPopupUIState.ActivityListItem(it.desc,it.code, it.id, false,it.code == transferActivityCode, isSelected = selectedActivityIds.contains(it.id))
+            SelectCareActivityPopupUIState.ActivityListItem(it.desc,it.code, it.id, carePlanId = null,false,it.code == transferActivityCode, isSelected = selectedActivityIds.contains(it.id))
         }
     }
 
@@ -94,7 +95,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
             notPlannedActivities
         }
 
-        val plannedItems = plannedActivities?.map { SelectCareActivityPopupUIState.ActivityListItem(it.type,null, it.id, false,false, isSelected = selectedActivityIds.contains(it.id)) } ?: listOf()
+        val plannedItems = plannedActivities?.map { SelectCareActivityPopupUIState.ActivityListItem(it.type,null, it.id, carePlanId = it.carePlan,false,false, isSelected = selectedActivityIds.contains(it.id)) } ?: listOf()
 
         SelectCareActivityPopupUIState(
             isLoading = isLoading,

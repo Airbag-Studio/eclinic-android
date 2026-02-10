@@ -70,7 +70,7 @@ fun SelectCareActivityPopupScreen(
     planId: Int?,
     viewModel: SelectCareActivityPopupScreenViewModel = hiltViewModel(),
     trackerViewModel: TimeTrackerViewModel = hiltViewModel(LocalActivity.current),
-    onDismissRequest: (Pair<Boolean, Int>?) -> Unit
+    onDismissRequest: (Pair<Boolean, SelectCareActivityPopupUIState.ActivityListItem>?) -> Unit
 ) {
     var showExecuteAllAlert by remember { mutableStateOf(false) }
     var isSelecting by remember { mutableStateOf(false) }
@@ -222,11 +222,11 @@ fun SelectCareActivityPopupScreen(
                                 isSelecting = isSelecting,
                                 query = uiState.query,
                                 activities = uiState.unplannedActivities,
-                                onItemClick = { id, isTracking ->
+                                onItemClick = { item, isTracking ->
                                     if (isTracking) {
                                         showTravelTimeDialog = true
                                     } else {
-                                        onDismissRequest(Pair(false, id))
+                                        onDismissRequest(Pair(false, item))
                                     }
                                 }, onQueryChange = {
                                     viewModel.setQuery(it)
@@ -313,7 +313,7 @@ private fun SearchableList(
     isSelecting: Boolean,
     query: String,
     activities: List<SelectCareActivityPopupUIState.ActivityListItem>,
-    onItemClick: (Int, Boolean) -> Unit,
+    onItemClick: (SelectCareActivityPopupUIState.ActivityListItem, Boolean) -> Unit,
     onQueryChange: (String) -> Unit,
     onSelectedChange: (Int, Boolean) -> Unit
 ) {
@@ -364,7 +364,7 @@ private fun SearchableList(
 private fun ItemsList(
     isSelecting: Boolean,
     activities: List<SelectCareActivityPopupUIState.ActivityListItem>,
-    onItemClick: (Int, Boolean) -> Unit,
+    onItemClick: (SelectCareActivityPopupUIState.ActivityListItem, Boolean) -> Unit,
     onSelectedChange: (Int, Boolean) -> Unit
 ) {
     LazyColumn(
@@ -382,7 +382,7 @@ private fun ItemsList(
                     isTransferRow = it.isTransferActivity,
                     isSelected = it.isSelected,
                     onClick = {
-                        onItemClick(it.id, it.isTransferActivity)
+                        onItemClick(it, it.isTransferActivity)
                     },
                     onSelectedChange = { isSelected ->
                         onSelectedChange(it.id, isSelected)

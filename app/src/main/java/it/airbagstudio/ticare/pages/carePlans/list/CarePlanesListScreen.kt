@@ -58,6 +58,9 @@ fun CarePlanesListScreen(
     var selectedId by remember {
         mutableIntStateOf(0)
     }
+    var selectedActivityPlanId:Int? by remember {
+        mutableStateOf(null)
+    }
     var showStartTrackingPopup by remember {
         mutableStateOf(false)
     }
@@ -179,11 +182,12 @@ fun CarePlanesListScreen(
                 showSelectNewActivityPopup = false
                 if (params != null) {
                     if (params.first) {
-                        plannedActivityId = params.second
+                        plannedActivityId = params.second.id
                     }
                     if (!params.first) {
-                        idActivityType = params.second
+                        idActivityType = params.second.id
                     }
+                    selectedActivityPlanId = params.second.carePlanId
                     showCreateCarePopup = true
                 }else{
                     viewModel.downloadData()
@@ -191,10 +195,11 @@ fun CarePlanesListScreen(
             })
         }
         if (showCreateCarePopup){
-            CreateEditCareScreen(homeCareActivity = null, codCase = viewModel.patientCod, plannedActivityId = plannedActivityId, idActivityType = idActivityType, carePlanId = null, onDismissRequest = {
+            CreateEditCareScreen(homeCareActivity = null, codCase = viewModel.patientCod, plannedActivityId = plannedActivityId, idActivityType = idActivityType, carePlanId = selectedActivityPlanId, onDismissRequest = {
                 showCreateCarePopup = false
                 plannedActivityId = null
                 idActivityType = null
+                selectedActivityPlanId = null
                 if (it){
                     viewModel.downloadData()
                 }

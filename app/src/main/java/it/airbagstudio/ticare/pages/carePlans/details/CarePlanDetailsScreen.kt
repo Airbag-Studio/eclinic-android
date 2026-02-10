@@ -196,10 +196,10 @@ fun CarePlanDetailsScreen(
             showSelectNewActivityPopup = false
             if (params != null) {
                 if (params.first) {
-                    plannedActivityId = params.second
+                    plannedActivityId = params.second.id
                 }
                 if (!params.first) {
-                    idActivityType = params.second
+                    idActivityType = params.second.id
                 }
                 showCreateCarePopup = true
             }else{
