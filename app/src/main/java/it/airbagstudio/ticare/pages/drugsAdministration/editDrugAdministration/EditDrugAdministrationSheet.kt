@@ -67,6 +67,7 @@ import it.airbagstudio.ticare.ui.components.notesPopupButton.NotesPopupButton
 import it.airbagstudio.ticare.ui.theme.seed
 import it.airbagstudio.ticare.ui.theme.tertiary95
 import it.airbagstudio.ticare.utils.PlaceholderTransformation
+import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.getExecDateTime
 
 @Composable
@@ -82,7 +83,7 @@ fun EditDrugAdministrationSheet(
         viewModel.canWrite = canWrite
         if (task?.execDate == null && task?.isReserve == false) {
             //viewModel.task.value = viewModel.task.value?.copy(quantity = task?.expQuantity ?: 0.0)
-            viewModel.setQuantity(task.expQuantity.toString())
+            viewModel.setQuantity(task.expQuantity.format(2,2))
         }
         if (task?.execDate != null) {
             viewModel.task.value = viewModel.task.value?.copy(
@@ -90,7 +91,7 @@ fun EditDrugAdministrationSheet(
                 isSkipped = task.isSkipped,
                 rejected = task.rejected
             )
-            viewModel.setQuantity(task.quantity.toString())
+            viewModel.setQuantity(task.quantity.format(2,2))
         }else{
             viewModel.setDuration(task?.typeDuration)
         }
@@ -163,10 +164,12 @@ private fun BuildContent(
                     modifier = Modifier.weight(1f),
                     value = viewModel.quantity.value ?: "",
                     visualTransformation = if (viewModel.quantity.value.isNullOrEmpty()) PlaceholderTransformation(
-                        "0"
+                        "0.00"
                     ) else VisualTransformation.None,
                     onValueChange = {
-                        viewModel.setQuantity(it)
+                        it.toDoubleOrNull()?.let { value ->
+                            viewModel.setQuantity(value.format(2,2))
+                        }
                     },
                     label = { Text(text = stringResource(id = R.string.quantity)) },
                     trailingIcon = {
@@ -191,7 +194,7 @@ private fun BuildContent(
                     ),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     modifier = Modifier.weight(1f),
-                    value = "${viewModel.task.value?.maxQuantity ?: 0}",
+                    value = viewModel.task.value?.maxQuantity?.format(2,2) ?: "0.00",
                     enabled = false,
                     onValueChange = {},
                     label = { Text(text = stringResource(id = R.string.prescribed)) },
