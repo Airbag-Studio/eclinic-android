@@ -64,7 +64,9 @@ data class PatientListUiState(
         val hasModifiedData:Boolean,
         val bed: String?,
         val genderIconId: Int,
-        val photo: String?
+        val photo: String?,
+        val zoneName: String?,
+        val microZoneName: String?
     )
 }
 
@@ -128,7 +130,9 @@ class PatientListScreenViewModel @Inject constructor(
                     hasDownloadedData = onlineRepositoryState.patientsDownloaded.contains(it.code),
                     hasModifiedData = onlineRepositoryState.patientsModified.contains(it.code),
                     bed = it.bed,
-                    genderIconId = it.gender.getIconId()
+                    genderIconId = it.gender.getIconId(),
+                    zoneName = it.zoneName,
+                    microZoneName = it.microZoneName
                 )
             } ?: listOf<PatientListUiState.PatientUIState>()
 

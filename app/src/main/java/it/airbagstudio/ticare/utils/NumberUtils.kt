@@ -11,9 +11,9 @@ fun String.isValidVitalParameterValue() : Boolean{
     return this.toDoubleOrNull() != null
 }
 
-fun Double.format(): String{
+fun Double.format(maximumFractionDigits: Int = 1,minimumFractionDigits: Int = 0): String{
     val formatter = DecimalFormat()
-    formatter.maximumFractionDigits = 1
-    formatter.minimumFractionDigits = 0
+    formatter.maximumFractionDigits = maximumFractionDigits
+    formatter.minimumFractionDigits = minimumFractionDigits
     return formatter.format(this)
 }

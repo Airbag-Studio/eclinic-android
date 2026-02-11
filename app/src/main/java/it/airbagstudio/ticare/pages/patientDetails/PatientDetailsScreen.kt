@@ -539,11 +539,38 @@ private fun CaseInfoView(imageRequestData: ImageRequestData,patientCode: String,
                         contentDescription = ""
                     )
                 }
-                Text(
-                    text = "# ${patientCode}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "# ${patientCode}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    if (!caseDetail.zoneName.isNullOrEmpty()) {
+                        Row() {
+                            Text(text = "Zona: ",
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                            Text(text = caseDetail.zoneName!!,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.outline)
+                        }
+
+                    }
+                    if (!caseDetail.microZoneName.isNullOrEmpty()) {
+                        Row() {
+                            Text(
+                                text = "Micro Zona: ",
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                            Text(
+                                text = caseDetail.microZoneName!!,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
                 Row {
                     Column(modifier = Modifier.weight(1f)) {

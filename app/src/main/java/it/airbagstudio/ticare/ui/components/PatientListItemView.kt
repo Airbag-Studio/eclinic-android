@@ -3,6 +3,7 @@ package it.airbagstudio.ticare.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +31,7 @@ import ch.ticare.eclinic.library.entity.ClinicType
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.patientsList.PatientListUiState
 import it.airbagstudio.ticare.ui.theme.AppTheme
+import java.time.temporal.TemporalQueries.zone
 
 @Composable
 fun PatientListItemView(
@@ -81,10 +83,37 @@ fun PatientListItemView(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Text(text = "# ${patient.patientCode}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(text = "# ${patient.patientCode}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    if (!patient.zoneName.isNullOrEmpty()) {
+                        Row() {
+                            Text(text = "Zona: ",
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                            Text(text = patient.zoneName,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.outline)
+                        }
+
+                    }
+                    if (!patient.microZoneName.isNullOrEmpty()) {
+                        Row() {
+                            Text(
+                                text = "Micro Zona: ",
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                            Text(
+                                text = patient.microZoneName,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                    }
+                }
+
                 if (clinicType == ClinicType.CPA) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(

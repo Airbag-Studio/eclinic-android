@@ -41,6 +41,7 @@ import it.airbagstudio.ticare.ui.theme.checkGreen
 import it.airbagstudio.ticare.ui.theme.redColor
 import it.airbagstudio.ticare.ui.theme.specialTaskBackground
 import it.airbagstudio.ticare.ui.theme.tertiary95
+import it.airbagstudio.ticare.utils.format
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -105,7 +106,7 @@ fun DrugAdministrationItemView(
                         .alpha(alpha)
                         .padding(end = 24.dp)
                 ) {
-                    LabelValueRow(label = stringResource(id = R.string.quantity), value = "$quantity ${measureUnit}")
+                    LabelValueRow(label = stringResource(id = R.string.quantity), value = "${quantity.format(2,2)} ${measureUnit}")
                     if (!isCompleted && !isReserve) {
                         Spacer(modifier = Modifier.weight(1f))
                         LabelValueRow(
