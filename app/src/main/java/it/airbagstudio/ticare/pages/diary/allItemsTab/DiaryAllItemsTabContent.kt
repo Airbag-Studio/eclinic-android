@@ -69,7 +69,8 @@ fun DiaryAllItemsTabContent(items: Map<String, List<DiaryItem>>){
                         time = item.time,
                         note = item.desc ?: "",
                         isPlanned = item.isScheduledTask ?: true,
-                        userLbl = item.userLbl
+                        userLbl = item.userLbl,
+                        hasLinks = item.hasLinks ?: false
                     )
                 } else if (item.entityName == "HomeCareServiceTask"){
                     DiaryCarePlaneItemView(

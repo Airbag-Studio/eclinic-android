@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.wounds.common.TitleValueView
 import it.airbagstudio.ticare.ui.components.DrugChip
+import it.airbagstudio.ticare.ui.components.LabelValueRow
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.redColor
 import it.airbagstudio.ticare.ui.theme.seed
@@ -112,7 +116,8 @@ fun DiaryNursingCourseItemView(
     time: String,
     note: String,
     isPlanned: Boolean,
-    userLbl: String
+    userLbl: String,
+    hasLinks: Boolean
 ) {
     Row(modifier = Modifier.padding(16.dp)) {
         Column(
@@ -125,10 +130,18 @@ fun DiaryNursingCourseItemView(
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column {
-            BuildHeader(
-                category = stringResource(id = R.string.nursing_courses),
-                title = title
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                BuildHeader(
+                    category = stringResource(id = R.string.nursing_courses),
+                    title = title
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                if (hasLinks){
+                    Icon(
+                        modifier = Modifier.size(20.dp),
+                        imageVector = Icons.Default.AttachFile, contentDescription = "Allegato")
+                }
+            }
             Row {
                 LabelValueRow(label = stringResource(id = R.string.duration), value = duration)
                 Spacer(modifier = Modifier.weight(1f))
@@ -351,7 +364,7 @@ private fun BuildHeader(category: String, title: String, code: String = "") {
         )
         Row {
             Text(
-                modifier = Modifier.weight(1f),
+                //modifier = Modifier.weight(1f),
                 text = title,
                 style = MaterialTheme.typography.bodyLarge
 
@@ -423,6 +436,7 @@ private fun DiaryPreview() {
     AppTheme {
         Scaffold(Modifier.background(Color.White)) {
             Column(Modifier.padding(it)) {
+                /*
                 GenericDiaryListItemView(
                     iconId = R.drawable.ic_blood_exam_task,
                     typeIdLabel = R.string.blood_exam_task,
@@ -457,14 +471,15 @@ private fun DiaryPreview() {
                     rejected = true,
                     userLbl = "Test Test"
                 )
-
+*/
                 DiaryNursingCourseItemView(
                     title = "Dolor sit amen",
                     duration = "23",
                     time = "14:56",
                     note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
                     isPlanned = false,
-                    userLbl = "Test Test"
+                    userLbl = "Test Test",
+                    hasLinks = true
                 )
             }
         }
