@@ -160,16 +160,18 @@ private fun BuildContent(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done
                     ),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    keyboardActions = KeyboardActions(onDone = {
+                        focusManager.clearFocus()
+                        val quantity = viewModel.quantity.value?.replace(",",".")?.toDoubleOrNull() ?: 0.0
+                        viewModel.setQuantity(quantity.format(2,2))
+                    }),
                     modifier = Modifier.weight(1f),
                     value = viewModel.quantity.value ?: "",
                     visualTransformation = if (viewModel.quantity.value.isNullOrEmpty()) PlaceholderTransformation(
                         "0.00"
                     ) else VisualTransformation.None,
                     onValueChange = {
-                        it.toDoubleOrNull()?.let { value ->
-                            viewModel.setQuantity(value.format(2,2))
-                        }
+                        viewModel.setQuantity(it)
                     },
                     label = { Text(text = stringResource(id = R.string.quantity)) },
                     trailingIcon = {

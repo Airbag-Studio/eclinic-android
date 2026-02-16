@@ -54,10 +54,12 @@ class EditDrugAdministrationSheetViewModel @Inject constructor(
 
     fun setQuantity(value: String){
         quantity.value = value
-        val newValue = value.toDoubleOrNull() ?: 0.0
+        val newValue = value.replace(",",".").toDoubleOrNull() ?: 0.0
         task.value = task.value?.copy(quantity = newValue)
         if (newValue < (task.value?.maxQuantity ?: 0.0)){
             task.value = task.value?.copy(showInDiary = true)
+        }else{
+            task.value = task.value?.copy(showInDiary = false)
         }
     }
 

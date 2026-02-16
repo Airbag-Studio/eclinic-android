@@ -1,7 +1,8 @@
 package it.airbagstudio.ticare.utils
 
-import android.icu.number.NumberFormatter
-import java.text.DecimalFormat
+import android.icu.text.DecimalFormat
+import android.icu.text.DecimalFormatSymbols
+
 
 fun String.isValidVitalParameterValue() : Boolean{
     val splitted = this.split("/")
@@ -12,8 +13,10 @@ fun String.isValidVitalParameterValue() : Boolean{
 }
 
 fun Double.format(maximumFractionDigits: Int = 1,minimumFractionDigits: Int = 0): String{
+    val symbols = DecimalFormatSymbols(java.util.Locale("IT"))
     val formatter = DecimalFormat()
     formatter.maximumFractionDigits = maximumFractionDigits
     formatter.minimumFractionDigits = minimumFractionDigits
+    formatter.decimalFormatSymbols = symbols
     return formatter.format(this)
 }
