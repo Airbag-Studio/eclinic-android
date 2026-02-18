@@ -137,8 +137,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providesUserMarkingRepositoryRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): UserMarkingRepository {
-        return UserMarkingRepository(apiClient,database,offlineOnlineRepository)
+    fun providesUserMarkingRepositoryRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository,logger: ECLogger): UserMarkingRepository {
+        return UserMarkingRepository(apiClient,database,offlineOnlineRepository,logger)
     }
 
     @Provides

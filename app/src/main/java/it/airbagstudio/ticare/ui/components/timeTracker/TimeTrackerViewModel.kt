@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -101,8 +102,9 @@ class TimeTrackerViewModel @Inject constructor(
                     }
             }
             launch {
-                userMarkingRepository.getStringTimeFromLastMarking()
+                userMarkingRepository.getEffectiveWorkingTimeString()
                     .collect {
+
                         trackingTime.value = it ?: "00:00"
                     }
             }
@@ -113,17 +115,23 @@ class TimeTrackerViewModel @Inject constructor(
 
     fun stopTracker() {
         viewModelScope.launch(coroutineExceptionHandler) {
-            val res = userMarkingRepository.addMarking(
-                UserMarking(
-                    isIn = false
+            userMarkingRepository.getMinutesFromLastActivity().first()?.let { minutesFromLastActivity ->
+                val calculatedDate = Date(Date().time - TimeUnit.MINUTES.toMillis(minutesFromLastActivity ?: 0))
+                val res = userMarkingRepository.addMarking(
+                    UserMarking(
+                        isIn = false,
+                        datetime = calculatedDate.format("yyyy-MM-dd HH:mm")
+
+                    )
                 )
-            )
-            res.error?.desc?.let {
-                errorMessage = it
-            } ?: run {
-                startTime.value = null
+                res.error?.desc?.let {
+                    errorMessage = it
+                } ?: run {
+                    startTime.value = null
+                }
+                updateElapsedTime()
             }
-            updateElapsedTime()
+
         }
     }
 
