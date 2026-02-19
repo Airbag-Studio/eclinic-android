@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -113,10 +114,10 @@ class TimeTrackerViewModel @Inject constructor(
 
     }
 
-    fun stopTracker() {
+    fun stopTracker(onDone: () -> Unit = {}) {
         viewModelScope.launch(coroutineExceptionHandler) {
-            userMarkingRepository.getMinutesFromLastActivity().first()?.let { minutesFromLastActivity ->
-                val calculatedDate = Date(Date().time - TimeUnit.MINUTES.toMillis(minutesFromLastActivity ?: 0))
+            userMarkingRepository.getMinutesFromLastActivity().firstOrNull()?.let { minutesFromLastActivity ->
+                val calculatedDate = Date(Date().time - TimeUnit.MINUTES.toMillis(minutesFromLastActivity))
                 val res = userMarkingRepository.addMarking(
                     UserMarking(
                         isIn = false,
@@ -128,10 +129,12 @@ class TimeTrackerViewModel @Inject constructor(
                     errorMessage = it
                 } ?: run {
                     startTime.value = null
+                    onDone()
                 }
                 updateElapsedTime()
+            } ?: run {
+                onDone()
             }
-
         }
     }
 

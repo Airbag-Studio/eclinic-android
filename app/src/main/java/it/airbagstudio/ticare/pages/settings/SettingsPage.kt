@@ -156,8 +156,9 @@ fun SettingsPage(
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        timeTrackerViewModel.stopTracker()
-                        viewModel.requestLogout()
+                        timeTrackerViewModel.stopTracker(){
+                            viewModel.requestLogout()
+                        }
                     }) {
                         Text(text = stringResource(id = R.string.ok))
                     }
