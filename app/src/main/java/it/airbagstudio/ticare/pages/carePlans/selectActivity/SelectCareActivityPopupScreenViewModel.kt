@@ -24,8 +24,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
-import kotlin.math.ceil
-import kotlin.math.roundToInt
+
 
 data class SelectCareActivityPopupUIState(
     val isLoading: Boolean,
@@ -179,142 +178,86 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         }
     }
 
-    fun executeAllPlannedActivities(elapsedTimeFromLastActivity : Long?, onSuccess:() -> Unit){
+    fun executeAllPlannedActivities(elapsedTimeFromLastActivity: Long?, onSuccess: () -> Unit) {
         val elapsedTime = elapsedTimeFromLastActivity ?: return
         viewModelScope.launch(coroutineExceptionHandler) {
-            val startTime = Date().time - (elapsedTimeFromLastActivity * 1000 * 60)
+            val startTime = Date().time - (elapsedTime * 1000 * 60)
             launch {
-                plannedActivities.value.filter { ac -> selectedActivityIds.value.contains(ac.id) }.sortedBy { it.duration }.let { activities ->
-                    if (activities.isEmpty()) return@launch
-                    val totalPlannedTime: Double =
-                        (activities.sumOf { it.duration }).toDouble()
-                    var cumulatedExecutionTime = 0
-                    val activitiesToSend = mutableListOf<HomeCareActivitySave>()
-                    val currentTime = Date().time
+                val activities = plannedActivities.value
+                    .filter { selectedActivityIds.value.contains(it.id) }
+                    .sortedBy { it.duration }
+                if (activities.isEmpty()) return@launch
 
-                    for (activity in activities) {
-                        val plannedTime: Double = activity.duration.toDouble()
-                        var executionTime: Int =
-                            if (plannedTime > 0) {
-                                val calculated = ((plannedTime * elapsedTime) / totalPlannedTime).roundToInt()
-                                // Se il calcolo dà 0 ma la duration originale NON è 0, metti 1
-                                if (calculated == 0) 1 else calculated
-                            } else {
-                                // Se la duration originale è 0, la duration calcolata è 0
-                                0
-                            }
-                        cumulatedExecutionTime += executionTime
-                        val activityTime: Long = startTime + (cumulatedExecutionTime.toLong() * 1000 * 60)
-                        
-                        // Controlla se activityTime è nel futuro
-                        if (activityTime > currentTime) {
-                            // Ricalcola la duration per questa attività: tempo disponibile fino ad ora
-                            val previousCumulatedTime = cumulatedExecutionTime - executionTime
-                            val availableTime = ((currentTime - (startTime + (previousCumulatedTime.toLong() * 1000 * 60))) / 60000).toInt()
-                            
-                            val activityToSave = HomeCareActivitySave(
-                                idPlanning = activity.id,
-                                idActivityType = null,
-                                codCase = patientCode.value ?: "",
-                                execDateTime = Date(currentTime).format("yyyy.MM.dd HH:mm"),
-                                duration = availableTime.coerceAtLeast(0),
-                                notes = activity.notes,
-                                showInDiary = false,
-                            )
-                            activitiesToSend.add(activityToSave)
+                val executionTimes = distributeTime(activities.map { it.duration }, elapsedTime)
+                var lastEndTime = startTime
 
-                        }else {
-
-                            val activityToSave = HomeCareActivitySave(
-                                idPlanning = activity.id,
-                                idActivityType = null,
-                                codCase = patientCode.value ?: "",
-                                execDateTime = Date(activityTime).format("yyyy.MM.dd HH:mm"),
-                                duration = executionTime,
-                                notes = activity.notes,
-                                showInDiary = false,
-                            )
-                            activitiesToSend.add(activityToSave)
-                        }
-                    }
-                    
-                    val sortedActivities: MutableList<HomeCareActivitySave> =
-                        activitiesToSend.sortedBy { it.execDateTime }.toMutableList()
-                    
-                    Log.d("sortedActivities", sortedActivities.toString())
-                    sortedActivities.forEach {
-                        saveActivity(it)
-                    }
-                    onSuccess()
+                val activitiesToSend = activities.zip(executionTimes).map { (activity, executionTime) ->
+                    val endTime = lastEndTime + executionTime.toLong() * 60000
+                    lastEndTime = endTime
+                    HomeCareActivitySave(
+                        idPlanning = activity.id,
+                        idActivityType = null,
+                        codCase = patientCode.value ?: "",
+                        execDateTime = Date(endTime).format("yyyy.MM.dd HH:mm"),
+                        duration = executionTime,
+                        notes = activity.notes,
+                        showInDiary = false,
+                    )
                 }
+
+                Log.d("sortedActivities", activitiesToSend.toString())
+                activitiesToSend.sortedBy { it.execDateTime }.forEach { saveActivity(it) }
+                onSuccess()
             }
         }
     }
 
-    fun executeAllUnplannedActivities(elapsedTimeFromLastActivity : Long?, onSuccess:() -> Unit) {
+    fun executeAllUnplannedActivities(elapsedTimeFromLastActivity: Long?, onSuccess: () -> Unit) {
         val elapsedTime = elapsedTimeFromLastActivity ?: return
         viewModelScope.launch(coroutineExceptionHandler) {
-            val startTime = Date().time - (elapsedTimeFromLastActivity * 1000 * 60)
-            notPlannedActivities.value.filter { ac -> selectedActivityIds.value.contains(ac.id) }.sortedBy { it.duration }.let{ activities ->
-                if (activities.isEmpty()) return@launch
+            val startTime = Date().time - (elapsedTime * 1000 * 60)
+            val activities = notPlannedActivities.value
+                .filter { selectedActivityIds.value.contains(it.id) }
+                .sortedBy { it.duration }
+            if (activities.isEmpty()) return@launch
 
-                val totalPlannedTime: Double = (activities.sumOf { it.duration }).toDouble()
-                var cumulatedExecutionTime = 0
-                val activitiesToSend = mutableListOf<HomeCareActivitySave>()
-                val currentTime = Date().time
+            val executionTimes = distributeTime(activities.map { it.duration }, elapsedTime)
+            var lastEndTime = startTime
 
-                for (activity in activities) {
-                    val plannedTime: Double = activity.duration.toDouble()
-                    val executionTime: Int =
-                        if (plannedTime > 0) {
-                            val calculated = ((plannedTime * elapsedTime) / totalPlannedTime).roundToInt()
-                            // Se il calcolo dà 0 ma la duration originale NON è 0, metti 1
-                            if (calculated == 0) 1 else calculated
-                        } else {
-                            // Se la duration originale è 0, la duration calcolata è 0
-                            0
-                        }
-                    cumulatedExecutionTime += executionTime
-                    val activityTime: Long = startTime + (cumulatedExecutionTime.toLong() * 1000 * 60)
-                    
-                    // Controlla se activityTime è nel futuro
-                    if (activityTime > currentTime) {
-                        // Ricalcola la duration per questa attività: tempo disponibile fino ad ora
-                        val previousCumulatedTime = cumulatedExecutionTime - executionTime
-                        val availableTime = ((currentTime - (startTime + (previousCumulatedTime.toLong() * 1000 * 60))) / 60000).toInt()
-                        
-                        val activityToSave = HomeCareActivitySave(
-                            idActivityType = activity.id,
-                            codCase = patientCode.value ?: "",
-                            execDateTime = Date(currentTime).format("yyyy.MM.dd HH:mm"),
-                            duration = availableTime.coerceAtLeast(0),
-                            notes = "",
-                            showInDiary = true,
-                        )
-                        activitiesToSend.add(activityToSave)
-                    } else {
-                        val activityToSave = HomeCareActivitySave(
-
-                            idActivityType = activity.id,
-                            codCase = patientCode.value ?: "",
-                            execDateTime = Date(activityTime).format("yyyy.MM.dd HH:mm"),
-                            duration = executionTime,
-                            notes = "",
-                            showInDiary = true,
-                        )
-                        activitiesToSend.add(activityToSave)
-                    }
-                }
-                
-                val sortedActivities: MutableList<HomeCareActivitySave> = activitiesToSend.sortedBy { it.execDateTime }.toMutableList()
-                
-                Log.d("sortedActivities", sortedActivities.toString())
-                sortedActivities.forEach {
-                    saveActivity(it)
-                }
-                onSuccess()
+            val activitiesToSend = activities.zip(executionTimes).map { (activity, executionTime) ->
+                val endTime = lastEndTime + executionTime.toLong() * 60000
+                lastEndTime = endTime
+                HomeCareActivitySave(
+                    idActivityType = activity.id,
+                    codCase = patientCode.value ?: "",
+                    execDateTime = Date(endTime).format("yyyy.MM.dd HH:mm"),
+                    duration = executionTime,
+                    notes = "",
+                    showInDiary = true,
+                )
             }
+
+            Log.d("sortedActivities", activitiesToSend.toString())
+            activitiesToSend.sortedBy { it.execDateTime }.forEach { saveActivity(it) }
+            onSuccess()
         }
+    }
+
+    private fun distributeTime(durations: List<Int>, elapsedTime: Long): List<Int> {
+        val total = durations.sum().toDouble()
+        if (total == 0.0) return durations.map { 0 }
+
+        val exact = durations.map { it.toDouble() * elapsedTime / total }
+        val floors = exact.map { it.toInt() }
+        val remainder = elapsedTime.toInt() - floors.sum()
+
+        val result = floors.toMutableList()
+        exact.indices
+            .sortedByDescending { exact[it] - floors[it] }
+            .take(remainder)
+            .forEach { result[it]++ }
+
+        return result
     }
 
     suspend fun saveActivity(activity: HomeCareActivitySave){
