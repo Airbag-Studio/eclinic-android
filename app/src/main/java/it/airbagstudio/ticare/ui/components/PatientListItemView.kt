@@ -83,11 +83,12 @@ fun PatientListItemView(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
                     Text(text = "# ${patient.patientCode}",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.outline
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     if (!patient.zoneName.isNullOrEmpty()) {
                         Row() {
                             Text(text = "Zona: ",
@@ -102,7 +103,7 @@ fun PatientListItemView(
                     if (!patient.microZoneName.isNullOrEmpty()) {
                         Row() {
                             Text(
-                                text = "Micro Zona: ",
+                                text = " - ",
                                 style = MaterialTheme.typography.labelSmall,
                             )
                             Text(

@@ -539,12 +539,13 @@ private fun CaseInfoView(imageRequestData: ImageRequestData,patientCode: String,
                         contentDescription = ""
                     )
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
                     Text(
                         text = "# ${patientCode}",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.outline
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     if (!caseDetail.zoneName.isNullOrEmpty()) {
                         Row() {
                             Text(text = "Zona: ",
@@ -559,7 +560,7 @@ private fun CaseInfoView(imageRequestData: ImageRequestData,patientCode: String,
                     if (!caseDetail.microZoneName.isNullOrEmpty()) {
                         Row() {
                             Text(
-                                text = "Micro Zona: ",
+                                text = " - ",
                                 style = MaterialTheme.typography.labelSmall,
                             )
                             Text(
