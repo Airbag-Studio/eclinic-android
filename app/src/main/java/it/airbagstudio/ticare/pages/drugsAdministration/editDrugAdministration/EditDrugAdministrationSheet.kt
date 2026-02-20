@@ -170,8 +170,12 @@ private fun BuildContent(
                     visualTransformation = if (viewModel.quantity.value.isNullOrEmpty()) PlaceholderTransformation(
                         "0.00"
                     ) else VisualTransformation.None,
-                    onValueChange = {
-                        viewModel.setQuantity(it)
+                    onValueChange = { newValue ->
+                        // Accetta solo se passa la validazione
+                        if (newValue.isEmpty() || newValue.replace(',','.').matches(Regex("^[0-9]{0,3}(\\.[0-9]{0,2})?$"))) {
+                            viewModel.setQuantity(newValue)
+                        }
+
                     },
                     label = { Text(text = stringResource(id = R.string.quantity)) },
                     trailingIcon = {
@@ -188,7 +192,7 @@ private fun BuildContent(
                         }
                     }
                 )
-                Spacer(modifier = Modifier.width(24.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 OutlinedTextField(
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
@@ -217,7 +221,7 @@ private fun BuildContent(
                 val duration = if ((viewModel.task.value?.duration
                         ?: 0) > 0
                 ) "${viewModel.task.value?.duration}" else ""
-                Spacer(modifier = Modifier.width(24.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 OutlinedTextField(
                     enabled = viewModel.isEditingEnable.invoke(),
                     keyboardOptions = KeyboardOptions(
