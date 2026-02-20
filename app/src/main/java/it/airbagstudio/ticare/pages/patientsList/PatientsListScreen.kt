@@ -329,7 +329,7 @@ fun PatientListScreen(
                                     .height(56.dp),
                                 value = uiState.selectedMicrozone?.name
                                     ?: stringResource(id = R.string.micro_zones),
-                                isEnabled = uiState.isOnline && !viewModel.isLoading && uiState.selectedZone != null
+                                isEnabled = uiState.isOnline && !viewModel.isLoading && (uiState.selectedZone != null || uiState.userZones.size == 1)
                             ) {
                                 showMicrozonesPopup = true
                             }

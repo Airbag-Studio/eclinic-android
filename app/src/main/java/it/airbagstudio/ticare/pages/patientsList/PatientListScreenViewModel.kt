@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -72,7 +73,6 @@ data class PatientListUiState(
 
 val allDivision = Division(iD = -1, name = "Tutti", iDWarehouse = -1, ordering = -1)
 val allSector = Sector(iD = -1, iDDivision = -1, name = "Tutti", ordering = -1)
-
 @HiltViewModel
 class PatientListScreenViewModel @Inject constructor(
     private val userListRepository: UserListRepository,
@@ -92,7 +92,7 @@ class PatientListScreenViewModel @Inject constructor(
     private var companyName = MutableStateFlow("")
     var errorMessage by mutableStateOf<String?>(null)
     private var zones = userListRepository.getZones()
-    private var userZones = userListRepository.getUserZones()
+    private var userZones = MutableStateFlow<List<Zone>>(listOf())
     private var microzones = userListRepository.getMicrozones()
     private var sectors = userListRepository.getSectors()
     private var divisions = userListRepository.getDivisions()
@@ -110,6 +110,16 @@ class PatientListScreenViewModel @Inject constructor(
         throwable.printStackTrace()
     }
 
+    init {
+        viewModelScope.launch {
+            userListRepository.getUserZones().collect { _userZones ->
+                userZones.value = _userZones
+                if (_userZones.size == 1){
+                    selectedZone.value = _userZones.first()
+                }
+            }
+        }
+    }
     private val caseList = combine(selectedZone,selectedMicroZone,selectedDivision,selectedSector,onlineRepository.state) { selectedZone, selectedMicroZone,selectedDivision,selectedSector, onlineRepositoryState ->
         requestImageRequestData = ImageRequestData(
             authRepository.getBaseURL(),
