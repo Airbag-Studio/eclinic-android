@@ -68,7 +68,7 @@ fun WorkingHoursItemCreate(
                 hours * 60 + minutes
             }
             viewModel.setDuration(duration.toString())
-            viewModel.setDate(employeeWorkingHour.date.toDate("dd.MM.yyyy") ?: Date())
+            viewModel.setDate(employeeWorkingHour.startDateTime.toDate("dd.MM.yyyy HH:mm") ?: Date())
             viewModel.setNotes(employeeWorkingHour.remarks ?: "")
         }
     }
@@ -117,7 +117,7 @@ fun WorkingHoursItemCreate(
                             enabled = employeeWorkingHour != null && uiState.item.editable,
                             modifier = Modifier.weight(1f),
                             date = uiState.item.date,
-                            showTime = false,
+                            showTime = true,
                             label = {
                                 Text(text = stringResource(id = R.string.actual_date))
                             },

@@ -140,7 +140,8 @@ class ConsumptionCreateViewModel @Inject constructor(
                 idItem = selectedArticleId.value!!,
                 quantity = quantity.value.toDoubleOrNull() ?: 0.0,
                 remarks = notes.value,
-                date = date.value.format("yyyy.MM.dd")
+                date = date.value.format("yyyy.MM.dd"),
+                startDateTime = date.value.format("yyyy.MM.dd HH:mm")
 
             )
             if (item.id != null) {

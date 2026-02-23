@@ -125,9 +125,10 @@ fun ConsumptionListScreen(
                             val items = uiState.consumptions.get(it)
 
                             items?.forEach { item ->
+                                val date = item.startDateTime.toDate("dd.MM.yyyy HH:mm")?.format("dd/MM/yyyy HH:mm")  ?: item.date.toDate("dd.MM.yyyy")?.format("dd/MM/yyyy")
                                 TitleDateListItem(
                                     name = item.item,
-                                    date = item.date.toDate("dd.MM.yyyy")?.format("dd/MM/yyyy") ?: ""
+                                    date = date ?: ""
                                 ) {
                                     viewModel.selectedConsumption = item
                                     showCreateDialog = true

@@ -146,7 +146,8 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
                 idType = selectedTypeId.value!!,
                 remarks = notes.value.ifEmpty { null },
                 totalHours = totalHours,
-                date = date.value.format("yyyy.MM.dd")
+                date = date.value.format("yyyy.MM.dd HH:mm"),
+                startDateTime = date.value.format("yyyy.MM.dd HH:mm")
             )
             if (item.id != null) {
                 val res = workingHourRepository.editWorkingHour(item)

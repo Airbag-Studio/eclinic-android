@@ -113,7 +113,7 @@ fun ConsumptionCreateScreen(
                             enabled = uiState.item.editable,
                             modifier = Modifier.weight(1f),
                             date = uiState.item.date,
-                            showTime = false,
+                            showTime = true,
                             label = {
                                 Text(text = stringResource(id = R.string.actual_date))
                             },

@@ -132,7 +132,7 @@ fun WorkingHoursListScreen(
                             items?.forEach { item ->
                                 TitleDateListItem(
                                     name = item.type,
-                                    date = item.date.toDate("dd.MM.yyyy")?.format("dd/MM/yyyy") ?: ""
+                                    date = item.startDateTime.toDate("dd.MM.yyyy HH:mm")?.format("dd/MM/yyyy HH:mm") ?: ""
                                 ) {
                                     viewModel.setSelectedConsumption(item.id)
                                     showCreateDialog = true
