@@ -127,6 +127,6 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3'
 
     // Vico Charts - Aggiornato con AGP 9.0.1, Kotlin 2.2.21, Hilt 2.58
-    implementation 'com.patrykandpatrick.vico:compose-m3:2.4.2'
+    implementation 'com.patrykandpatrick.vico:compose-m3:3.0.0'
 
 }
