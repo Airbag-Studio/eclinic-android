@@ -2,6 +2,7 @@ package it.airbagstudio.ticare.pages.vitalParameters.charts.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,11 +11,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ShowChart
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -56,6 +66,8 @@ fun VitalSignChart(
     config: VitalSignChartConfig,
     modifier: Modifier = Modifier
 ) {
+    var showFullscreen by remember { mutableStateOf(false) }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -70,37 +82,116 @@ fun VitalSignChart(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Chart Title
-            Text(
-                text = config.title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            // Chart Title with fullscreen button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = config.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    // Y-axis unit label
+                    if (config.yAxisLabel.isNotEmpty()) {
+                        Text(
+                            text = config.yAxisLabel,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
 
-            // Y-axis unit label
-            if (config.yAxisLabel.isNotEmpty()) {
-                Text(
-                    text = config.yAxisLabel,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                IconButton(onClick = { showFullscreen = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Fullscreen,
+                        contentDescription = "Fullscreen",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Render chart
-            VicoLineChart(config = config)
+            VicoLineChart(config = config, isFullscreen = false)
+        }
+    }
+
+    // Fullscreen dialog
+    if (showFullscreen) {
+        Dialog(
+            onDismissRequest = { showFullscreen = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    // Header with close button
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = config.title,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            if (config.yAxisLabel.isNotEmpty()) {
+                                Text(
+                                    text = config.yAxisLabel,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        IconButton(onClick = { showFullscreen = false }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Close",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Fullscreen chart with zoom and scroll enabled
+                    VicoLineChart(
+                        config = config,
+                        isFullscreen = true,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
         }
     }
 }
 
 /**
  * Renders the line chart using Vico 3.0.0 API
- * TODO: Add area fill gradient - requires investigation of Vico 3.0.0 API
+ * @param config Chart configuration
+ * @param isFullscreen Whether the chart is in fullscreen mode (enables zoom/scroll)
+ * @param modifier Optional modifier
  */
 @Composable
 private fun VicoLineChart(
-    config: VitalSignChartConfig
+    config: VitalSignChartConfig,
+    isFullscreen: Boolean = false,
+    modifier: Modifier = Modifier
 ) {
     val modelProducer = remember { CartesianChartModelProducer() }
 
@@ -168,14 +259,18 @@ private fun VicoLineChart(
             }
         },
         modelProducer = modelProducer,
-        scrollState = rememberVicoScrollState(scrollEnabled = false),
+        scrollState = rememberVicoScrollState(scrollEnabled = isFullscreen),
         zoomState = rememberVicoZoomState(
-            zoomEnabled = false,
+            zoomEnabled = isFullscreen,
             initialZoom = Zoom.Content
         ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp)
+        modifier = if (isFullscreen) {
+            modifier
+        } else {
+            Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+        }
     )
 }
 
