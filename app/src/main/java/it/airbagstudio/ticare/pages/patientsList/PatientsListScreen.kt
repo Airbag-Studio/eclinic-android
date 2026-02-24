@@ -34,7 +34,9 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -127,13 +129,12 @@ fun PatientListScreen(
 
     val isOfflineDataSheetVisible =
         !uiState.isOnline || (uiState.downloadCount > 0 && uiState.expireDate != null)
-    val sheetState = rememberModalBottomSheetState()
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState()
+    )
 
     BottomSheetScaffold(
-        scaffoldState = BottomSheetScaffoldState(
-            sheetState,
-            snackbarHostState = snackbarHostState
-        ),
+        scaffoldState = scaffoldState,
         modifier = Modifier.consumeWindowInsets(
             WindowInsets.systemBars.only(WindowInsetsSides.Vertical)
         ),
@@ -160,7 +161,7 @@ fun PatientListScreen(
                 expireDate = uiState.expireDate
             ) {
                 scope.launch {
-                    sheetState.partialExpand()
+                    scaffoldState.bottomSheetState.partialExpand()
                 }
                 if (uiState.isOnline) {
                     viewModel.setOffline()

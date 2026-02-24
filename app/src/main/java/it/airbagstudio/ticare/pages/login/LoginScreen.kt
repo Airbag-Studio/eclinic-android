@@ -153,10 +153,10 @@ fun LoginScreen(
 
                 OutlinedTextField(
 
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = TextFieldDefaults.colors(
                         disabledTextColor = MaterialTheme.colorScheme.onSurface,
                         disabledLabelColor = MaterialTheme.colorScheme.onSurface,
-                        disabledBorderColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContainerColor = MaterialTheme.colorScheme.surface,
                     ),
                     enabled = false,
                     trailingIcon = {

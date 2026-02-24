@@ -12,6 +12,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -23,7 +24,10 @@ import ch.ticare.eclinic.library.entity.TaskType
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TypeSelectScreen(taskTypes: List<TaskType>, onSelectItem: (TaskType?) -> Unit) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { true }
+    )
     val configuration = LocalConfiguration.current
 
     val screenHeight = configuration.screenHeightDp - 130
