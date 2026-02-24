@@ -12,30 +12,31 @@ import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_ID
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_NAME
 import it.airbagstudio.ticare.navigation.DestinationsArgs.SHIFT_START
 import it.airbagstudio.ticare.navigation.DestinationsArgs.TASK_TYPE
-import it.airbagstudio.ticare.navigation.Screens.CARE_PLANS_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.CARE_PLAN_DETAILS_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.CHECK_DETAILS_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.CONSUMPTION_LIST_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.COURSES_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.DIARY_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.DRUG_ADMINISTRATION_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.LOGIN_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.NURSING_COURSES_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.OTHER_SERVICE_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.PATIENTS_LIST_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.PATIENT_ALERT_ALLERGIES_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.PATIENT_DETAILS_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.PATIENT_INFO_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.SETTINGS_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.SPLASH_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.TASKS_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.VITAL_PARAMETERS_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.WORKING_HOURS_LIST_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.WOUNDS_SCREEN
-import it.airbagstudio.ticare.navigation.Screens.WOUND_DETAILS_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.CARE_PLANS_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.CARE_PLAN_DETAILS_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.CHECK_DETAILS_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.CONSUMPTION_LIST_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.COURSES_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.DIARY_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.DRUG_ADMINISTRATION_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.LOGIN_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.NURSING_COURSES_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.OTHER_SERVICE_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.PATIENTS_LIST_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.PATIENT_ALERT_ALLERGIES_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.PATIENT_DETAILS_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.PATIENT_INFO_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.SETTINGS_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.SPLASH_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.TASKS_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.VITAL_PARAMETERS_CHARTS_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.VITAL_PARAMETERS_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.WORKING_HOURS_LIST_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.WOUNDS_SCREEN
+import it.airbagstudio.ticare.navigation.ScreensKeys.WOUND_DETAILS_SCREEN
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.navigation.AppDestinations
 
-private object Screens{
+object ScreensKeys{
     const val SPLASH_SCREEN = "splashScreen"
     const val LOGIN_SCREEN = "loginScreen"
     const val PATIENTS_LIST_SCREEN = "patientsListScreen"
@@ -57,6 +58,7 @@ private object Screens{
     const val WORKING_HOURS_LIST_SCREEN = "workingHoursListScreen"
     const val COURSES_SCREEN = "coursesScreen"
     const val TASKS_SCREEN = "tasksScreen"
+    const val VITAL_PARAMETERS_CHARTS_SCREEN = "vitalSignsChartsScreen"
 }
 
 object DestinationsArgs{
@@ -97,6 +99,7 @@ object Destinations{
     const val WORKING_HOURS_LIST_ROUTE = WORKING_HOURS_LIST_SCREEN
     const val COURSES_ROUTE = "$COURSES_SCREEN/{$PATIENT_COD}/{$COURSE_TYPE}"
     const val TASKS_ROUTE = "$TASKS_SCREEN/{$PATIENT_COD}/{$TASK_TYPE}/{$SHIFT_ID}"
+    const val VITAL_PARAMETERS_CHARTS_ROUTE = "$VITAL_PARAMETERS_CHARTS_SCREEN/{$PATIENT_COD}"
 }
 
 class NavigationActions(private val navController: NavController){
@@ -131,6 +134,10 @@ class NavigationActions(private val navController: NavController){
 
     fun navigateToVitalParameters(patientCod: String){
         navController.navigate("$VITAL_PARAMETERS_SCREEN/$patientCod")
+    }
+
+    fun navigateToVitalParametersCharts(patientCod: String) {
+        navController.navigate("$VITAL_PARAMETERS_CHARTS_SCREEN/$patientCod")
     }
 
     fun navigateToDiary(patientCod: String){
@@ -186,6 +193,5 @@ class NavigationActions(private val navController: NavController){
 
     fun navigateToFormsHome() {
         navController.navigate(AppDestinations.HOME_ROUTE)
-
     }
 }

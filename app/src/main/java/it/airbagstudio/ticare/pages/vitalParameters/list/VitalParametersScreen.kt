@@ -1,7 +1,9 @@
 package it.airbagstudio.ticare.pages.vitalParameters.list
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,11 +27,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.otherTreatments.search.TreatmentSearch
 import it.airbagstudio.ticare.pages.vitalParameters.create.CreateNewVitalParameterSheet
 import it.airbagstudio.ticare.pages.vitalParameters.search.VitalParameterSearchScreen
@@ -42,6 +47,7 @@ import it.airbagstudio.ticare.utils.getCompleteName
 @Composable
 fun VitalParametersScreen(
     viewModel: VitalParametersScreenViewModel = hiltViewModel(),
+    navigationActions: NavigationActions,
     onBack: () -> Unit
 ){
 
@@ -90,6 +96,12 @@ fun VitalParametersScreen(
                 date = uiState.date?.format("dd/MM/yyyy") ?: "",
                 shiftName = uiState.shift?.name ?: stringResource(id = R.string.all)
             )
+            TextButton({
+                navigationActions.navigateToVitalParametersCharts(patientCod = Uri.encode(viewModel.patientCod))
+
+            }) {
+                Text("grafici")
+            }
             LazyColumn(
                 contentPadding = PaddingValues(bottom = 124.dp),
                 content = {
