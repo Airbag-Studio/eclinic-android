@@ -25,14 +25,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import android.content.pm.ActivityInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.activity.ComponentActivity
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.CartesianMeasuringContext
 import com.patrykandpatrick.vico.compose.cartesian.Zoom
@@ -66,7 +71,7 @@ fun VitalSignChart(
     config: VitalSignChartConfig,
     modifier: Modifier = Modifier
 ) {
-    var showFullscreen by remember { mutableStateOf(false) }
+    var showFullscreen by rememberSaveable { mutableStateOf(false) }
 
     Card(
         modifier = modifier
@@ -121,6 +126,20 @@ fun VitalSignChart(
 
     // Fullscreen dialog
     if (showFullscreen) {
+        val context = LocalContext.current
+        val activity = context as? ComponentActivity
+
+        // Change orientation to sensor when fullscreen is shown
+        DisposableEffect(Unit) {
+            val originalOrientation = activity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR
+
+            onDispose {
+                // Restore original orientation when dialog is dismissed
+                activity?.requestedOrientation = originalOrientation
+            }
+        }
+
         Dialog(
             onDismissRequest = { showFullscreen = false },
             properties = DialogProperties(usePlatformDefaultWidth = false)
