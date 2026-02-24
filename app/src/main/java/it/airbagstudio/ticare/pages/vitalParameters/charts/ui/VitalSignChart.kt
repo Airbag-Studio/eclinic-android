@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ShowChart
-import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -26,14 +25,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.CartesianMeasuringContext
+import com.patrykandpatrick.vico.compose.cartesian.Zoom
 import com.patrykandpatrick.vico.compose.cartesian.axis.Axis
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.compose.cartesian.data.lineSeries
+import com.patrykandpatrick.vico.compose.cartesian.rememberVicoScrollState
+import com.patrykandpatrick.vico.compose.cartesian.rememberVicoZoomState
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartDataPoint
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartLineSeries
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartType
@@ -117,10 +120,21 @@ private fun VicoLineChart(
         }
     }
 
+    // Calculate Y-axis range provider
+    val rangeProvider = if (config.yAxisRange != null) {
+        CartesianLayerRangeProvider.fixed(
+            minY = config.yAxisRange.start.toDouble(),
+            maxY = config.yAxisRange.endInclusive.toDouble()
+        )
+    } else {
+        CartesianLayerRangeProvider.auto()
+    }
+
     CartesianChartHost(
         chart = rememberCartesianChart(
-            rememberLineCartesianLayer(),
-
+            rememberLineCartesianLayer(
+                rangeProvider = rangeProvider
+            ),
             startAxis = if (config.showYAxisLabels) {
                 VerticalAxis.rememberStart()
             } else null,
@@ -147,13 +161,18 @@ private fun VicoLineChart(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.ShowChart, contentDescription = null, modifier = Modifier.size(40.dp))
+                    Icon(Icons.AutoMirrored.Filled.ShowChart, contentDescription = null, modifier = Modifier.size(40.dp))
                     Spacer(Modifier.height(8.dp))
                     Text("Nessun dato disponibile")
                 }
             }
         },
         modelProducer = modelProducer,
+        scrollState = rememberVicoScrollState(scrollEnabled = false),
+        zoomState = rememberVicoZoomState(
+            zoomEnabled = false,
+            initialZoom = Zoom.Content
+        ),
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
