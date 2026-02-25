@@ -38,7 +38,7 @@ import java.util.Locale
 
 private val DATE_COLUMN_WIDTH = 100.dp
 private val PARAM_COLUMN_WIDTH = 120.dp
-private val MIN_CELL_HEIGHT = 55.dp
+private val MIN_CELL_HEIGHT = 60.dp
 
 /**
  * Main table component for displaying vital signs data
@@ -137,7 +137,7 @@ private fun TableDataRow(
             Text(
                 text = row.date,
                 modifier = Modifier.padding(8.dp),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
             )
@@ -175,8 +175,8 @@ private fun TableHeaderCell(text: String, width: androidx.compose.ui.unit.Dp) {
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(8.dp),
-            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(horizontal = 4.dp),
+            style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
