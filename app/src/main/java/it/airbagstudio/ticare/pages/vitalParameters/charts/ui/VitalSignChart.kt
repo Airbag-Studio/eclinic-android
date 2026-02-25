@@ -52,6 +52,10 @@ import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.compose.cartesian.data.lineSeries
 import com.patrykandpatrick.vico.compose.cartesian.rememberVicoScrollState
 import com.patrykandpatrick.vico.compose.cartesian.rememberVicoZoomState
+import com.patrykandpatrick.vico.compose.cartesian.decoration.HorizontalBox
+import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
+import com.patrykandpatrick.vico.compose.common.Fill
+import androidx.compose.runtime.remember
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartDataPoint
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartLineSeries
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartType
@@ -240,6 +244,19 @@ private fun VicoLineChart(
         CartesianLayerRangeProvider.auto()
     }
 
+    // Create decorations for normal range (min-max area)
+    val decorations = config.series.mapNotNull { series ->
+        if (series.min != null && series.max != null) {
+            val boxComponent = rememberShapeComponent(
+                fill = Fill(series.color.copy(alpha = 0.15f))
+            )
+            HorizontalBox(
+                y = { series.min.toDouble()..series.max.toDouble() },
+                box = boxComponent
+            )
+        } else null
+    }
+
     CartesianChartHost(
         chart = rememberCartesianChart(
             rememberLineCartesianLayer(
@@ -263,7 +280,8 @@ private fun VicoLineChart(
                         }
                     }
                 )
-            } else null
+            } else null,
+            decorations = decorations
         ),
         placeholder = {
             Box(
@@ -311,13 +329,17 @@ private fun PreviewEmptyLineChart() {
                     seriesId = "weight",
                     label = "Peso",
                     dataPoints = dataPoints,
-                    color = Color(0xFF2196F3)
+                    color = Color(0xFF2196F3),
+                    max = null,
+                    min = null
                 ),
                 ChartLineSeries(
                     seriesId = "weight",
                     label = "Peso",
                     dataPoints = dataPoints,
-                    color = Color(0xFF2196F3)
+                    color = Color(0xFF2196F3),
+                    max = null,
+                    min = null
                 )
             ),
             yAxisLabel = "kg",
@@ -353,7 +375,9 @@ private fun PreviewSingleLineChart() {
                     seriesId = "weight",
                     label = "Peso",
                     dataPoints = dataPoints,
-                    color = Color(0xFF2196F3)
+                    color = Color(0xFF2196F3),
+                    max = 75f,
+                    min = 65f
                 )
             ),
             yAxisLabel = "kg",
@@ -400,13 +424,17 @@ private fun PreviewDualLineChart() {
                     seriesId = "systolic",
                     label = "Sistolica",
                     dataPoints = systolicData,
-                    color = Color(0xFFF44336)
+                    color = Color(0xFFF44336),
+                    max = 140f,
+                    min = 105f
                 ),
                 ChartLineSeries(
                     seriesId = "diastolic",
                     label = "Diastolica",
                     dataPoints = diastolicData,
-                    color = Color(0xFF2196F3)
+                    color = Color(0xFF2196F3),
+                    max = 90f,
+                    min = 70f
                 )
             ),
             yAxisLabel = "mmHg",
@@ -458,19 +486,25 @@ private fun PreviewMultiLineChart() {
                     seriesId = "temperature",
                     label = "Temperatura",
                     dataPoints = tempData,
-                    color = Color(0xFFFF9800)
+                    color = Color(0xFFFF9800),
+                    max = 37.5f,
+                    min = 36.0f
                 ),
                 ChartLineSeries(
                     seriesId = "heartRate",
                     label = "Battito Cardiaco",
                     dataPoints = heartRateData,
-                    color = Color(0xFFE91E63)
+                    color = Color(0xFFE91E63),
+                    max = 100f,
+                    min = 60f
                 ),
                 ChartLineSeries(
                     seriesId = "saturation",
                     label = "Saturazione",
                     dataPoints = saturationData,
-                    color = Color(0xFF4CAF50)
+                    color = Color(0xFF4CAF50),
+                    max = 100f,
+                    min = 95f
                 )
             ),
             yAxisLabel = "Valori",
@@ -502,7 +536,9 @@ private fun PreviewMinimalData() {
                     seriesId = "saturation",
                     label = "SpO2",
                     dataPoints = dataPoints,
-                    color = Color(0xFF00BCD4)
+                    color = Color(0xFF00BCD4),
+                    max = 100f,
+                    min = 95f
                 )
             ),
             yAxisLabel = "%"
@@ -536,7 +572,9 @@ private fun PreviewNoAxisLabels() {
                     seriesId = "temperature",
                     label = "Temperatura",
                     dataPoints = dataPoints,
-                    color = Color(0xFFFF5722)
+                    color = Color(0xFFFF5722),
+                    max = 37.5f,
+                    min = 36.0f
                 )
             ),
             yAxisLabel = "°C",

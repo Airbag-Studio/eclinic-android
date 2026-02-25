@@ -20,7 +20,9 @@ data class ChartLineSeries(
     val label: String,                       // Display name (e.g., "Sistolica", "Diastolica")
     val dataPoints: List<ChartDataPoint>,    // Sorted by timestamp
     val color: Color,                        // Line color
-    val showGradient: Boolean = true         // Whether to show gradient fill
+    val showGradient: Boolean = true,         // Whether to show gradient fill
+    val max: Float?,
+    val min: Float?
 )
 
 /**

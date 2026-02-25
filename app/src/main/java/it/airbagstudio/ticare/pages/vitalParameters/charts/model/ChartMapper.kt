@@ -85,7 +85,9 @@ object ChartMapper {
             label = vitalSignType.muSymbol ?: "",
             dataPoints = dataPoints,
             color = typeColors[vitalSignType.id] ?: md_theme_light_primary,
-            showGradient = true
+            showGradient = true,
+            max = vitalSignType.max.toFloat(),
+            min = vitalSignType.min.toFloat()
         )
 
         return VitalSignChartConfig(
@@ -116,16 +118,20 @@ object ChartMapper {
             seriesId = "systolic",
             label = "Sistolica",
             dataPoints = systolicPoints,
-            color = typeColors[vitalSignType.id] ?: Color.Red,
-            showGradient = true
+            color = Color.Red,
+            showGradient = true,
+            max = 90f,
+            min = 60f
         )
 
         val diastolicSeries = ChartLineSeries(
             seriesId = "diastolic",
             label = "Diastolica",
             dataPoints = diastolicPoints,
-            color = typeColors[vitalSignType.id] ?: Color.Blue,
-            showGradient = true
+            color = Color.Blue,
+            showGradient = true,
+            max = 160f,
+            min = 105f
         )
 
         return VitalSignChartConfig(
