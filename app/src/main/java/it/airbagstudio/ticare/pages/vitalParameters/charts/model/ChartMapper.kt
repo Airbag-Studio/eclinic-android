@@ -44,7 +44,7 @@ object ChartMapper {
         // Process based on order defined in chartsTypesOrder
         response.chartsTypesOrder.forEach { typeId ->
             vitalSignTypes.firstOrNull { it.id == typeId }?.let { vitalSignType ->
-                val dataForType = chartDataMap[typeId] ?: listOf()
+                val dataForType = chartDataMap[typeId] ?: return@forEach
 
                 // Check if this is a dual-line chart (e.g., blood pressure)
                 if (isDualLineType(typeId)) {
