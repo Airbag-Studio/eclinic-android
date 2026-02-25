@@ -135,9 +135,12 @@ fun PatientListScreen(
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
+        /*
         modifier = Modifier.consumeWindowInsets(
             WindowInsets.systemBars.only(WindowInsetsSides.Vertical)
         ),
+
+         */
         topBar = {
             ToolbarWithSyncAndSettings(
                 companyName = uiState.companyName,
