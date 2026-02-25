@@ -44,6 +44,7 @@ import com.patrykandpatrick.vico.compose.cartesian.Zoom
 import com.patrykandpatrick.vico.compose.cartesian.axis.Axis
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
+import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
@@ -56,6 +57,7 @@ import com.patrykandpatrick.vico.compose.cartesian.decoration.HorizontalBox
 import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
 import com.patrykandpatrick.vico.compose.common.Fill
 import androidx.compose.runtime.remember
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartDataPoint
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartLineSeries
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartType
@@ -260,7 +262,16 @@ private fun VicoLineChart(
     CartesianChartHost(
         chart = rememberCartesianChart(
             rememberLineCartesianLayer(
-                rangeProvider = rangeProvider
+                rangeProvider = rangeProvider,
+                lineProvider = remember(config.series) {
+                    LineCartesianLayer.LineProvider.series(
+                        config.series.map { series ->
+                            LineCartesianLayer.Line(
+                                fill = LineCartesianLayer.LineFill.single(Fill(series.color))
+                            )
+                        }
+                    )
+                }
             ),
             startAxis = if (config.showYAxisLabels) {
                 VerticalAxis.rememberStart()
