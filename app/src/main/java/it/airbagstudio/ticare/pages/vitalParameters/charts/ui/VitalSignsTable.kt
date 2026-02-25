@@ -34,6 +34,7 @@ import it.airbagstudio.ticare.pages.vitalParameters.charts.model.TableColumn
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.TableRow
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.VitalSignsTableData
 import java.util.Date
+import java.util.Locale
 
 private val DATE_COLUMN_WIDTH = 100.dp
 private val PARAM_COLUMN_WIDTH = 120.dp
@@ -61,6 +62,7 @@ fun VitalSignsTable(
 
         // Data rows
         LazyColumn(
+            modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
             items(tableData.rows) { row ->
@@ -249,7 +251,7 @@ private fun VitalSignsTablePreview() {
     }
 }
 /**
- * Creates sample data for preview
+ * Creates sample data for preview with many rows to test scrolling
  */
 private fun createSampleTableData(): VitalSignsTableData {
     // Define columns
@@ -280,85 +282,64 @@ private fun createSampleTableData(): VitalSignsTableData {
         )
     )
 
-    // Create sample dates
-    val date1 = Date(System.currentTimeMillis())
-    val date2 = Date(System.currentTimeMillis() - 86400000L) // 1 day ago
-    val date3 = Date(System.currentTimeMillis() - 172800000L) // 2 days ago
+    // Generate many rows to test vertical scrolling (25 days of data)
+    val rows = mutableListOf<TableRow>()
+    val baseTime = System.currentTimeMillis()
 
-    // Create rows
-    val rows = listOf(
-        // Row 1 - Most recent, with multiple measurements same day
-        TableRow(
-            date = "25.02.2026",
-            dateObj = date1,
-            cells = mapOf(
-                "1" to TableCell(
-                    listOf(
-                        MeasurementEntry("08:30", "75.2", date1.time),
-                        MeasurementEntry("18:45", "75.8", date1.time + 37200000)
-                    )
-                ),
-                "blood_pressure" to TableCell(
-                    listOf(
-                        MeasurementEntry("08:30", "120/80", date1.time),
-                        MeasurementEntry("18:45", "125/82", date1.time + 37200000)
-                    )
-                ),
-                "3" to TableCell(
-                    listOf(
-                        MeasurementEntry("08:30", "98", date1.time)
-                    )
-                ),
-                "4" to TableCell(emptyList()) // Empty cell
-            )
-        ),
-        // Row 2 - Single measurements
-        TableRow(
-            date = "24.02.2026",
-            dateObj = date2,
-            cells = mapOf(
-                "1" to TableCell(
-                    listOf(
-                        MeasurementEntry("11:15", "75.5", date2.time)
-                    )
-                ),
-                "blood_pressure" to TableCell(
-                    listOf(
-                        MeasurementEntry("11:15", "118/78", date2.time)
-                    )
-                ),
-                "3" to TableCell(
-                    listOf(
-                        MeasurementEntry("11:15", "97", date2.time)
-                    )
-                ),
-                "4" to TableCell(
-                    listOf(
-                        MeasurementEntry("11:15", "36.5", date2.time)
-                    )
-                )
-            )
-        ),
-        // Row 3 - Some missing values
-        TableRow(
-            date = "23.02.2026",
-            dateObj = date3,
-            cells = mapOf(
-                "1" to TableCell(emptyList()),
-                "blood_pressure" to TableCell(
-                    listOf(
-                        MeasurementEntry("10:00", "122/79", date3.time)
-                    )
-                ),
-                "3" to TableCell(emptyList()),
-                "4" to TableCell(
-                    listOf(
-                        MeasurementEntry("10:00", "36.8", date3.time)
+    for (dayOffset in 0 until 25) {
+        val date = Date(baseTime - (dayOffset * 86400000L))
+        val day = 25 - dayOffset
+        val month = 2
+        val dateString = String.format(Locale.getDefault(), "%02d.%02d.2026", day, month)
+
+        // Vary data to make it more realistic
+        val hasMultipleMeasurements = dayOffset % 3 == 0
+        val hasMissingValues = dayOffset % 5 == 0
+
+        val weight = 74.5f + (dayOffset * 0.1f)
+        val systolic = 118 + (dayOffset % 10)
+        val diastolic = 76 + (dayOffset % 6)
+        val saturation = 96 + (dayOffset % 4)
+        val temperature = 36.4f + ((dayOffset % 8) * 0.1f)
+
+        rows.add(
+            TableRow(
+                date = dateString,
+                dateObj = date,
+                cells = mapOf(
+                    "1" to TableCell(
+                        if (hasMultipleMeasurements) listOf(
+                            MeasurementEntry("08:30", "%.1f".format(weight), date.time),
+                            MeasurementEntry("18:00", "%.1f".format(weight + 0.3f), date.time + 34200000)
+                        ) else if (!hasMissingValues) listOf(
+                            MeasurementEntry("10:00", "%.1f".format(weight), date.time)
+                        ) else emptyList()
+                    ),
+                    "blood_pressure" to TableCell(
+                        if (hasMultipleMeasurements) listOf(
+                            MeasurementEntry("08:30", "$systolic/$diastolic", date.time),
+                            MeasurementEntry("18:00", "${systolic + 5}/${diastolic + 2}", date.time + 34200000)
+                        ) else listOf(
+                            MeasurementEntry("10:00", "$systolic/$diastolic", date.time)
+                        )
+                    ),
+                    "3" to TableCell(
+                        if (!hasMissingValues) listOf(
+                            MeasurementEntry("10:00", "$saturation", date.time)
+                        ) else emptyList()
+                    ),
+                    "4" to TableCell(
+                        if (hasMultipleMeasurements) listOf(
+                            MeasurementEntry("08:30", "%.1f".format(temperature), date.time),
+                            MeasurementEntry("18:00", "%.1f".format(temperature + 0.2f), date.time + 34200000)
+                        ) else if (dayOffset % 4 != 0) listOf(
+                            MeasurementEntry("10:00", "%.1f".format(temperature), date.time)
+                        ) else emptyList()
                     )
                 )
             )
         )
-    )
+    }
 
     return VitalSignsTableData(columns = columns, rows = rows)
 }
