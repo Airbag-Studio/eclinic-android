@@ -125,7 +125,7 @@ fun AppTheme(
     SideEffect {
         val window = (view.context as Activity).window
         window.statusBarColor = seed.toArgb()
-        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
     }
   }
     val currentFormColors = if (darkTheme) {
