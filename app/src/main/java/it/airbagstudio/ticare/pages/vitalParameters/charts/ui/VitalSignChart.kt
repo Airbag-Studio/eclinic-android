@@ -264,6 +264,25 @@ private fun VicoLineChart(
         }
     }
 
+    // Calculate Y-axis range from actual data points
+    val dataValues = config.series.flatMap { it.dataPoints }.map { it.value }
+    val dataMin = dataValues.minOrNull() ?: 0f
+    val dataMax = dataValues.maxOrNull() ?: 100f
+
+    // Also consider min/max from series (used for HorizontalBox decoration)
+    val seriesMin = config.series.mapNotNull { it.min }.minOrNull()
+    val seriesMax = config.series.mapNotNull { it.max }.maxOrNull()
+
+    // Use the most extreme values between data and decoration range
+    val overallMin = listOfNotNull(dataMin, seriesMin).minOrNull() ?: 0f
+    val overallMax = listOfNotNull(dataMax, seriesMax).maxOrNull() ?: 100f
+
+    // Add 10% padding
+    val range = overallMax - overallMin
+    val padding = range * 0.1f
+    val calculatedMinY = (overallMin - padding).coerceAtLeast(0f)
+    val calculatedMaxY = overallMax + padding
+
     // Calculate Y-axis range provider
     val rangeProvider = if (config.yAxisRange != null) {
         CartesianLayerRangeProvider.fixed(
@@ -271,7 +290,10 @@ private fun VicoLineChart(
             maxY = config.yAxisRange.endInclusive.toDouble()
         )
     } else {
-        CartesianLayerRangeProvider.auto()
+        CartesianLayerRangeProvider.fixed(
+            minY = calculatedMinY.toDouble(),
+            maxY = calculatedMaxY.toDouble()
+        )
     }
 
     // Create decorations for normal range (min-max area)

@@ -140,7 +140,7 @@ object ChartMapper {
             chartType = ChartType.DualLine(fillBetweenLines = true),
             series = listOf(systolicSeries, diastolicSeries),
             yAxisLabel = vitalSignType.muSymbol,
-            yAxisRange = 60f..160f
+            yAxisRange = null
         )
     }
 
