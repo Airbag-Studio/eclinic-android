@@ -40,6 +40,7 @@ import it.airbagstudio.ticare.pages.vitalParameters.charts.model.DateFilterOptio
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.TableMapper
 import it.airbagstudio.ticare.pages.vitalParameters.charts.ui.VitalSignChart
 import it.airbagstudio.ticare.pages.vitalParameters.charts.ui.VitalSignsTable
+import it.airbagstudio.ticare.ui.components.ToolbarWithBack
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
 import it.airbagstudio.ticare.utils.copy
 import it.airbagstudio.ticare.utils.getCompleteName
@@ -88,7 +89,7 @@ fun VitalParamsChartsView(
     Scaffold(
         topBar = {
             if (showTopBar) {
-                ToolbarWithBackAndSync(title = viewModel.case?.getCompleteName() ?: "") {
+                ToolbarWithBack(title = viewModel.case?.getCompleteName() ?: "") {
                     onBack()
                 }
             }
