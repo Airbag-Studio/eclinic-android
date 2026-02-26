@@ -214,14 +214,30 @@ private fun VicoLineChart(
 ) {
     val modelProducer = remember { CartesianChartModelProducer() }
 
-    // Convert chart data to Vico model
-    LaunchedEffect(config) {
+    // Collect all unique dates sorted by time and create index mapping
+    val allDates = remember(config) {
+        config.series
+            .flatMap { it.dataPoints }
+            .map { it.dateTime }
+            .distinctBy { it.time }
+            .sortedBy { it.time }
+    }
+
+    val indexToDate = remember(allDates) {
+        allDates.mapIndexed { index, date -> index to date }.toMap()
+    }
+
+    // Convert chart data to Vico model using indices instead of timestamps
+    LaunchedEffect(config, allDates) {
         if (config.series.flatMap { it.dataPoints }.isNotEmpty()) {
             modelProducer.runTransaction {
                 lineSeries {
                     config.series.filter { it.dataPoints.isNotEmpty() }.forEach { chartSeries ->
                         series(
-                            x = chartSeries.dataPoints.map { it.timestamp.toDouble() },
+                            x = chartSeries.dataPoints.map { point ->
+                                // Find the index corresponding to this date
+                                allDates.indexOfFirst { it.time == point.dateTime.time }.toDouble()
+                            },
                             y = chartSeries.dataPoints.map { it.value.toDouble() }
                         )
                     }
@@ -272,21 +288,16 @@ private fun VicoLineChart(
             } else null,
             bottomAxis = if (config.showXAxisLabels) {
                 HorizontalAxis.rememberBottom(
-                    valueFormatter = remember(config) {
+                    valueFormatter = remember(indexToDate) {
                         CartesianValueFormatter { _: CartesianMeasuringContext, value: Double, _: Axis.Position.Vertical? ->
-                            val timestamp = value.toLong()
-                            // Find closest data point from first series to format date
-                            val closestDate = config.series.filter { it.dataPoints.isNotEmpty() }.firstOrNull()
-                                ?.dataPoints
-                                ?.minByOrNull { kotlin.math.abs(it.timestamp - timestamp) }
-                                ?.dateTime
-
-                            closestDate?.format("dd/MM") ?: "no data"
+                            val index = value.toInt()
+                            indexToDate[index]?.format("dd/MM") ?: ""
                         }
                     }
                 )
             } else null,
-            decorations = decorations
+            decorations = decorations,
+            getXStep = { 1.0 }  // Show label at each data point index
         ),
         placeholder = {
             Box(
