@@ -141,9 +141,6 @@ fun VitalSignChart(
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Render chart
             VicoLineChart(config = config, isFullscreen = false)
         }
