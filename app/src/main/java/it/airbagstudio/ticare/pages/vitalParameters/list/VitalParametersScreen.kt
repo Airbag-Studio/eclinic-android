@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -32,6 +35,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.patrykandpatrick.vico.compose.cartesian.marker.ColumnCartesianLayerMarkerTarget
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.otherTreatments.search.TreatmentSearch
@@ -91,17 +96,35 @@ fun VitalParametersScreen(
             Modifier
                 .padding(values)
         ) {
-            BuildPageHeader(
-                title = viewModel.title,
-                date = uiState.date?.format("dd/MM/yyyy") ?: "",
-                shiftName = uiState.shift?.name ?: stringResource(id = R.string.all)
-            )
-            TextButton({
-                navigationActions.navigateToVitalParametersCharts(patientCod = Uri.encode(viewModel.patientCod))
+            Row(modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)) {
+                Column() {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = viewModel.title,
+                    style = MaterialTheme.typography.headlineSmall
 
-            }) {
-                Text("grafici")
+                )
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = "${uiState.date?.format("dd/MM/yyyy")} - ${uiState.shift?.name ?: stringResource(id = R.string.all)}",
+                    style = MaterialTheme.typography.labelMedium
+                )
+                }
+                Spacer(Modifier.weight(1f))
+                Button(
+                    shape = RoundedCornerShape(8.dp),
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    onClick = {
+                    navigationActions.navigateToVitalParametersCharts(patientCod = Uri.encode(viewModel.patientCod))
+
+                }) {
+                    Text("Grafici")
+                }
             }
+            HorizontalDivider()
             LazyColumn(
                 contentPadding = PaddingValues(bottom = 124.dp),
                 content = {
