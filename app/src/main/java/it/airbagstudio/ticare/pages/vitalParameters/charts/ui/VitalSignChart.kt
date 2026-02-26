@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.CartesianMeasuringContext
 import com.patrykandpatrick.vico.compose.cartesian.Zoom
@@ -269,19 +270,21 @@ private fun VicoLineChart(
         } else null
     }
 
+    // Create lines with point markers (must be composable)
+    val lines = config.series.map { series ->
+        LineCartesianLayer.rememberLine(
+            fill = LineCartesianLayer.LineFill.single(Fill(series.color)),
+            pointProvider = LineCartesianLayer.PointProvider.single(
+                LineCartesianLayer.Point(rememberShapeComponent(Fill(series.color), CircleShape))
+            ),
+        )
+    }
+
     CartesianChartHost(
         chart = rememberCartesianChart(
             rememberLineCartesianLayer(
                 rangeProvider = rangeProvider,
-                lineProvider = remember(config.series) {
-                    LineCartesianLayer.LineProvider.series(
-                        config.series.map { series ->
-                            LineCartesianLayer.Line(
-                                fill = LineCartesianLayer.LineFill.single(Fill(series.color))
-                            )
-                        }
-                    )
-                }
+                lineProvider = LineCartesianLayer.LineProvider.series(lines)
             ),
             startAxis = if (config.showYAxisLabels) {
                 VerticalAxis.rememberStart()
