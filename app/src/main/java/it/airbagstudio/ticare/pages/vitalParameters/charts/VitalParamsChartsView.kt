@@ -104,7 +104,7 @@ fun VitalParamsChartsView(
         ) {
             when (uiState) {
                 is ChartUiState.Loading -> {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                         CircularProgressIndicator()
                     }
                 }
