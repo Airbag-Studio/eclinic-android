@@ -59,13 +59,30 @@ import com.patrykandpatrick.vico.compose.cartesian.decoration.HorizontalBox
 import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
 import com.patrykandpatrick.vico.compose.common.Fill
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisGuidelineComponent
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
+import com.patrykandpatrick.vico.compose.cartesian.marker.CartesianMarker
+import com.patrykandpatrick.vico.compose.cartesian.marker.DefaultCartesianMarker
+import com.patrykandpatrick.vico.compose.cartesian.marker.rememberDefaultCartesianMarker
+import com.patrykandpatrick.vico.compose.common.Insets
+import com.patrykandpatrick.vico.compose.common.LayeredComponent
+import com.patrykandpatrick.vico.compose.common.LegendItem
+import com.patrykandpatrick.vico.compose.common.MarkerCornerBasedShape
+import com.patrykandpatrick.vico.compose.common.component.ShapeComponent
+import com.patrykandpatrick.vico.compose.common.component.TextComponent
+import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
+import com.patrykandpatrick.vico.compose.common.rememberVerticalLegend
+import com.patrykandpatrick.vico.compose.common.vicoTheme
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartDataPoint
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartLineSeries
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartType
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.VitalSignChartConfig
 import it.airbagstudio.ticare.utils.format
 import java.util.Date
+import kotlin.collections.forEachIndexed
 
 /**
  * Generic composable for rendering vital signs charts using Vico 3.0.0 API
@@ -300,6 +317,7 @@ private fun VicoLineChart(
                 )
             } else null,
             decorations = decorations,
+            marker = rememberMarker(),
             getXStep = { 1.0 }  // Show label at each data point index
         ),
         placeholder = {
@@ -320,6 +338,8 @@ private fun VicoLineChart(
             zoomEnabled = isFullscreen,
             initialZoom = Zoom.Content
         ),
+
+
         modifier = if (isFullscreen) {
             modifier
         } else {
@@ -327,6 +347,61 @@ private fun VicoLineChart(
                 .fillMaxWidth()
                 .height(200.dp)
         }
+    )
+}
+
+
+@Composable
+internal fun rememberMarker(
+    valueFormatter: DefaultCartesianMarker.ValueFormatter =
+        DefaultCartesianMarker.ValueFormatter.default(),
+    showIndicator: Boolean = true,
+): CartesianMarker {
+    val labelBackgroundShape = MarkerCornerBasedShape(CircleShape)
+    val labelBackground =
+        rememberShapeComponent(
+            fill = Fill(MaterialTheme.colorScheme.background),
+            shape = labelBackgroundShape,
+            strokeFill = Fill(MaterialTheme.colorScheme.outline),
+            strokeThickness = 1.dp,
+        )
+    val label =
+        rememberTextComponent(
+            style =
+                TextStyle(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                    fontSize = 12.sp,
+                ),
+            padding = Insets(8.dp, 4.dp),
+            background = labelBackground,
+            minWidth = TextComponent.MinWidth.fixed(40.dp),
+        )
+    val indicatorFrontComponent =
+        rememberShapeComponent(Fill(MaterialTheme.colorScheme.surface), CircleShape)
+    val guideline = rememberAxisGuidelineComponent()
+    return rememberDefaultCartesianMarker(
+        label = label,
+        valueFormatter = valueFormatter,
+        indicator =
+            if (showIndicator) {
+                { color ->
+                    LayeredComponent(
+                        back = ShapeComponent(Fill(color.copy(alpha = 0.15f)), CircleShape),
+                        front =
+                            LayeredComponent(
+                                back = ShapeComponent(fill = Fill(color), shape = CircleShape),
+                                front = indicatorFrontComponent,
+                                padding = Insets(5.dp),
+                            ),
+                        padding = Insets(10.dp),
+                    )
+                }
+            } else {
+                null
+            },
+        indicatorSize = 36.dp,
+        guideline = guideline,
     )
 }
 
