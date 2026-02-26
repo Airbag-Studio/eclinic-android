@@ -7,11 +7,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -20,28 +25,35 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.ChartUiState
+import it.airbagstudio.ticare.pages.vitalParameters.charts.model.DateFilterOption
 import it.airbagstudio.ticare.pages.vitalParameters.charts.model.TableMapper
 import it.airbagstudio.ticare.pages.vitalParameters.charts.ui.VitalSignChart
 import it.airbagstudio.ticare.pages.vitalParameters.charts.ui.VitalSignsTable
 import it.airbagstudio.ticare.ui.components.ToolbarWithBackAndSync
+import it.airbagstudio.ticare.utils.copy
 import it.airbagstudio.ticare.utils.getCompleteName
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VitalParamsChartsView(
     viewModel: VitalParamsChartsViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
+    var filterExpanded by remember { mutableStateOf(false) }
     val tabs = listOf("Grafici", "Tabella")
 
     // Get activity for orientation control
@@ -97,6 +109,55 @@ fun VitalParamsChartsView(
                 }
                 is ChartUiState.Success -> {
                     val charts = (uiState as ChartUiState.Success).charts
+
+                    // Date Filter Dropdown
+                    ExposedDropdownMenuBox(
+                        expanded = filterExpanded,
+                        onExpandedChange = { filterExpanded = !filterExpanded },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 0.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = when (selectedFilter) {
+                                DateFilterOption.ALL -> viewModel.getDateRangeLabel()
+                                DateFilterOption.LAST_15_DAYS -> "Ultimi 15 giorni"
+                                DateFilterOption.LAST_WEEK -> "Ultima settimana"
+                            },
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = filterExpanded) },
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = filterExpanded,
+                            onDismissRequest = { filterExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(viewModel.getDateRangeLabel()) },
+                                onClick = {
+                                    viewModel.setFilter(DateFilterOption.ALL)
+                                    filterExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Ultimi 15 giorni") },
+                                onClick = {
+                                    viewModel.setFilter(DateFilterOption.LAST_15_DAYS)
+                                    filterExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Ultima settimana") },
+                                onClick = {
+                                    viewModel.setFilter(DateFilterOption.LAST_WEEK)
+                                    filterExpanded = false
+                                }
+                            )
+                        }
+                    }
 
                     // Tab Row
                     TabRow(selectedTabIndex = selectedTabIndex) {

@@ -9,6 +9,7 @@ import ch.ticare.eclinic.library.entity.VitalSignsChartsDataResponse
 import it.airbagstudio.ticare.ui.theme.md_theme_light_primary
 import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT
 import it.airbagstudio.ticare.utils.toDate
+import java.util.Calendar
 
 /**
  * Maps API response to chart configurations
@@ -155,5 +156,40 @@ object ChartMapper {
                 dateTime = date
             )
         }.sortedBy { it.timestamp }
+    }
+
+    /**
+     * Filters chart configs by date based on the selected filter option.
+     * Charts with no data points after filtering are excluded.
+     */
+    fun filterByDate(
+        configs: List<VitalSignChartConfig>,
+        filter: DateFilterOption
+    ): List<VitalSignChartConfig> {
+        val cutoffDate = when (filter) {
+            DateFilterOption.ALL -> null
+            DateFilterOption.LAST_15_DAYS -> {
+                Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -15) }.time
+            }
+            DateFilterOption.LAST_WEEK -> {
+                Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -7) }.time
+            }
+        }
+
+        if (cutoffDate == null) return configs
+
+        return configs.mapNotNull { config ->
+            val filteredSeries = config.series.map { series ->
+                series.copy(
+                    dataPoints = series.dataPoints.filter { it.dateTime.after(cutoffDate) }
+                )
+            }
+            // Only keep configs that have at least one series with data points
+            if (filteredSeries.any { it.dataPoints.isNotEmpty() }) {
+                config.copy(series = filteredSeries)
+            } else {
+                null
+            }
+        }
     }
 }
