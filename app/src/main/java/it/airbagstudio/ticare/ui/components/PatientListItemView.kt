@@ -53,7 +53,11 @@ fun PatientListItemView(
         ) {
             Column() {
                 PatientImage(patient.patientCode, patient.photo ?: "", requestImageRequestData)
-                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = patient.patientCode,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+                Spacer(modifier = Modifier.height(4.dp))
                 OfflineSyncImage(
                     hasOfflineData = patient.hasDownloadedData,
                     hasDataToSync = patient.hasModifiedData
@@ -84,11 +88,6 @@ fun PatientListItemView(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
-                    Text(text = "# ${patient.patientCode}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
                     if (!patient.zoneName.isNullOrEmpty()) {
                         Row() {
                             Text(text = "Zona: ",

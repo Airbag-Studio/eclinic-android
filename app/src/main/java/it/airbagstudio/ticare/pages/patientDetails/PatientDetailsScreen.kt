@@ -507,7 +507,12 @@ private fun CaseInfoView(imageRequestData: ImageRequestData,patientCode: String,
                     caseDetail.photo ?: "",
                     imageRequestData
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = patientCode,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+                Spacer(modifier = Modifier.height(4.dp))
                 OfflineSyncImage(
                     hasOfflineData = hasOfflineData,
                     hasDataToSync = hasDataToSync
@@ -540,12 +545,7 @@ private fun CaseInfoView(imageRequestData: ImageRequestData,patientCode: String,
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
-                    Text(
-                        text = "# ${patientCode}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
+
                     if (!caseDetail.zoneName.isNullOrEmpty()) {
                         Row() {
                             Text(text = "Zona: ",
