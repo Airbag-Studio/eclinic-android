@@ -94,7 +94,7 @@ dependencies {
     implementation 'androidx.compose.material3:material3-window-size-class'
     implementation 'androidx.navigation:navigation-compose:2.8.5'
     implementation "com.google.dagger:hilt-android:2.59.2"
-    implementation "ch.ticare.eclinic:shared-android:1.0.1"
+    implementation "ch.ticare.eclinic:shared-android:1.0.2"
     implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.8.7'
     ksp 'com.google.dagger:hilt-compiler:2.59.2'
     implementation 'androidx.compose.ui:ui-tooling-preview'
