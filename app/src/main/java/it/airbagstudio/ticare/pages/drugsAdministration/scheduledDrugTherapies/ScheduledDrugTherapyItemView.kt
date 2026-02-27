@@ -96,7 +96,7 @@ fun ScheduledDrugTherapyItemView(item: ScheduledDrugTherapyItem,shift: List<Stri
             HorizontalDivider()
             Spacer(Modifier.height(16.dp))
             Row {
-                Spacer(Modifier.width(100.dp))
+                Spacer(Modifier.width(90.dp))
                 val daysOfWeek = listOf("L","M","M","G","V","S","D")
                 daysOfWeek.forEach {
                     Text(
@@ -113,9 +113,9 @@ fun ScheduledDrugTherapyItemView(item: ScheduledDrugTherapyItem,shift: List<Stri
                 ){
                     val isLast = index == shift.lastIndex
                     Column(
-                        modifier = Modifier.width(100.dp)
+                        modifier = Modifier.width(90.dp)
                     ) {
-                        Text(text = s,style = MaterialTheme.typography.labelMedium, modifier = Modifier.width(100.dp))
+                        Text(text = s,style = MaterialTheme.typography.labelMedium, modifier = Modifier.width(90.dp))
                         if(!isLast) {
                             HorizontalDivider()
                         }

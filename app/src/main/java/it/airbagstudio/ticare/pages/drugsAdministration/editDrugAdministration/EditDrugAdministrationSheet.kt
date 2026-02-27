@@ -149,7 +149,7 @@ private fun BuildContent(
                 .fillMaxSize()
                 .padding(values)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(8.dp)
         ) {
             Row(
                 modifier = Modifier.padding(top = 24.dp)
@@ -229,7 +229,7 @@ private fun BuildContent(
                         imeAction = ImeAction.Done
                     ),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(0.8f),
                     value = duration,
                     visualTransformation = if (duration.isEmpty()) PlaceholderTransformation("0") else VisualTransformation.None,
                     onValueChange = {

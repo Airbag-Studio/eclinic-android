@@ -67,7 +67,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                             for (i in 0..6) {
                                 val sum = therapiesForShift.sumOf { it.quantity.toDouble() }
                                 if (sum > 0) {
-                                    quantities.add(sum.format())
+                                    quantities.add(sum.format(2,2))
                                 } else {
                                     quantities.add(null)
                                 }
@@ -83,7 +83,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                                     dateTime?.toDayOfWeek() == i
                                 }
                                 if (therapiesForDay != null) {
-                                    quantities.add(therapiesForDay.quantity.format())
+                                    quantities.add(therapiesForDay.quantity.format(2,2))
                                 } else {
                                     quantities.add(null)
                                 }
@@ -95,7 +95,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                                 if (day >= from){
                                     val sum = therapiesForShift.sumOf { it.quantity.toDouble() }
                                     if (sum > 0 && item.repetitionWeekDays.contains(i+1)) {
-                                        quantities.add(sum.format())
+                                        quantities.add(sum.format(2,2))
                                     } else {
                                         quantities.add(null)
                                     }
@@ -117,7 +117,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                                 if (day.dayOfMonth >= from.dayOfMonth && monthlyDaysSomministration.contains(day.dayOfMonth)){
                                     val sum = therapiesForShift.sumOf { it.quantity.toDouble() }
                                     if (sum > 0) {
-                                        quantities.add(sum.format())
+                                        quantities.add(sum.format(2,2))
                                     } else {
                                         quantities.add(null)
                                     }
@@ -133,7 +133,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                                 if (diff.toDays() % repetition.toLong() == 0L){
                                     val sum = therapiesForShift.sumOf { it.quantity.toDouble() }
                                     if (sum > 0) {
-                                        quantities.add(sum.format())
+                                        quantities.add(sum.format(2,2))
                                     } else {
                                         quantities.add(null)
                                     }
@@ -148,7 +148,7 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                                 if (day.dayOfMonth == from.dayOfMonth && (day.monthValue - from.monthValue) % repetition == 0){
                                     val sum = therapiesForShift.sumOf { it.quantity.toDouble() }
                                     if (sum > 0) {
-                                        quantities.add(sum.format())
+                                        quantities.add(sum.format(2,2))
                                     } else {
                                         quantities.add(null)
                                     }

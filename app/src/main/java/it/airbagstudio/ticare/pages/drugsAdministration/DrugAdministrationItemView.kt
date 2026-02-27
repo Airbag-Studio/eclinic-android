@@ -111,7 +111,7 @@ fun DrugAdministrationItemView(
                         Spacer(modifier = Modifier.weight(1f))
                         LabelValueRow(
                             label = stringResource(id = R.string.reserves),
-                            value = "${reserves ?: 0}"
+                            value = (reserves ?: 0.0).format(2,2)
                         )
                         Spacer(modifier = Modifier.width(40.dp))
                     }
