@@ -26,6 +26,7 @@ import ch.ticare.eclinic.library.repository.VisibilityRepository
 import ch.ticare.eclinic.library.repository.WorkingHourRepository
 import ch.ticare.eclinic.library.repository.WoundRepository
 import ch.ticare.eclinic.library.repository.FormRepository
+import ch.ticare.eclinic.library.repository.MedicalDiagnosesRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -170,5 +171,11 @@ class AppModule {
     fun providesFormRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): FormRepository {
         return FormRepository(apiClient,database,offlineOnlineRepository)
 
+    }
+
+    @Provides
+    @Singleton
+    fun provideMedicalDiagnosesRepositoryRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): MedicalDiagnosesRepository{
+        return MedicalDiagnosesRepository(apiClient,database,offlineOnlineRepository)
     }
 }

@@ -44,5 +44,7 @@ fun OfflineCreatedDataType.getCategoryName(): Int {
         OfflineCreatedDataType.IDPALL_TEST_CREATE, OfflineCreatedDataType.IDPALL_TEST_UPDATE -> R.string.form_idpall_title
         OfflineCreatedDataType.CAM_TEST_CREATE, OfflineCreatedDataType.CAM_TEST_UPDATE -> R.string.form_cam_title
         OfflineCreatedDataType.PACIC_SCALE_CREATE, OfflineCreatedDataType.PACIC_SCALE_UPDATE -> R.string.form_pacic_title
+        OfflineCreatedDataType.MEDICAL_DIAGNOSIS_CREATE, OfflineCreatedDataType.MEDICAL_DIAGNOSIS_UPDATE -> R.string.medical_diagnoses
+
     }
 }

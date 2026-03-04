@@ -123,13 +123,13 @@ fun ToolTag.getDiaryIconId(): Int{
         ToolTag.EducatorCourse ->  R.drawable.ic_educator_course
         ToolTag.ActivatorCourse ->   R.drawable.ic_activator_course
         ToolTag.NursingCourse ->  R.drawable.ic_nursing_courses
-        ToolTag.Diary -> TODO()
+        ToolTag.Diary -> R.drawable.ic_diary
         ToolTag.HomeCareServiceCarePlan -> R.drawable.ic_care_planes
         ToolTag.Wound -> R.drawable.ic_wounds
         ToolTag.OtherService -> R.drawable.ic_other_prescriptions
         ToolTag.MedicalCourse -> R.drawable.ic_medical_course
         ToolTag.Scale -> R.drawable.moduli
-        ToolTag.MedicalDiagnosis -> TODO()
+        ToolTag.MedicalDiagnosis -> R.drawable.ic_medical_course
     }
 }
 
