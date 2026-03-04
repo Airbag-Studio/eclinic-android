@@ -129,7 +129,7 @@ fun ToolTag.getDiaryIconId(): Int{
         ToolTag.OtherService -> R.drawable.ic_other_prescriptions
         ToolTag.MedicalCourse -> R.drawable.ic_medical_course
         ToolTag.Scale -> R.drawable.moduli
-        ToolTag.MedicalDiagnosis -> R.drawable.ic_medical_course
+        ToolTag.MedicalDiagnosis -> R.drawable.ic_medical_diagnoses
     }
 }
 
