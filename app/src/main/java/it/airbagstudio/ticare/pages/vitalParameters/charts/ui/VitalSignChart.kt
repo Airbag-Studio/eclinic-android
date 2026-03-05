@@ -63,6 +63,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisGuidelineComponent
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
 import com.patrykandpatrick.vico.compose.cartesian.marker.CartesianMarker
 import com.patrykandpatrick.vico.compose.cartesian.marker.DefaultCartesianMarker
@@ -324,10 +325,23 @@ private fun VicoLineChart(
                 lineProvider = LineCartesianLayer.LineProvider.series(lines)
             ),
             startAxis = if (config.showYAxisLabels) {
-                VerticalAxis.rememberStart()
+                VerticalAxis.rememberStart(
+                    label = rememberAxisLabelComponent(
+                        style = TextStyle(
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 12.sp
+                        )
+                    )
+                )
             } else null,
             bottomAxis = if (config.showXAxisLabels) {
                 HorizontalAxis.rememberBottom(
+                    label = rememberAxisLabelComponent(
+                        style = TextStyle(
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 12.sp
+                        )
+                    ),
                     valueFormatter = remember(indexToDate) {
                         CartesianValueFormatter { _: CartesianMeasuringContext, value: Double, _: Axis.Position.Vertical? ->
                             val index = value.toInt()
