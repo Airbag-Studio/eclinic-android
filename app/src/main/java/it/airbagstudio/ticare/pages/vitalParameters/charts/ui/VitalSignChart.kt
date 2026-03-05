@@ -66,6 +66,7 @@ import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisGuidelineCom
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
 import com.patrykandpatrick.vico.compose.cartesian.marker.CartesianMarker
 import com.patrykandpatrick.vico.compose.cartesian.marker.DefaultCartesianMarker
+import com.patrykandpatrick.vico.compose.cartesian.marker.LineCartesianLayerMarkerTarget
 import com.patrykandpatrick.vico.compose.cartesian.marker.rememberDefaultCartesianMarker
 import com.patrykandpatrick.vico.compose.common.Insets
 import com.patrykandpatrick.vico.compose.common.LayeredComponent
@@ -336,7 +337,7 @@ private fun VicoLineChart(
                 )
             } else null,
             decorations = decorations,
-            marker = rememberMarker(),
+            marker = rememberMarker(indexToDate = indexToDate),
             getXStep = { 1.0 }  // Show label at each data point index
         ),
         placeholder = {
@@ -372,8 +373,7 @@ private fun VicoLineChart(
 
 @Composable
 internal fun rememberMarker(
-    valueFormatter: DefaultCartesianMarker.ValueFormatter =
-        DefaultCartesianMarker.ValueFormatter.default(),
+    indexToDate: Map<Int, Date> = emptyMap(),
     showIndicator: Boolean = true,
 ): CartesianMarker {
     val labelBackgroundShape = MarkerCornerBasedShape(CircleShape)
@@ -393,12 +393,34 @@ internal fun rememberMarker(
                     fontSize = 12.sp,
                 ),
             padding = Insets(8.dp, 4.dp),
+            lineCount = 2,
             background = labelBackground,
             minWidth = TextComponent.MinWidth.fixed(40.dp),
         )
     val indicatorFrontComponent =
         rememberShapeComponent(Fill(MaterialTheme.colorScheme.surface), CircleShape)
     val guideline = rememberAxisGuidelineComponent()
+
+    // Custom value formatter that shows time along with value
+    val valueFormatter = remember(indexToDate) {
+        DefaultCartesianMarker.ValueFormatter { _, targets ->
+            targets.flatMap { target ->
+                val lineTarget = target as? LineCartesianLayerMarkerTarget
+                lineTarget?.points?.map { point ->
+                    val index = target.x.toInt()
+                    val date = indexToDate[index]
+                    val timeString = date?.format("HH:mm") ?: ""
+                    val yValue = point.entry.y
+                    if (timeString.isNotEmpty()) {
+                        "$yValue ($timeString)"
+                    } else {
+                        "$yValue"
+                    }
+                } ?: listOf("${target.x}")
+            }.joinToString(separator = "\n")
+        }
+    }
+
     return rememberDefaultCartesianMarker(
         label = label,
         valueFormatter = valueFormatter,
