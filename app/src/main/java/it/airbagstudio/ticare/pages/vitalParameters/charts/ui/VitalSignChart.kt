@@ -330,7 +330,7 @@ private fun VicoLineChart(
                     valueFormatter = remember(indexToDate) {
                         CartesianValueFormatter { _: CartesianMeasuringContext, value: Double, _: Axis.Position.Vertical? ->
                             val index = value.toInt()
-                            indexToDate[index]?.format("dd/MM") ?: ""
+                            indexToDate[index]?.format("dd/MM") ?: "None"
                         }
                     }
                 )
