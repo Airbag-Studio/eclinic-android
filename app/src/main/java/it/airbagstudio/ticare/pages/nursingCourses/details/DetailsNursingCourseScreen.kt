@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.nursingCourses.details
 
+import android.R.attr.label
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation.Companion.keyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -49,6 +51,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -72,6 +75,7 @@ import it.airbagstudio.ticare.utils.getPainter
 import it.airbagstudio.ticare.utils.toDate
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -246,10 +250,11 @@ private fun BuildSheetContent(
 
                     })
             }
+            val height = max(150,screenHeight - 500)
             Spacer(modifier = Modifier.height(24.dp))
             OutlinedTextField(
                 modifier = Modifier
-                    .height((screenHeight - 500).dp)
+                    .height((height).dp)
                     .fillMaxWidth(),
                 label = {
                     Text(text = stringResource(id = R.string.description))
