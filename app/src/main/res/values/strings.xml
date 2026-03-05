@@ -353,4 +353,5 @@
     <string name="all_diary_items">Tutto</string>
     <string name="care_planes_diary_items">Solo piani di cura</string>
     <string name="medical_diagnoses">Diagnosi Mediche</string>
+    <string name="new_medical_diagnosis">Nuova diagnosi medica</string>
 </resources>

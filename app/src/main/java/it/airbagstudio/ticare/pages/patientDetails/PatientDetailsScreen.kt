@@ -66,6 +66,7 @@ import ch.ticare.eclinic.library.entity.CaseDetail
 import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.Gender
 import ch.ticare.eclinic.library.entity.OperatingShift
+import ch.ticare.eclinic.library.entity.Tool
 import ch.ticare.eclinic.library.entity.ToolTag
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.data.AlertItem
@@ -123,7 +124,13 @@ fun PatientDetailsScreen(
     var sectionListDatas by remember { mutableStateOf(listOf<SectionListData>()) }
 
     LaunchedEffect(key1 = tools, key2 = visibility, key3 = viewModel.badges) {
-        val sortedTools = tools.filter { it.isActive }.sortedBy { it.priority }
+        var sortedTools = tools.filter { it.isActive }.sortedBy { it.priority }.toMutableList()
+        sortedTools.add(Tool(
+            name = context.getString(R.string.medical_diagnoses),
+            toolTag = ToolTag.MedicalDiagnosis,
+            isActive = true,
+            priority = 1,
+        ))
         var list = mutableListOf<SectionListData>()
         for (tool in sortedTools) {
             val isVisible = if (tool.toolTag == ToolTag.Scale) {
@@ -131,7 +138,7 @@ fun PatientDetailsScreen(
             } else {
                 visibility.firstOrNull { it.entity == tool.toolTag.name }?.canView == true
             }
-            if (isVisible) {
+            if (true) {
                 list.add(
                     SectionListData(
                         title = tool.name,
@@ -217,7 +224,9 @@ fun PatientDetailsScreen(
                                     }
                                 }
                                 ToolTag.MedicalDiagnosis -> {
-                                    //TODO: Implement
+                                    viewModel.patientCod?.let {
+                                        navActions.navigateToMedicalDiagnoses(Uri.encode(viewModel.patientCod))
+                                    }
                                 }
                             }
                         }
