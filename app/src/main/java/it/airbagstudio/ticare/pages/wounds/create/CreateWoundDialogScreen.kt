@@ -69,7 +69,6 @@ fun CreateWoundDialogScreen(
 ) {
     LaunchedEffect(Unit) {
         viewModel.clearData()
-        viewModel.canWrite = canWrite
         viewModel.codCase = codCase
         viewModel.downloadData(woundId)
     }
@@ -111,7 +110,7 @@ fun CreateWoundDialogScreen(
             ) {
                 CalendarTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = uiState.isEditingEnabled,
+                    enabled = canWrite,
                     date = uiState.wound.date, label = {
                         Text(text = stringResource(id = R.string.appearance_date))
                     }, onDateChanged = {
@@ -123,7 +122,7 @@ fun CreateWoundDialogScreen(
                     label = stringResource(id = R.string.injury_type),
                     value = uiState.wound.woundType ?: "",
                     items = viewModel.woundTypes.value,
-                    enabled = uiState.isEditingEnabled,
+                    enabled = canWrite,
                 ){
                     viewModel.setWoundType(it.item)
                 }
@@ -133,7 +132,7 @@ fun CreateWoundDialogScreen(
                     label = stringResource(id = R.string.position),
                     items = viewModel.woundBodyParts.value,
                     selectedItems = uiState.dropdownSelections.selectedWoundBodyParts?.map { ListPopupItem(it.name,it) } ?: listOf(),
-                    enabled = uiState.isEditingEnabled,
+                    enabled = canWrite,
                 ){ selectedItems  ->
                     selectedItems?.mapNotNull { it.item }?.let { viewModel.setWoundBodyParts(it) } ?: run { viewModel.setWoundBodyParts(null) }
                 }
@@ -143,7 +142,7 @@ fun CreateWoundDialogScreen(
                     label = stringResource(id = R.string.origin),
                     value = uiState.wound.origin ?: "",
                     items = viewModel.woundOrigins.value,
-                    enabled = uiState.isEditingEnabled,
+                    enabled = canWrite,
                 ){
                     viewModel.setWoundOrigin(it.item)
                 }
@@ -166,7 +165,7 @@ fun CreateWoundDialogScreen(
                         supportingText = {
                             Text(text = stringResource(id = R.string.mm))
                         },
-                        enabled = uiState.isEditingEnabled,
+                        enabled = canWrite,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     OutlinedTextField(
@@ -186,7 +185,7 @@ fun CreateWoundDialogScreen(
                         supportingText = {
                             Text(text = stringResource(id = R.string.mm))
                         },
-                        enabled = uiState.isEditingEnabled,
+                        enabled = canWrite,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     OutlinedTextField(
@@ -206,7 +205,7 @@ fun CreateWoundDialogScreen(
                         supportingText = {
                             Text(text = stringResource(id = R.string.mm))
                         },
-                        enabled = uiState.isEditingEnabled,
+                        enabled = canWrite,
                     )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
@@ -221,7 +220,7 @@ fun CreateWoundDialogScreen(
                     onValueChange = {
                         viewModel.setNotes(it)
                     },
-                    enabled = uiState.isEditingEnabled,
+                    enabled = canWrite,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -245,7 +244,7 @@ fun CreateWoundDialogScreen(
                 })
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
-                    enabled = uiState.isValid && uiState.isEditingEnabled && !uiState.isLoading,
+                    enabled = uiState.isValid && canWrite && !uiState.isLoading,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         viewModel.saveWound()

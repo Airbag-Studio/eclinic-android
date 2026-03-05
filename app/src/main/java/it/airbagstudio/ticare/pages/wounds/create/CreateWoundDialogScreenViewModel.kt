@@ -1,6 +1,7 @@
 package it.airbagstudio.ticare.pages.wounds.create
 
 import android.graphics.Bitmap
+import android.provider.Settings.System.canWrite
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -44,7 +45,6 @@ data class CreateWoundDialogScreenUIState(
     val dropdownSelections: DropDownSelections,
     val isOnline: Boolean,
     val woundPhotos: List<WoundPhoto> = listOf(),
-    val isEditingEnabled: Boolean
 ) {
 
     data class DropDownSelections(
@@ -77,7 +77,6 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     lateinit var codCase: String
-    var canWrite: Boolean = false
 
     val woundTypes = mutableStateOf<List<ListPopupItem<WoundType>>>(listOf())
     val woundBodyParts = mutableStateOf<List<ListPopupItem<BodyPart>>>(listOf())
@@ -175,7 +174,6 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
             isValid = isValid,
             woundPhotos = woundPhoto,
             isOnline = offlineOnlineRepository.state.value.isOnline,
-            isEditingEnabled = canWrite
         )
     }.catch {
         errorMessage = it.localizedMessage
@@ -201,7 +199,6 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
             isSuccess = false,
             isValid = false,
             isOnline = false,
-            isEditingEnabled = canWrite
         )
     )
 
