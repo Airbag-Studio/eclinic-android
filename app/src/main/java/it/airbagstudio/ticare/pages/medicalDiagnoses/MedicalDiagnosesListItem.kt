@@ -36,7 +36,8 @@ data class MedicalDiagnosesListItem(
     val openDate: String,
     val operatorName: String,
     val description: String,
-    val hasDataToUpload: Boolean
+    val hasDataToUpload: Boolean,
+    val medicalDiagnosis: MedicalDiagnosis
 )
 
 @Composable
@@ -111,29 +112,4 @@ fun MedicalDiagnosesListItemView(item: MedicalDiagnosesListItem, onClick: () -> 
         HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
 
     }
-}
-
-@Preview
-@Composable
-private fun MedicalDiagnosesListItemViewPreview(){
-    val item = MedicalDiagnosesListItem(
-        openDate = "12.03.2023 24:30",
-        operatorName = "Dr. Smith",
-        description = "Test description",
-        hasDataToUpload = true
-    )
-    AppTheme() {
-        Scaffold() {
-            Column(modifier = Modifier.padding(it)) {
-                MedicalDiagnosesListItemView(
-                    item = item,
-                    onClick = {}
-                )
-            }
-        }
-    }
-    MedicalDiagnosesListItemView(
-        item = item,
-        onClick = {}
-    )
 }

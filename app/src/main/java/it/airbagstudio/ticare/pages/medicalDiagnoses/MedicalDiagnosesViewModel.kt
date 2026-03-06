@@ -64,7 +64,7 @@ class MedicalDiagnosesViewModel @Inject constructor(
                 visibilityRepository.getPermissions().collect { permissions ->
                     canWrite =
                         permissions.firstOrNull { it.entity == ToolTag.MedicalDiagnosis.name }?.canWrite
-                            ?: false
+                            ?: true
                 }
             }
             val patient = userDetailRepository.getCurrentCase()
@@ -74,16 +74,17 @@ class MedicalDiagnosesViewModel @Inject constructor(
                 OfflineSection.MedicalDiagnosis
             )
             val date = userDetailRepository.getSelectedDate()?.toDate(SERVER_DATE_FORMAT) ?: Date()
-            val dateParam = DateFormat.format("yyyy.MM.dd HH:mm", date).toString()
+            val dateParam = DateFormat.format("dd/MM/yyyy", date).toString()
             val medicalDiagnosesResponse = medicalDiagnosisRepository.getMedicalDiagnoses(
                 patientCode,
             )
-            val medicalDiagnoses = medicalDiagnosesResponse.results?.map { medicalDiagnosis ->
+            val medicalDiagnoses = medicalDiagnosesResponse.results?.filter { it.closeDate.isEmpty() }?.map { medicalDiagnosis ->
                 MedicalDiagnosesListItem(
                     openDate = medicalDiagnosis.openDate,
                     description = medicalDiagnosis.desc,
                     operatorName = medicalDiagnosis.openUser,
-                    hasDataToUpload = modifiedIds.contains(medicalDiagnosis.id.toString())
+                    hasDataToUpload = modifiedIds.contains(medicalDiagnosis.id.toString()),
+                    medicalDiagnosis = medicalDiagnosis
                 )
             }
             if(medicalDiagnosesResponse.error != null) {
