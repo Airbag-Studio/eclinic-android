@@ -118,7 +118,7 @@ class CreateEditMedicalDiagnosisViewModel @Inject constructor(
             MedicalDiagnosisEdit(
                 id = medicalDiagnoseId,
                 case = case,
-                closeDate = DateFormat.format("yyyy-MM-dd", Date()).toString(),
+                closeDate = DateFormat.format("yyyy-MM-dd HH:mm", Date()).toString(),
                 closeReason = closeReason,
                 closeUser = userId.toString(),
                 desc = _description.value
