@@ -124,13 +124,7 @@ fun PatientDetailsScreen(
     var sectionListDatas by remember { mutableStateOf(listOf<SectionListData>()) }
 
     LaunchedEffect(key1 = tools, key2 = visibility, key3 = viewModel.badges) {
-        var sortedTools = tools.filter { it.isActive }.sortedBy { it.priority }.toMutableList()
-        sortedTools.add(Tool(
-            name = context.getString(R.string.medical_diagnoses),
-            toolTag = ToolTag.MedicalDiagnosis,
-            isActive = true,
-            priority = 1,
-        ))
+        val sortedTools = tools.filter { it.isActive }.sortedBy { it.priority }
         var list = mutableListOf<SectionListData>()
         for (tool in sortedTools) {
             val isVisible = if (tool.toolTag == ToolTag.Scale) {
@@ -138,7 +132,7 @@ fun PatientDetailsScreen(
             } else {
                 visibility.firstOrNull { it.entity == tool.toolTag.name }?.canView == true
             }
-            if (true) {
+            if (isVisible) {
                 list.add(
                     SectionListData(
                         title = tool.name,
