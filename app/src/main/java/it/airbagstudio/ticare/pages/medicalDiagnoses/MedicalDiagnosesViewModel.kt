@@ -32,6 +32,7 @@ data class MedicalDiagnosesUiState(
     val date: String,
     val shift: String?,
     val patientCode: String,
+    val patientName: String,
     val medicalDiagnoses: List<MedicalDiagnosesListItem> = emptyList(),
 )
 
@@ -94,6 +95,7 @@ class MedicalDiagnosesViewModel @Inject constructor(
                 date = dateParam,
                 shift = shift?.name,
                 patientCode = patientCode,
+                patientName = patient?.name ?: "",
                 medicalDiagnoses = medicalDiagnoses ?: listOf()
             )
         }

@@ -94,7 +94,7 @@ fun MedicalDiagnosesView(
             }
         },
         topBar = {
-            ToolbarWithBack(title = "Patient name") {
+            ToolbarWithBack(title = uiState?.patientName ?: "") {
                 onBack()
             }
         }
