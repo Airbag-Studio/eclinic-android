@@ -127,6 +127,7 @@ fun CreateEditMedicalDiagnosisView(
                 CalendarTextField(
                     modifier = Modifier.fillMaxWidth(),
                     date = execDate,
+                    maxDate = Date(),
                     label = { Text(text = stringResource(id = R.string.actual_date_time)) },
                     enabled = isEditingEnabled,
                     onDateChanged = {

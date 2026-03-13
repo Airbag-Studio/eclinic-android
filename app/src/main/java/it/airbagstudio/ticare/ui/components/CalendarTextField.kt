@@ -65,13 +65,28 @@ fun CalendarTextField(
     enabled: Boolean = true,
     showTime: Boolean = true,
     date: Date?,
+    maxDate: Date? = null,
     label: @Composable() (() -> Unit)?,
     onDateChanged: (Date) -> Unit
 ) {
 
     val focusManager = LocalFocusManager.current
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = date?.time
+        initialSelectedDateMillis = date?.time,
+        selectableDates = if (maxDate != null) {
+            object : androidx.compose.material3.SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                    return utcTimeMillis <= maxDate.time
+                }
+                override fun isSelectableYear(year: Int): Boolean {
+                    val calendar = Calendar.getInstance()
+                    calendar.time = maxDate
+                    return year <= calendar.get(Calendar.YEAR)
+                }
+            }
+        } else {
+            object : androidx.compose.material3.SelectableDates {}
+        }
     )
     val calendar = Calendar.getInstance()
     val timePickerState = rememberTimePickerState(
@@ -174,6 +189,38 @@ fun CalendarTextField(
         }
     }
     if (showTimePicker) {
+        // Calcola l'ora massima consentita se la data selezionata è lo stesso giorno di maxDate
+        val maxHour: Int?
+        val maxMinute: Int?
+        if (maxDate != null && datePickerState.selectedDateMillis != null) {
+            val selectedCal = Calendar.getInstance().apply {
+                timeInMillis = datePickerState.selectedDateMillis!!
+            }
+            val maxCal = Calendar.getInstance().apply {
+                time = maxDate
+            }
+            val isSameDay = selectedCal.get(Calendar.YEAR) == maxCal.get(Calendar.YEAR) &&
+                    selectedCal.get(Calendar.DAY_OF_YEAR) == maxCal.get(Calendar.DAY_OF_YEAR)
+            if (isSameDay) {
+                maxHour = maxCal.get(Calendar.HOUR_OF_DAY)
+                maxMinute = maxCal.get(Calendar.MINUTE)
+            } else {
+                maxHour = null
+                maxMinute = null
+            }
+        } else {
+            maxHour = null
+            maxMinute = null
+        }
+
+        // Verifica se l'orario attualmente selezionato è valido
+        val isTimeValid = if (maxHour != null && maxMinute != null) {
+            timePickerState.hour < maxHour ||
+                    (timePickerState.hour == maxHour && timePickerState.minute <= maxMinute)
+        } else {
+            true
+        }
+
         TimePickerDialog(
             onDismissRequest = {
                 showDatePicker = false
@@ -181,6 +228,7 @@ fun CalendarTextField(
             },
             confirmButton = {
                 TextButton(
+                    enabled = isTimeValid,
                     onClick = {
                         selectedDate =
                             if (datePickerState.selectedDateMillis != null) Date(
