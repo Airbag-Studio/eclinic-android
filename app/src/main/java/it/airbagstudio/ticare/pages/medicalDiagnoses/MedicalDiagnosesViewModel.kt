@@ -20,6 +20,7 @@ import io.ktor.utils.io.printStack
 import it.airbagstudio.ticare.navigation.DestinationsArgs
 import it.airbagstudio.ticare.pages.patientDetails.form.ui.home.HomeUiState
 import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
+import it.airbagstudio.ticare.utils.getCompleteName
 import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -95,7 +96,7 @@ class MedicalDiagnosesViewModel @Inject constructor(
                 date = dateParam,
                 shift = shift?.name,
                 patientCode = patientCode,
-                patientName = patient?.name ?: "",
+                patientName = patient?.getCompleteName() ?: "",
                 medicalDiagnoses = medicalDiagnoses ?: listOf()
             )
         }
