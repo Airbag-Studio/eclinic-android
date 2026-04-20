@@ -185,7 +185,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
             launch {
                 val activities = plannedActivities.value
                     .filter { selectedActivityIds.value.contains(it.id) }
-                    .sortedBy { it.duration }
+                    .sortedBy { it.code.toIntOrNull() ?: Int.MAX_VALUE }
                 if (activities.isEmpty()) return@launch
 
                 val executionTimes = distributeTime(activities.map { it.duration }, elapsedTime)
@@ -218,7 +218,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
             val startTime = Date().time - (elapsedTime * 1000 * 60)
             val activities = notPlannedActivities.value
                 .filter { selectedActivityIds.value.contains(it.id) }
-                .sortedBy { it.duration }
+                .sortedBy { it.code.toIntOrNull() ?: Int.MAX_VALUE }
             if (activities.isEmpty()) return@launch
 
             val executionTimes = distributeTime(activities.map { it.duration }, elapsedTime)
