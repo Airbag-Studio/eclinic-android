@@ -149,7 +149,7 @@ fun WorkingHoursListScreen(
             showTrackingAlert = false
             if (confirm){
                 trackingViewModel.startTracker {
-                    showCreateDialog = true
+                    showSearchDialog = true
                 }
             }
         })

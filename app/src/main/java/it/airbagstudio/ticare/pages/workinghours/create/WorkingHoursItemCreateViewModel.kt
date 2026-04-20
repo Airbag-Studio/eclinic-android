@@ -124,6 +124,8 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
             viewModelScope.launch {
                 timeFromLastActivity.mapNotNull { it }.collect {
                     setDuration(it.toString())
+                    val startDate = Date(date.value.time - (it.toInt() * 60 * 1000))
+                    setDate(startDate)
                 }
             }
         }
