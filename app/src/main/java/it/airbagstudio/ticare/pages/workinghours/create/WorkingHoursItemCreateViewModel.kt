@@ -124,7 +124,7 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
             viewModelScope.launch {
                 timeFromLastActivity.mapNotNull { it }.collect {
                     setDuration(it.toString())
-                    val startDate = Date(date.value.time - (it.toInt() * 60 * 1000))
+                    val startDate = Date(Date().time - (it.toInt() * 60 * 1000))
                     setDate(startDate)
                 }
             }
@@ -143,13 +143,15 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading.value = true
             val totalHours = "%02d:%02d".format((duration.value.toInt() / 60.0).toInt(), duration.value.toInt() % 60)
+            val finaDate = if (workingHourId.value == null) Date(Date().time - (duration.value.toInt() * 60 * 1000)) else date.value
+
             val item = SaveEmployeeWorkingHour(
                 id = workingHourId.value,
                 idType = selectedTypeId.value!!,
                 remarks = notes.value.ifEmpty { null },
                 totalHours = totalHours,
-                date = date.value.format("yyyy.MM.dd HH:mm"),
-                startDateTime = date.value.format("yyyy.MM.dd HH:mm")
+                date = finaDate.format("yyyy.MM.dd HH:mm"),
+                startDateTime = finaDate.format("yyyy.MM.dd HH:mm")
             )
             if (item.id != null) {
                 val res = workingHourRepository.editWorkingHour(item)
