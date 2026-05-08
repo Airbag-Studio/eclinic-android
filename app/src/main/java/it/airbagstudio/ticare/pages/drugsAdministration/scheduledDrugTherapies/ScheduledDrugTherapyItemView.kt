@@ -43,6 +43,7 @@ data class ScheduledDrugTherapyItem(
     val to: String,
     val drug: String,
     val administeringMode: String,
+    val notes: String,
     val isSpecial: Boolean,
     val shiftsDrugAdministration: List<ScheduledDrugTherapyItem>
 ){
@@ -92,6 +93,10 @@ fun ScheduledDrugTherapyItemView(item: ScheduledDrugTherapyItem,shift: List<Stri
             TitleValueItem(
                 title = stringResource(R.string.administering_mode),
                 value = item.administeringMode
+            )
+            TitleValueItem(
+                title = stringResource(R.string.note_di_pianificazione),
+                value = item.notes
             )
             HorizontalDivider()
             Spacer(Modifier.height(16.dp))
@@ -291,7 +296,8 @@ private fun ScheduledDrugTherapyItemViewPreview(){
                     drug = "LETROZOLE Sandoz cpr pell 2.5 mg",
                     administeringMode = "orale",
                     shiftsDrugAdministration = shiftsDrugAdministrations,
-                    isSpecial = item.isSpecial
+                    isSpecial = item.isSpecial,
+                    notes = item.notes
                 ),shift = shifts)
                 Spacer(modifier = Modifier.weight(1f))
             }

@@ -358,4 +358,5 @@
     <string name="closing_medical_diagnosis">Chiusura diagnosi medica</string>
     <string name="medical_diagnosis_closing_note">Lascia qui una nota di appunto sulla chiusura della giagnosi medica.</string>
     <string name="edit_medical_diagnosis">Modifica diagnosi medica</string>
+    <string name="note_di_pianificazione">Note di pianificazione</string>
 </resources>

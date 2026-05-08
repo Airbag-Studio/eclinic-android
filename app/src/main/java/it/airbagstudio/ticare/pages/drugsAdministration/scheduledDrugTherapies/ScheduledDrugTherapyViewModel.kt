@@ -169,7 +169,8 @@ class ScheduledDrugTherapyViewModel @Inject constructor(
                     drug = item.drug,
                     administeringMode = item.administeringMode,
                     isSpecial = item.isSpecial,
-                    shiftsDrugAdministration = shiftsDrugAdministrations
+                    shiftsDrugAdministration = shiftsDrugAdministrations,
+                    notes = item.notes
                 )
             } ?: listOf()
         }
