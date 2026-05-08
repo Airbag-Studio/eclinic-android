@@ -10,6 +10,7 @@ import ch.ticare.eclinic.library.entity.HomeCareActivitySave
 import ch.ticare.eclinic.library.entity.HomeCarePlannedActivity
 import ch.ticare.eclinic.library.entity.HomeCareUnplannedActivity
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
+import ch.ticare.eclinic.library.repository.UserMarkingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -33,9 +34,9 @@ data class SelectCareActivityPopupUIState(
     val plannedActivities: List<ActivityListItem>
 
 
-){
+) {
     data class ActivityListItem(
-        val title:String,
+        val title: String,
         val code: String?,
         val id: Int,
         val carePlanId: Int?,
@@ -48,6 +49,8 @@ data class SelectCareActivityPopupUIState(
 @HiltViewModel
 class SelectCareActivityPopupScreenViewModel @Inject constructor(
     private val homeCareActivitiesRepository: HomeCareActivitiesRepository,
+    private val userMarkingRepository: UserMarkingRepository
+
 ) : ViewModel() {
 
     private val transferActivityCode = homeCareActivitiesRepository.getTransferActivityCode()
@@ -58,7 +61,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
     private val patientCode = MutableStateFlow<String?>(null)
     private var notPlannedActivities = MutableStateFlow<List<HomeCareUnplannedActivity>>(listOf())
 
-    private var plannedActivities = MutableStateFlow<List< HomeCarePlannedActivity>>(listOf())
+    private var plannedActivities = MutableStateFlow<List<HomeCarePlannedActivity>>(listOf())
 
     private var transferActivity: HomeCareUnplannedActivity? = null
 
@@ -67,16 +70,29 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
     var errorMessage = _errorMessage.asStateFlow()
 
 
-    private val unplannedActivities = combine(notPlannedActivities,transferActivityCode,selectedActivityIds){ notPlannedActivities,transferActivityCode,selectedActivityIds ->
+    private val unplannedActivities = combine(
+        notPlannedActivities,
+        transferActivityCode,
+        selectedActivityIds
+    ) { notPlannedActivities, transferActivityCode, selectedActivityIds ->
         val otherActivities = notPlannedActivities.filter { it.code != transferActivityCode }
-        val activities = notPlannedActivities.firstOrNull{ it.code == transferActivityCode}?.let { transferActivity ->
-            this.transferActivity = transferActivity
-            listOf(transferActivity) + otherActivities
-        } ?: run{
+        val activities = notPlannedActivities.firstOrNull { it.code == transferActivityCode }
+            ?.let { transferActivity ->
+                this.transferActivity = transferActivity
+                listOf(transferActivity) + otherActivities
+            } ?: run {
             otherActivities
         }
         activities.map {
-            SelectCareActivityPopupUIState.ActivityListItem(it.desc,it.code, it.id, carePlanId = null,false,it.code == transferActivityCode, isSelected = selectedActivityIds.contains(it.id))
+            SelectCareActivityPopupUIState.ActivityListItem(
+                it.desc,
+                it.code,
+                it.id,
+                carePlanId = null,
+                false,
+                it.code == transferActivityCode,
+                isSelected = selectedActivityIds.contains(it.id)
+            )
         }
     }
 
@@ -89,12 +105,27 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         plannedActivities
     ) { isLoading, selectedActivityIds, query, notPlannedActivities, plannedActivities ->
         val unPlannedItems = if (query.isNotEmpty()) {
-            notPlannedActivities.filter { it.title.contains(query, true) || it.code?.contains(query,true) == true }
+            notPlannedActivities.filter {
+                it.title.contains(query, true) || it.code?.contains(
+                    query,
+                    true
+                ) == true
+            }
         } else {
             notPlannedActivities
         }
 
-        val plannedItems = plannedActivities?.map { SelectCareActivityPopupUIState.ActivityListItem(it.type,null, it.id, carePlanId = it.carePlan,false,false, isSelected = selectedActivityIds.contains(it.id)) } ?: listOf()
+        val plannedItems = plannedActivities?.map {
+            SelectCareActivityPopupUIState.ActivityListItem(
+                it.type,
+                null,
+                it.id,
+                carePlanId = it.carePlan,
+                false,
+                false,
+                isSelected = selectedActivityIds.contains(it.id)
+            )
+        } ?: listOf()
 
         SelectCareActivityPopupUIState(
             isLoading = isLoading,
@@ -120,7 +151,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
             isLoading.value = false
         }
 
-    fun loadData(carePlanId: Int?, patientCode: String){
+    fun loadData(carePlanId: Int?, patientCode: String) {
         this.carePlanId.value = carePlanId
         this.patientCode.value = patientCode
         isLoading.value = true
@@ -132,8 +163,10 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                     carePlanId
                 ).results
                 plannedActivities.value = plannedRes ?: listOf()
-            }else{
-                val carePlanIds = homeCareActivitiesRepository.getHomeCarePlans(patientCode).results?.map { it.id } ?: listOf()
+            } else {
+                val carePlanIds =
+                    homeCareActivitiesRepository.getHomeCarePlans(patientCode).results?.map { it.id }
+                        ?: listOf()
                 val plannedRes = homeCareActivitiesRepository.getHomeCareActivitiesPlanned(
                     patientCode,
                     null
@@ -154,91 +187,101 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         _errorMessage.value = null
     }
 
-    fun sendTransferActivity(duration:Long,onSuccess:() -> Unit){
+    fun sendTransferActivity(onSuccess: () -> Unit) {
         viewModelScope.launch(coroutineExceptionHandler) {
-            transferActivity?.let { activity ->
-                val item = HomeCareActivitySave(
-                    codCase = patientCode.value ?: "",
-                    idActivityType = activity.id,
-                    execDateTime = Date().format("yyyy.MM.dd HH:mm"),
-                    duration = duration.toInt(),
-                    notes = "",
-                    showInDiary = false,
-                    idPlanning = carePlanId.value
-                )
-                val res = homeCareActivitiesRepository.addHomeCareActivity(item)
-                res.error?.desc?.let {
-                    _errorMessage.value = it
+            userMarkingRepository.getMinutesFromLastActivityOnce()?.let { minutesFromLastActivity ->
+                transferActivity?.let { activity ->
+                    val item = HomeCareActivitySave(
+                        codCase = patientCode.value ?: "",
+                        idActivityType = activity.id,
+                        execDateTime = Date().format("yyyy.MM.dd HH:mm"),
+                        duration = minutesFromLastActivity.toInt(),
+                        notes = "",
+                        showInDiary = false,
+                        idPlanning = carePlanId.value
+                    )
+                    val res = homeCareActivitiesRepository.addHomeCareActivity(item)
+                    res.error?.desc?.let {
+                        _errorMessage.value = it
 
-                } ?: run{
+                    } ?: run {
+                        onSuccess()
+                    }
+                }
+            }
+
+        }
+    }
+
+    fun executeAllPlannedActivities(onSuccess: () -> Unit) {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            userMarkingRepository.getMinutesFromLastActivityOnce()?.let { elapsedTimeFromLastActivity ->
+                    val elapsedTime = elapsedTimeFromLastActivity
+                    val startTime = Date().time - (elapsedTime * 1000 * 60)
+                    launch {
+                        val activities = plannedActivities.value
+                            .filter { selectedActivityIds.value.contains(it.id) }
+                        if (activities.isEmpty()) return@launch
+
+                        val executionTimes =
+                            distributeTime(activities.map { it.duration }, elapsedTime)
+                        var lastEndTime = startTime
+
+                        val activitiesToSend =
+                            activities.zip(executionTimes).map { (activity, executionTime) ->
+                                val endTime = lastEndTime + executionTime.toLong() * 60000
+                                lastEndTime = endTime
+                                HomeCareActivitySave(
+                                    idPlanning = activity.id,
+                                    idActivityType = null,
+                                    codCase = patientCode.value ?: "",
+                                    execDateTime = Date(endTime).format("yyyy.MM.dd HH:mm"),
+                                    duration = executionTime,
+                                    notes = activity.notes,
+                                    showInDiary = false,
+                                )
+                            }
+
+                        Log.d("sortedActivities", activitiesToSend.toString())
+                        activitiesToSend.sortedBy { it.execDateTime }.forEach { saveActivity(it) }
+                        onSuccess()
+                    }
+                }
+        }
+    }
+
+    fun executeAllUnplannedActivities(onSuccess: () -> Unit) {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            userMarkingRepository.getMinutesFromLastActivityOnce()
+                ?.let { elapsedTimeFromLastActivity ->
+                    val elapsedTime = elapsedTimeFromLastActivity
+                    val startTime = Date().time - (elapsedTime * 1000 * 60)
+                    val activities = notPlannedActivities.value
+                        .filter { selectedActivityIds.value.contains(it.id) }
+                        .sortedBy { it.code.toIntOrNull() ?: Int.MAX_VALUE }
+                    if (activities.isEmpty()) return@launch
+
+                    val executionTimes = distributeTime(activities.map { it.duration }, elapsedTime)
+                    var lastEndTime = startTime
+
+                    val activitiesToSend =
+                        activities.zip(executionTimes).map { (activity, executionTime) ->
+                            val endTime = lastEndTime + executionTime.toLong() * 60000
+                            lastEndTime = endTime
+                            HomeCareActivitySave(
+                                idActivityType = activity.id,
+                                codCase = patientCode.value ?: "",
+                                execDateTime = Date(endTime).format("yyyy.MM.dd HH:mm"),
+                                duration = executionTime,
+                                notes = "",
+                                showInDiary = true,
+                            )
+                        }
+
+                    Log.d("sortedActivities", activitiesToSend.toString())
+                    activitiesToSend.sortedBy { it.execDateTime }.forEach { saveActivity(it) }
                     onSuccess()
                 }
-            }
-
-        }
-    }
-
-    fun executeAllPlannedActivities(elapsedTimeFromLastActivity: Long?, onSuccess: () -> Unit) {
-        val elapsedTime = elapsedTimeFromLastActivity ?: return
-        viewModelScope.launch(coroutineExceptionHandler) {
-            val startTime = Date().time - (elapsedTime * 1000 * 60)
-            launch {
-                val activities = plannedActivities.value
-                    .filter { selectedActivityIds.value.contains(it.id) }
-                if (activities.isEmpty()) return@launch
-
-                val executionTimes = distributeTime(activities.map { it.duration }, elapsedTime)
-                var lastEndTime = startTime
-
-                val activitiesToSend = activities.zip(executionTimes).map { (activity, executionTime) ->
-                    val endTime = lastEndTime + executionTime.toLong() * 60000
-                    lastEndTime = endTime
-                    HomeCareActivitySave(
-                        idPlanning = activity.id,
-                        idActivityType = null,
-                        codCase = patientCode.value ?: "",
-                        execDateTime = Date(endTime).format("yyyy.MM.dd HH:mm"),
-                        duration = executionTime,
-                        notes = activity.notes,
-                        showInDiary = false,
-                    )
-                }
-
-                Log.d("sortedActivities", activitiesToSend.toString())
-                activitiesToSend.sortedBy { it.execDateTime }.forEach { saveActivity(it) }
-                onSuccess()
-            }
-        }
-    }
-
-    fun executeAllUnplannedActivities(elapsedTimeFromLastActivity: Long?, onSuccess: () -> Unit) {
-        val elapsedTime = elapsedTimeFromLastActivity ?: return
-        viewModelScope.launch(coroutineExceptionHandler) {
-            val startTime = Date().time - (elapsedTime * 1000 * 60)
-            val activities = notPlannedActivities.value
-                .filter { selectedActivityIds.value.contains(it.id) }
-                .sortedBy { it.code.toIntOrNull() ?: Int.MAX_VALUE }
-            if (activities.isEmpty()) return@launch
-
-            val executionTimes = distributeTime(activities.map { it.duration }, elapsedTime)
-            var lastEndTime = startTime
-
-            val activitiesToSend = activities.zip(executionTimes).map { (activity, executionTime) ->
-                val endTime = lastEndTime + executionTime.toLong() * 60000
-                lastEndTime = endTime
-                HomeCareActivitySave(
-                    idActivityType = activity.id,
-                    codCase = patientCode.value ?: "",
-                    execDateTime = Date(endTime).format("yyyy.MM.dd HH:mm"),
-                    duration = executionTime,
-                    notes = "",
-                    showInDiary = true,
-                )
-            }
-
-            Log.d("sortedActivities", activitiesToSend.toString())
-            activitiesToSend.sortedBy { it.execDateTime }.forEach { saveActivity(it) }
-            onSuccess()
         }
     }
 
@@ -259,34 +302,34 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         return result
     }
 
-    suspend fun saveActivity(activity: HomeCareActivitySave){
+    suspend fun saveActivity(activity: HomeCareActivitySave) {
         val res = homeCareActivitiesRepository.addHomeCareActivity(activity)
         res.error?.desc?.let {
             _errorMessage.value = it
         }
     }
 
-    fun changeActivitySelection(id:Int, isSelected:Boolean){
+    fun changeActivitySelection(id: Int, isSelected: Boolean) {
         val selected = selectedActivityIds.value.toMutableList()
-        if(isSelected && !selected.contains(id)){
+        if (isSelected && !selected.contains(id)) {
             selected.add(id)
-        }else if(!isSelected && selected.contains(id)){
+        } else if (!isSelected && selected.contains(id)) {
             selected.remove(id)
         }
         selectedActivityIds.value = selected
     }
 
-    fun selectAllPlanned(){
+    fun selectAllPlanned() {
         val plannedIds = plannedActivities.value.map { it.id }
         selectedActivityIds.value = plannedIds
     }
 
-    fun selectAllUnplanned(){
+    fun selectAllUnplanned() {
         val plannedIds = notPlannedActivities.value.map { it.id }
         selectedActivityIds.value = plannedIds
     }
 
-    fun cancelAllSection(){
+    fun cancelAllSection() {
         selectedActivityIds.value = listOf()
     }
 }

@@ -116,7 +116,7 @@ class TimeTrackerViewModel @Inject constructor(
 
     fun stopTracker(onDone: () -> Unit = {}) {
         viewModelScope.launch(coroutineExceptionHandler) {
-            userMarkingRepository.getMinutesFromLastActivity().firstOrNull()?.let { minutesFromLastActivity ->
+            userMarkingRepository.getMinutesFromLastActivityOnce()?.let { minutesFromLastActivity ->
                 val calculatedDate = Date(Date().time - TimeUnit.MINUTES.toMillis(minutesFromLastActivity))
                 val res = userMarkingRepository.addMarking(
                     UserMarking(
@@ -162,6 +162,5 @@ class TimeTrackerViewModel @Inject constructor(
             }
         }
     }
-
 
 }

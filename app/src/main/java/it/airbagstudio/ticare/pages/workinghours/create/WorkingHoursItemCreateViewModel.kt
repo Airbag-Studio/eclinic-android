@@ -142,18 +142,19 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
     fun saveWorkingHour() {
         viewModelScope.launch(coroutineExceptionHandler) {
             isLoading.value = true
-            val totalHours = "%02d:%02d".format((duration.value.toInt() / 60.0).toInt(), duration.value.toInt() % 60)
-            val finaDate = if (workingHourId.value == null) Date(Date().time - (duration.value.toInt() * 60 * 1000)) else date.value
 
-            val item = SaveEmployeeWorkingHour(
-                id = workingHourId.value,
-                idType = selectedTypeId.value!!,
-                remarks = notes.value.ifEmpty { null },
-                totalHours = totalHours,
-                date = finaDate.format("yyyy.MM.dd HH:mm"),
-                startDateTime = finaDate.format("yyyy.MM.dd HH:mm")
-            )
-            if (item.id != null) {
+            if (workingHourId.value != null) {
+                val totalHours = "%02d:%02d".format((duration.value.toInt() / 60.0).toInt(), duration.value.toInt() % 60)
+                val finaDate = date.value
+
+                val item = SaveEmployeeWorkingHour(
+                    id = workingHourId.value,
+                    idType = selectedTypeId.value!!,
+                    remarks = notes.value.ifEmpty { null },
+                    totalHours = totalHours,
+                    date = finaDate.format("yyyy.MM.dd HH:mm"),
+                    startDateTime = finaDate.format("yyyy.MM.dd HH:mm")
+                )
                 val res = workingHourRepository.editWorkingHour(item)
                 res.error?.desc?.let {
                     errorMessage.value = it
@@ -161,12 +162,25 @@ class WorkingHoursItemCreateViewModel @Inject constructor(
                     isSuccess.value = true
                 }
             } else {
-                val res = workingHourRepository.addWorkingHour(item)
-                res.error?.desc?.let {
-                    errorMessage.value = it
-                } ?: run{
-                    isSuccess.value = true
+                userMarkingRepository.getMinutesFromLastActivityOnce()?.let { correctDuration ->
+                    val finaDate = Date(Date().time - (correctDuration.toInt() * 60 * 1000))
+                    val totalHours = "%02d:%02d".format((correctDuration.toInt() / 60.0).toInt(), correctDuration.toInt() % 60)
+
+                    val item = SaveEmployeeWorkingHour(
+                        idType = selectedTypeId.value!!,
+                        remarks = notes.value.ifEmpty { null },
+                        totalHours = totalHours,
+                        date = finaDate.format("yyyy.MM.dd HH:mm"),
+                        startDateTime = finaDate.format("yyyy.MM.dd HH:mm")
+                    )
+                    val res = workingHourRepository.addWorkingHour(item)
+                    res.error?.desc?.let {
+                        errorMessage.value = it
+                    } ?: run{
+                        isSuccess.value = true
+                    }
                 }
+
             }
             isLoading.value = false
         }

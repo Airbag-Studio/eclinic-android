@@ -206,21 +206,23 @@ class CreateEditCareScreenViewModel @Inject constructor(
                         isSuccess.value = true
                     }
                 }else{
-                    val item = HomeCareActivitySave(
-                        codCase = codCase.value!!,
-                        idActivityType = idActivityType.value,
-                        execDateTime = date.value.format("yyyy.MM.dd HH:mm"),
-                        duration = duration.value,
-                        notes = notes.value,
-                        showInDiary = showInDiary.value,
-                        idPlanning = plannedActivityId.value
-                    )
-                    val res = homeCareActivitiesRepository.addHomeCareActivity(item)
-                    res.error?.desc?.let {
-                        errorMessage.value = it
-                    } ?: run{
-                        isSuccess.value = true
-                    }
+                     userMarkingRepository.getMinutesFromLastActivityOnce()?.let { duration ->
+                         val item = HomeCareActivitySave(
+                             codCase = codCase.value!!,
+                             idActivityType = idActivityType.value,
+                             execDateTime = Date().format("yyyy.MM.dd HH:mm"),
+                             duration = duration?.toInt() ?: 0,
+                             notes = notes.value,
+                             showInDiary = showInDiary.value,
+                             idPlanning = plannedActivityId.value
+                         )
+                         val res = homeCareActivitiesRepository.addHomeCareActivity(item)
+                         res.error?.desc?.let {
+                             errorMessage.value = it
+                         } ?: run {
+                             isSuccess.value = true
+                         }
+                     }
                 }
                 isLoading.value = false
 

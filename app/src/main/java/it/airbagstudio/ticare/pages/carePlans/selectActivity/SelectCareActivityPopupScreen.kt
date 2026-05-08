@@ -244,7 +244,7 @@ fun SelectCareActivityPopupScreen(
                 travelTime = trackerViewUIState.elapsedTimeFromLastActivity,
                 onDismissRequest = { confirm ->
                     if (confirm) {
-                        viewModel.sendTransferActivity(trackerViewUIState.elapsedTimeFromLastActivity) {
+                        viewModel.sendTransferActivity() {
                             showTravelTimeDialog = false
                         }
                     } else {
@@ -278,12 +278,12 @@ fun SelectCareActivityPopupScreen(
                         onClick = {
                             showExecuteAllAlert = false
                             if(tabIndex == 0) {
-                                viewModel.executeAllPlannedActivities(trackerViewUIState.elapsedTimeFromLastActivity) {
+                                viewModel.executeAllPlannedActivities() {
                                     trackerViewModel.updateLastMinutesFromLastActivity()
                                     onDismissRequest(null)
                                 }
                             }else{
-                                viewModel.executeAllUnplannedActivities(trackerViewUIState.elapsedTimeFromLastActivity) {
+                                viewModel.executeAllUnplannedActivities() {
                                     trackerViewModel.updateLastMinutesFromLastActivity()
                                     onDismissRequest(null)
                                 }
