@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.carePlans.details
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,11 @@ import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -41,7 +47,7 @@ data class CarePlanDetailsUIState(
 ) {
     data class TextItems(
         val titleStringId: Int,
-        val content: String
+        val content: AnnotatedString
     )
 }
 
@@ -91,33 +97,41 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                     isLocalContent = it.user.isEmpty()
                 )
             }
-            val plannedInfo = planndeActivities.map {
-                var data = "${it.type}\n${if(it.number > 0) it.number.toString() else "Su Necessità"} ${it.timeUnit}\n${getWeekDays(it.weekDays)} \nDurata (min):${it.duration}"
-                if(it.qualMin.isNotEmpty()){
-                    data+= "\n${it.qualMin}"
+            val plannedActivitiesAnnotated = planndeActivities.map {
+                buildAnnotatedString {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(it.type)
+                    }
+                    append("\n${if (it.number > 0) it.number.toString() else "Su Necessità"} ${it.timeUnit}\n")
+                    val weekDays = getWeekDays(it.weekDays)
+                    if (weekDays.isNotEmpty()) append("$weekDays \n")
+                    append("Durata (min):${it.duration}")
+                    if (it.qualMin.isNotEmpty()) append("\n${it.qualMin}")
+                    if (it.notes.isNotEmpty()) append("\n${it.notes}")
                 }
-                if (it.notes.isNotEmpty()){
-                    data+= "\n${it.notes}"
+            }
+            val plannedInfo = buildAnnotatedString {
+                plannedActivitiesAnnotated.forEachIndexed { index, item ->
+                    append(item)
+                    if (index < plannedActivitiesAnnotated.lastIndex) append("\n\n")
                 }
-                data
-            }.joinToString("\n\n")
+            }
 
             val textItems = listOf(
-
-                CarePlanDetailsUIState.TextItems(R.string.diagnosis, selectedPan?.diagnosis ?: ""),
+                CarePlanDetailsUIState.TextItems(R.string.diagnosis, AnnotatedString(selectedPan?.diagnosis ?: "")),
                 CarePlanDetailsUIState.TextItems(
                     R.string.problem,
-                    selectedPan?.problemDescription ?: ""
+                    AnnotatedString(selectedPan?.problemDescription ?: "")
                 ),
                 CarePlanDetailsUIState.TextItems(
                     R.string.defining_features,
-                    selectedPan?.definingFeatures?.map { it.name }?.joinToString("\n") ?: ""
+                    AnnotatedString(selectedPan?.definingFeatures?.map { it.name }?.joinToString("\n") ?: "")
                 ),
                 CarePlanDetailsUIState.TextItems(
                     R.string.related_factors,
-                    selectedPan?.relatedFactors?.map { it.name }?.joinToString("\n") ?: ""
+                    AnnotatedString(selectedPan?.relatedFactors?.map { it.name }?.joinToString("\n") ?: "")
                 ),
-                CarePlanDetailsUIState.TextItems(R.string.goal, selectedPan?.goal ?: ""),
+                CarePlanDetailsUIState.TextItems(R.string.goal, AnnotatedString(selectedPan?.goal ?: "")),
                 CarePlanDetailsUIState.TextItems(
                     R.string.planned_activities,
                     plannedInfo
