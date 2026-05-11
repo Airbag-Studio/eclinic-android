@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
@@ -102,6 +103,20 @@ class CreateEditCareScreenViewModel @Inject constructor(
 
     private val title = combine(plannedActivity,notPlannedActivity){ plannedActivity,notPlannedActivity ->
         plannedActivity?.type ?: "${notPlannedActivity?.code} - ${notPlannedActivity?.desc}"
+    }
+
+    private val _canEdit = MutableStateFlow<Boolean>(false)
+
+    val canEdit = _canEdit.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            combine(plannedActivity,notPlannedActivity) { plannedActivity, notPlannedActivity ->
+                plannedActivity != null || notPlannedActivity != null
+            }.collect {
+                _canEdit.value = it
+            }
+        }
     }
 
     val uiState = combine(care, isLoading, errorMessage,title,isSuccess) { care, isLoading, errorMessage,title,isSuccess ->

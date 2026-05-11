@@ -231,7 +231,8 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
 
                 planndeActivities.value = homeCareActivitiesRepository.getHomeCareActivitiesPlanned(
                     patientCod,
-                    intPlanId
+                    intPlanId,
+                    skipQualification = true
                 ).results ?: listOf()
             } else if (res.error != null) {
                 errorMessage.value = res.error?.desc ?: ""

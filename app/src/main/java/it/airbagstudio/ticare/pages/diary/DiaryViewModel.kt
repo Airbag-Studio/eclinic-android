@@ -88,7 +88,9 @@ class DiaryViewModel @Inject constructor(
                     code = patientCod,
                     carePlanId = null,
                     start = from.format(dateFormatter),
-                    end = now.format(dateFormatter)
+                    end = now.format(dateFormatter),
+                    sortType = 1,
+                    skipQualification = true
                 ).results?.map {
                     DiaryItem(
                         caseCode = patientCod,

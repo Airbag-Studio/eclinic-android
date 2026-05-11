@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.carePlans.create
 
+import android.R.attr.label
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -88,6 +89,7 @@ fun CreateEditCareScreen(
 
     }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val canEdit by viewModel.canEdit.collectAsStateWithLifecycle()
     var showAlertNotPlannedActivity by remember {
         mutableStateOf(false)
     }
@@ -102,7 +104,7 @@ fun CreateEditCareScreen(
                     title = {
                         Column {
                             Text(
-                                text = uiState.title,
+                                text = homeCareActivity?.type ?: uiState.title,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -129,7 +131,7 @@ fun CreateEditCareScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 Row {
                     CalendarTextField(
-                        enabled = homeCareActivity != null,
+                        enabled = homeCareActivity != null && canEdit,
                         modifier = Modifier.weight(1f),
                         date = uiState.item.date, label = {
                             Text(text = stringResource(id = R.string.actual_date_time))
@@ -139,7 +141,7 @@ fun CreateEditCareScreen(
                     Spacer(modifier = Modifier.width(24.dp))
                     OutlinedTextField(
                         modifier = Modifier.width(110.dp),
-                        enabled = homeCareActivity != null,
+                        enabled = homeCareActivity != null && canEdit,
                         singleLine = true,
                         label = {
                             Text(text = stringResource(id = R.string.duration))
@@ -155,6 +157,7 @@ fun CreateEditCareScreen(
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 OutlinedTextField(
+                    enabled = canEdit,
                     label = {
                         Text(text = stringResource(id = R.string.notes))
                     },
@@ -174,13 +177,17 @@ fun CreateEditCareScreen(
                         modifier = Modifier.weight(1f),
                         text = stringResource(id = R.string.show_in_diary)
                     )
-                    Switch(checked = uiState.item.showInDiary, onCheckedChange = {
+                    Switch(
+
+                        checked = uiState.item.showInDiary,
+                        enabled = canEdit,
+                        onCheckedChange = {
                         viewModel.setShowInDiary(it)
                     })
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
-                    enabled = !uiState.isLoading,
+                    enabled = !uiState.isLoading && canEdit,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         viewModel.saveCare()
