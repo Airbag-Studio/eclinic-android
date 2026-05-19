@@ -206,7 +206,6 @@ class CreateEditFallDialogScreenViewModel @Inject constructor(
             isSuccess = isSuccess,
             isValid = selections.autonomyDegree != null &&
                     selections.cause != null &&
-                    selections.causeDetail != null &&
                     selections.consequences != null &&
                     selections.location != null &&
                     selections.preStatus != null
@@ -257,15 +256,15 @@ class CreateEditFallDialogScreenViewModel @Inject constructor(
                     fallsRepository.getFallPreStatuses()
                 ) { values ->
                     @Suppress("UNCHECKED_CAST")
-                    autonomyDegrees.value = (values[0] as List<FallAutonomyDegrees>).map { ListPopupItem(it.name, it) }
-                    causes.value = (values[1] as List<FallCauses>).map { ListPopupItem(it.name, it) }
+                    autonomyDegrees.value = withNone((values[0] as List<FallAutonomyDegrees>).map { ListPopupItem(it.name, it) })
+                    causes.value = withNone((values[1] as List<FallCauses>).map { ListPopupItem(it.name, it) })
                     allCauseDetails = (values[2] as List<FallCauseDetail>)
-                    causeDetails.value = allCauseDetails
+                    causeDetails.value = withNone(allCauseDetails
                         .filter { selectedCause.value == null || it.iDCause == selectedCause.value!!.id }
-                        .map { ListPopupItem(it.name, it) }
-                    consequences.value = (values[3] as List<FallConsequences>).map { ListPopupItem(it.name, it) }
-                    locations.value = (values[4] as List<FallLocations>).map { ListPopupItem(it.name, it) }
-                    preStatuses.value = (values[5] as List<FallPreStatuses>).map { ListPopupItem(it.name, it) }
+                        .map { ListPopupItem(it.name, it) })
+                    consequences.value = withNone((values[3] as List<FallConsequences>).map { ListPopupItem(it.name, it) })
+                    locations.value = withNone((values[4] as List<FallLocations>).map { ListPopupItem(it.name, it) })
+                    preStatuses.value = withNone((values[5] as List<FallPreStatuses>).map { ListPopupItem(it.name, it) })
                 }.collect()
             }
 
@@ -318,9 +317,9 @@ class CreateEditFallDialogScreenViewModel @Inject constructor(
     fun setCause(value: FallCauses?) {
         selectedCause.value = value
         selectedCauseDetail.value = null
-        causeDetails.value = allCauseDetails
+        causeDetails.value = withNone(allCauseDetails
             .filter { value == null || it.iDCause == value.id }
-            .map { ListPopupItem(it.name, it) }
+            .map { ListPopupItem(it.name, it) })
     }
     fun setCauseDetail(value: FallCauseDetail?) { selectedCauseDetail.value = value }
     fun setConsequences(value: FallConsequences?) { selectedConsequences.value = value }
@@ -357,7 +356,7 @@ class CreateEditFallDialogScreenViewModel @Inject constructor(
         /* id                */ id,
         /* idAutonomyDegree  */ selectedAutonomyDegree.value!!.id,
         /* idCause           */ selectedCause.value!!.id,
-        /* idCauseDetail     */ selectedCauseDetail.value!!.id,
+        /* idCauseDetail     */ selectedCauseDetail.value?.id,
         /* idConsequences    */ selectedConsequences.value!!.id,
         /* idLocation        */ selectedLocation.value!!.id,
         /* idPreStatus       */ selectedPreStatus.value!!.id,
@@ -453,4 +452,7 @@ class CreateEditFallDialogScreenViewModel @Inject constructor(
         val familyAckDate: String,
         val refPersonAckDate: String
     )
+
+    private fun <T> withNone(items: List<ListPopupItem<T>>): List<ListPopupItem<T>> =
+        mutableListOf(ListPopupItem("--", null as T?)).also { it.addAll(items) }
 }

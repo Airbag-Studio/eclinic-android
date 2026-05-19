@@ -19,6 +19,7 @@ import it.airbagstudio.ticare.pages.diary.DiaryDrugAdministrationItemView
 import it.airbagstudio.ticare.pages.diary.DiaryNursingCourseItemView
 import it.airbagstudio.ticare.pages.diary.DiaryVitaLParameterItemView
 import it.airbagstudio.ticare.pages.diary.DiaryWoundItemView
+import it.airbagstudio.ticare.pages.diary.FallDiaryListItemView
 import it.airbagstudio.ticare.pages.diary.GenericDiaryListItemView
 import it.airbagstudio.ticare.ui.theme.seed
 import it.airbagstudio.ticare.utils.getDiaryIconId
@@ -88,7 +89,19 @@ fun DiaryAllItemsTabContent(items: Map<String, List<DiaryItem>>){
                         note = item.appearanceDescription ?: "",
                         userLbl = item.userLbl
                     )
-                }else{
+                }else if (item.entityName == "Fall"){
+                    FallDiaryListItemView(
+                        iconId = ToolTag.Fall.getDiaryIconId(),
+                        typeIdLabel = ToolTag.Fall.getLabelId(),
+                        activityName = item.cause ?: "",
+                        time = item.time,
+                        detector = item.detector ?: "",
+                        location = item.location ?: "",
+                        consequences = item.consequences ?: "",
+                        causesDetails = item.causeDetails ?: "",
+                        userLbl = item.userLbl
+                    )
+                } else {
                     val toolTag = ToolTag.valueOf(item.entityName)
                     GenericDiaryListItemView(
                         iconId = toolTag.getDiaryIconId(),

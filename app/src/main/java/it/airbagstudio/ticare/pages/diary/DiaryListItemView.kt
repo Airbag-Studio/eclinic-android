@@ -1,5 +1,6 @@
 package it.airbagstudio.ticare.pages.diary
 
+import android.R.attr.duration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -336,24 +337,39 @@ fun GenericDiaryListItemView(
 
 }
 
-/*
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-@Preview
-private fun PreviewDiaryItemView() {
-    AppTheme {
+fun FallDiaryListItemView(
+    iconId: Int,
+    typeIdLabel: Int,
+    activityName: String,
+    location: String,
+    detector: String,
+    consequences: String,
+    causesDetails: String,
+    time: String,
+    userLbl: String
+) {
+    Row(Modifier.padding(16.dp)) {
+        Image(
+            modifier = Modifier
+                .size(40.dp)
+                .border(2.dp, seed, RoundedCornerShape(66.dp))
+                .padding(8.dp), painter = painterResource(id = iconId), contentDescription = ""
+        )
+        Spacer(modifier = Modifier.width(16.dp))
         Column {
-            DiaryDrugAdministrationItemView()
-            Divider()
-            DiaryOtherServiceItemView()
-            Divider()
-            DiaryVitaLParameterItemView()
+            BuildHeader(title = activityName, category = stringResource(id = typeIdLabel))
+            LabelValueRow(label = stringResource(id = R.string.time), value = time)
+            LabelValueRow(label = "Operatore",userLbl)
+            LabelValueRow(label = "Luogo Incidente",location)
+            LabelValueRow(label = "Persona che ha rilevato",detector)
+            LabelValueRow(label = "Conseguenze",consequences)
+            LabelValueRow(label = "Dettaglio Cause",causesDetails)
         }
-
     }
+
 }
-
- */
-
 
 @Composable
 private fun BuildHeader(category: String, title: String, code: String = "") {

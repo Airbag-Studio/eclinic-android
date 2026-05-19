@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,7 +41,6 @@ import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.PopupTextField
 import it.airbagstudio.ticare.ui.components.SwitchItem
-import it.airbagstudio.ticare.utils.rememberImeState
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,13 +58,7 @@ fun CreateEditFallDialogScreen(
         viewModel.codCase = codCase
         viewModel.downloadData(fallId, fallDate)
     }
-    val imeState = rememberImeState()
     val scrollState = rememberScrollState()
-    LaunchedEffect(key1 = imeState.value) {
-        if (imeState.value) {
-            scrollState.scrollTo(scrollState.maxValue)
-        }
-    }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Dialog(
@@ -79,7 +73,7 @@ fun CreateEditFallDialogScreen(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
-                        Text(text = stringResource(id = R.string.falls))
+                        Text(text = stringResource(id = R.string.fall))
                     },
                     actions = {
                         IconButton(onClick = { onDismissRequest(false) }) {
@@ -94,6 +88,7 @@ fun CreateEditFallDialogScreen(
                     .fillMaxSize()
                     .padding(values)
                     .verticalScroll(scrollState)
+                    .imePadding()
                     .padding(16.dp)
             ) {
                 // --- Data e ora ---
@@ -108,7 +103,6 @@ fun CreateEditFallDialogScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // --- Persona che ha rilevato ---
-                /*
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = uiState.detector,
@@ -118,11 +112,10 @@ fun CreateEditFallDialogScreen(
                     enabled = canWrite,
                 )
                 Spacer(modifier = Modifier.height(24.dp))
-*/
                 // --- Luogo ---
                 PopupTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    label = stringResource(id = R.string.fall_location),
+                    label = stringResource(id = R.string.fall_location) + " *",
                     value = uiState.locationLabel ?: "",
                     items = viewModel.locations.value,
                     enabled = canWrite,
@@ -132,14 +125,14 @@ fun CreateEditFallDialogScreen(
                 // --- Causa ---
                 PopupTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    label = stringResource(id = R.string.fall_cause),
+                    label = stringResource(id = R.string.fall_cause) + " *",
                     value = uiState.causeLabel ?: "",
                     items = viewModel.causes.value,
                     enabled = canWrite,
                 ) { viewModel.setCause(it.item) }
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // --- Dettaglio Causa ---
+                // --- Dettaglio Cause ---
                 PopupTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(id = R.string.fall_cause_detail),
@@ -151,7 +144,7 @@ fun CreateEditFallDialogScreen(
 
                 // --- Illuminazione ---
                 SwitchItem(
-                    label = stringResource(id = R.string.fall_lighting),
+                    label = stringResource(id = R.string.fall_lighting) + " *",
                     value = uiState.lighting,
                     enabled = canWrite,
                     onChange = { viewModel.setLighting(it) }
@@ -161,7 +154,7 @@ fun CreateEditFallDialogScreen(
                 // --- Conseguenze ---
                 PopupTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    label = stringResource(id = R.string.fall_consequences),
+                    label = stringResource(id = R.string.fall_consequences) + " *",
                     value = uiState.consequencesLabel ?: "",
                     items = viewModel.consequences.value,
                     enabled = canWrite,
@@ -181,37 +174,43 @@ fun CreateEditFallDialogScreen(
 
                 // --- Ricovero ---
                 SwitchItem(
-                    label = stringResource(id = R.string.fall_intervention),
+                    label = stringResource(id = R.string.fall_intervention) + " *",
                     value = uiState.intervention,
                     enabled = canWrite,
                     onChange = { viewModel.setIntervention(it) }
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider()
                 Spacer(modifier = Modifier.height(8.dp))
-
-                // --- Grado di autonomia ---
+                // --- Stato pre-caduta ---
                 PopupTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    label = stringResource(id = R.string.fall_autonomy_degree),
+                    label = stringResource(id = R.string.fall_pre_status)+" *",
+                    value = uiState.preStatusLabel ?: "",
+                    items = viewModel.preStatuses.value,
+                    enabled = canWrite,
+                ) { viewModel.setPreStatus(it.item) }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // --- Grado di Autonomia ---
+                PopupTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = stringResource(id = R.string.fall_autonomy_degree) + " *",
                     value = uiState.autonomyDegreeLabel ?: "",
                     items = viewModel.autonomyDegrees.value,
                     enabled = canWrite,
                 ) { viewModel.setAutonomyDegree(it.item) }
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // --- Deficit visivo ---
+                // --- Deficit Visivo ---
                 SwitchItem(
-                    label = stringResource(id = R.string.fall_visual_issues),
+                    label = stringResource(id = R.string.fall_visual_issues) + " *",
                     value = uiState.visualIssues,
                     enabled = canWrite,
                     onChange = { viewModel.setVisualIssues(it) }
                 )
 
-                // --- Demenza / Disorientamento ---
+                // --- Demenza/Disorientamento ---
                 SwitchItem(
-                    label = stringResource(id = R.string.fall_disorientation),
+                    label = stringResource(id = R.string.fall_disorientation) + " *",
                     value = uiState.disorientation,
                     enabled = canWrite,
                     onChange = { viewModel.setDisorientation(it) }
@@ -219,7 +218,7 @@ fun CreateEditFallDialogScreen(
 
                 // --- Contenzione ---
                 SwitchItem(
-                    label = stringResource(id = R.string.fall_with_restraint),
+                    label = stringResource(id = R.string.fall_with_restraint) + " *",
                     value = uiState.withRestraint,
                     enabled = canWrite,
                     onChange = { viewModel.setWithRestraint(it) }
@@ -227,15 +226,15 @@ fun CreateEditFallDialogScreen(
 
                 // --- Calzature antiscivolo ---
                 SwitchItem(
-                    label = stringResource(id = R.string.fall_non_slip_shoes),
+                    label = stringResource(id = R.string.fall_non_slip_shoes) + " *",
                     value = uiState.nonSlipShoes,
                     enabled = canWrite,
                     onChange = { viewModel.setNonSlipShoes(it) }
                 )
 
-                // --- Con testimoni ---
+                // --- Con Testimoni ---
                 SwitchItem(
-                    label = stringResource(id = R.string.fall_with_witnesses),
+                    label = stringResource(id = R.string.fall_with_witnesses) + " *",
                     value = uiState.withWitnesses,
                     enabled = canWrite,
                     onChange = { viewModel.setWithWitnesses(it) }
@@ -253,22 +252,6 @@ fun CreateEditFallDialogScreen(
                         enabled = canWrite,
                     )
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider()
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // --- Stato pre-caduta ---
-                PopupTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = stringResource(id = R.string.fall_pre_status),
-                    value = uiState.preStatusLabel ?: "",
-                    items = viewModel.preStatuses.value,
-                    enabled = canWrite,
-                ) { viewModel.setPreStatus(it.item) }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider()
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // --- Notifiche ---
@@ -328,9 +311,6 @@ fun CreateEditFallDialogScreen(
                             modifier = Modifier.size(20.dp)
                         )
                     }
-                }
-                if (imeState.value) {
-                    Spacer(modifier = Modifier.height(150.dp))
                 }
             }
         }
