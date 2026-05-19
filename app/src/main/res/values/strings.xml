@@ -361,4 +361,25 @@
     <string name="note_di_pianificazione">Note di pianificazione</string>
     <string name="falls">Cadute</string>
     <string name="new_fall">Nuova Caduta</string>
+    <string name="fall_autonomy_degree">Grado di autonomia</string>
+    <string name="fall_cause">Causa</string>
+    <string name="fall_cause_detail">Dettaglio causa</string>
+    <string name="fall_consequences">Conseguenze</string>
+    <string name="fall_location">Luogo incidente</string>
+    <string name="fall_pre_status">Stato pre-caduta</string>
+    <string name="fall_detector">Persona che ha rilevato</string>
+    <string name="fall_lighting">Illuminazione</string>
+    <string name="fall_consequence_details">Dettaglio conseguenze</string>
+    <string name="fall_intervention">Ricovero</string>
+    <string name="fall_visual_issues">Deficit visivo</string>
+    <string name="fall_disorientation">Demenza / Disorientamento</string>
+    <string name="fall_with_restraint">Contenzione al momento della caduta</string>
+    <string name="fall_non_slip_shoes">Uso di calzature antiscivolo</string>
+    <string name="fall_with_witnesses">Con testimoni</string>
+    <string name="fall_witnesses">Dettaglio testimoni</string>
+    <string name="fall_medic_ack">Notifica tel. al Medico</string>
+    <string name="fall_family_ack">Notifica tel. ai Familiari</string>
+    <string name="fall_ref_person_ack">Notifica tel. al Referente</string>
+    <string name="fall_ack_not_done">Non eseguita</string>
+    <string name="fall_ack_done">Eseguita</string>
 </resources>
