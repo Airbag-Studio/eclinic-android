@@ -222,6 +222,11 @@ fun PatientDetailsScreen(
                                         navActions.navigateToMedicalDiagnoses(Uri.encode(viewModel.patientCod))
                                     }
                                 }
+                                ToolTag.Fall -> {
+                                    viewModel.patientCod?.let {
+                                        navActions.navigateToFalls(Uri.encode(viewModel.patientCod))
+                                    }
+                                }
                             }
                         }
                     )

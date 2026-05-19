@@ -13,6 +13,7 @@ import ch.ticare.eclinic.library.repository.CaseAllergiesRepository
 import ch.ticare.eclinic.library.repository.ConsumptionRepository
 import ch.ticare.eclinic.library.repository.CoursesRepository
 import ch.ticare.eclinic.library.repository.DiaryRepository
+import ch.ticare.eclinic.library.repository.FallsRepository
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import ch.ticare.eclinic.library.repository.LocalStorageApi
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
@@ -177,5 +178,11 @@ class AppModule {
     @Singleton
     fun provideMedicalDiagnosesRepositoryRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): MedicalDiagnosesRepository{
         return MedicalDiagnosesRepository(apiClient,database,offlineOnlineRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFallsRepository(apiClient: APIClient,database: Database,offlineOnlineRepository: OfflineOnlineRepository): FallsRepository{
+        return FallsRepository(apiClient,database,offlineOnlineRepository)
     }
 }

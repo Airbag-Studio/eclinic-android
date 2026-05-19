@@ -1,50 +1,8 @@
 package it.airbagstudio.ticare.utils
 
-import android.net.Uri
-import ch.ticare.eclinic.library.entity.AddHomeCareCourse
-import ch.ticare.eclinic.library.entity.EditHomeCareCourse
-import ch.ticare.eclinic.library.entity.GenericSaveResponse
-import ch.ticare.eclinic.library.entity.HomeCareCourse
-import ch.ticare.eclinic.library.entity.HomeCareCourseCategory
-import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.ToolTag
-import ch.ticare.eclinic.library.entity.WrapperResponse
-import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import it.airbagstudio.ticare.R
-import it.airbagstudio.ticare.pages.patientDetails.SectionListItem
-import it.airbagstudio.ticare.utils.format
-import java.time.Duration
-import java.util.Date
 
-fun ToolTag.getType(): String{
-    return this.name + "Type"
-    /*
-    return when(this){
-        ToolTag.PharmacologicalTask -> TODO()
-        ToolTag.VitalSignTask -> TODO()
-        ToolTag.BloodExamTask -> TODO()
-        ToolTag.PhysiotherapyTask -> TODO()
-        ToolTag.NursingTask -> TODO()
-        ToolTag.EducatorTask -> TODO()
-        ToolTag.ErgotherapyTask -> TODO()
-        ToolTag.AtelierTask -> TODO()
-        ToolTag.ActivatorTask -> TODO()
-        ToolTag.GenericTask -> TODO()
-        ToolTag.HomeCareCourse -> TODO()
-        ToolTag.PhysiotherapyCourse -> "PhysiotherapyCourseType"
-        ToolTag.ErgotherapyCourse -> TODO()
-        ToolTag.AtelierCourse -> TODO()
-        ToolTag.EducatorCourse -> TODO()
-        ToolTag.ActivatorCourse -> TODO()
-        ToolTag.NursingCourse -> TODO()
-        ToolTag.Diary -> TODO()
-        ToolTag.CarePlan -> TODO()
-        ToolTag.Wounds -> TODO()
-        ToolTag.OtherServices -> TODO()
-    }
-
-     */
-}
 
 fun ToolTag.getLabelId(): Int{
     return when(this){
@@ -71,6 +29,7 @@ fun ToolTag.getLabelId(): Int{
         ToolTag.OtherService -> TODO()
         ToolTag.MedicalCourse -> R.string.medical_course
         ToolTag.Scale -> R.string.scale
+        ToolTag.Fall -> R.string.falls
         ToolTag.MedicalDiagnosis -> TODO()
     }
 }
@@ -101,6 +60,7 @@ fun ToolTag.getCreateLabelId(): Int{
         ToolTag.MedicalCourse -> R.string.new_medical_course
         ToolTag.Scale -> R.string.new_scale
         ToolTag.MedicalDiagnosis -> TODO()
+        ToolTag.Fall -> R.string.new_fall
     }
 }
 
@@ -130,6 +90,7 @@ fun ToolTag.getDiaryIconId(): Int{
         ToolTag.MedicalCourse -> R.drawable.ic_medical_course
         ToolTag.Scale -> R.drawable.moduli
         ToolTag.MedicalDiagnosis -> R.drawable.ic_medical_diagnoses
+        ToolTag.Fall -> R.drawable.ic_fall
     }
 }
 

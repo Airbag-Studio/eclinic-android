@@ -1,8 +1,6 @@
 package it.airbagstudio.ticare.pages.coursesGeneric.createEdit
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.AddHomeCareCourse
@@ -12,7 +10,6 @@ import ch.ticare.eclinic.library.entity.HomeCareCourseCategory
 import ch.ticare.eclinic.library.entity.ToolTag
 import ch.ticare.eclinic.library.repository.CoursesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import it.airbagstudio.ticare.utils.getType
 import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT_ITA
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.toDate

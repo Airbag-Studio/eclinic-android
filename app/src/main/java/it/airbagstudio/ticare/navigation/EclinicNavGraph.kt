@@ -24,6 +24,7 @@ import it.airbagstudio.ticare.pages.consumptions.ConsumptionListScreen
 import it.airbagstudio.ticare.pages.coursesGeneric.CoursesScreen
 import it.airbagstudio.ticare.pages.diary.DiaryScreen
 import it.airbagstudio.ticare.pages.drugsAdministration.DrugsAdministrationScreen
+import it.airbagstudio.ticare.pages.falls.list.FallsListScreen
 import it.airbagstudio.ticare.pages.login.LoginScreen
 import it.airbagstudio.ticare.pages.medicalDiagnoses.MedicalDiagnosesView
 import it.airbagstudio.ticare.pages.nursingCourses.NursingCoursesScreen
@@ -217,6 +218,12 @@ fun EclinicNavGraph(
 
         composable(Destinations.MEDICAL_DIAGNOSES_ROUTE){
             MedicalDiagnosesView {
+                navController.popBackStack()
+            }
+        }
+
+        composable(Destinations.FALL_ROUTE){
+            FallsListScreen(navigationActions = navActions) {
                 navController.popBackStack()
             }
         }
