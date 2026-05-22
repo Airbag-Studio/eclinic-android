@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.DiaryItem
 import ch.ticare.eclinic.library.entity.ToolTag
 import it.airbagstudio.ticare.pages.diary.DiaryCarePlaneItemView
@@ -27,7 +28,7 @@ import it.airbagstudio.ticare.utils.getLabelId
 import kotlin.collections.lastOrNull
 
 @Composable
-fun DiaryAllItemsTabContent(items: Map<String, List<DiaryItem>>){
+fun DiaryAllItemsTabContent(items: Map<String, List<DiaryItem>>,clinicType: ClinicType){
     LazyColumn(content = {
 
         items(items.keys.toList()) {
@@ -99,7 +100,8 @@ fun DiaryAllItemsTabContent(items: Map<String, List<DiaryItem>>){
                         location = item.location ?: "",
                         consequences = item.consequences ?: "",
                         causesDetails = item.causeDetails ?: "",
-                        userLbl = item.userLbl
+                        userLbl = item.userLbl,
+                        clinicType = clinicType
                     )
                 } else {
                     val toolTag = ToolTag.valueOf(item.entityName)

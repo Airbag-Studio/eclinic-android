@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ch.ticare.eclinic.library.entity.ClinicType
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.wounds.common.TitleValueView
 import it.airbagstudio.ticare.ui.components.DrugChip
@@ -38,6 +39,8 @@ import it.airbagstudio.ticare.ui.components.LabelValueRow
 import it.airbagstudio.ticare.ui.theme.AppTheme
 import it.airbagstudio.ticare.ui.theme.redColor
 import it.airbagstudio.ticare.ui.theme.seed
+import it.airbagstudio.ticare.utils.FallField
+import it.airbagstudio.ticare.utils.getLabelRes
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -348,7 +351,8 @@ fun FallDiaryListItemView(
     consequences: String,
     causesDetails: String,
     time: String,
-    userLbl: String
+    userLbl: String,
+    clinicType: ClinicType
 ) {
     Row(Modifier.padding(16.dp)) {
         Image(
@@ -362,10 +366,10 @@ fun FallDiaryListItemView(
             BuildHeader(title = activityName, category = stringResource(id = typeIdLabel))
             LabelValueRow(label = stringResource(id = R.string.time), value = time)
             LabelValueRow(label = "Operatore",userLbl)
-            LabelValueRow(label = "Luogo Incidente",location)
+            LabelValueRow(label = stringResource(id = FallField.Location.getLabelRes(clinicType)),location)
             LabelValueRow(label = "Persona che ha rilevato",detector)
-            LabelValueRow(label = "Conseguenze",consequences)
-            LabelValueRow(label = "Dettaglio Cause",causesDetails)
+            LabelValueRow(label = stringResource(id = FallField.Consequences.getLabelRes(clinicType)),consequences)
+            LabelValueRow(label = stringResource(id = FallField.CauseDetail.getLabelRes(clinicType)),causesDetails)
         }
     }
 

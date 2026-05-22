@@ -94,9 +94,9 @@ fun DiaryScreen(
                     }
                 }
                 if (currentTab == 0) {
-                    DiaryAllItemsTabContent(uiState.items)
+                    DiaryAllItemsTabContent(uiState.items,uiState.clinicType)
                 }else{
-                    DiaryAllItemsTabContent(uiState.homeCareItems)
+                    DiaryAllItemsTabContent(uiState.homeCareItems,uiState.clinicType)
 
                 }
             }

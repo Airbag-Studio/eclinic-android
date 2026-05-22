@@ -3,10 +3,12 @@ package it.airbagstudio.ticare.pages.diary
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.DiaryItem
 import ch.ticare.eclinic.library.repository.DiaryRepository
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
+import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.navigation.DestinationsArgs
 import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT
@@ -26,7 +28,8 @@ data class DiaryUIState(
     val items: Map<String, List<DiaryItem>>,
     val homeCareItems: Map<String, List<DiaryItem>>,
     val patientName: String,
-    val isLoading: Boolean
+    val isLoading: Boolean,
+    val clinicType: ClinicType
 )
 
 @HiltViewModel
@@ -34,6 +37,7 @@ class DiaryViewModel @Inject constructor(
     private val userDetailRepository: UserDetailRepository,
     private val diaryRepository: DiaryRepository,
     private val homeCareActivitiesRepository: HomeCareActivitiesRepository,
+    private val userRepository: UserRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -42,9 +46,9 @@ class DiaryViewModel @Inject constructor(
     private val isLoading = MutableStateFlow<Boolean>(false)
     private val items = MutableStateFlow<List<DiaryItem>>(listOf())
     private val homeCareItems = MutableStateFlow<List<DiaryItem>>(listOf())
-
+    private val clinicType = userRepository.getClinicType()
     val case = userDetailRepository.getCurrentCase()
-    val uiState = combine(items, isLoading,homeCareItems) { items, _,homeCareItems ->
+    val uiState = combine(items, isLoading,homeCareItems,clinicType) { items, _,homeCareItems, clinicType->
 
 
         DiaryUIState(
@@ -57,7 +61,8 @@ class DiaryViewModel @Inject constructor(
                 date?.format("EEE dd MMMM") ?: it.date
             },
             patientName = case?.getCompleteName() ?: "",
-            isLoading = false
+            isLoading = false,
+            clinicType = clinicType ?: ClinicType.SPITEX
         )
 
     }.stateIn(
@@ -67,7 +72,8 @@ class DiaryViewModel @Inject constructor(
             items = mapOf(),
             homeCareItems = mapOf(),
             patientName = case?.getCompleteName() ?: "",
-            isLoading = true
+            isLoading = true,
+            clinicType = ClinicType.SPITEX
         )
     )
 
