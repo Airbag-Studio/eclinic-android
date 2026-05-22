@@ -270,9 +270,7 @@ class CreateEditFallDialogScreenViewModel @Inject constructor(
 
             if (fallId != null) {
                 delay(500)
-                val queryDate = fallDate ?: dateTime.value
-                val dateParam = DateFormat.format("yyyy.MM.dd", queryDate).toString()
-                val fall = fallsRepository.getFalls(codCase, from = dateParam, to = dateParam)
+                val fall = fallsRepository.getFalls(codCase)
                     .results?.firstOrNull { it.id == fallId }
                 fall?.let {
                     dateTime.value = it.dateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA) ?: Date()

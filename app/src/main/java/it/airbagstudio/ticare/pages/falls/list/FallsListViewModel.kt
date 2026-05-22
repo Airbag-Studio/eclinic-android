@@ -83,10 +83,9 @@ class FallsListViewModel @Inject constructor(
 
     private suspend fun downloadFalls(){
         modifiedIds = offlineOnlineRepository.getModifiedIdForSection(patientCode,OfflineSection.Fall)
-        val dateParam =  DateFormat.format("yyyy.MM.dd", date).toString()
 
         val causes = fallsRepository.getFallCauses().first()
-        _fallsList.value = fallsRepository.getFalls(patientCode, from = dateParam, to = dateParam).results?.map { fall ->
+        _fallsList.value = fallsRepository.getFalls(patientCode).results?.map { fall ->
             val cause = causes.firstOrNull { it.id == fall.idCause }?.name ?: ""
             FallListItem(
                 id = fall.id!!,
