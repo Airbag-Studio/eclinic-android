@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
+import ch.ticare.eclinic.library.entity.Fall
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.NavigationActions
 import it.airbagstudio.ticare.pages.drugsAdministration.DrugAdministrationItemViewLoading
@@ -46,7 +47,7 @@ fun FallsListScreen(
     onBack: () -> Unit
 ) {
     var showFallDialog by remember { mutableStateOf(false) }
-    var selectedFallId by remember { mutableStateOf<Int?>(null) }
+    var selectedFall by remember { mutableStateOf<Fall?>(null) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
@@ -69,7 +70,7 @@ fun FallsListScreen(
                         .fillMaxWidth(),
                     contentColor = MaterialTheme.colorScheme.primary,
                     onClick = {
-                        selectedFallId = null
+                        selectedFall = null
                         showFallDialog = true
                     },
                     icon = {
@@ -120,7 +121,7 @@ fun FallsListScreen(
                     content = {
                         items(fallsList) {
                             FallListItemView(item = it) { fallId ->
-                                selectedFallId = fallId
+                                selectedFall = viewModel.getFallById(fallId)
                                 showFallDialog = true
                             }
                             HorizontalDivider(modifier = Modifier.padding(start = 16.dp))
@@ -137,12 +138,11 @@ fun FallsListScreen(
         if (showFallDialog) {
             CreateEditFallDialogScreen(
                 codCase = viewModel.patientCode,
-                fallId = selectedFallId,
-                fallDate = viewModel.date,
+                fall = selectedFall,
                 canWrite = viewModel.canWrite,
                 onDismissRequest = { saved ->
                     showFallDialog = false
-                    selectedFallId = null
+                    selectedFall = null
                     if (saved) viewModel.reload()
                 }
             )

@@ -36,19 +36,18 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.Fall
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.CalendarTextField
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.PopupTextField
 import it.airbagstudio.ticare.ui.components.SwitchItem
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEditFallDialogScreen(
     codCase: String,
-    fallId: Int? = null,
-    fallDate: Date? = null,
+    fall: Fall? = null,
     canWrite: Boolean,
     onDismissRequest: (Boolean) -> Unit,
     viewModel: CreateEditFallDialogScreenViewModel = hiltViewModel()
@@ -56,7 +55,7 @@ fun CreateEditFallDialogScreen(
     LaunchedEffect(Unit) {
         viewModel.clearData()
         viewModel.codCase = codCase
-        viewModel.downloadData(fallId, fallDate)
+        viewModel.downloadData(fall)
     }
     val scrollState = rememberScrollState()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

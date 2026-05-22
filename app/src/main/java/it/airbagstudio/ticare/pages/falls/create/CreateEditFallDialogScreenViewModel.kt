@@ -1,11 +1,11 @@
 package it.airbagstudio.ticare.pages.falls.create
 
-import android.text.format.DateFormat
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.Fall
 import ch.ticare.eclinic.library.entity.FallAutonomyDegrees
 import ch.ticare.eclinic.library.entity.FallCauseDetail
 import ch.ticare.eclinic.library.entity.FallCauses
@@ -17,18 +17,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.utils.FALL_DATE_FORMAT
 import it.airbagstudio.ticare.utils.FALL_DATE_TIME_FORMAT
-import it.airbagstudio.ticare.utils.SERVER_DATE_FORMAT
-import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT
 import it.airbagstudio.ticare.utils.SERVER_PARAMETER_DATE_TIME_FORMAT_ITA
 import it.airbagstudio.ticare.utils.format
 import it.airbagstudio.ticare.utils.toDate
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -243,66 +240,56 @@ class CreateEditFallDialogScreenViewModel @Inject constructor(
         )
     )
 
-    fun downloadData(fallId: Int?, fallDate: Date? = null) {
-        this.fallId = fallId
+    fun downloadData(fall: Fall? = null) {
+        this.fallId = fall?.id
         viewModelScope.launch(coroutineExceptionHandler) {
-            launch {
-                combine(
-                    fallsRepository.getFallAutonomyDegrees(),
-                    fallsRepository.getFallCauses(),
-                    fallsRepository.getFallCauseDetails(),
-                    fallsRepository.getFallConsequences(),
-                    fallsRepository.getFallLocations(),
-                    fallsRepository.getFallPreStatuses()
-                ) { values ->
-                    @Suppress("UNCHECKED_CAST")
-                    autonomyDegrees.value = withNone((values[0] as List<FallAutonomyDegrees>).map { ListPopupItem(it.name, it) })
-                    causes.value = withNone((values[1] as List<FallCauses>).map { ListPopupItem(it.name, it) })
-                    allCauseDetails = (values[2] as List<FallCauseDetail>)
-                    causeDetails.value = withNone(allCauseDetails
-                        .filter { selectedCause.value == null || it.iDCause == selectedCause.value!!.id }
-                        .map { ListPopupItem(it.name, it) })
-                    consequences.value = withNone((values[3] as List<FallConsequences>).map { ListPopupItem(it.name, it) })
-                    locations.value = withNone((values[4] as List<FallLocations>).map { ListPopupItem(it.name, it) })
-                    preStatuses.value = withNone((values[5] as List<FallPreStatuses>).map { ListPopupItem(it.name, it) })
-                }.collect()
-            }
+            val degrees = fallsRepository.getFallAutonomyDegrees().first()
+            val causeList = fallsRepository.getFallCauses().first()
+            val causeDetailList = fallsRepository.getFallCauseDetails().first()
+            val consequenceList = fallsRepository.getFallConsequences().first()
+            val locationList = fallsRepository.getFallLocations().first()
+            val preStatusList = fallsRepository.getFallPreStatuses().first()
 
-            if (fallId != null) {
-                delay(500)
-                val fall = fallsRepository.getFalls(codCase)
-                    .results?.firstOrNull { it.id == fallId }
-                fall?.let {
-                    dateTime.value = it.dateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA) ?: Date()
-                    notes.value = it.notes
-                    detector.value = it.detector
-                    consequenceDetails.value = it.consequenceDetails
-                    witnesses.value = it.witnesses
-                    lighting.value = it.lighting
-                    intervention.value = it.intervention
-                    visualIssues.value = it.visualIssues
-                    disorientation.value = it.disorientation
-                    withRestraint.value = it.withRestraint
-                    nonSlipShoes.value = it.nonSlipShoes
-                    withWitnesses.value = it.withWitnesses
-                    medicAckDate.value = it.medicAckDate
-                    familyAckDate.value = it.familyAckDate
-                    refPersonAckDate.value = it.refPersonAckDate
-                    selectedAutonomyDegree.value = autonomyDegrees.value.mapNotNull { d -> d.item }
-                        .firstOrNull { d -> d.id == it.idAutonomyDegree }
-                    selectedCause.value = causes.value.mapNotNull { c -> c.item }
-                        .firstOrNull { c -> c.id == it.idCause }
-                    selectedCauseDetail.value = causeDetails.value.mapNotNull { cd -> cd.item }
-                        .firstOrNull { cd -> cd.id == it.idCauseDetail }
-                    selectedConsequences.value = consequences.value.mapNotNull { co -> co.item }
-                        .firstOrNull { co -> co.id == it.idConsequences }
-                    selectedLocation.value = locations.value.mapNotNull { l -> l.item }
-                        .firstOrNull { l -> l.id == it.idLocation }
-                    selectedPreStatus.value = preStatuses.value.mapNotNull { ps -> ps.item }
-                        .firstOrNull { ps -> ps.id == it.idPreStatus }
-                }
-            }
+            autonomyDegrees.value = withNone(degrees.map { ListPopupItem(it.name, it) })
+            causes.value = withNone(causeList.map { ListPopupItem(it.name, it) })
+            allCauseDetails = causeDetailList
+            causeDetails.value = withNone(causeDetailList.map { ListPopupItem(it.name, it) })
+            consequences.value = withNone(consequenceList.map { ListPopupItem(it.name, it) })
+            locations.value = withNone(locationList.map { ListPopupItem(it.name, it) })
+            preStatuses.value = withNone(preStatusList.map { ListPopupItem(it.name, it) })
+
+            fall?.let { populateFrom(it) }
         }
+    }
+
+    private fun populateFrom(fall: Fall) {
+        dateTime.value = fall.dateTime.toDate(SERVER_PARAMETER_DATE_TIME_FORMAT_ITA) ?: Date()
+        notes.value = fall.notes
+        detector.value = fall.detector
+        consequenceDetails.value = fall.consequenceDetails
+        witnesses.value = fall.witnesses
+        lighting.value = fall.lighting
+        intervention.value = fall.intervention
+        visualIssues.value = fall.visualIssues
+        disorientation.value = fall.disorientation
+        withRestraint.value = fall.withRestraint
+        nonSlipShoes.value = fall.nonSlipShoes
+        withWitnesses.value = fall.withWitnesses
+        medicAckDate.value = fall.medicAckDate
+        familyAckDate.value = fall.familyAckDate
+        refPersonAckDate.value = fall.refPersonAckDate
+        selectedAutonomyDegree.value = autonomyDegrees.value.mapNotNull { it.item }
+            .firstOrNull { it.id == fall.idAutonomyDegree }
+        selectedCause.value = causes.value.mapNotNull { it.item }
+            .firstOrNull { it.id == fall.idCause }
+        selectedCauseDetail.value = causeDetails.value.mapNotNull { it.item }
+            .firstOrNull { it.id == fall.idCauseDetail }
+        selectedConsequences.value = consequences.value.mapNotNull { it.item }
+            .firstOrNull { it.id == fall.idConsequences }
+        selectedLocation.value = locations.value.mapNotNull { it.item }
+            .firstOrNull { it.id == fall.idLocation }
+        selectedPreStatus.value = preStatuses.value.mapNotNull { it.item }
+            .firstOrNull { it.id == fall.idPreStatus }
     }
 
     // Setters
@@ -344,7 +331,7 @@ class CreateEditFallDialogScreenViewModel @Inject constructor(
         fallId?.let { editFall(it) } ?: addFall()
     }
 
-    private fun buildFall(id: Int?) = ch.ticare.eclinic.library.entity.Fall(
+    private fun buildFall(id: Int?) = Fall(
         /* case              */ codCase,
         /* consequenceDetails*/ consequenceDetails.value,
         /* dateTime          */ dateTime.value.format(FALL_DATE_TIME_FORMAT),

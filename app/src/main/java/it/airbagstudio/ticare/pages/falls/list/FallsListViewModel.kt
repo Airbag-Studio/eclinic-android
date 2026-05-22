@@ -8,6 +8,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.ticare.eclinic.library.entity.CaseDetail
+import ch.ticare.eclinic.library.entity.Fall
 import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.entity.Tool
 import ch.ticare.eclinic.library.entity.ToolTag
@@ -48,6 +49,9 @@ class FallsListViewModel @Inject constructor(
 
     private val _fallsList = MutableStateFlow< List<FallListItem>>(listOf())
     val fallsList = _fallsList.asStateFlow()
+    private var _fallsCache: Map<Int, Fall> = emptyMap()
+
+    fun getFallById(id: Int): Fall? = _fallsCache[id]
     val selectedTool: Tool? = userDetailRepository.getSelectedTool()
     val title = selectedTool?.name ?: ""
     val patientCode: String = savedStateHandle[DestinationsArgs.PATIENT_COD]!!
@@ -85,7 +89,11 @@ class FallsListViewModel @Inject constructor(
         modifiedIds = offlineOnlineRepository.getModifiedIdForSection(patientCode,OfflineSection.Fall)
 
         val causes = fallsRepository.getFallCauses().first()
-        _fallsList.value = fallsRepository.getFalls(patientCode).results?.map { fall ->
+        val falls = fallsRepository.getFalls(patientCode).results ?: emptyList()
+
+        _fallsCache = falls.associateBy { it.id!! }
+
+        _fallsList.value = falls.map { fall ->
             val cause = causes.firstOrNull { it.id == fall.idCause }?.name ?: ""
             FallListItem(
                 id = fall.id!!,
@@ -94,7 +102,7 @@ class FallsListViewModel @Inject constructor(
                 hasDataToUpload = modifiedIds.contains(fall.id.toString()),
                 info = mapOf("Causa" to cause)
             )
-        } ?: listOf()
+        }
     }
 
     fun reload(){
