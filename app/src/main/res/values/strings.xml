@@ -383,4 +383,16 @@
     <string name="fall_ack_not_done">Non eseguita</string>
     <string name="fall_ack_done">Eseguita</string>
     <string name="fall">Caduta</string>
+    <!-- Fall labels - SPITEX variants -->
+    <string name="fall_location_spitex">Luogo della Caduta</string>
+    <string name="fall_cause_spitex">Tipo di caduta</string>
+    <string name="fall_cause_detail_spitex">Causa della caduta</string>
+    <string name="fall_consequences_spitex">Tipo di lesione</string>
+    <string name="fall_pre_status_spitex">Punto della Lesione</string>
+    <string name="fall_autonomy_degree_spitex">Ausili</string>
+    <string name="fall_with_restraint_spitex">Misure Protettive</string>
+    <string name="fall_non_slip_shoes_spitex">Calzature Idonee</string>
+    <string name="fall_consequence_details_spitex">Tipo di lesione</string>
+    <string name="fall_witnesses_details_spitex">Situazione dopo la caduta</string>
+    <string name="fall_witnesses_details">Dettaglio Testimoni</string>
 </resources>

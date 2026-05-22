@@ -12,7 +12,9 @@ import ch.ticare.eclinic.library.entity.FallCauses
 import ch.ticare.eclinic.library.entity.FallConsequences
 import ch.ticare.eclinic.library.entity.FallLocations
 import ch.ticare.eclinic.library.entity.FallPreStatuses
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.repository.FallsRepository
+import ch.ticare.eclinic.library.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.ui.components.ListPopupItem
 import it.airbagstudio.ticare.utils.FALL_DATE_FORMAT
@@ -56,6 +58,8 @@ data class CreateEditFallDialogUiState(
     val medicAck: Boolean,
     val familyAck: Boolean,
     val refPersonAck: Boolean,
+    // clinic type
+    val clinicType: ClinicType?,
     // status
     val isLoading: Boolean,
     val isSuccess: Boolean,
@@ -64,7 +68,8 @@ data class CreateEditFallDialogUiState(
 
 @HiltViewModel
 class CreateEditFallDialogScreenViewModel @Inject constructor(
-    private val fallsRepository: FallsRepository
+    private val fallsRepository: FallsRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     lateinit var codCase: String
@@ -109,6 +114,7 @@ class CreateEditFallDialogScreenViewModel @Inject constructor(
 
     private val isLoading = MutableStateFlow(false)
     private val isSuccess = MutableStateFlow(false)
+    private val clinicType = userRepository.getClinicType()
 
     var errorMessage by mutableStateOf<String?>(null)
     private var fallId: Int? = null
@@ -175,37 +181,43 @@ class CreateEditFallDialogScreenViewModel @Inject constructor(
         _texts,
         _booleans,
         _booleans2,
-        combine(isLoading, isSuccess) { l, s -> Pair(l, s) }
-    ) { selections, texts, booleans, booleans2, (isLoading, isSuccess) ->
+        combine(isLoading, isSuccess, clinicType) { l, s, ct -> Status(l, s, ct) }
+    ) { selections, texts, booleans, booleans2, status ->
+        @Suppress("UNCHECKED_CAST")
+        val sel = selections as Selections
+        val txt = texts as Texts
+        val b1 = booleans as Booleans1
+        val b2 = booleans2 as Booleans2
         CreateEditFallDialogUiState(
-            dateTime = texts.dateTime,
-            notes = texts.notes,
-            detector = texts.detector,
-            consequenceDetails = texts.consequenceDetails,
-            witnesses = texts.witnesses,
-            autonomyDegreeLabel = selections.autonomyDegree?.name,
-            causeLabel = selections.cause?.name,
-            causeDetailLabel = selections.causeDetail?.name,
-            consequencesLabel = selections.consequences?.name,
-            locationLabel = selections.location?.name,
-            preStatusLabel = selections.preStatus?.name,
-            lighting = booleans.lighting,
-            intervention = booleans.intervention,
-            visualIssues = booleans.visualIssues,
-            disorientation = booleans.disorientation,
-            withRestraint = booleans.withRestraint,
-            nonSlipShoes = booleans2.nonSlipShoes,
-            withWitnesses = booleans2.withWitnesses,
-            medicAck = booleans2.medicAckDate.isNotEmpty(),
-            familyAck = booleans2.familyAckDate.isNotEmpty(),
-            refPersonAck = booleans2.refPersonAckDate.isNotEmpty(),
-            isLoading = isLoading,
-            isSuccess = isSuccess,
-            isValid = selections.autonomyDegree != null &&
-                    selections.cause != null &&
-                    selections.consequences != null &&
-                    selections.location != null &&
-                    selections.preStatus != null
+            dateTime = txt.dateTime,
+            notes = txt.notes,
+            detector = txt.detector,
+            consequenceDetails = txt.consequenceDetails,
+            witnesses = txt.witnesses,
+            autonomyDegreeLabel = sel.autonomyDegree?.name,
+            causeLabel = sel.cause?.name,
+            causeDetailLabel = sel.causeDetail?.name,
+            consequencesLabel = sel.consequences?.name,
+            locationLabel = sel.location?.name,
+            preStatusLabel = sel.preStatus?.name,
+            lighting = b1.lighting,
+            intervention = b1.intervention,
+            visualIssues = b1.visualIssues,
+            disorientation = b1.disorientation,
+            withRestraint = b1.withRestraint,
+            nonSlipShoes = b2.nonSlipShoes,
+            withWitnesses = b2.withWitnesses,
+            medicAck = b2.medicAckDate.isNotEmpty(),
+            familyAck = b2.familyAckDate.isNotEmpty(),
+            refPersonAck = b2.refPersonAckDate.isNotEmpty(),
+            clinicType = (status as? Status)?.clinicType,
+            isLoading = (status as? Status)?.isLoading ?: false,
+            isSuccess = (status as? Status)?.isSuccess ?: false,
+            isValid = sel.autonomyDegree != null &&
+                    sel.cause != null &&
+                    sel.consequences != null &&
+                    sel.location != null &&
+                    sel.preStatus != null
         )
     }.catch {
         errorMessage = it.localizedMessage
@@ -234,6 +246,7 @@ class CreateEditFallDialogScreenViewModel @Inject constructor(
             medicAck = false,
             familyAck = false,
             refPersonAck = false,
+            clinicType = null,
             isLoading = false,
             isSuccess = false,
             isValid = false
@@ -436,6 +449,12 @@ class CreateEditFallDialogScreenViewModel @Inject constructor(
         val medicAckDate: String,
         val familyAckDate: String,
         val refPersonAckDate: String
+    )
+
+    private data class Status(
+        val isLoading: Boolean,
+        val isSuccess: Boolean,
+        val clinicType: ClinicType?
     )
 
     private fun <T> withNone(items: List<ListPopupItem<T>>): List<ListPopupItem<T>> =

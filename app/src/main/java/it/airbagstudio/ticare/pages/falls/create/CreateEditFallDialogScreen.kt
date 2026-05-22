@@ -36,9 +36,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.ClinicType
 import ch.ticare.eclinic.library.entity.Fall
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.CalendarTextField
+import it.airbagstudio.ticare.utils.FallField
+import it.airbagstudio.ticare.utils.getLabelRes
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.PopupTextField
 import it.airbagstudio.ticare.ui.components.SwitchItem
@@ -114,7 +117,7 @@ fun CreateEditFallDialogScreen(
                 // --- Luogo ---
                 PopupTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    label = stringResource(id = R.string.fall_location) + " *",
+                    label = stringResource(id = FallField.Location.getLabelRes(uiState.clinicType)) + " *",
                     value = uiState.locationLabel ?: "",
                     items = viewModel.locations.value,
                     enabled = canWrite,
@@ -124,7 +127,7 @@ fun CreateEditFallDialogScreen(
                 // --- Causa ---
                 PopupTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    label = stringResource(id = R.string.fall_cause) + " *",
+                    label = stringResource(id = FallField.Cause.getLabelRes(uiState.clinicType)) + " *",
                     value = uiState.causeLabel ?: "",
                     items = viewModel.causes.value,
                     enabled = canWrite,
@@ -132,15 +135,16 @@ fun CreateEditFallDialogScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // --- Dettaglio Cause ---
-                PopupTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = stringResource(id = R.string.fall_cause_detail),
-                    value = uiState.causeDetailLabel ?: "",
-                    items = viewModel.causeDetails.value,
-                    enabled = canWrite,
-                ) { viewModel.setCauseDetail(it.item) }
-                Spacer(modifier = Modifier.height(8.dp))
-
+                if(uiState.clinicType == ClinicType.CPA) {
+                    PopupTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = stringResource(id = FallField.CauseDetail.getLabelRes(uiState.clinicType)),
+                        value = uiState.causeDetailLabel ?: "",
+                        items = viewModel.causeDetails.value,
+                        enabled = canWrite,
+                    ) { viewModel.setCauseDetail(it.item) }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
                 // --- Illuminazione ---
                 SwitchItem(
                     label = stringResource(id = R.string.fall_lighting) + " *",
@@ -153,7 +157,7 @@ fun CreateEditFallDialogScreen(
                 // --- Conseguenze ---
                 PopupTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    label = stringResource(id = R.string.fall_consequences) + " *",
+                    label = stringResource(id = FallField.Consequences.getLabelRes(uiState.clinicType)) + " *",
                     value = uiState.consequencesLabel ?: "",
                     items = viewModel.consequences.value,
                     enabled = canWrite,
@@ -166,7 +170,7 @@ fun CreateEditFallDialogScreen(
                     value = uiState.consequenceDetails,
                     onValueChange = { viewModel.setConsequenceDetails(it) },
                     singleLine = true,
-                    label = { Text(text = stringResource(id = R.string.fall_consequence_details)) },
+                    label = { Text(text = stringResource(id = FallField.ConsequencesDetails.getLabelRes(uiState.clinicType))) },
                     enabled = canWrite,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -182,7 +186,7 @@ fun CreateEditFallDialogScreen(
                 // --- Stato pre-caduta ---
                 PopupTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    label = stringResource(id = R.string.fall_pre_status)+" *",
+                    label = stringResource(id = FallField.PreStatus.getLabelRes(uiState.clinicType)) + " *",
                     value = uiState.preStatusLabel ?: "",
                     items = viewModel.preStatuses.value,
                     enabled = canWrite,
@@ -192,7 +196,7 @@ fun CreateEditFallDialogScreen(
                 // --- Grado di Autonomia ---
                 PopupTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    label = stringResource(id = R.string.fall_autonomy_degree) + " *",
+                    label = stringResource(id = FallField.AutonomyDegree.getLabelRes(uiState.clinicType)) + " *",
                     value = uiState.autonomyDegreeLabel ?: "",
                     items = viewModel.autonomyDegrees.value,
                     enabled = canWrite,
@@ -217,7 +221,7 @@ fun CreateEditFallDialogScreen(
 
                 // --- Contenzione ---
                 SwitchItem(
-                    label = stringResource(id = R.string.fall_with_restraint) + " *",
+                    label = stringResource(id = FallField.WithRestraint.getLabelRes(uiState.clinicType)) + " *",
                     value = uiState.withRestraint,
                     enabled = canWrite,
                     onChange = { viewModel.setWithRestraint(it) }
@@ -225,7 +229,7 @@ fun CreateEditFallDialogScreen(
 
                 // --- Calzature antiscivolo ---
                 SwitchItem(
-                    label = stringResource(id = R.string.fall_non_slip_shoes) + " *",
+                    label = stringResource(id = FallField.NonSlipShoes.getLabelRes(uiState.clinicType)) + " *",
                     value = uiState.nonSlipShoes,
                     enabled = canWrite,
                     onChange = { viewModel.setNonSlipShoes(it) }
@@ -247,7 +251,7 @@ fun CreateEditFallDialogScreen(
                         value = uiState.witnesses,
                         onValueChange = { viewModel.setWitnesses(it) },
                         singleLine = true,
-                        label = { Text(text = stringResource(id = R.string.fall_witnesses)) },
+                        label = { Text(text = stringResource(id = FallField.FallWitnessesDetails.getLabelRes(uiState.clinicType))) },
                         enabled = canWrite,
                     )
                 }
