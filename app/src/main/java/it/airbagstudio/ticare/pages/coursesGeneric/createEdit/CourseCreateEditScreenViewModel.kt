@@ -120,13 +120,15 @@ class CourseCreateEditScreenViewModel @Inject constructor(
     }
 
     private fun setDescriptionFromCategory(category: HomeCareCourseCategory) {
-        category.defaultDescription?.let { catDescription ->
-            if (catDescription.isNotEmpty()) {
-                if (isDescriptionChangedByUser) {
-                    _showOverrideDescriptionAlert.value = true
-                    return
+        if (coursesRepository.enableAutoFilledDescription()) {
+            category.defaultDescription?.let { catDescription ->
+                if (catDescription.isNotEmpty()) {
+                    if (isDescriptionChangedByUser) {
+                        _showOverrideDescriptionAlert.value = true
+                        return
+                    }
+                    description.value = catDescription
                 }
-                description.value = catDescription
             }
         }
     }
@@ -202,7 +204,7 @@ class CourseCreateEditScreenViewModel @Inject constructor(
             categories.value = res.results ?: listOf()
             if (selectedCategoryId.value == null && categories.value.isNotEmpty()){
                 selectedCategoryId.value = categories.value.firstOrNull { it.useAsDefault }?.id
-                if (description.value.isEmpty()) {
+                if (description.value.isEmpty() && coursesRepository.enableAutoFilledDescription()) {
                     description.value =
                         categories.value.firstOrNull { it.useAsDefault }?.defaultDescription ?: ""
                 }

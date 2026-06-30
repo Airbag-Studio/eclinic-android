@@ -177,13 +177,15 @@ class EditNursingCourseSheetViewModel @Inject constructor(
     }
 
     private fun setDescriptionFromCategory(category: HomeCareCourseCategory) {
-        category.defaultDescription?.let { catDescription ->
-            if (catDescription.isNotEmpty()) {
-                if (isDescriptionChangedByUser) {
-                    _showOverrideDescriptionAlert.value = true
-                    return
+        if (coursesRepository.enableAutoFilledDescription()) {
+            category.defaultDescription?.let { catDescription ->
+                if (catDescription.isNotEmpty()) {
+                    if (isDescriptionChangedByUser) {
+                        _showOverrideDescriptionAlert.value = true
+                        return
+                    }
+                    description.value = catDescription
                 }
-                description.value = catDescription
             }
         }
     }
@@ -276,13 +278,15 @@ class EditNursingCourseSheetViewModel @Inject constructor(
         description.value = actualCourse.desc
         showInDiary.value = actualCourse.showInDiary
         var catSelectionJob : Job? = null
-        viewModelScope.launch {
-            catSelectionJob = launch {
-                selectedCategory.collect { category ->
-                    category?.defaultDescription?.let { catDescription ->
-                        description.value = actualCourse.desc
-                        isDescriptionChangedByUser = catDescription != actualCourse.desc
-                        catSelectionJob?.cancel()
+        if(coursesRepository.enableAutoFilledDescription()) {
+            viewModelScope.launch {
+                catSelectionJob = launch {
+                    selectedCategory.collect { category ->
+                        category?.defaultDescription?.let { catDescription ->
+                            description.value = actualCourse.desc
+                            isDescriptionChangedByUser = catDescription != actualCourse.desc
+                            catSelectionJob?.cancel()
+                        }
                     }
                 }
             }
