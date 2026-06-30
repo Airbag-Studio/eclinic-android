@@ -157,14 +157,7 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
         isSuccess,
         woundPhotos
     ) { newWound, selections, isLoading, isSuccess, woundPhoto ->
-        val isValid =
-            selections.selectedWoundOrigin != null &&
-                    selections.selectedWoundType != null &&
-                    !selections.selectedWoundBodyParts.isNullOrEmpty() &&
-                    newWound.depth?.toIntOrNull() != null &&
-                    newWound.length?.toIntOrNull() != null &&
-                    newWound.width?.toIntOrNull() != null &&
-                    newWound.description?.isNotEmpty() == true
+        val isValid = !selections.selectedWoundBodyParts.isNullOrEmpty()
 
         CreateWoundDialogScreenUIState(
             dropdownSelections = selections,
@@ -229,7 +222,7 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
                             setWidth(wound.width.toString())
                             setDepth(wound.depth.toString())
                             setLength(wound.length.toString())
-                            setNotes(wound.appearanceDescription)
+                            setNotes(wound.appearanceDescription ?: "")
                             setWoundBodyParts(wound.parts.map {
                                 BodyPart(
                                     id = it.iD,
@@ -306,11 +299,11 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
                 appearanceDescription = notes.value,
                 bodyParts = bodyPartsId,
                 cODCase = codCase ?: "",
-                depth = depth.value.toInt(),
-                iDWoundOrigin = selectedWoundOrigin.value!!.id,
-                iDWoundType = selectedWoundType.value!!.id,
-                length = length.value.toInt(),
-                width = width.value.toInt()
+                depth = depth.value.toIntOrNull(),
+                iDWoundOrigin = selectedWoundOrigin.value?.id,
+                iDWoundType = selectedWoundType.value?.id,
+                length = length.value.toIntOrNull(),
+                width = width.value.toIntOrNull()
             )
 
             val res = woundRepository.updateWound(woundSave)
@@ -342,11 +335,11 @@ class CreateWoundDialogScreenViewModel @Inject constructor(
                 appearanceDescription = notes.value,
                 bodyParts = bodyPartsId,
                 cODCase = codCase,
-                depth = depth.value.toInt(),
-                iDWoundOrigin = selectedWoundOrigin.value!!.id,
-                iDWoundType = selectedWoundType.value!!.id,
-                length = length.value.toInt(),
-                width = width.value.toInt()
+                depth = depth.value.toIntOrNull(),
+                iDWoundOrigin = selectedWoundOrigin.value?.id,
+                iDWoundType = selectedWoundType.value?.id,
+                length = length.value.toIntOrNull(),
+                width = width.value.toIntOrNull()
             )
 
             val res = woundRepository.addWound(woundSave)

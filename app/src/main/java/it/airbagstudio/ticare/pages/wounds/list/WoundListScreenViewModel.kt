@@ -70,13 +70,13 @@ class WoundListScreenViewModel @Inject constructor(
         isLoading.value = false
     }
 
-    val uiState = combine(isLoading,wounds,modifiedIds) { isLoading,wounds,modifiedIds ->
-        val items = wounds.map {
+    val uiState = combine(isLoading,wounds,modifiedIds,) { isLoading,wounds,modifiedIds ->
+        val items = wounds.map { wound ->
             WoundListItem(
-                id = it.iD,
-                name = it.appearanceDescription,
-                date = it.appearanceDate.toDate("dd.MM.yyyy")?.format("dd MMMM yy") ?: "",
-                hasDataToUpload = modifiedIds.contains(it.iD.toString())
+                id = wound.iD,
+                name = wound.appearanceDescription?.takeIf { it.isNotBlank() } ?: wound.parts.joinToString(", ") { it.name },
+                date = wound.appearanceDate.toDate("dd.MM.yyyy")?.format("dd MMMM yy") ?: "",
+                hasDataToUpload = modifiedIds.contains(wound.iD.toString())
 
             )
         }
