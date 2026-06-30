@@ -27,8 +27,8 @@ android {
         minSdk 28
         targetSdk 36
         //noinspection HighAppVersionCode
-        versionCode 2026052202
-        versionName "1.2.62"
+        versionCode 2026063001
+        versionName "1.2.63"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
