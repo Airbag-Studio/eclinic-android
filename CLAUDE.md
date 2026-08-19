@@ -8,9 +8,9 @@ EClinic is an Android healthcare application built with Kotlin and Jetpack Compo
 
 ## Build System
 
-- **Build Tool**: Gradle with Android Gradle Plugin 8.4.2
-- **Kotlin Version**: 1.8.20
-- **Min SDK**: 28, Target SDK: 34
+- **Build Tool**: Gradle 9.1.0 (wrapper) with Android Gradle Plugin 9.0.1
+- **Kotlin Version**: 2.2.10 (KSP 2.2.10-2.0.2)
+- **Min SDK**: 28, Target SDK: 36, Compile SDK: 36
 - **Java Version**: 17
 
 ### Build Commands
@@ -70,12 +70,14 @@ Uses Dagger Hilt for dependency injection. The main module is `AppModule.kt` whi
 - **Screen Structure**: Each feature has its own package under `pages/`
 
 ### Key Libraries
-- **Compose BOM**: 2024.05.00
-- **Hilt**: 2.50 for dependency injection
-- **Ktor**: 2.3.4 for networking
-- **SQLDelight**: 2.0.0 for database
-- **Coil**: 2.4.0 for image loading
-- **Firebase**: Crashlytics for error reporting
+- **Compose BOM**: 2026.01.01 (material3 and ui versions come from the BOM)
+- **Navigation Compose**: 2.8.5
+- **Hilt**: 2.59.2 for dependency injection
+- **Ktor**: 2.3.12 for networking
+- **SQLDelight**: 2.0.2 for database
+- **Coil**: 2.7.0 for image loading
+- **Vico**: 3.0.0 for charts
+- **Firebase**: BOM 33.7.0, Crashlytics for error reporting
 
 ### API Architecture
 - **Authentication**: Bearer token with automatic refresh
@@ -109,7 +111,7 @@ The app includes a comprehensive form system for healthcare assessments:
 
 ## Shared Library
 
-The app uses a shared library (`shared-debug.aar`/`shared-release.aar`) that contains core business logic, network layer, and data models. This library is referenced from the main module and provides:
+The app depends on the shared library `ch.ticare.eclinic:shared-android:1.1.0`, declared in `app/build.gradle` and resolved from `mavenLocal()` (see the repositories in `settings.gradle`). It contains core business logic, network layer, and data models, and provides:
 - API client and authentication
 - Database entities and repositories
 - Core domain models
