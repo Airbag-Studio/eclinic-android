@@ -22,13 +22,15 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
 
 
 data class SelectCareActivityPopupUIState(
-    val isLoading: Boolean,
+    val isLoadingUnplanned: Boolean,
+    val isLoadingPlanned: Boolean,
     val query: String,
     val unplannedActivities: List<ActivityListItem>,
     val plannedActivities: List<ActivityListItem>
@@ -53,8 +55,12 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
 
 ) : ViewModel() {
 
+    // Le due liste arrivano da chiamate distinte: ognuna ha il suo stato di caricamento,
+    // così il tab non pianificate non resta in attesa di quello pianificate
+    private data class LoadingState(val unplanned: Boolean, val planned: Boolean)
+
     private val transferActivityCode = homeCareActivitiesRepository.getTransferActivityCode()
-    private val isLoading = MutableStateFlow(false)
+    private val loadingState = MutableStateFlow(LoadingState(unplanned = false, planned = false))
     private val _errorMessage = MutableStateFlow<String?>(null)
     private val query = MutableStateFlow<String>("")
     private val carePlanId = MutableStateFlow<Int?>(null)
@@ -98,12 +104,12 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
 
 
     val uiState = combine(
-        isLoading,
+        loadingState,
         selectedActivityIds,
         query,
         unplannedActivities,
         plannedActivities
-    ) { isLoading, selectedActivityIds, query, notPlannedActivities, plannedActivities ->
+    ) { loadingState, selectedActivityIds, query, notPlannedActivities, plannedActivities ->
         val unPlannedItems = if (query.isNotEmpty()) {
             notPlannedActivities.filter {
                 it.title.contains(query, true) || it.code?.contains(
@@ -128,7 +134,8 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         } ?: listOf()
 
         SelectCareActivityPopupUIState(
-            isLoading = isLoading,
+            isLoadingUnplanned = loadingState.unplanned,
+            isLoadingPlanned = loadingState.planned,
             query = query,
             unplannedActivities = unPlannedItems,
             plannedActivities = plannedItems
@@ -138,7 +145,8 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
         initialValue = SelectCareActivityPopupUIState(
-            isLoading = true,
+            isLoadingUnplanned = true,
+            isLoadingPlanned = true,
             query = "",
             unplannedActivities = listOf(),
             plannedActivities = listOf()
@@ -148,15 +156,20 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
     private val coroutineExceptionHandler =
         CoroutineExceptionHandler { _, throwable ->
             _errorMessage.value = throwable.localizedMessage
-            isLoading.value = false
+            loadingState.value = LoadingState(unplanned = false, planned = false)
         }
 
     fun loadData(carePlanId: Int?, patientCode: String) {
         this.carePlanId.value = carePlanId
         this.patientCode.value = patientCode
-        isLoading.value = true
+        loadingState.value = LoadingState(unplanned = true, planned = true)
         viewModelScope.launch(coroutineExceptionHandler) {
             val res = homeCareActivitiesRepository.getHomeCareActivitiesUnplanned(patientCode)
+            // Pubblicate subito: non devono attendere le chiamate delle pianificate
+            notPlannedActivities.value = res.results ?: listOf()
+            _errorMessage.value = res.error?.desc
+            loadingState.update { it.copy(unplanned = false) }
+
             if (carePlanId != null) {
                 val plannedRes = homeCareActivitiesRepository.getHomeCareActivitiesPlanned(
                     patientCode,
@@ -173,9 +186,7 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                 ).results?.filter { carePlanIds.contains(it.carePlan) } ?: listOf()
                 plannedActivities.value = plannedRes
             }
-            notPlannedActivities.value = res.results ?: listOf()
-            _errorMessage.value = res.error?.desc
-            isLoading.value = false
+            loadingState.update { it.copy(planned = false) }
         }
     }
 

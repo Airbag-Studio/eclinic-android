@@ -5,7 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -18,9 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import it.airbagstudio.ticare.R
+import it.airbagstudio.ticare.ui.components.shimmerBrush
 import it.airbagstudio.ticare.ui.theme.AppTheme
 
 @Composable
@@ -31,12 +35,27 @@ fun ActivityListItemView(isSelecting: Boolean, isSelected: Boolean, title:String
         Modifier
     }
 
+    // La riga di trasferta è ingrandita per essere imputabile facilmente da smartphone (TS1-3)
+    val rowModifier = if (isTransferRow){
+        Modifier
+            .heightIn(min = 80.dp)
+            .padding(16.dp,16.dp,24.dp,16.dp)
+    }else{
+        Modifier.padding(16.dp,8.dp,24.dp,8.dp)
+    }
+
+    val titleStyle = if (isTransferRow){
+        MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
+    }else{
+        MaterialTheme.typography.bodyLarge
+    }
+
 
     Column(modifier.clickable {
         onClick()
     }) {
         Row(
-            modifier = Modifier.padding(16.dp,8.dp,24.dp,8.dp),
+            modifier = rowModifier,
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (isSelecting){
@@ -45,16 +64,40 @@ fun ActivityListItemView(isSelecting: Boolean, isSelected: Boolean, title:String
                 })
             }
             if (isTransferRow){
-                Icon(painter = painterResource(id = R.drawable.ic_running), contentDescription = "")
+                Icon(
+                    modifier = Modifier.size(32.dp),
+                    painter = painterResource(id = R.drawable.ic_running),
+                    contentDescription = ""
+                )
                 Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
             }
             Text(
                 modifier = Modifier.weight(1f),
                 text = title,
-                style = MaterialTheme.typography.bodyLarge
+                style = titleStyle
             )
             Spacer(modifier = Modifier.width(16.dp))
             Icon(painter = painterResource(id = R.drawable.ic_arrow_right), contentDescription = "")
+        }
+        HorizontalDivider()
+    }
+}
+
+
+@Composable
+fun ActivityListItemViewLoading(){
+    Column {
+        Row(
+            modifier = Modifier.padding(16.dp,8.dp,24.dp,8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier
+                    .weight(1f)
+                    .background(shimmerBrush()),
+                text = "",
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
         HorizontalDivider()
     }

@@ -63,6 +63,8 @@ import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerViewModel
 import it.airbagstudio.ticare.ui.components.timeTracker.TravelTimeDialog
 import kotlinx.coroutines.awaitCancellation
 
+private const val LOADING_PLACEHOLDERS_COUNT = 8
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectCareActivityPopupScreen(
@@ -208,7 +210,8 @@ fun SelectCareActivityPopupScreen(
                         0 -> {
                             ItemsList(
                                 isSelecting,
-                                uiState.plannedActivities,
+                                isLoading = uiState.isLoadingPlanned,
+                                activities = uiState.plannedActivities,
                                 onSelectedChange = { id, isSelected ->
                                     viewModel.changeActivitySelection(id,isSelected)
                                 },
@@ -220,6 +223,7 @@ fun SelectCareActivityPopupScreen(
                         1 -> {
                             SearchableList(
                                 isSelecting = isSelecting,
+                                isLoading = uiState.isLoadingUnplanned,
                                 query = uiState.query,
                                 activities = uiState.unplannedActivities,
                                 onItemClick = { item, isTracking ->
@@ -311,6 +315,7 @@ fun SelectCareActivityPopupScreen(
 @Composable
 private fun SearchableList(
     isSelecting: Boolean,
+    isLoading: Boolean,
     query: String,
     activities: List<SelectCareActivityPopupUIState.ActivityListItem>,
     onItemClick: (SelectCareActivityPopupUIState.ActivityListItem, Boolean) -> Unit,
@@ -356,13 +361,20 @@ private fun SearchableList(
                 onQueryChange(it)
             }
         )
-        ItemsList(isSelecting, activities, onItemClick, onSelectedChange = onSelectedChange)
+        ItemsList(
+            isSelecting,
+            isLoading = isLoading,
+            activities = activities,
+            onItemClick = onItemClick,
+            onSelectedChange = onSelectedChange
+        )
     }
 }
 
 @Composable
 private fun ItemsList(
     isSelecting: Boolean,
+    isLoading: Boolean,
     activities: List<SelectCareActivityPopupUIState.ActivityListItem>,
     onItemClick: (SelectCareActivityPopupUIState.ActivityListItem, Boolean) -> Unit,
     onSelectedChange: (Int, Boolean) -> Unit
@@ -370,23 +382,29 @@ private fun ItemsList(
     LazyColumn(
         contentPadding = PaddingValues(bottom = 120.dp),
         content = {
-            items(activities) {
-                val title = if (it.code != null) {
-                    "${it.code} - ${it.title}"
-                } else {
-                    it.title
+            if (isLoading) {
+                items(LOADING_PLACEHOLDERS_COUNT) {
+                    ActivityListItemViewLoading()
                 }
-                ActivityListItemView(
-                    isSelecting,
-                    title = title,
-                    isTransferRow = it.isTransferActivity,
-                    isSelected = it.isSelected,
-                    onClick = {
-                        onItemClick(it, it.isTransferActivity)
-                    },
-                    onSelectedChange = { isSelected ->
-                        onSelectedChange(it.id, isSelected)
-                    })
+            } else {
+                items(activities) {
+                    val title = if (it.code != null) {
+                        "${it.code} - ${it.title}"
+                    } else {
+                        it.title
+                    }
+                    ActivityListItemView(
+                        isSelecting,
+                        title = title,
+                        isTransferRow = it.isTransferActivity,
+                        isSelected = it.isSelected,
+                        onClick = {
+                            onItemClick(it, it.isTransferActivity)
+                        },
+                        onSelectedChange = { isSelected ->
+                            onSelectedChange(it.id, isSelected)
+                        })
+                }
             }
         })
 }
