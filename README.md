@@ -17,7 +17,8 @@ EClinic is a modern Android healthcare application that enables healthcare profe
 
 ### Technology Stack
 
-- **Language**: Kotlin 1.8.20
+- **Language**: Kotlin 2.2.10
+- **Build**: Android Gradle Plugin 9.0.1, Gradle 9.1.0 (wrapper), KSP 2.2.10-2.0.2
 - **UI Framework**: Jetpack Compose with Material 3
 - **Architecture**: MVVM + Repository Pattern
 - **Dependency Injection**: Dagger Hilt
@@ -28,26 +29,29 @@ EClinic is a modern Android healthcare application that enables healthcare profe
 ### Key Libraries
 
 ```gradle
-// UI & Compose
-androidx.compose:compose-bom:2024.05.00
-androidx.compose.material3:material3:1.2.1
-androidx.navigation:navigation-compose:2.7.7
+// UI & Compose (material3 and ui versions come from the BOM)
+androidx.compose:compose-bom:2026.01.01
+androidx.navigation:navigation-compose:2.8.5
 
 // Dependency Injection
-com.google.dagger:hilt-android:2.50
+com.google.dagger:hilt-android:2.59.2
 
 // Networking
-io.ktor:ktor-client-core:2.3.4
-io.ktor:ktor-client-content-negotiation:2.3.4
+io.ktor:ktor-client-core:2.3.12
+io.ktor:ktor-client-content-negotiation:2.3.12
 
 // Database
-app.cash.sqldelight:android-driver:2.0.0
-app.cash.sqldelight:coroutines-extensions:2.0.0
+app.cash.sqldelight:android-driver:2.0.2
+app.cash.sqldelight:coroutines-extensions:2.0.2
 
 // Image Loading
-io.coil-kt:coil-compose:2.4.0
+io.coil-kt:coil-compose:2.7.0
+
+// Charts
+com.patrykandpatrick.vico:compose-m3:3.0.0
 
 // Firebase
+com.google.firebase:firebase-bom:33.7.0
 com.google.firebase:firebase-crashlytics
 ```
 
@@ -55,9 +59,9 @@ com.google.firebase:firebase-crashlytics
 
 ### Prerequisites
 
-- Android Studio Hedgehog or later
+- Android Studio version compatible with Android Gradle Plugin 9.0.1
 - JDK 17 or later (the JDK bundled with Android Studio is fine)
-- Android SDK 34
+- Android SDK 36 (compileSdk/targetSdk)
 - Minimum SDK 28
 
 ### JDK setup (`JAVA_HOME`)
@@ -273,10 +277,11 @@ For technical support or questions:
 
 ## 📊 Status
 
-- **Version**: 1.2.18 (Build 83)
+- **Version**: 1.2.63 (Build 2026063001)
 - **Min SDK**: 28 (Android 9.0)
-- **Target SDK**: 34 (Android 14)
-- **Build Tool**: Gradle 8.4.2
+- **Target SDK**: 36 (Android 16)
+- **Compile SDK**: 36
+- **Build Tool**: Gradle 9.1.0 with Android Gradle Plugin 9.0.1
 - **Status**: Active Development
 
 ---
