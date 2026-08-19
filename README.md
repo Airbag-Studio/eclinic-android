@@ -56,9 +56,46 @@ com.google.firebase:firebase-crashlytics
 ### Prerequisites
 
 - Android Studio Hedgehog or later
-- JDK 17
+- JDK 17 or later (the JDK bundled with Android Studio is fine)
 - Android SDK 34
 - Minimum SDK 28
+
+### JDK setup (`JAVA_HOME`)
+
+The project does **not** pin a JDK path: `gradle.properties` deliberately contains no
+`org.gradle.java.home`, because an absolute path to a JDK only works on the machine it was
+written on and makes `./gradlew` fail everywhere else.
+
+Gradle therefore picks the JDK from `JAVA_HOME`. Android Studio uses its own setting
+(*Settings → Build, Execution, Deployment → Build Tools → Gradle → Gradle JDK*), so the IDE
+works out of the box; from the command line, point `JAVA_HOME` at any JDK 17+, for example
+the one bundled with Android Studio:
+
+```bash
+JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradlew assembleDevelopDebug
+```
+
+To avoid repeating it, export it from your shell profile (`~/.zshrc`):
+
+```bash
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+```
+
+The JDK that *runs* Gradle does not affect the produced bytecode: source/target
+compatibility and the Kotlin JVM target are fixed at 17 by `compileOptions` in
+[app/build.gradle](app/build.gradle), which is filesystem-independent. No
+`jvmToolchain`/`java.toolchain` block is declared on purpose: it would make the build
+require a JDK of that exact version to be installed (or downloadable) on every machine,
+rather than accepting the JDK already shipped with Android Studio.
+
+### Shared library
+
+The app depends on `ch.ticare.eclinic:shared-android:1.1.0`, resolved from `mavenLocal()`.
+Publish it from the [eclinic-library](../eclinic-library) checkout before building:
+
+```bash
+./gradlew publishToMavenLocal
+```
 
 ### Build Configuration
 
