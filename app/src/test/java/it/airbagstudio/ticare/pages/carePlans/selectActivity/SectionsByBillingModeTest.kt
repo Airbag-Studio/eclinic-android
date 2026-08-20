@@ -24,7 +24,13 @@ class SectionsByBillingModeTest {
         code = "C", id = 12, isAssistance = 0,
         label = "C - Cure di Base", name = "Cure di Base"
     )
-    private val billingModes = listOf(consigli, esami, cureDiBase)
+    private val economiaDomestica = BillingMode(
+        code = "Eco-Dom", id = 20, isAssistance = 0,
+        label = "Eco-Dom - Economia Domestica", name = "Economia Domestica"
+    )
+
+    /** Modalità e ordine confermati dal cliente: 10 A, 11 B, 12 C, 20 Eco-Dom. */
+    private val billingModes = listOf(consigli, esami, cureDiBase, economiaDomestica)
 
     private fun item(id: Int, title: String = "Prestazione $id") =
         SelectCareActivityPopupUIState.ActivityListItem(
@@ -42,6 +48,7 @@ class SectionsByBillingModeTest {
         val sections = sectionsByBillingMode(
             billingModes,
             listOf(
+                economiaDomestica.id to item(0),
                 cureDiBase.id to item(1),
                 consigli.id to item(2),
                 esami.id to item(3)
@@ -49,12 +56,18 @@ class SectionsByBillingModeTest {
         )
 
         assertEquals(
-            listOf("A - Consigli e Istruzioni", "B - Esami e Cure", "C - Cure di Base"),
+            listOf(
+                "A - Consigli e Istruzioni",
+                "B - Esami e Cure",
+                "C - Cure di Base",
+                "Eco-Dom - Economia Domestica"
+            ),
             sections.map { it.title }
         )
         assertEquals(listOf(2), sections[0].items.map { it.id })
         assertEquals(listOf(3), sections[1].items.map { it.id })
         assertEquals(listOf(1), sections[2].items.map { it.id })
+        assertEquals(listOf(0), sections[3].items.map { it.id })
     }
 
     @Test
