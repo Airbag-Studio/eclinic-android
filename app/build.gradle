@@ -81,7 +81,7 @@ android {
 }
 
 dependencies {
-    implementation "ch.ticare.eclinic:shared-android:1.1.0"
+    implementation "ch.ticare.eclinic:shared-android:1.2.0"
 
     // Kotlin BOM per allineamento versioni con la libreria eclinic
     implementation platform('org.jetbrains.kotlin:kotlin-bom:2.2.10')

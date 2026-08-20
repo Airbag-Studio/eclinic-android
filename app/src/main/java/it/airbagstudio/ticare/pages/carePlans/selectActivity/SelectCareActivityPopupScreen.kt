@@ -211,7 +211,7 @@ fun SelectCareActivityPopupScreen(
                             ItemsList(
                                 isSelecting,
                                 isLoading = uiState.isLoadingPlanned,
-                                activities = uiState.plannedActivities,
+                                sections = uiState.plannedSections,
                                 onSelectedChange = { id, isSelected ->
                                     viewModel.changeActivitySelection(id,isSelected)
                                 },
@@ -225,7 +225,7 @@ fun SelectCareActivityPopupScreen(
                                 isSelecting = isSelecting,
                                 isLoading = uiState.isLoadingUnplanned,
                                 query = uiState.query,
-                                activities = uiState.unplannedActivities,
+                                sections = uiState.unplannedSections,
                                 onItemClick = { item, isTracking ->
                                     if (isTracking) {
                                         showTravelTimeDialog = true
@@ -317,7 +317,7 @@ private fun SearchableList(
     isSelecting: Boolean,
     isLoading: Boolean,
     query: String,
-    activities: List<SelectCareActivityPopupUIState.ActivityListItem>,
+    sections: List<SelectCareActivityPopupUIState.ActivitySection>,
     onItemClick: (SelectCareActivityPopupUIState.ActivityListItem, Boolean) -> Unit,
     onQueryChange: (String) -> Unit,
     onSelectedChange: (Int, Boolean) -> Unit
@@ -364,7 +364,7 @@ private fun SearchableList(
         ItemsList(
             isSelecting,
             isLoading = isLoading,
-            activities = activities,
+            sections = sections,
             onItemClick = onItemClick,
             onSelectedChange = onSelectedChange
         )
@@ -375,7 +375,7 @@ private fun SearchableList(
 private fun ItemsList(
     isSelecting: Boolean,
     isLoading: Boolean,
-    activities: List<SelectCareActivityPopupUIState.ActivityListItem>,
+    sections: List<SelectCareActivityPopupUIState.ActivitySection>,
     onItemClick: (SelectCareActivityPopupUIState.ActivityListItem, Boolean) -> Unit,
     onSelectedChange: (Int, Boolean) -> Unit
 ) {
@@ -387,24 +387,45 @@ private fun ItemsList(
                     ActivityListItemViewLoading()
                 }
             } else {
-                items(activities) {
-                    val title = if (it.code != null) {
-                        "${it.code} - ${it.title}"
-                    } else {
-                        it.title
+                sections.forEach { section ->
+                    val title = section.title
+                    val titleRes = section.titleRes
+                    if (title != null) {
+                        item { BillingModeHeader(title = title) }
+                    } else if (titleRes != null) {
+                        item { BillingModeHeader(title = stringResource(id = titleRes)) }
                     }
-                    ActivityListItemView(
-                        isSelecting,
-                        title = title,
-                        isTransferRow = it.isTransferActivity,
-                        isSelected = it.isSelected,
-                        onClick = {
-                            onItemClick(it, it.isTransferActivity)
-                        },
-                        onSelectedChange = { isSelected ->
-                            onSelectedChange(it.id, isSelected)
-                        })
+                    items(section.items) {
+                        val itemTitle = if (it.code != null) {
+                            "${it.code} - ${it.title}"
+                        } else {
+                            it.title
+                        }
+                        ActivityListItemView(
+                            isSelecting,
+                            title = itemTitle,
+                            isTransferRow = it.isTransferActivity,
+                            isSelected = it.isSelected,
+                            onClick = {
+                                onItemClick(it, it.isTransferActivity)
+                            },
+                            onSelectedChange = { isSelected ->
+                                onSelectedChange(it.id, isSelected)
+                            })
+                    }
                 }
             }
         })
+}
+
+@Composable
+private fun BillingModeHeader(title: String) {
+    Text(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 8.dp),
+        text = title,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary
+    )
 }

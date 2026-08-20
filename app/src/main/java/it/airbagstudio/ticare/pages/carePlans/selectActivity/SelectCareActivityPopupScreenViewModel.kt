@@ -5,6 +5,7 @@ import android.util.Log
 import android.util.Log.i
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.ticare.eclinic.library.entity.BillingMode
 import ch.ticare.eclinic.library.entity.HomeCareActivity
 import ch.ticare.eclinic.library.entity.HomeCareActivitySave
 import ch.ticare.eclinic.library.entity.HomeCarePlannedActivity
@@ -12,6 +13,7 @@ import ch.ticare.eclinic.library.entity.HomeCareUnplannedActivity
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import ch.ticare.eclinic.library.repository.UserMarkingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.utils.format
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,8 +34,8 @@ data class SelectCareActivityPopupUIState(
     val isLoadingUnplanned: Boolean,
     val isLoadingPlanned: Boolean,
     val query: String,
-    val unplannedActivities: List<ActivityListItem>,
-    val plannedActivities: List<ActivityListItem>
+    val unplannedSections: List<ActivitySection>,
+    val plannedSections: List<ActivitySection>
 
 
 ) {
@@ -45,6 +47,15 @@ data class SelectCareActivityPopupUIState(
         val isPlanned: Boolean,
         val isTransferActivity: Boolean,
         val isSelected: Boolean
+    )
+
+    // Le prestazioni sono raggruppate per Modalità di fatturazione (TS1-4).
+    // Con title e titleRes entrambi null il blocco non ha intestazione: è il caso
+    // della riga di trasferta, che resta in cima e fuori dai raggruppamenti.
+    data class ActivitySection(
+        val title: String? = null,
+        val titleRes: Int? = null,
+        val items: List<ActivityListItem>
     )
 }
 
@@ -76,69 +87,91 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
     var errorMessage = _errorMessage.asStateFlow()
 
 
-    private val unplannedActivities = combine(
+    private val billingModes = homeCareActivitiesRepository.getBillingModes()
+
+
+    private val unplannedSections = combine(
         notPlannedActivities,
         transferActivityCode,
-        selectedActivityIds
-    ) { notPlannedActivities, transferActivityCode, selectedActivityIds ->
-        val otherActivities = notPlannedActivities.filter { it.code != transferActivityCode }
-        val activities = notPlannedActivities.firstOrNull { it.code == transferActivityCode }
-            ?.let { transferActivity ->
-                this.transferActivity = transferActivity
-                listOf(transferActivity) + otherActivities
-            } ?: run {
-            otherActivities
-        }
-        activities.map {
+        selectedActivityIds,
+        billingModes,
+        query
+    ) { notPlannedActivities, transferActivityCode, selectedActivityIds, billingModes, query ->
+        this.transferActivity =
+            notPlannedActivities.firstOrNull { it.code == transferActivityCode }
+
+        fun matchesQuery(activity: HomeCareUnplannedActivity) =
+            query.isEmpty() || activity.desc.contains(query, true) ||
+                    activity.code.contains(query, true)
+
+        fun toListItem(activity: HomeCareUnplannedActivity) =
             SelectCareActivityPopupUIState.ActivityListItem(
-                it.desc,
-                it.code,
-                it.id,
+                title = activity.desc,
+                code = activity.code,
+                id = activity.id,
                 carePlanId = null,
-                false,
-                it.code == transferActivityCode,
-                isSelected = selectedActivityIds.contains(it.id)
+                isPlanned = false,
+                isTransferActivity = activity.code == transferActivityCode,
+                isSelected = selectedActivityIds.contains(activity.id)
+            )
+
+        buildList {
+            // La riga di trasferta resta in cima e fuori dai raggruppamenti
+            transferActivity?.takeIf { matchesQuery(it) }?.let {
+                add(SelectCareActivityPopupUIState.ActivitySection(items = listOf(toListItem(it))))
+            }
+            addAll(
+                sectionsByBillingMode(
+                    billingModes,
+                    notPlannedActivities
+                        .filter { it.code != transferActivityCode && matchesQuery(it) }
+                        .map { it.idBillingMode to toListItem(it) }
+                )
             )
         }
     }
 
 
+    private val plannedSections = combine(
+        plannedActivities,
+        notPlannedActivities,
+        selectedActivityIds,
+        billingModes
+    ) { plannedActivities, activityTypes, selectedActivityIds, billingModes ->
+        // /homecare/planning non espone IDBillingMode: la modalità si ricava dal codice
+        // prestazione contenuto in Type ("10601 - Preparazione dei medicamenti"),
+        // cercandolo tra i tipi prestazione di /homecare/activities/types
+        val billingModeIdByCode = activityTypes.associate { it.code to it.idBillingMode }
+        sectionsByBillingMode(
+            billingModes,
+            plannedActivities.map { activity ->
+                billingModeIdByCode[activity.type.substringBefore(" - ").trim()] to
+                        SelectCareActivityPopupUIState.ActivityListItem(
+                            title = activity.type,
+                            code = null,
+                            id = activity.id,
+                            carePlanId = activity.carePlan,
+                            isPlanned = false,
+                            isTransferActivity = false,
+                            isSelected = selectedActivityIds.contains(activity.id)
+                        )
+            }
+        )
+    }
+
+
     val uiState = combine(
         loadingState,
-        selectedActivityIds,
         query,
-        unplannedActivities,
-        plannedActivities
-    ) { loadingState, selectedActivityIds, query, notPlannedActivities, plannedActivities ->
-        val unPlannedItems = if (query.isNotEmpty()) {
-            notPlannedActivities.filter {
-                it.title.contains(query, true) || it.code?.contains(
-                    query,
-                    true
-                ) == true
-            }
-        } else {
-            notPlannedActivities
-        }
-
-        val plannedItems = plannedActivities?.map {
-            SelectCareActivityPopupUIState.ActivityListItem(
-                it.type,
-                null,
-                it.id,
-                carePlanId = it.carePlan,
-                false,
-                false,
-                isSelected = selectedActivityIds.contains(it.id)
-            )
-        } ?: listOf()
-
+        unplannedSections,
+        plannedSections
+    ) { loadingState, query, unplannedSections, plannedSections ->
         SelectCareActivityPopupUIState(
             isLoadingUnplanned = loadingState.unplanned,
             isLoadingPlanned = loadingState.planned,
             query = query,
-            unplannedActivities = unPlannedItems,
-            plannedActivities = plannedItems
+            unplannedSections = unplannedSections,
+            plannedSections = plannedSections
         )
 
     }.stateIn(
@@ -148,10 +181,11 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
             isLoadingUnplanned = true,
             isLoadingPlanned = true,
             query = "",
-            unplannedActivities = listOf(),
-            plannedActivities = listOf()
+            unplannedSections = listOf(),
+            plannedSections = listOf()
         )
     )
+
 
     private val coroutineExceptionHandler =
         CoroutineExceptionHandler { _, throwable ->
@@ -342,5 +376,34 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
 
     fun cancelAllSection() {
         selectedActivityIds.value = listOf()
+    }
+}
+
+/**
+ * Raggruppa le prestazioni per Modalità di fatturazione, rispettando l'ordine con cui
+ * le modalità arrivano dalla configurazione. Le prestazioni con modalità assente o
+ * sconosciuta finiscono in un blocco finale, così non spariscono dalla lista.
+ */
+internal fun sectionsByBillingMode(
+    billingModes: List<BillingMode>,
+    items: List<Pair<Int?, SelectCareActivityPopupUIState.ActivityListItem>>
+): List<SelectCareActivityPopupUIState.ActivitySection> {
+    val itemsByBillingModeId = items.groupBy({ it.first }, { it.second })
+    val sections = billingModes.mapNotNull { billingMode ->
+        itemsByBillingModeId[billingMode.id]?.let {
+            SelectCareActivityPopupUIState.ActivitySection(title = billingMode.label, items = it)
+        }
+    }
+    val ungrouped = itemsByBillingModeId
+        .filterKeys { id -> billingModes.none { it.id == id } }
+        .values
+        .flatten()
+    return if (ungrouped.isEmpty()) {
+        sections
+    } else {
+        sections + SelectCareActivityPopupUIState.ActivitySection(
+            titleRes = R.string.billing_mode_other,
+            items = ungrouped
+        )
     }
 }

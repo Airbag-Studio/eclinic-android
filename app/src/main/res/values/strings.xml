@@ -74,6 +74,7 @@
     <string name="not_planned">Non pianificato</string>
     <string name="cares">Prestazioni</string>
     <string name="new_care">Nuova Prestazione</string>
+    <string name="billing_mode_other">Altre prestazioni</string>
     <string name="no_category">Nessuna categoria</string>
     <string name="category">Categoria</string>
     <string name="description">Descrizione</string>
