@@ -14,6 +14,7 @@ import ch.ticare.eclinic.library.repository.UserDetailRepository
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -117,6 +118,27 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                 }
             }
 
+            // Le annotazioni chiudono la sezione a cui si riferiscono, in corsivo per
+            // distinguerle dalle voci elencate sopra (TS1-2)
+            fun withRemarks(items: List<String>, remarks: String) = buildAnnotatedString {
+                append(items.joinToString("\n"))
+                if (remarks.isNotEmpty()) {
+                    if (items.isNotEmpty()) append("\n\n")
+                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                        append(remarks)
+                    }
+                }
+            }
+
+            val definingFeaturesInfo = withRemarks(
+                items = selectedPan?.definingFeatures?.map { it.name }.orEmpty(),
+                remarks = selectedPan?.definingFeaturesRemarks.orEmpty()
+            )
+            val relatedFactorsInfo = withRemarks(
+                items = selectedPan?.relatedFactors?.map { it.name }.orEmpty(),
+                remarks = selectedPan?.relatedFactorsRemarks.orEmpty()
+            )
+
             val nicActivities = selectedPan?.nicActivities.orEmpty()
             val nicInfo = buildAnnotatedString {
                 nicActivities.forEachIndexed { index, activity ->
@@ -151,13 +173,13 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                 add(
                     CarePlanDetailsUIState.TextItems(
                         R.string.defining_features,
-                        AnnotatedString(selectedPan?.definingFeatures?.map { it.name }?.joinToString("\n") ?: "")
+                        definingFeaturesInfo
                     )
                 )
                 add(
                     CarePlanDetailsUIState.TextItems(
                         R.string.related_factors,
-                        AnnotatedString(selectedPan?.relatedFactors?.map { it.name }?.joinToString("\n") ?: "")
+                        relatedFactorsInfo
                     )
                 )
                 add(CarePlanDetailsUIState.TextItems(R.string.goal, AnnotatedString(selectedPan?.goal ?: "")))
