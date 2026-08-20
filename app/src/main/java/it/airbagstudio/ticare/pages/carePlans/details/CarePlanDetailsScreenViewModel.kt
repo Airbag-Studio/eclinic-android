@@ -117,26 +117,66 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                 }
             }
 
-            val textItems = listOf(
-                CarePlanDetailsUIState.TextItems(R.string.diagnosis, AnnotatedString(selectedPan?.diagnosis ?: "")),
-                CarePlanDetailsUIState.TextItems(
-                    R.string.problem,
-                    AnnotatedString(selectedPan?.problemDescription ?: "")
-                ),
-                CarePlanDetailsUIState.TextItems(
-                    R.string.defining_features,
-                    AnnotatedString(selectedPan?.definingFeatures?.map { it.name }?.joinToString("\n") ?: "")
-                ),
-                CarePlanDetailsUIState.TextItems(
-                    R.string.related_factors,
-                    AnnotatedString(selectedPan?.relatedFactors?.map { it.name }?.joinToString("\n") ?: "")
-                ),
-                CarePlanDetailsUIState.TextItems(R.string.goal, AnnotatedString(selectedPan?.goal ?: "")),
-                CarePlanDetailsUIState.TextItems(
-                    R.string.planned_activities,
-                    plannedInfo
+            val nicActivities = selectedPan?.nicActivities.orEmpty()
+            val nicInfo = buildAnnotatedString {
+                nicActivities.forEachIndexed { index, activity ->
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(activity.code)
+                    }
+                    append("\n${activity.description}")
+                    if (index < nicActivities.lastIndex) append("\n\n")
+                }
+            }
+
+            val nocIndicators = selectedPan?.nocIndicators.orEmpty()
+            val nocInfo = buildAnnotatedString {
+                nocIndicators.forEachIndexed { index, indicator ->
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(indicator.code)
+                    }
+                    append("\n${indicator.description}")
+                    if (indicator.scale.isNotEmpty()) append("\nScala: ${indicator.scale}")
+                    if (index < nocIndicators.lastIndex) append("\n\n")
+                }
+            }
+
+            val textItems = buildList {
+                add(CarePlanDetailsUIState.TextItems(R.string.diagnosis, AnnotatedString(selectedPan?.diagnosis ?: "")))
+                add(
+                    CarePlanDetailsUIState.TextItems(
+                        R.string.problem,
+                        AnnotatedString(selectedPan?.problemDescription ?: "")
+                    )
                 )
-            )
+                add(
+                    CarePlanDetailsUIState.TextItems(
+                        R.string.defining_features,
+                        AnnotatedString(selectedPan?.definingFeatures?.map { it.name }?.joinToString("\n") ?: "")
+                    )
+                )
+                add(
+                    CarePlanDetailsUIState.TextItems(
+                        R.string.related_factors,
+                        AnnotatedString(selectedPan?.relatedFactors?.map { it.name }?.joinToString("\n") ?: "")
+                    )
+                )
+                add(CarePlanDetailsUIState.TextItems(R.string.goal, AnnotatedString(selectedPan?.goal ?: "")))
+                // NIC e NOC chiudono il riepilogo, prima delle prestazioni pianificate (TS1-1).
+                // Compaiono solo se il piano ha elementi collegati, per non lasciare
+                // due intestazioni vuote sui piani che non ne hanno.
+                if (nicActivities.isNotEmpty()) {
+                    add(CarePlanDetailsUIState.TextItems(R.string.nic_activities, nicInfo))
+                }
+                if (nocIndicators.isNotEmpty()) {
+                    add(CarePlanDetailsUIState.TextItems(R.string.noc_indicators, nocInfo))
+                }
+                add(
+                    CarePlanDetailsUIState.TextItems(
+                        R.string.planned_activities,
+                        plannedInfo
+                    )
+                )
+            }
 
 
 
