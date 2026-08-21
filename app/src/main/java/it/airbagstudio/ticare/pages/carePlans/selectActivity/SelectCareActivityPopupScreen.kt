@@ -67,6 +67,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import it.airbagstudio.ticare.LocalActivity
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.ErrorAlert
+import it.airbagstudio.ticare.ui.components.FullScreenDialog
 import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerViewModel
 import it.airbagstudio.ticare.ui.components.timeTracker.TravelTimeDialog
 import it.airbagstudio.ticare.ui.theme.surface_container
@@ -85,10 +86,7 @@ fun SelectCareActivityPopupScreen(
 ) {
     var showExecuteAllAlert by remember { mutableStateOf(false) }
     val errorMessage = viewModel.errorMessage.collectAsStateWithLifecycle()
-    Dialog(
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-        onDismissRequest = { onDismissRequest(null) },
-    ) {
+    FullScreenDialog(onDismissRequest = { onDismissRequest(null) }) {
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
         val trackerViewUIState by trackerViewModel.uiState.collectAsStateWithLifecycle()
         var showTravelTimeDialog by remember {
