@@ -1,18 +1,19 @@
 package it.airbagstudio.ticare.pages.carePlans.details
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
@@ -28,13 +29,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.ticare.eclinic.library.entity.HomeCareActivity
@@ -108,71 +109,64 @@ fun CarePlanDetailsScreen(
         floatingActionButtonPosition = FabPosition.Center
     ) { values ->
 
-        Column(
-            Modifier
-                .padding(values)
+        // Tutto il piano vive in un unico scroll: niente anteprima compressa né dialog (TS1-6)
+        LazyColumn(
+            modifier = Modifier.padding(values),
+            contentPadding = PaddingValues(bottom = 124.dp)
         ) {
-            HorizontalDivider()
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = stringResource(id = R.string.title),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = uiState.title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            HorizontalDivider()
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(0.dp, max = 155.dp)
-                    .background(MaterialTheme.colorScheme.surface)
-
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 8.dp),
-                    text = stringResource(id = R.string.opening),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = uiState.date,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                PropertyList(
-                    title = uiState.title,
-                    properties = uiState.textItem
-                )
-            }
-            HorizontalDivider()
-            Text(
-                modifier = Modifier.padding(16.dp),
-                text = stringResource(id = R.string.cares),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            LazyColumn(
-                contentPadding = PaddingValues(bottom = 124.dp),
-                content = {
-                items(uiState.cares){ carePlanItem ->
-                    CarePlanCoursesListItemView(item = carePlanItem, onClick = {
-
-                            selectedActivity = it
-                            showCreateCarePopup = true
-
-                    })
-                    Divider()
+            item {
+                HorizontalDivider()
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.title),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = uiState.title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
-
-            })
+                HorizontalDivider()
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.opening),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = uiState.date,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+            items(uiState.sections) { section ->
+                CarePlanSectionView(section = section)
+            }
+            item {
+                HorizontalDivider(modifier = Modifier.padding(top = 20.dp))
+                Text(
+                    modifier = Modifier.padding(16.dp),
+                    text = stringResource(id = R.string.cares),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            items(uiState.cares) { carePlanItem ->
+                CarePlanCoursesListItemView(item = carePlanItem, onClick = {
+                    selectedActivity = it
+                    showCreateCarePopup = true
+                })
+                Divider()
+            }
         }
     }
     if(showStartTrackingPopup){
@@ -220,40 +214,147 @@ fun CarePlanDetailsScreen(
     }
 }
 
+/**
+ * Una sezione del riepilogo. Il divider e i 20/16dp che lo circondano rendono lo stacco
+ * fra sezioni sempre maggiore di quello fra le voci interne, che è il motivo per cui
+ * prima le sezioni si fondevano fra loro. Vale anche per la prima sezione, che altrimenti
+ * resterebbe incollata al blocco della data di apertura.
+ */
 @Composable
-private fun PropertyList(title: String, properties: List<CarePlanDetailsUIState.TextItems>) {
-    var showPropertyDialog by remember { mutableStateOf(false) }
-    Row(modifier = Modifier
-        .clickable {
-            showPropertyDialog = true
-        }
-        .padding(16.dp)) {
-        Column(
-            modifier = Modifier.weight(1f)) {
-            properties.forEach { property ->
-                Text(
-                    text = stringResource(id = property.titleStringId),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = property.content,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+private fun CarePlanSectionView(section: CarePlanSection) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Spacer(modifier = Modifier.height(20.dp))
+        HorizontalDivider()
+        Spacer(modifier = Modifier.height(16.dp))
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            when (section) {
+                is CarePlanSection.Text -> {
+                    SectionHeader(titleId = section.titleId)
+                    Text(
+                        text = section.text,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                is CarePlanSection.Bullets -> {
+                    SectionHeader(titleId = section.titleId)
+                    section.items.forEachIndexed { index, item ->
+                        Text(
+                            text = item,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        if (index < section.items.lastIndex) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                    }
+                    section.note?.let { AnnotationBox(note = it) }
+                }
+
+                is CarePlanSection.CodedItems -> {
+                    SectionHeader(titleId = section.titleId, count = section.items.size)
+                    section.items.forEachIndexed { index, item ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            CodeChip(code = item.code)
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = item.description,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                item.scale?.let { scale ->
+                                    Text(
+                                        modifier = Modifier.padding(top = 2.dp),
+                                        text = stringResource(id = R.string.noc_scale, scale),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                        if (index < section.items.lastIndex) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                    }
+                }
+
+                is CarePlanSection.Planned -> {
+                    SectionHeader(titleId = section.titleId, count = section.items.size)
+                    section.items.forEachIndexed { index, activity ->
+                        Text(
+                            text = activity.title,
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        activity.meta.forEach { meta ->
+                            Text(
+                                modifier = Modifier.padding(top = 2.dp),
+                                text = meta,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        if (index < section.items.lastIndex) {
+                            Spacer(modifier = Modifier.height(14.dp))
+                        }
+                    }
+                }
             }
         }
-        Spacer(modifier = Modifier.width(16.dp))
-        Icon(painter = painterResource(id = R.drawable.ic_arrow_right), contentDescription = "")
     }
-    if (showPropertyDialog) {
-        PropertiesDialog(title = title, properties = properties) {
-            showPropertyDialog = false
+}
+
+@Composable
+private fun SectionHeader(titleId: Int, count: Int? = null) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = stringResource(id = titleId),
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.primary
+        )
+        if (count != null) {
+            Text(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
+                    .padding(horizontal = 8.dp, vertical = 1.dp),
+                text = count.toString(),
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
+    Spacer(modifier = Modifier.height(10.dp))
+}
 
+@Composable
+private fun CodeChip(code: String) {
+    Text(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(6.dp))
+            .padding(horizontal = 8.dp, vertical = 3.dp),
+        text = code,
+        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+        color = MaterialTheme.colorScheme.primary,
+        maxLines = 1
+    )
+}
+
+@Composable
+private fun AnnotationBox(note: String) {
+    Text(
+        modifier = Modifier
+            .padding(top = 12.dp)
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        text = note,
+        style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
 }
 
 @Composable

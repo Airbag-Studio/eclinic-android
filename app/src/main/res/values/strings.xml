@@ -88,6 +88,7 @@
     <string name="goal">Obiettivo</string>
     <string name="nic_activities">Attività NIC</string>
     <string name="noc_indicators">Indicatori NOC</string>
+    <string name="noc_scale">Scala: %1$s</string>
     <string name="activity_saved_diary">L\'attività è stata correttamente salvata ma sarà visibile solamente nel diario</string>
     <string name="activity_saved_not_visible">L\'attività è stata correttamente salvata ma non sarà visibile all\'interno dell\'applicazione</string>
     <string name="new_wounds">Nuovo protocollo ferite</string>

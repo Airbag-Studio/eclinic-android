@@ -11,12 +11,6 @@ import ch.ticare.eclinic.library.entity.OfflineSection
 import ch.ticare.eclinic.library.repository.HomeCareActivitiesRepository
 import ch.ticare.eclinic.library.repository.OfflineOnlineRepository
 import ch.ticare.eclinic.library.repository.UserDetailRepository
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.navigation.DestinationsArgs
@@ -42,14 +36,53 @@ data class CarePlanDetailsUIState(
     val errorMessage: String?,
     val title: String,
     val date: String,
-    val textItem: List<TextItems>,
+    val sections: List<CarePlanSection>,
     val cares: List<CarePlanCoursesListItem>
+)
 
+/**
+ * Una sezione del riepilogo del piano di cura. Il tipo determina la resa: le sezioni con
+ * dati strutturati (NIC, NOC, prestazioni pianificate) non vengono appiattite in un unico
+ * testo, così la UI può dare a codice, descrizione e scala il peso visivo che meritano.
+ */
+sealed interface CarePlanSection {
+    val titleId: Int
+
+    data class Text(override val titleId: Int, val text: String) : CarePlanSection
+
+    data class Bullets(
+        override val titleId: Int,
+        val items: List<String>,
+        val note: String?
+    ) : CarePlanSection
+
+    data class CodedItems(
+        override val titleId: Int,
+        val items: List<CodedItem>
+    ) : CarePlanSection
+
+    data class Planned(
+        override val titleId: Int,
+        val items: List<PlannedActivityRow>
+    ) : CarePlanSection
+}
+
+data class CodedItem(val code: String, val description: String, val scale: String? = null)
+
+data class PlannedActivityRow(val title: String, val meta: List<String>)
+
+/**
+ * Aggiunge la sezione solo se ha un elenco o un'annotazione: un'annotazione senza voci
+ * resta comunque visibile, perché è contenuto inserito dall'operatore (TS1-2).
+ */
+private fun MutableList<CarePlanSection>.addBulletsSection(
+    titleId: Int,
+    items: List<String>,
+    note: String?
 ) {
-    data class TextItems(
-        val titleStringId: Int,
-        val content: AnnotatedString
-    )
+    val remarks = note?.takeIf { it.isNotBlank() }
+    if (items.isEmpty() && remarks == null) return
+    add(CarePlanSection.Bullets(titleId, items, remarks))
 }
 
 @HiltViewModel
@@ -98,109 +131,69 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                     isLocalContent = it.user.isEmpty()
                 )
             }
-            val plannedActivitiesAnnotated = planndeActivities.map {
-                buildAnnotatedString {
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(it.type)
+            val plannedRows = planndeActivities.map { activity ->
+                PlannedActivityRow(
+                    title = activity.type,
+                    meta = buildList {
+                        val number = if (activity.number > 0) {
+                            activity.number.toString()
+                        } else {
+                            "Su Necessità"
+                        }
+                        add("$number ${activity.timeUnit}")
+                        getWeekDays(activity.weekDays).takeIf { it.isNotEmpty() }?.let { add(it) }
+                        add("Durata (min):${activity.duration}")
+                        activity.qualMin.takeIf { it.isNotEmpty() }?.let { add(it) }
+                        activity.notes.takeIf { it.isNotEmpty() }?.let { add(it) }
                     }
-                    append("\n${if (it.number > 0) it.number.toString() else "Su Necessità"} ${it.timeUnit}\n")
-                    val weekDays = getWeekDays(it.weekDays)
-                    if (weekDays.isNotEmpty()) append("$weekDays \n")
-                    append("Durata (min):${it.duration}")
-                    if (it.qualMin.isNotEmpty()) append("\n${it.qualMin}")
-                    if (it.notes.isNotEmpty()) append("\n${it.notes}")
-                }
-            }
-            val plannedInfo = buildAnnotatedString {
-                plannedActivitiesAnnotated.forEachIndexed { index, item ->
-                    append(item)
-                    if (index < plannedActivitiesAnnotated.lastIndex) append("\n\n")
-                }
-            }
-
-            // Le annotazioni chiudono la sezione a cui si riferiscono, in corsivo per
-            // distinguerle dalle voci elencate sopra (TS1-2)
-            fun withRemarks(items: List<String>, remarks: String) = buildAnnotatedString {
-                append(items.joinToString("\n"))
-                if (remarks.isNotEmpty()) {
-                    if (items.isNotEmpty()) append("\n\n")
-                    withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
-                        append(remarks)
-                    }
-                }
-            }
-
-            val definingFeaturesInfo = withRemarks(
-                items = selectedPan?.definingFeatures?.map { it.name }.orEmpty(),
-                remarks = selectedPan?.definingFeaturesRemarks.orEmpty()
-            )
-            val relatedFactorsInfo = withRemarks(
-                items = selectedPan?.relatedFactors?.map { it.name }.orEmpty(),
-                remarks = selectedPan?.relatedFactorsRemarks.orEmpty()
-            )
-
-            val nicActivities = selectedPan?.nicActivities.orEmpty()
-            val nicInfo = buildAnnotatedString {
-                nicActivities.forEachIndexed { index, activity ->
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(activity.code)
-                    }
-                    append("\n${activity.description}")
-                    if (index < nicActivities.lastIndex) append("\n\n")
-                }
-            }
-
-            val nocIndicators = selectedPan?.nocIndicators.orEmpty()
-            val nocInfo = buildAnnotatedString {
-                nocIndicators.forEachIndexed { index, indicator ->
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(indicator.code)
-                    }
-                    append("\n${indicator.description}")
-                    if (indicator.scale.isNotEmpty()) append("\nScala: ${indicator.scale}")
-                    if (index < nocIndicators.lastIndex) append("\n\n")
-                }
-            }
-
-            val textItems = buildList {
-                add(CarePlanDetailsUIState.TextItems(R.string.diagnosis, AnnotatedString(selectedPan?.diagnosis ?: "")))
-                add(
-                    CarePlanDetailsUIState.TextItems(
-                        R.string.problem,
-                        AnnotatedString(selectedPan?.problemDescription ?: "")
-                    )
-                )
-                add(
-                    CarePlanDetailsUIState.TextItems(
-                        R.string.defining_features,
-                        definingFeaturesInfo
-                    )
-                )
-                add(
-                    CarePlanDetailsUIState.TextItems(
-                        R.string.related_factors,
-                        relatedFactorsInfo
-                    )
-                )
-                add(CarePlanDetailsUIState.TextItems(R.string.goal, AnnotatedString(selectedPan?.goal ?: "")))
-                // NIC e NOC chiudono il riepilogo, prima delle prestazioni pianificate (TS1-1).
-                // Compaiono solo se il piano ha elementi collegati, per non lasciare
-                // due intestazioni vuote sui piani che non ne hanno.
-                if (nicActivities.isNotEmpty()) {
-                    add(CarePlanDetailsUIState.TextItems(R.string.nic_activities, nicInfo))
-                }
-                if (nocIndicators.isNotEmpty()) {
-                    add(CarePlanDetailsUIState.TextItems(R.string.noc_indicators, nocInfo))
-                }
-                add(
-                    CarePlanDetailsUIState.TextItems(
-                        R.string.planned_activities,
-                        plannedInfo
-                    )
                 )
             }
 
-
+            // Solo le sezioni che hanno davvero contenuto: un piano senza problema o
+            // obiettivo non si porta dietro intestazioni vuote (TS1-6)
+            val sections = buildList {
+                selectedPan?.diagnosis?.takeIf { it.isNotBlank() }?.let {
+                    add(CarePlanSection.Text(R.string.diagnosis, it))
+                }
+                selectedPan?.problemDescription?.takeIf { it.isNotBlank() }?.let {
+                    add(CarePlanSection.Text(R.string.problem, it))
+                }
+                addBulletsSection(
+                    titleId = R.string.defining_features,
+                    items = selectedPan?.definingFeatures?.map { it.name }.orEmpty(),
+                    note = selectedPan?.definingFeaturesRemarks
+                )
+                addBulletsSection(
+                    titleId = R.string.related_factors,
+                    items = selectedPan?.relatedFactors?.map { it.name }.orEmpty(),
+                    note = selectedPan?.relatedFactorsRemarks
+                )
+                selectedPan?.goal?.takeIf { it.isNotBlank() }?.let {
+                    add(CarePlanSection.Text(R.string.goal, it))
+                }
+                // NIC e NOC chiudono il riepilogo, prima delle prestazioni pianificate (TS1-1)
+                selectedPan?.nicActivities?.takeIf { it.isNotEmpty() }?.let { activities ->
+                    add(
+                        CarePlanSection.CodedItems(
+                            titleId = R.string.nic_activities,
+                            items = activities.map { CodedItem(it.code, it.description) }
+                        )
+                    )
+                }
+                selectedPan?.nocIndicators?.takeIf { it.isNotEmpty() }?.let { indicators ->
+                    add(
+                        CarePlanSection.CodedItems(
+                            titleId = R.string.noc_indicators,
+                            items = indicators.map {
+                                CodedItem(it.code, it.description, it.scale.takeIf { s -> s.isNotBlank() })
+                            }
+                        )
+                    )
+                }
+                plannedRows.takeIf { it.isNotEmpty() }?.let {
+                    add(CarePlanSection.Planned(R.string.planned_activities, it))
+                }
+            }
 
             CarePlanDetailsUIState(
                 isLoading = isLoading,
@@ -208,7 +201,7 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                 title = selectedPan?.title ?: "",
                 date = selectedPan?.openDate?.toDate("dd.MM.yyyy")?.format("dd/MM/yyyy") ?: "",
                 cares = activities ?: listOf(),
-                textItem = textItems
+                sections = sections
             )
         } catch (e: Throwable) {
             this.errorMessage.value = e.localizedMessage
@@ -219,7 +212,7 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
                 title = "",
                 date = "",
                 cares = listOf(),
-                textItem = listOf()
+                sections = listOf()
             )
 
         }
@@ -232,7 +225,7 @@ class CarePlanDetailsScreenViewModel @Inject constructor(
             title = "",
             date = "",
             cares = listOf(),
-            textItem = listOf()
+            sections = listOf()
         )
     )
 
