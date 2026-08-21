@@ -1,13 +1,16 @@
 package it.airbagstudio.ticare.pages.carePlans.selectActivity
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -34,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,12 +45,16 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -61,6 +69,7 @@ import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.ui.components.ErrorAlert
 import it.airbagstudio.ticare.ui.components.timeTracker.TimeTrackerViewModel
 import it.airbagstudio.ticare.ui.components.timeTracker.TravelTimeDialog
+import it.airbagstudio.ticare.ui.theme.surface_container
 import kotlinx.coroutines.awaitCancellation
 
 private const val LOADING_PLACEHOLDERS_COUNT = 8
@@ -75,7 +84,6 @@ fun SelectCareActivityPopupScreen(
     onDismissRequest: (Pair<Boolean, SelectCareActivityPopupUIState.ActivityListItem>?) -> Unit
 ) {
     var showExecuteAllAlert by remember { mutableStateOf(false) }
-    var isSelecting by remember { mutableStateOf(false) }
     val errorMessage = viewModel.errorMessage.collectAsStateWithLifecycle()
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -86,15 +94,6 @@ fun SelectCareActivityPopupScreen(
         var showTravelTimeDialog by remember {
             mutableStateOf(false)
         }
-        var tabIndex by remember {
-            mutableIntStateOf(0)
-        }
-
-        LaunchedEffect(tabIndex) {
-            viewModel.cancelAllSection()
-            isSelecting = false
-        }
-
         LaunchedEffect(Unit) {
             viewModel.loadData(carePlanId = planId, patientCode = caseCode)
             trackerViewModel.updateLastMinutesFromLastActivity()
@@ -107,45 +106,17 @@ fun SelectCareActivityPopupScreen(
                         Column {
                             Text(text = stringResource(id = R.string.new_care))
                         }
-
                     },
-                    navigationIcon = {
-                        if (isSelecting){
-                            TextButton(onClick = {
-                                if(tabIndex == 0) {
-                                    viewModel.selectAllPlanned()
-                                }else{
-                                    viewModel.selectAllUnplanned()
-                                }
-                            }) {
-                                Text(text = stringResource(id = R.string.select_all))
-                            }
-                        }else {
-                            TextButton(onClick = {
-                                isSelecting = true
-                            }) {
-                                Text(text = stringResource(id = R.string.select))
-                            }
-                        }
-                    },
+                    // Le checkbox sono sempre visibili: non serve più una modalità "Seleziona"
                     actions = {
-                        if (isSelecting) {
-                            TextButton(onClick = {
-                                viewModel.cancelAllSection()
-                                isSelecting = false
-                            }) {
-                                Text(text = stringResource(id = R.string.cancel))
-                            }
-                        }else{
-                            IconButton(onClick = { onDismissRequest(null) }) {
-                                Icon(imageVector = Icons.Default.Close, contentDescription = "")
-                            }
+                        IconButton(onClick = { onDismissRequest(null) }) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = "")
                         }
                     }
                 )
             },
             floatingActionButton = {
-                if(isSelecting) {
+                if (uiState.selectedCount > 0) {
                     ExtendedFloatingActionButton(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -153,16 +124,16 @@ fun SelectCareActivityPopupScreen(
                         expanded = true,
                         text = {
                             Text(
-                                text = stringResource(id = R.string.execute_all),
+                                text = stringResource(
+                                    id = R.string.execute_selected,
+                                    uiState.selectedCount
+                                ),
                                 style = MaterialTheme.typography.labelLarge
                             )
                         },
                         icon = { Icon(imageVector = Icons.Default.Add, contentDescription = "") },
                         contentColor = MaterialTheme.colorScheme.primary,
-                        onClick = {
-                            showExecuteAllAlert = true
-
-                        })
+                        onClick = { showExecuteAllAlert = true })
                 }
             },
             floatingActionButtonPosition = FabPosition.Center
@@ -171,75 +142,31 @@ fun SelectCareActivityPopupScreen(
                 Modifier
                     .fillMaxSize()
                     .padding(values)
-
             ) {
-                    val labels = listOf(
-                        stringResource(id = R.string.planned),
-                        stringResource(id = R.string.not_planned)
-                    )
-                    TabRow(
-                        selectedTabIndex = tabIndex,
-                        indicator = { tabPositions ->
-                            if (tabIndex < tabPositions.size) {
-                                SecondaryIndicator(
-                                    modifier = Modifier
-                                        .tabIndicatorOffset(tabPositions[tabIndex]),
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            }
+                SearchField(query = uiState.query, onQueryChange = { viewModel.setQuery(it) })
+                LazyColumn(contentPadding = PaddingValues(bottom = 120.dp)) {
+                    plannedBlock(
+                        uiState = uiState,
+                        onToggleAll = { viewModel.togglePlannedSelection() },
+                        onSelectedChange = { id, isSelected ->
+                            viewModel.changeActivitySelection(id, isPlanned = true, isSelected = isSelected)
                         },
-                    ) {
-                        labels.forEachIndexed { index, title ->
-                            Tab(
-                                selected = tabIndex == index,
-                                onClick = {
-                                    tabIndex = index
-                                },
-                                text = {
-                                    Text(
-                                        text = title,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                    )
-                                }
-                            )
+                        onItemClick = { item -> onDismissRequest(Pair(true, item)) }
+                    )
+                    unplannedBlock(
+                        uiState = uiState,
+                        onSelectedChange = { id, isSelected ->
+                            viewModel.changeActivitySelection(id, isPlanned = false, isSelected = isSelected)
+                        },
+                        onItemClick = { item, isTransfer ->
+                            if (isTransfer) {
+                                showTravelTimeDialog = true
+                            } else {
+                                onDismissRequest(Pair(false, item))
+                            }
                         }
-                    }
-                    when (tabIndex) {
-                        0 -> {
-                            ItemsList(
-                                isSelecting,
-                                isLoading = uiState.isLoadingPlanned,
-                                sections = uiState.plannedSections,
-                                onSelectedChange = { id, isSelected ->
-                                    viewModel.changeActivitySelection(id,isSelected)
-                                },
-                                onItemClick = { id, _ ->
-                                    onDismissRequest(Pair(true, id))
-                                })
-                        }
-
-                        1 -> {
-                            SearchableList(
-                                isSelecting = isSelecting,
-                                isLoading = uiState.isLoadingUnplanned,
-                                query = uiState.query,
-                                sections = uiState.unplannedSections,
-                                onItemClick = { item, isTracking ->
-                                    if (isTracking) {
-                                        showTravelTimeDialog = true
-                                    } else {
-                                        onDismissRequest(Pair(false, item))
-                                    }
-                                }, onQueryChange = {
-                                    viewModel.setQuery(it)
-                                }, onSelectedChange = { id, isSelected ->
-                                    viewModel.changeActivitySelection(id,isSelected)
-                                })
-
-                        }
-                    }
+                    )
+                }
             }
         }
 
@@ -281,16 +208,9 @@ fun SelectCareActivityPopupScreen(
                     TextButton(
                         onClick = {
                             showExecuteAllAlert = false
-                            if(tabIndex == 0) {
-                                viewModel.executeAllPlannedActivities() {
-                                    trackerViewModel.updateLastMinutesFromLastActivity()
-                                    onDismissRequest(null)
-                                }
-                            }else{
-                                viewModel.executeAllUnplannedActivities() {
-                                    trackerViewModel.updateLastMinutesFromLastActivity()
-                                    onDismissRequest(null)
-                                }
+                            viewModel.executeSelectedActivities {
+                                trackerViewModel.updateLastMinutesFromLastActivity()
+                                onDismissRequest(null)
                             }
                         }) {
                         Text("Ok")
@@ -313,109 +233,210 @@ fun SelectCareActivityPopupScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchableList(
-    isSelecting: Boolean,
-    isLoading: Boolean,
-    query: String,
-    sections: List<SelectCareActivityPopupUIState.ActivitySection>,
-    onItemClick: (SelectCareActivityPopupUIState.ActivityListItem, Boolean) -> Unit,
-    onQueryChange: (String) -> Unit,
-    onSelectedChange: (Int, Boolean) -> Unit
-) {
+private fun SearchField(query: String, onQueryChange: (String) -> Unit) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    Column {
-        TextField(
-            singleLine = true,
-            shape = RoundedCornerShape(28.dp),
+    TextField(
+        singleLine = true,
+        shape = RoundedCornerShape(28.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(focusRequester)
+            .padding(vertical = 16.dp, horizontal = 8.dp)
+            .height(56.dp),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Search
+        ),
+        keyboardActions = KeyboardActions(onSearch = {
+            focusRequester.freeFocus()
+            focusManager.clearFocus(true)
+        }),
+        placeholder = {
+            Text(text = stringResource(id = R.string.search_all))
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = stringResource(id = R.string.search)
+            )
+        },
+        colors = TextFieldDefaults.colors(
+            disabledTextColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent
+        ),
+        value = query,
+        onValueChange = onQueryChange
+    )
+}
+
+/**
+ * Blocco delle prestazioni pianificate: card distinta con il "seleziona tutte" a tre stati.
+ * È un unico item della lista perché la card deve avvolgere tutto il blocco; le pianificate
+ * di un piano sono poche, quindi non serve la pigrizia della LazyColumn.
+ */
+private fun LazyListScope.plannedBlock(
+    uiState: SelectCareActivityPopupUIState,
+    onToggleAll: () -> Unit,
+    onSelectedChange: (Int, Boolean) -> Unit,
+    onItemClick: (SelectCareActivityPopupUIState.ActivityListItem) -> Unit
+) {
+    if (uiState.isLoadingPlanned) {
+        item {
+            Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+                SectionTitle(text = stringResource(id = R.string.planned))
+                repeat(2) { ActivityListItemViewLoading() }
+            }
+        }
+        return
+    }
+    // Nessuna prestazione pianificata: l'intero blocco sparisce, intestazione compresa
+    if (uiState.plannedSections.isEmpty()) return
+
+    item {
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(surface_container)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onToggleAll() }
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SectionTitle(
+                    modifier = Modifier.weight(1f),
+                    text = stringResource(
+                        id = R.string.planned_with_count,
+                        uiState.plannedSections.sumOf { it.items.size }
+                    )
+                )
+                Text(
+                    text = stringResource(id = R.string.select_all_planned),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                TriStateCheckbox(
+                    state = when (uiState.plannedSelection) {
+                        SelectCareActivityPopupUIState.PlannedSelection.ALL -> ToggleableState.On
+                        SelectCareActivityPopupUIState.PlannedSelection.SOME -> ToggleableState.Indeterminate
+                        SelectCareActivityPopupUIState.PlannedSelection.NONE -> ToggleableState.Off
+                    },
+                    onClick = onToggleAll
+                )
+            }
+            uiState.plannedSections.forEach { section ->
+                BillingModeSectionTitle(section)
+                section.items.forEach { item ->
+                    ActivityRow(
+                        item = item,
+                        onClick = { onItemClick(item) },
+                        onSelectedChange = { isSelected -> onSelectedChange(item.id, isSelected) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** Blocco delle non pianificate: nessun "seleziona tutte", si spuntano una a una. */
+private fun LazyListScope.unplannedBlock(
+    uiState: SelectCareActivityPopupUIState,
+    onSelectedChange: (Int, Boolean) -> Unit,
+    onItemClick: (SelectCareActivityPopupUIState.ActivityListItem, Boolean) -> Unit
+) {
+    item {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .focusRequester(focusRequester)
-                .padding(vertical = 16.dp, horizontal = 8.dp)
-                .height(56.dp),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Search
-            ),
-            keyboardActions = KeyboardActions(onSearch = {
-                focusRequester.freeFocus()
-                focusManager.clearFocus(true)
-            }),
-            placeholder = {
-                Text(text = stringResource(id = R.string.search))
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = stringResource(id = R.string.search)
+                .padding(start = 16.dp, top = 20.dp, end = 16.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SectionTitle(
+                modifier = Modifier.weight(1f),
+                text = stringResource(
+                    id = R.string.unplanned_with_count,
+                    uiState.unplannedSections.sumOf { it.items.size }
                 )
-            },
-            colors = TextFieldDefaults.colors(
-                disabledTextColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            ),
-            value = query,
-            onValueChange = {
-                onQueryChange(it)
-            }
-        )
-        ItemsList(
-            isSelecting,
-            isLoading = isLoading,
-            sections = sections,
-            onItemClick = onItemClick,
-            onSelectedChange = onSelectedChange
-        )
+            )
+            Text(
+                text = stringResource(id = R.string.single_selection_hint),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.outline
+            )
+        }
+    }
+    if (uiState.isLoadingUnplanned) {
+        items(LOADING_PLACEHOLDERS_COUNT) { ActivityListItemViewLoading() }
+        return
+    }
+    if (uiState.unplannedSections.isEmpty()) {
+        item { NoResults() }
+        return
+    }
+    uiState.unplannedSections.forEach { section ->
+        item { BillingModeSectionTitle(section) }
+        items(section.items) { item ->
+            ActivityRow(
+                item = item,
+                onClick = { onItemClick(item, item.isTransferActivity) },
+                onSelectedChange = { isSelected -> onSelectedChange(item.id, isSelected) }
+            )
+        }
     }
 }
 
 @Composable
-private fun ItemsList(
-    isSelecting: Boolean,
-    isLoading: Boolean,
-    sections: List<SelectCareActivityPopupUIState.ActivitySection>,
-    onItemClick: (SelectCareActivityPopupUIState.ActivityListItem, Boolean) -> Unit,
-    onSelectedChange: (Int, Boolean) -> Unit
+private fun ActivityRow(
+    item: SelectCareActivityPopupUIState.ActivityListItem,
+    onClick: () -> Unit,
+    onSelectedChange: (Boolean) -> Unit
 ) {
-    LazyColumn(
-        contentPadding = PaddingValues(bottom = 120.dp),
-        content = {
-            if (isLoading) {
-                items(LOADING_PLACEHOLDERS_COUNT) {
-                    ActivityListItemViewLoading()
-                }
-            } else {
-                sections.forEach { section ->
-                    val title = section.title
-                    val titleRes = section.titleRes
-                    if (title != null) {
-                        item { BillingModeHeader(title = title) }
-                    } else if (titleRes != null) {
-                        item { BillingModeHeader(title = stringResource(id = titleRes)) }
-                    }
-                    items(section.items) {
-                        val itemTitle = if (it.code != null) {
-                            "${it.code} - ${it.title}"
-                        } else {
-                            it.title
-                        }
-                        ActivityListItemView(
-                            isSelecting,
-                            title = itemTitle,
-                            isTransferRow = it.isTransferActivity,
-                            isSelected = it.isSelected,
-                            onClick = {
-                                onItemClick(it, it.isTransferActivity)
-                            },
-                            onSelectedChange = { isSelected ->
-                                onSelectedChange(it.id, isSelected)
-                            })
-                    }
-                }
-            }
-        })
+    val title = if (item.code != null) "${item.code} - ${item.title}" else item.title
+    ActivityListItemView(
+        isSelecting = true,
+        title = title,
+        isTransferRow = item.isTransferActivity,
+        isSelected = item.isSelected,
+        onClick = onClick,
+        onSelectedChange = onSelectedChange
+    )
+}
+
+@Composable
+private fun BillingModeSectionTitle(section: SelectCareActivityPopupUIState.ActivitySection) {
+    val title = section.title
+    val titleRes = section.titleRes
+    if (title != null) {
+        BillingModeHeader(title = title)
+    } else if (titleRes != null) {
+        BillingModeHeader(title = stringResource(id = titleRes))
+    }
+}
+
+@Composable
+private fun SectionTitle(text: String, modifier: Modifier = Modifier) {
+    Text(
+        modifier = modifier,
+        text = text,
+        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+        color = MaterialTheme.colorScheme.primary
+    )
+}
+
+@Composable
+private fun NoResults() {
+    Text(
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+        text = stringResource(id = R.string.no_results),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.outline
+    )
 }
 
 @Composable

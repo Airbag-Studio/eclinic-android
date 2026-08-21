@@ -350,6 +350,13 @@
     <string name="cares_no_plane">Prestazioni senza piano di cura</string>
     <string name="select">Seleziona</string>
     <string name="select_all">Seleziona tutto</string>
+    <string name="select_all_planned">Seleziona tutte</string>
+    <string name="single_selection_hint">Selezione singola</string>
+    <string name="search_all">Cerca in tutte le prestazioni</string>
+    <string name="planned_with_count">Pianificate (%1$d)</string>
+    <string name="unplanned_with_count">Non pianificate (%1$d)</string>
+    <string name="execute_selected">Esegui selezionate (%1$d)</string>
+    <string name="no_results">Nessun risultato</string>
     <string name="override_description">Sovrascrivere la descrizione?</string>
     <string name="override_description_alert">Sovrascrivere la descrizione con quella associata alla categoria?</string>
     <string name="confirm">Conferma</string>

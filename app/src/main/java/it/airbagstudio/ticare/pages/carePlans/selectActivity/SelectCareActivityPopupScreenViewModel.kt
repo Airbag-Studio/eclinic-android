@@ -35,10 +35,13 @@ data class SelectCareActivityPopupUIState(
     val isLoadingPlanned: Boolean,
     val query: String,
     val unplannedSections: List<ActivitySection>,
-    val plannedSections: List<ActivitySection>
-
-
+    val plannedSections: List<ActivitySection>,
+    val plannedSelection: PlannedSelection,
+    val selectedCount: Int
 ) {
+    /** Stato del "seleziona tutte" delle pianificate, per la checkbox a tre stati. */
+    enum class PlannedSelection { NONE, SOME, ALL }
+
     data class ActivityListItem(
         val title: String,
         val code: String?,
@@ -82,7 +85,12 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
 
     private var transferActivity: HomeCareUnplannedActivity? = null
 
-    private var selectedActivityIds: MutableStateFlow<List<Int>> = MutableStateFlow(listOf())
+    // Gli id delle pianificate (id planning) e delle non pianificate (id tipo prestazione)
+    // vengono da due spazi diversi e si sovrappongono: negli esempi delle API entrambi
+    // partono da 1. Con le due liste su una sola schermata una selezione condivisa
+    // marcherebbe la riga sbagliata, quindi i due insiemi restano separati (TS1-5).
+    private val selectedPlannedIds = MutableStateFlow<List<Int>>(listOf())
+    private val selectedUnplannedIds = MutableStateFlow<List<Int>>(listOf())
 
     var errorMessage = _errorMessage.asStateFlow()
 
@@ -93,16 +101,12 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
     private val unplannedSections = combine(
         notPlannedActivities,
         transferActivityCode,
-        selectedActivityIds,
+        selectedUnplannedIds,
         billingModes,
         query
-    ) { notPlannedActivities, transferActivityCode, selectedActivityIds, billingModes, query ->
+    ) { notPlannedActivities, transferActivityCode, selectedIds, billingModes, query ->
         this.transferActivity =
             notPlannedActivities.firstOrNull { it.code == transferActivityCode }
-
-        fun matchesQuery(activity: HomeCareUnplannedActivity) =
-            query.isEmpty() || activity.desc.contains(query, true) ||
-                    activity.code.contains(query, true)
 
         fun toListItem(activity: HomeCareUnplannedActivity) =
             SelectCareActivityPopupUIState.ActivityListItem(
@@ -112,19 +116,19 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
                 carePlanId = null,
                 isPlanned = false,
                 isTransferActivity = activity.code == transferActivityCode,
-                isSelected = selectedActivityIds.contains(activity.id)
+                isSelected = selectedIds.contains(activity.id)
             )
 
         buildList {
             // La riga di trasferta resta in cima e fuori dai raggruppamenti
-            transferActivity?.takeIf { matchesQuery(it) }?.let {
+            transferActivity?.takeIf { it.matchesQuery(query) }?.let {
                 add(SelectCareActivityPopupUIState.ActivitySection(items = listOf(toListItem(it))))
             }
             addAll(
                 sectionsByBillingMode(
                     billingModes,
                     notPlannedActivities
-                        .filter { it.code != transferActivityCode && matchesQuery(it) }
+                        .filter { it.code != transferActivityCode && it.matchesQuery(query) }
                         .map { it.idBillingMode to toListItem(it) }
                 )
             )
@@ -135,28 +139,48 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
     private val plannedSections = combine(
         plannedActivities,
         notPlannedActivities,
-        selectedActivityIds,
-        billingModes
-    ) { plannedActivities, activityTypes, selectedActivityIds, billingModes ->
+        selectedPlannedIds,
+        billingModes,
+        query
+    ) { plannedActivities, activityTypes, selectedIds, billingModes, query ->
         // /homecare/planning non espone IDBillingMode: la modalità si ricava dal codice
         // prestazione contenuto in Type ("10601 - Preparazione dei medicamenti"),
         // cercandolo tra i tipi prestazione di /homecare/activities/types
         val billingModeIdByCode = activityTypes.associate { it.code to it.idBillingMode }
         sectionsByBillingMode(
             billingModes,
-            plannedActivities.map { activity ->
-                billingModeIdByCode[activity.type.substringBefore(" - ").trim()] to
-                        SelectCareActivityPopupUIState.ActivityListItem(
-                            title = activity.type,
-                            code = null,
-                            id = activity.id,
-                            carePlanId = activity.carePlan,
-                            isPlanned = false,
-                            isTransferActivity = false,
-                            isSelected = selectedActivityIds.contains(activity.id)
-                        )
-            }
+            plannedActivities
+                .filter { query.isEmpty() || it.type.contains(query, true) }
+                .map { activity ->
+                    billingModeIdByCode[activity.type.substringBefore(" - ").trim()] to
+                            SelectCareActivityPopupUIState.ActivityListItem(
+                                title = activity.type,
+                                code = null,
+                                id = activity.id,
+                                carePlanId = activity.carePlan,
+                                isPlanned = true,
+                                isTransferActivity = false,
+                                isSelected = selectedIds.contains(activity.id)
+                            )
+                }
         )
+    }
+
+    private val selectionState = combine(
+        plannedActivities,
+        selectedPlannedIds,
+        selectedUnplannedIds
+    ) { plannedActivities, selectedPlanned, selectedUnplanned ->
+        val plannedSelection = when {
+            plannedActivities.isEmpty() || selectedPlanned.isEmpty() ->
+                SelectCareActivityPopupUIState.PlannedSelection.NONE
+
+            selectedPlanned.size >= plannedActivities.size ->
+                SelectCareActivityPopupUIState.PlannedSelection.ALL
+
+            else -> SelectCareActivityPopupUIState.PlannedSelection.SOME
+        }
+        plannedSelection to selectedPlanned.size + selectedUnplanned.size
     }
 
 
@@ -164,14 +188,17 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         loadingState,
         query,
         unplannedSections,
-        plannedSections
-    ) { loadingState, query, unplannedSections, plannedSections ->
+        plannedSections,
+        selectionState
+    ) { loadingState, query, unplannedSections, plannedSections, selectionState ->
         SelectCareActivityPopupUIState(
             isLoadingUnplanned = loadingState.unplanned,
             isLoadingPlanned = loadingState.planned,
             query = query,
             unplannedSections = unplannedSections,
-            plannedSections = plannedSections
+            plannedSections = plannedSections,
+            plannedSelection = selectionState.first,
+            selectedCount = selectionState.second
         )
 
     }.stateIn(
@@ -182,7 +209,9 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
             isLoadingPlanned = true,
             query = "",
             unplannedSections = listOf(),
-            plannedSections = listOf()
+            plannedSections = listOf(),
+            plannedSelection = SelectCareActivityPopupUIState.PlannedSelection.NONE,
+            selectedCount = 0
         )
     )
 
@@ -258,93 +287,61 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         }
     }
 
-    fun executeAllPlannedActivities(onSuccess: () -> Unit) {
+    /**
+     * Esegue in un colpo tutto ciò che è selezionato, pianificate e non pianificate insieme.
+     * Il tempo trascorso dall'ultima registrazione viene distribuito sull'intera selezione:
+     * eseguirle in due passaggi separati conteggerebbe due volte lo stesso tempo, che è
+     * esattamente il problema all'origine di TS1-5.
+     */
+    fun executeSelectedActivities(onSuccess: () -> Unit) {
         viewModelScope.launch(coroutineExceptionHandler) {
-            userMarkingRepository.getMinutesFromLastActivityOnce()?.let { elapsedTimeFromLastActivity ->
-                    val elapsedTime = elapsedTimeFromLastActivity
-                    val startTime = Date().time - (elapsedTime * 1000 * 60)
-                    launch {
-                        val activities = plannedActivities.value
-                            .filter { selectedActivityIds.value.contains(it.id) }
-                        if (activities.isEmpty()) return@launch
+            val elapsedTime = userMarkingRepository.getMinutesFromLastActivityOnce() ?: return@launch
+            val planned = plannedActivities.value
+                .filter { selectedPlannedIds.value.contains(it.id) }
+            val unplanned = notPlannedActivities.value
+                .filter { selectedUnplannedIds.value.contains(it.id) }
+                .sortedBy { it.code.toIntOrNull() ?: Int.MAX_VALUE }
+            if (planned.isEmpty() && unplanned.isEmpty()) return@launch
 
-                        val executionTimes =
-                            distributeTime(activities.map { it.duration }, elapsedTime)
-                        var lastEndTime = startTime
+            val durations = planned.map { it.duration } + unplanned.map { it.duration }
+            val executionTimes = distributeTime(durations, elapsedTime)
 
-                        val activitiesToSend =
-                            activities.zip(executionTimes).map { (activity, executionTime) ->
-                                val endTime = lastEndTime + executionTime.toLong() * 60000
-                                lastEndTime = endTime
-                                HomeCareActivitySave(
-                                    idPlanning = activity.id,
-                                    idActivityType = null,
-                                    codCase = patientCode.value ?: "",
-                                    execDateTime = Date(endTime).format("yyyy.MM.dd HH:mm"),
-                                    duration = executionTime,
-                                    notes = activity.notes,
-                                    showInDiary = false,
-                                )
-                            }
+            var lastEndTime = Date().time - (elapsedTime * 1000 * 60)
+            val activitiesToSend = mutableListOf<HomeCareActivitySave>()
 
-                        Log.d("sortedActivities", activitiesToSend.toString())
-                        activitiesToSend.sortedBy { it.execDateTime }.forEach { saveActivity(it) }
-                        onSuccess()
-                    }
-                }
+            planned.forEachIndexed { index, activity ->
+                val executionTime = executionTimes[index]
+                lastEndTime += executionTime.toLong() * 60000
+                activitiesToSend.add(
+                    HomeCareActivitySave(
+                        idPlanning = activity.id,
+                        idActivityType = null,
+                        codCase = patientCode.value ?: "",
+                        execDateTime = Date(lastEndTime).format("yyyy.MM.dd HH:mm"),
+                        duration = executionTime,
+                        notes = activity.notes,
+                        showInDiary = false,
+                    )
+                )
+            }
+            unplanned.forEachIndexed { index, activity ->
+                val executionTime = executionTimes[planned.size + index]
+                lastEndTime += executionTime.toLong() * 60000
+                activitiesToSend.add(
+                    HomeCareActivitySave(
+                        idActivityType = activity.id,
+                        codCase = patientCode.value ?: "",
+                        execDateTime = Date(lastEndTime).format("yyyy.MM.dd HH:mm"),
+                        duration = executionTime,
+                        notes = "",
+                        showInDiary = true,
+                    )
+                )
+            }
+
+            activitiesToSend.sortedBy { it.execDateTime }.forEach { saveActivity(it) }
+            onSuccess()
         }
-    }
-
-    fun executeAllUnplannedActivities(onSuccess: () -> Unit) {
-        viewModelScope.launch(coroutineExceptionHandler) {
-            userMarkingRepository.getMinutesFromLastActivityOnce()
-                ?.let { elapsedTimeFromLastActivity ->
-                    val elapsedTime = elapsedTimeFromLastActivity
-                    val startTime = Date().time - (elapsedTime * 1000 * 60)
-                    val activities = notPlannedActivities.value
-                        .filter { selectedActivityIds.value.contains(it.id) }
-                        .sortedBy { it.code.toIntOrNull() ?: Int.MAX_VALUE }
-                    if (activities.isEmpty()) return@launch
-
-                    val executionTimes = distributeTime(activities.map { it.duration }, elapsedTime)
-                    var lastEndTime = startTime
-
-                    val activitiesToSend =
-                        activities.zip(executionTimes).map { (activity, executionTime) ->
-                            val endTime = lastEndTime + executionTime.toLong() * 60000
-                            lastEndTime = endTime
-                            HomeCareActivitySave(
-                                idActivityType = activity.id,
-                                codCase = patientCode.value ?: "",
-                                execDateTime = Date(endTime).format("yyyy.MM.dd HH:mm"),
-                                duration = executionTime,
-                                notes = "",
-                                showInDiary = true,
-                            )
-                        }
-
-                    Log.d("sortedActivities", activitiesToSend.toString())
-                    activitiesToSend.sortedBy { it.execDateTime }.forEach { saveActivity(it) }
-                    onSuccess()
-                }
-        }
-    }
-
-    private fun distributeTime(durations: List<Int>, elapsedTime: Long): List<Int> {
-        val total = durations.sum().toDouble()
-        if (total == 0.0) return durations.map { 0 }
-
-        val exact = durations.map { it.toDouble() * elapsedTime / total }
-        val floors = exact.map { it.toInt() }
-        val remainder = elapsedTime.toInt() - floors.sum()
-
-        val result = floors.toMutableList()
-        exact.indices
-            .sortedByDescending { exact[it] - floors[it] }
-            .take(remainder)
-            .forEach { result[it]++ }
-
-        return result
     }
 
     suspend fun saveActivity(activity: HomeCareActivitySave) {
@@ -354,28 +351,34 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
         }
     }
 
-    fun changeActivitySelection(id: Int, isSelected: Boolean) {
-        val selected = selectedActivityIds.value.toMutableList()
-        if (isSelected && !selected.contains(id)) {
-            selected.add(id)
-        } else if (!isSelected && selected.contains(id)) {
-            selected.remove(id)
+    fun changeActivitySelection(id: Int, isPlanned: Boolean, isSelected: Boolean) {
+        val target = if (isPlanned) selectedPlannedIds else selectedUnplannedIds
+        target.update { selected ->
+            when {
+                isSelected && !selected.contains(id) -> selected + id
+                !isSelected -> selected - id
+                else -> selected
+            }
         }
-        selectedActivityIds.value = selected
     }
 
-    fun selectAllPlanned() {
-        val plannedIds = plannedActivities.value.map { it.id }
-        selectedActivityIds.value = plannedIds
-    }
-
-    fun selectAllUnplanned() {
-        val plannedIds = notPlannedActivities.value.map { it.id }
-        selectedActivityIds.value = plannedIds
+    /**
+     * Il "seleziona tutte" vale solo per le pianificate ed è additivo: le non pianificate
+     * già selezionate restano tali e vanno comunque spuntate una a una, per evitare la
+     * spunta massiva che il cliente ha chiesto esplicitamente di impedire.
+     */
+    fun togglePlannedSelection() {
+        val allPlannedIds = plannedActivities.value.map { it.id }
+        selectedPlannedIds.value = if (selectedPlannedIds.value.size >= allPlannedIds.size) {
+            listOf()
+        } else {
+            allPlannedIds
+        }
     }
 
     fun cancelAllSection() {
-        selectedActivityIds.value = listOf()
+        selectedPlannedIds.value = listOf()
+        selectedUnplannedIds.value = listOf()
     }
 }
 
@@ -384,6 +387,32 @@ class SelectCareActivityPopupScreenViewModel @Inject constructor(
  * le modalità arrivano dalla configurazione. Le prestazioni con modalità assente o
  * sconosciuta finiscono in un blocco finale, così non spariscono dalla lista.
  */
+/**
+ * Ripartisce i minuti trascorsi sulle prestazioni selezionate, in proporzione alla durata
+ * prevista di ciascuna. Va chiamata UNA volta sull'intera selezione: applicandola due volte,
+ * una per le pianificate e una per le non pianificate, lo stesso tempo verrebbe conteggiato
+ * due volte (TS1-5).
+ */
+internal fun distributeTime(durations: List<Int>, elapsedTime: Long): List<Int> {
+    val total = durations.sum().toDouble()
+    if (total == 0.0) return durations.map { 0 }
+
+    val exact = durations.map { it.toDouble() * elapsedTime / total }
+    val floors = exact.map { it.toInt() }
+    val remainder = elapsedTime.toInt() - floors.sum()
+
+    val result = floors.toMutableList()
+    exact.indices
+        .sortedByDescending { exact[it] - floors[it] }
+        .take(remainder)
+        .forEach { result[it]++ }
+
+    return result
+}
+
+private fun HomeCareUnplannedActivity.matchesQuery(query: String) =
+    query.isEmpty() || desc.contains(query, true) || code.contains(query, true)
+
 internal fun sectionsByBillingMode(
     billingModes: List<BillingMode>,
     items: List<Pair<Int?, SelectCareActivityPopupUIState.ActivityListItem>>
