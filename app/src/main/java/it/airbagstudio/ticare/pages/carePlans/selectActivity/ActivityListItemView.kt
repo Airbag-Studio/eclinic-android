@@ -58,7 +58,10 @@ fun ActivityListItemView(isSelecting: Boolean, isSelected: Boolean, title:String
             modifier = rowModifier,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (isSelecting){
+            // La trasferta non ha checkbox nemmeno in selezione: va registrata toccando la
+            // riga, che apre il calcolo del tempo di trasferimento. Selezionarla insieme alle
+            // altre prestazioni le farebbe imputare un minutaggio sbagliato.
+            if (isSelecting && !isTransferRow){
                 Checkbox(isSelected, onCheckedChange = {
                     onSelectedChange(it)
                 })
