@@ -2,13 +2,18 @@ package it.airbagstudio.ticare.pages.carePlans.selectActivity
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -22,6 +27,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
@@ -29,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
@@ -86,8 +93,10 @@ fun SelectCareActivityPopupScreen(
 ) {
     var showExecuteAllAlert by remember { mutableStateOf(false) }
     val errorMessage = viewModel.errorMessage.collectAsStateWithLifecycle()
-    FullScreenDialog(onDismissRequest = { onDismissRequest(null) }) {
-        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    // Con la registrazione in corso il popup non si chiude nemmeno col tasto indietro:
+    // le prestazioni vanno salvate per intero prima di tornare al piano di cura (AEMF-3)
+    FullScreenDialog(onDismissRequest = { if (!uiState.isExecuting) onDismissRequest(null) }) {
         val trackerViewUIState by trackerViewModel.uiState.collectAsStateWithLifecycle()
         var showTravelTimeDialog by remember {
             mutableStateOf(false)
@@ -96,75 +105,83 @@ fun SelectCareActivityPopupScreen(
             viewModel.loadData(carePlanId = planId, patientCode = caseCode)
             trackerViewModel.updateLastMinutesFromLastActivity()
         }
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Column {
-                            Text(text = stringResource(id = R.string.new_care))
-                        }
-                    },
-                    // Le checkbox sono sempre visibili: non serve più una modalità "Seleziona"
-                    actions = {
-                        IconButton(onClick = { onDismissRequest(null) }) {
-                            Icon(imageVector = Icons.Default.Close, contentDescription = "")
-                        }
-                    }
-                )
-            },
-            floatingActionButton = {
-                if (uiState.selectedCount > 0) {
-                    ExtendedFloatingActionButton(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 24.dp),
-                        expanded = true,
-                        text = {
-                            Text(
-                                text = stringResource(
-                                    id = R.string.execute_selected,
-                                    uiState.selectedCount
-                                ),
-                                style = MaterialTheme.typography.labelLarge
-                            )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                topBar = {
+                    CenterAlignedTopAppBar(
+                        title = {
+                            Column {
+                                Text(text = stringResource(id = R.string.new_care))
+                            }
                         },
-                        icon = { Icon(imageVector = Icons.Default.Add, contentDescription = "") },
-                        contentColor = MaterialTheme.colorScheme.primary,
-                        onClick = { showExecuteAllAlert = true })
-                }
-            },
-            floatingActionButtonPosition = FabPosition.Center
-        ) { values ->
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(values)
-            ) {
-                SearchField(query = uiState.query, onQueryChange = { viewModel.setQuery(it) })
-                LazyColumn(contentPadding = PaddingValues(bottom = 120.dp)) {
-                    plannedBlock(
-                        uiState = uiState,
-                        onToggleAll = { viewModel.togglePlannedSelection() },
-                        onSelectedChange = { id, isSelected ->
-                            viewModel.changeActivitySelection(id, isPlanned = true, isSelected = isSelected)
-                        },
-                        onItemClick = { item -> onDismissRequest(Pair(true, item)) }
-                    )
-                    unplannedBlock(
-                        uiState = uiState,
-                        onSelectedChange = { id, isSelected ->
-                            viewModel.changeActivitySelection(id, isPlanned = false, isSelected = isSelected)
-                        },
-                        onItemClick = { item, isTransfer ->
-                            if (isTransfer) {
-                                showTravelTimeDialog = true
-                            } else {
-                                onDismissRequest(Pair(false, item))
+                        // Le checkbox sono sempre visibili: non serve più una modalità "Seleziona"
+                        actions = {
+                            IconButton(
+                                enabled = !uiState.isExecuting,
+                                onClick = { onDismissRequest(null) }
+                            ) {
+                                Icon(imageVector = Icons.Default.Close, contentDescription = "")
                             }
                         }
                     )
+                },
+                floatingActionButton = {
+                    if (uiState.selectedCount > 0) {
+                        ExtendedFloatingActionButton(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 24.dp),
+                            expanded = true,
+                            text = {
+                                Text(
+                                    text = stringResource(
+                                        id = R.string.execute_selected,
+                                        uiState.selectedCount
+                                    ),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            },
+                            icon = { Icon(imageVector = Icons.Default.Add, contentDescription = "") },
+                            contentColor = MaterialTheme.colorScheme.primary,
+                            onClick = { showExecuteAllAlert = true })
+                    }
+                },
+                floatingActionButtonPosition = FabPosition.Center
+            ) { values ->
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(values)
+                ) {
+                    SearchField(query = uiState.query, onQueryChange = { viewModel.setQuery(it) })
+                    LazyColumn(contentPadding = PaddingValues(bottom = 120.dp)) {
+                        plannedBlock(
+                            uiState = uiState,
+                            onToggleAll = { viewModel.togglePlannedSelection() },
+                            onSelectedChange = { id, isSelected ->
+                                viewModel.changeActivitySelection(id, isPlanned = true, isSelected = isSelected)
+                            },
+                            onItemClick = { item -> onDismissRequest(Pair(true, item)) }
+                        )
+                        unplannedBlock(
+                            uiState = uiState,
+                            onSelectedChange = { id, isSelected ->
+                                viewModel.changeActivitySelection(id, isPlanned = false, isSelected = isSelected)
+                            },
+                            onItemClick = { item, isTransfer ->
+                                if (isTransfer) {
+                                    showTravelTimeDialog = true
+                                } else {
+                                    onDismissRequest(Pair(false, item))
+                                }
+                            }
+                        )
+                    }
                 }
+            }
+            if (uiState.isExecuting) {
+                ExecutingOverlay()
             }
         }
 
@@ -172,15 +189,12 @@ fun SelectCareActivityPopupScreen(
             TravelTimeDialog(
                 travelTime = trackerViewUIState.elapsedTimeFromLastActivity,
                 onDismissRequest = { confirm ->
+                    // Il dialog si chiude al primo tocco: restando aperto fino alla risposta
+                    // del server, un secondo tocco su conferma registrava due trasferte (AEMF-3)
+                    showTravelTimeDialog = false
                     if (confirm) {
-                        viewModel.sendTransferActivity() {
-                            showTravelTimeDialog = false
-                        }
-                    } else {
-                        showTravelTimeDialog = false
+                        viewModel.sendTransferActivity()
                     }
-
-
                 })
         }
         if (errorMessage.value != null) {
@@ -268,6 +282,39 @@ private fun SearchField(query: String, onQueryChange: (String) -> Unit) {
         value = query,
         onValueChange = onQueryChange
     )
+}
+
+/**
+ * Copre il popup mentre le prestazioni vengono registrate: l'operatore vede che l'azione
+ * è in corso e non può toccare nulla, quindi nemmeno ripetere l'invio (AEMF-3).
+ */
+@Composable
+private fun ExecutingOverlay() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.32f))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {}
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(shape = RoundedCornerShape(16.dp), tonalElevation = 6.dp) {
+            Row(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 3.dp)
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = stringResource(id = R.string.executing_activities),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
+    }
 }
 
 /**

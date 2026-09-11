@@ -356,6 +356,7 @@
     <string name="planned_with_count">Pianificate (%1$d)</string>
     <string name="unplanned_with_count">Non pianificate (%1$d)</string>
     <string name="execute_selected">Esegui selezionate (%1$d)</string>
+    <string name="executing_activities">Registrazione in corso…</string>
     <string name="no_results">Nessun risultato</string>
     <string name="override_description">Sovrascrivere la descrizione?</string>
     <string name="override_description_alert">Sovrascrivere la descrizione con quella associata alla categoria?</string>
