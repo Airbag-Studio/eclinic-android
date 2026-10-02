@@ -77,7 +77,7 @@ Uses Dagger Hilt for dependency injection. The main module is `AppModule.kt` whi
 - **SQLDelight**: 2.0.2 for database
 - **Coil**: 2.7.0 for image loading
 - **Vico**: 3.0.0 for charts
-- **Firebase**: BOM 33.7.0, Crashlytics for error reporting
+- **Sentry**: sentry-android 8.59.0 for crash reporting, MedTech configuration in `crash/ErrorReporting.kt` (no PII, no screenshots/replay/tracing, text redacted in `crash/Redactor.kt`). Replaced Firebase Crashlytics (AFAG-163); Firebase is no longer used
 
 ### API Architecture
 - **Authentication**: Bearer token with automatic refresh

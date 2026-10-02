@@ -50,9 +50,8 @@ io.coil-kt:coil-compose:2.7.0
 // Charts
 com.patrykandpatrick.vico:compose-m3:3.0.0
 
-// Firebase
-com.google.firebase:firebase-bom:33.7.0
-com.google.firebase:firebase-crashlytics
+// Crash reporting (configurazione MedTech: app/src/main/java/.../crash/)
+io.sentry:sentry-android:8.59.0
 ```
 
 ## 🚀 Getting Started

@@ -288,14 +288,13 @@ class MyLogger : ECLogger {
         when (level) {
             LogLevel.DEBUG -> Log.d(TAG, message, throwable)
             LogLevel.ERROR -> Log.e(TAG, message, throwable)
-            // Send to Crashlytics for production
         }
     }
 }
 ```
 
 ### Monitoring Tools
-- **Firebase Crashlytics**: Error reporting and crash analytics
+- **Sentry**: crash reporting, configured for a medical app (see `crash/ErrorReporting.kt`)
 - **Logback**: Structured logging with file output
 - **Network Logging**: Request/response debugging
 

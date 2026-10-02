@@ -4,8 +4,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.compose'
     id 'org.jetbrains.kotlin.plugin.serialization'
     id 'com.google.dagger.hilt.android'
-    id 'com.google.gms.google-services'
-    id 'com.google.firebase.crashlytics'
+    id 'io.sentry.android.gradle'
 }
 
 configurations.all {
@@ -31,6 +30,10 @@ android {
         versionName "1.2.67"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // DSN del progetto Sentry eclinic-android (AFAG-163): è la chiave pubblica
+        // del client, non un segreto. Vuoto = nessun invio (ErrorReporting.init).
+        buildConfigField "String", "SENTRY_DSN", "\"https://5faac3ec64026e315715d2d7df5b2aec@o914592.ingest.us.sentry.io/4512187322990592\""
     }
 
     buildTypes {
@@ -123,8 +126,13 @@ dependencies {
     implementation("app.cash.sqldelight:primitive-adapters:2.0.2")
     implementation("app.cash.sqldelight:coroutines-extensions:2.0.2")
 
-    implementation platform('com.google.firebase:firebase-bom:33.7.0')
-    implementation("com.google.firebase:firebase-crashlytics")
+    // Crash reporting: Sentry al posto di Firebase Crashlytics (AFAG-163).
+    // Versione esatta (convenzioni §6) e in SOUP (docs/soup.md). Senza il modulo
+    // di session replay: registra lo schermo, e in un'app clinica non deve poter
+    // essere acceso nemmeno per sbaglio.
+    implementation('io.sentry:sentry-android:8.59.0') {
+        exclude group: 'io.sentry', module: 'sentry-android-replay'
+    }
 
     implementation "dev.shreyaspatil:capturable:2.1.0"
 
@@ -134,4 +142,22 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3'
 
     implementation 'com.patrykandpatrick.vico:compose-m3:3.0.0'
+}
+
+// Sentry in configurazione MedTech (AFAG-163): il plugin resta per caricare il
+// mapping R8 il giorno in cui la minificazione si accende; tutto ciò che fa da
+// sé è spento. Di default strumenterebbe le chiamate di rete e trasformerebbe
+// i `Log.*` in breadcrumb, e qui i log possono contenere dati clinici.
+sentry {
+    org = "airbag-studio-srl"
+    projectName = "eclinic-android"
+    // L'SDK è dichiarato sopra, pinnato: niente integrazioni aggiunte d'ufficio.
+    autoInstallation { enabled = false }
+    // Niente tracce di rete, database, file né logcat.
+    tracingInstrumentation { enabled = false }
+    // Il sorgente non esce dalla build.
+    includeSourceContext = false
+    // Il mapping si carica solo se c'è il token (oggi la minificazione è spenta).
+    autoUploadProguardMapping = System.getenv("SENTRY_AUTH_TOKEN") != null
+    telemetry = false
 }
