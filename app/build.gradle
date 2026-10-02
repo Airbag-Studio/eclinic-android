@@ -33,7 +33,7 @@ android {
 
         // DSN del progetto Sentry eclinic-android (AFAG-163): è la chiave pubblica
         // del client, non un segreto. Vuoto = nessun invio (ErrorReporting.init).
-        buildConfigField "String", "SENTRY_DSN", "\"\""
+        buildConfigField "String", "SENTRY_DSN", "\"https://5faac3ec64026e315715d2d7df5b2aec@o914592.ingest.us.sentry.io/4512187322990592\""
     }
 
     buildTypes {
