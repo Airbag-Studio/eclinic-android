@@ -321,10 +321,6 @@ android {
     private void readObject(java.io.ObjectInputStream);
 }
 
-# Firebase
--keep class com.google.firebase.** { *; }
--dontwarn com.google.firebase.**
-
 # Ktor
 -keep class io.ktor.** { *; }
 -dontwarn io.ktor.**
