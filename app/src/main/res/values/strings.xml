@@ -126,6 +126,7 @@
     <string name="surrounding_skin">Cute circostante</string>
     <string name="pain">Dolore</string>
     <string name="pain_intensity">Intensità del dolore</string>
+    <string name="not_specified">Non specificato</string>
     <string name="medication_type">Tipo di medicazione</string>
     <string name="injury_type">Tipo di lesione</string>
     <string name="time_tracking_enabled">STATO ATTIVO</string>
