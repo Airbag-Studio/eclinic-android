@@ -229,9 +229,7 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
                     selections1.selectedWoundGranulation != null &&
                     selections2.selectedWoundSmell != null &&
                     selections2.selectedWoundSecretion != null &&
-                    selections2.selectedWoundSurroundingSkin != null &&
-                    selections2.selectedWoundPainType != null &&
-                    selections2.selectedWoundPainIntensite != null
+                    selections2.selectedWoundSurroundingSkin != null
         CheckCreateDialogScreenUIState(
             dropDownSelections1 = selections1,
             dropDownSelections2 = selections2,
@@ -340,8 +338,8 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
                 setWoundSmell(woundSmell.value.mapNotNull { it.item }.firstOrNull { check.smell.endsWith(it.name) })
                 setWoundSecretion(woundSecretion.value.mapNotNull { it.item }.firstOrNull { check.secretion.endsWith(it.name) })
                 setWoundSurroundingSkin(woundSurroundingSkin.value.mapNotNull { it.item }.firstOrNull { check.surroundingSkin.endsWith(it.name) })
-                setWoundPainType(woundPainType.value.mapNotNull { it.item }.firstOrNull { check.pain.endsWith(it.name) })
-                setWoundPainIntensite(woundPainIntensite.value.mapNotNull { it.item }.firstOrNull { check.painIntensity.endsWith(it.name) })
+                setWoundPainType(woundPainType.value.mapNotNull { it.item }.firstOrNull { check.pain?.endsWith(it.name) == true })
+                setWoundPainIntensite(woundPainIntensite.value.mapNotNull { it.item }.firstOrNull { check.painIntensity?.endsWith(it.name) == true })
                 setMedicationType(check.medicationType)
                 setDate(check.dateTime.toDate("dd.MM.yyyy HH:mm") ?: Date())
                 checkImages.value = wound.photos.filter { it.iDCheck == checkId }
@@ -417,8 +415,8 @@ class CheckCreateDialogScreenViewModel @Inject constructor(
                 codSurroundingSkin = selectedWoundSurroundingSkin.value!!.cod,
                 dateTime = date.value.format("yyyy.MM.dd HH:mm"),
                 iDWound = idWound ?: 0,
-                iDWoundPain = selectedWoundPainType.value!!.id,
-                iDWoundPainIntensity = selectedWoundPainIntensite.value!!.id,
+                iDWoundPain = selectedWoundPainType.value?.id,
+                iDWoundPainIntensity = selectedWoundPainIntensite.value?.id,
                 medicationType = medicationType.value
             )
             val res = if (checkId != null) {

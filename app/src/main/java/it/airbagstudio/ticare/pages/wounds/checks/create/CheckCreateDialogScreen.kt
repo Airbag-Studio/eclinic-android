@@ -41,6 +41,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ch.ticare.eclinic.library.entity.PainIntensite
+import ch.ticare.eclinic.library.entity.PainType
 import coil.ImageLoader
 import it.airbagstudio.ticare.R
 import it.airbagstudio.ticare.pages.wounds.common.AddingImagesGallery
@@ -91,6 +93,7 @@ fun CheckCreateDialogScreen(
 
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val notSpecified = stringResource(id = R.string.not_specified)
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = {
@@ -203,7 +206,7 @@ fun CheckCreateDialogScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(id = R.string.pain),
                     value = uiState.check.woundPainType ?: "",
-                    items = viewModel.woundPainType.value
+                    items = listOf(ListPopupItem<PainType>(notSpecified, null)) + viewModel.woundPainType.value
                 ){
                     viewModel.setWoundPainType(it.item)
                 }
@@ -212,7 +215,7 @@ fun CheckCreateDialogScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(id = R.string.pain_intensity),
                     value = uiState.check.woundPainIntensite ?: "",
-                    items = viewModel.woundPainIntensite.value
+                    items = listOf(ListPopupItem<PainIntensite>(notSpecified, null)) + viewModel.woundPainIntensite.value
                 ){
                     viewModel.setWoundPainIntensite(it.item)
                 }

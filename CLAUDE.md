@@ -111,7 +111,7 @@ The app includes a comprehensive form system for healthcare assessments:
 
 ## Shared Library
 
-The app depends on the shared library `ch.ticare.eclinic:shared-android:1.1.0`, declared in `app/build.gradle` and resolved from `mavenLocal()` (see the repositories in `settings.gradle`). It contains core business logic, network layer, and data models, and provides:
+The app depends on the shared library `ch.ticare.eclinic:shared-android:1.3.0`, declared in `app/build.gradle` and resolved from `mavenLocal()` (see the repositories in `settings.gradle`). It contains core business logic, network layer, and data models, and provides:
 - API client and authentication
 - Database entities and repositories
 - Core domain models
